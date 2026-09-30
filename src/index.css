@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Syne', 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Leaflet Dark Customizations */
+.leaflet-container {
+  background-color: #09090b !important;
+  font-family: inherit;
+  outline: none;
+}
+
+.leaflet-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.leaflet-tooltip:before {
+  display: none !important;
+}
+
+.custom-leaflet-pin, .preset-leaflet-beacon {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Leaflet Popup Dark Customizations */
+.leaflet-popup-content-wrapper {
+  background: #0a0a0a !important;
+  color: #f5f5f5 !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(245, 158, 11, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-tip {
+  background: #0a0a0a !important;
+  border-right: 1px solid rgba(245, 158, 11, 0.45) !important;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.45) !important;
+}
+
+.leaflet-popup-close-button {
+  color: #a3a3a3 !important;
+  padding: 6px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #f59e0b !important;
+}
+
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes audio-bar {
+  0%, 100% {
+    height: 15%;
+  }
+  50% {
+    height: 95%;
+  }
+}
+
+.animate-radar {
+  animation: radar-pulse 2.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.animate-audio-bar-1 { animation: audio-bar 0.8s ease-in-out infinite; }
+.animate-audio-bar-2 { animation: audio-bar 0.6s ease-in-out infinite 0.15s; }
+.animate-audio-bar-3 { animation: audio-bar 1.1s ease-in-out infinite 0.3s; }
+.animate-audio-bar-4 { animation: audio-bar 0.7s ease-in-out infinite 0.1s; }
+.animate-audio-bar-5 { animation: audio-bar 0.9s ease-in-out infinite 0.25s; }
+
+

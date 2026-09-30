@@ -1,0 +1,31 @@
+{
+  "entities": {
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "Client project quotation or consultation inquiry submitted via Ravana Tech reception",
+      "type": "object",
+      "properties": {
+        "clientName": { "type": "string", "maxLength": 100 },
+        "clientPhone": { "type": "string", "maxLength": 50 },
+        "clientEmail": { "type": "string", "maxLength": 150 },
+        "clientNotes": { "type": "string", "maxLength": 1000 },
+        "pathwayId": { "type": "string", "maxLength": 50 },
+        "pathwayTitle": { "type": "string", "maxLength": 100 },
+        "country": { "type": "string", "maxLength": 100 },
+        "countryCode": { "type": "string", "maxLength": 10 },
+        "isSriLanka": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["new", "reviewed", "contacted"] },
+        "estimatedTimeline": { "type": "string", "maxLength": 50 },
+        "estimatedCostRange": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["pathwayId", "country", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Client inquiries and project quotation submissions"
+    }
+  }
+}

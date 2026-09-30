@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety catch-all: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'hello.ravanatech@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidInquiry(data) {
+      return data.keys().hasAll(['pathwayId', 'country', 'createdAt'])
+        && data.pathwayId is string && data.pathwayId.size() <= 50
+        && data.country is string && data.country.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    match /inquiries/{inquiryId} {
+      // Allow prospective clients to submit their inquiry
+      allow create: if isValidInquiry(request.resource.data);
+
+      // Only Ravana Tech administrators can view or manage client inquiries
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if request.auth != null && request.auth.uid == adminId;
+      allow write: if isAdmin();
+    }
+  }
+}

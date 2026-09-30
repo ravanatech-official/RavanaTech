@@ -20,7 +20,6 @@ import {
   MessageCircle,
   ShieldCheck,
   CalendarCheck,
-  CheckCircle,
   Award,
   Crown,
   Clock,
@@ -115,7 +114,7 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       playStepSpeech();
-    }, 400);
+    }, 350);
 
     return () => {
       clearTimeout(timer);
@@ -130,7 +129,7 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
 
   // Helper to map string iconName to Lucide component
   const renderOptionIcon = (iconName: string) => {
-    const props = { className: "w-5 h-5 text-amber-400 shrink-0" };
+    const props = { className: "w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-400 shrink-0" };
     switch (iconName) {
       case 'Building2': return <Building2 {...props} />;
       case 'ShoppingBag': return <ShoppingBag {...props} />;
@@ -199,114 +198,76 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
     }
   };
 
-  return (
-    <div className="relative min-h-[calc(100vh-65px)] flex flex-col justify-between py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-      
-      {/* Top Header & Breadcrumbs */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-neutral-800/80 text-xs">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onGoToReception}
-            className="text-neutral-400 hover:text-amber-400 transition-colors"
-          >
-            {language === 'si' ? 'පිළිගැනීමේ මැදිරිය' : 'Virtual Reception'}
-          </button>
-          <span className="text-neutral-600">/</span>
-          <span className="text-neutral-300 font-medium">
-            {pathway.badge[language]}
-          </span>
-          <span className="text-neutral-600">/</span>
-          <span className="text-amber-400 font-semibold">
-            {language === 'si' ? `පියවර ${currentStepIndex} / 4` : `Step ${currentStepIndex} of 4`}
-          </span>
-        </div>
+  const progressPct = Math.round((currentStepIndex / 4) * 100);
 
-        <div className="flex items-center gap-2">
+  return (
+    <div className="h-full max-h-full flex-1 flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 max-w-4xl mx-auto w-full overflow-hidden select-none">
+      
+      {/* 1. Header Navigation & Sleek Progress Bar */}
+      <div className="shrink-0 space-y-1.5">
+        <div className="flex items-center justify-between gap-2 text-xs">
           <button
+            type="button"
             onClick={onBackStep}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 transition-colors"
+            className="flex items-center gap-1.5 text-neutral-400 hover:text-amber-400 font-medium transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{language === 'si' ? 'පසුපසට (Back)' : 'Previous Step'}</span>
+            <span>{currentStepIndex === 1 ? (language === 'si' ? 'Reception' : 'Reception') : (language === 'si' ? 'පෙර ප්‍රශ්නය' : 'Previous')}</span>
           </button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-neutral-400">
+              {language === 'si' ? `ප්‍රශ්න අංක 0${currentStepIndex} / 04` : `Question 0${currentStepIndex} of 04`}
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/30">
+              {pathway.badge[language]}
+            </span>
+          </div>
 
           <button
+            type="button"
             onClick={onGoToReception}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-amber-400 transition-colors"
+            className="text-[11px] text-neutral-500 hover:text-neutral-300 transition-colors"
           >
-            <RotateCcw className="w-3 h-3" />
-            <span>{language === 'si' ? 'මුලට (Start Over)' : 'Start Over'}</span>
+            {language === 'si' ? 'මුලට' : 'Reset'}
           </button>
         </div>
-      </div>
 
-      {/* Step Progress Bar */}
-      <div className="relative z-10 w-full mb-6">
-        <div className="flex items-center justify-between text-xs text-neutral-400 mb-1.5">
-          <span>{currentStep.stepTitle[language]}</span>
-          <span className="font-mono text-amber-400 font-semibold">{currentStepIndex * 25}%</span>
-        </div>
-        <div className="w-full h-1.5 bg-neutral-900 rounded-full overflow-hidden border border-neutral-800">
+        {/* Progress Bar */}
+        <div className="w-full h-1 bg-neutral-900 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-300"
-            style={{ width: `${currentStepIndex * 25}%` }}
+            className="h-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-300 ease-out"
+            style={{ width: `${progressPct}%` }}
           />
         </div>
       </div>
 
-      {/* Virtual Architect Step Host Mini-Banner */}
-      <div className="relative z-10 bg-neutral-900/90 border border-neutral-800 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-md mb-6 flex items-start sm:items-center gap-4">
-        
-        {/* Avatar Mini Icon */}
-        <div className="relative shrink-0">
-          <div className={`w-12 h-12 rounded-full bg-neutral-950 border ${isPlayingVoice ? 'border-amber-400 shadow-md shadow-amber-500/30' : 'border-neutral-700'} flex items-center justify-center`}>
-            <div className="w-6 h-6 rounded-lg bg-amber-400 text-neutral-950 font-bold flex items-center justify-center text-xs">
-              R
-            </div>
-          </div>
-          {isPlayingVoice && (
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
-          )}
-        </div>
-
-        {/* Speech Text */}
-        <div className="flex-1">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-semibold">
-              {language === 'si' ? 'Digital Architect මගපෙන්වීම' : 'Digital Architect Voice Guidance'}
+      {/* 2. Questionnaire Question & Speech Prompt */}
+      <div className="shrink-0 bg-neutral-900/90 border border-neutral-800 rounded-xl p-2.5 sm:p-3 my-1 sm:my-2 shadow flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+            <span className="text-[11px] font-mono font-semibold text-amber-400 uppercase tracking-wider">
+              {currentStep.stepTitle[language]}
             </span>
-            <button
-              type="button"
-              onClick={playStepSpeech}
-              className="text-xs text-neutral-400 hover:text-amber-300 flex items-center gap-1 font-medium transition-colors"
-              title="Replay Voice"
-            >
-              <Volume2 className={`w-3.5 h-3.5 ${isPlayingVoice ? 'text-amber-400 animate-pulse' : ''}`} />
-              <span className="hidden sm:inline">{language === 'si' ? 'හඬ අසන්න' : 'Listen'}</span>
-            </button>
           </div>
-
-          <p className="text-sm sm:text-base text-neutral-200 font-medium font-sans">
-            &ldquo;{speechText}&rdquo;
-          </p>
+          <h2 className="text-xs sm:text-sm md:text-base font-bold text-white mt-0.5 truncate">
+            {currentStep.stepQuestion[language]}
+          </h2>
         </div>
 
+        <button
+          type="button"
+          onClick={playStepSpeech}
+          className="p-2 rounded-lg bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 text-amber-400 shrink-0 transition-colors"
+          title="Play voice guide"
+        >
+          <Volume2 className={`w-3.5 h-3.5 ${isPlayingVoice ? 'animate-bounce text-amber-300' : ''}`} />
+        </button>
       </div>
 
-      {/* Main Question Header */}
-      <div className="relative z-10 mb-4">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-neutral-100 font-display">
-          {currentStep.stepQuestion[language]}
-        </h2>
-        <p className="text-xs text-neutral-400 mt-1">
-          {language === 'si'
-            ? 'පහතින් ඇති විකල්ප 5 න් ඔබට වඩාත්ම ගැළපෙන අංකය මත Click කරන්න.'
-            : 'Select one of the 5 options below to proceed immediately to the next step.'}
-        </p>
-      </div>
-
-      {/* 5 Distinct Action Choices (The Dialog IVR Model) */}
-      <div className="relative z-10 space-y-3 mb-8">
+      {/* 3. The 5 Questionnaire Option Choices (Zero-Scroll Touch Rows) */}
+      <div className="flex-1 flex flex-col justify-center gap-2 sm:gap-2.5 max-h-[calc(100vh-210px)]">
         {currentStep.options.map((option, idx) => {
           const isSelected = currentlySelectedOption?.id === option.id;
           const isConceptualDemo = pathway.id === 'conceptual_showcase' && currentStepIndex === 1;
@@ -315,16 +276,15 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
             <div
               key={option.id}
               onClick={() => handleOptionClick(option)}
-              className={`w-full p-4 sm:p-5 rounded-xl border text-left cursor-pointer transition-all duration-150 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group ${
+              className={`w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl border text-left cursor-pointer transition-all duration-150 flex items-center justify-between gap-3 group active:scale-[0.99] ${
                 isSelected
-                  ? 'bg-amber-400/10 border-amber-400 shadow-lg shadow-amber-500/15 ring-1 ring-amber-400'
-                  : 'bg-neutral-900/80 border-neutral-800 hover:border-neutral-700 hover:bg-neutral-900'
+                  ? 'bg-amber-400/10 border-amber-400 shadow-md shadow-amber-400/20 ring-1 ring-amber-400'
+                  : 'bg-neutral-900/90 border-neutral-800 hover:border-neutral-700 hover:bg-neutral-850'
               }`}
             >
-              <div className="flex items-start sm:items-center gap-4">
-                
-                {/* Number Badge (01, 02, 03, 04, 05) */}
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-mono font-bold text-xs shrink-0 transition-colors ${
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                {/* Number Badge */}
+                <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs shrink-0 transition-colors ${
                   isSelected
                     ? 'bg-amber-400 text-neutral-950'
                     : 'bg-neutral-950 border border-neutral-800 text-neutral-400 group-hover:border-amber-400/50 group-hover:text-amber-300'
@@ -333,34 +293,32 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
                 </div>
 
                 {/* Option Icon */}
-                <div className="p-2 rounded-lg bg-neutral-950 border border-neutral-800/80 shrink-0">
+                <div className="p-1.5 sm:p-2 rounded-lg bg-neutral-950 border border-neutral-800 shrink-0">
                   {renderOptionIcon(option.iconName)}
                 </div>
 
                 {/* Option Details */}
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className={`text-sm sm:text-base font-bold transition-colors ${
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className={`text-xs sm:text-sm font-bold truncate transition-colors ${
                       isSelected ? 'text-amber-300' : 'text-neutral-100 group-hover:text-amber-200'
                     }`}>
                       {option.title[language]}
                     </h3>
                     {option.tag && (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-950 border border-neutral-800 text-neutral-400">
+                      <span className="hidden md:inline text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-950 border border-neutral-800 text-neutral-400 shrink-0">
                         {option.tag[language]}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-neutral-400 mt-1 leading-relaxed">
+                  <p className="text-[11px] text-neutral-400 truncate mt-0.5">
                     {option.subtitle[language]}
                   </p>
                 </div>
-
               </div>
 
-              {/* Right Side Affordances */}
-              <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                {/* If it's a showcase demo, show preview button */}
+              {/* Right Side: Demo Preview & Checkmark */}
+              <div className="shrink-0 flex items-center gap-2">
                 {isConceptualDemo && (
                   <button
                     type="button"
@@ -370,54 +328,58 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
                       setSelectedDemoId(option.id);
                       setIsDemoModalOpen(true);
                     }}
-                    className="px-2.5 py-1 text-xs rounded bg-neutral-950 border border-neutral-800 text-amber-400 hover:border-amber-400 transition-colors"
+                    className="px-2 py-1 text-[11px] font-medium rounded-lg bg-neutral-950 border border-neutral-800 text-amber-400 hover:border-amber-400 transition-colors"
                   >
-                    {language === 'si' ? 'සජීවීව බලන්න' : 'Live Preview'}
+                    {language === 'si' ? 'Preview' : 'Preview'}
                   </button>
                 )}
 
-                {/* Checkmark or Selection Arrow */}
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
                   isSelected
                     ? 'bg-amber-400 text-neutral-950'
-                    : 'bg-neutral-950 text-neutral-600 group-hover:text-amber-400 group-hover:border-neutral-700'
+                    : 'bg-neutral-950 text-neutral-600 group-hover:text-amber-400 border border-neutral-800'
                 }`}>
                   {isSelected ? (
-                    <CheckCircle2 className="w-5 h-5 fill-current" />
+                    <CheckCircle2 className="w-4 h-4 fill-current" />
                   ) : (
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   )}
                 </div>
               </div>
-
             </div>
           );
         })}
       </div>
 
-      {/* Selected Option Notification & Advance Indicator */}
-      {currentlySelectedOption && (
-        <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-xl bg-amber-400/5 border border-amber-400/30 mb-4">
-          <div className="text-xs text-neutral-300 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>
-              {language === 'si' ? 'ඔබ තෝරාගත් පිළිතුර:' : 'Selected:'} <strong className="text-amber-300">{currentlySelectedOption.title[language]}</strong>
+      {/* 4. Bottom Advance Bar */}
+      <div className="shrink-0 pt-2 border-t border-neutral-800/80 flex items-center justify-between gap-3 text-xs">
+        <div className="text-[11px] text-neutral-400 truncate">
+          {currentlySelectedOption ? (
+            <span className="flex items-center gap-1.5 text-neutral-300">
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="truncate">
+                {language === 'si' ? 'තෝරාගත් පිළිතුර:' : 'Selected:'} <strong className="text-amber-300">{currentlySelectedOption.title[language]}</strong>
+              </span>
             </span>
-          </div>
+          ) : (
+            <span>{language === 'si' ? 'පිළිතුරක් තෝරන්න (1 සිට 5 දක්වා)' : 'Select an option to advance'}</span>
+          )}
+        </div>
 
+        {currentlySelectedOption && (
           <button
             type="button"
             onClick={() => {
               sfx.playStepTransition();
               onSelectOption(currentStepIndex, currentlySelectedOption);
             }}
-            className="w-full sm:w-auto px-5 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-neutral-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-md shadow-amber-500/20"
+            className="px-4 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-xs flex items-center gap-1.5 shadow transition-transform active:scale-95 shrink-0"
           >
-            <span>{currentStepIndex === 4 ? (language === 'si' ? 'මිල ගණන් සහ සැලැස්ම ලබාගන්න' : 'View Customized Quotation') : (language === 'si' ? 'ඊළඟ පියවරට යන්න' : 'Proceed to Next Step')}</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{currentStepIndex === 4 ? (language === 'si' ? 'මිල ගණන් බලන්න' : 'View Quote') : (language === 'si' ? 'ඊළඟ පියවර' : 'Next')}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Modal for Conceptual Live Previews */}
       {isDemoModalOpen && selectedDemoId && (
@@ -433,12 +395,6 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
           language={language}
         />
       )}
-
-      {/* Reassurance Footer */}
-      <div className="relative z-10 pt-4 border-t border-neutral-900 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-2">
-        <span>No commitment required · Change any option anytime</span>
-        <span>Ravana Tech Guarantees 100% Client Satisfaction</span>
-      </div>
 
     </div>
   );

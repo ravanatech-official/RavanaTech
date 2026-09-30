@@ -4,7 +4,6 @@ import { WorldMapStep } from './components/WorldMapStep';
 import { AvatarReception } from './components/AvatarReception';
 import { GuidedStepView } from './components/GuidedStepView';
 import { FinalQuotationStep } from './components/FinalQuotationStep';
-import { SeoLeadMagnetSection } from './components/SeoLeadMagnetSection';
 import { Language, LocationData, MainPathwayId, DecisionOption } from './types';
 import { DECISION_PATHWAYS } from './data/decisionTree';
 import { sfx, stopVoice } from './utils/audio';
@@ -91,7 +90,7 @@ export default function App() {
   const currentPathway = DECISION_PATHWAYS.find((p) => p.id === activePathwayId) || DECISION_PATHWAYS[0];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-400 selection:text-neutral-950">
+    <div className="h-[100dvh] max-h-[100dvh] bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-400 selection:text-neutral-950 overflow-hidden">
       
       {/* 3-Zone Clean Top Navigation */}
       <TopBar
@@ -105,10 +104,10 @@ export default function App() {
         onGoToReception={handleGoToReception}
       />
 
-      {/* Main View Area */}
-      <main className="flex-1 flex flex-col">
+      {/* Main View Area: Contained & Zero-Scroll Optimized */}
+      <main className="flex-1 min-h-0 flex flex-col overflow-y-auto sm:overflow-hidden">
         
-        {/* Screen 1: World Map Arrival & Voice Command ("Mark, click or tap your location") */}
+        {/* Screen 1: World Map Arrival */}
         {activeScreen === 'map' && (
           <WorldMapStep
             onLocationSelected={handleLocationSelected}
@@ -116,7 +115,7 @@ export default function App() {
           />
         )}
 
-        {/* Screen 2: Virtual Reception with AI Avatar Founder Welcome & 5 Guided Action Cards */}
+        {/* Screen 2: Virtual Reception - Zero-Scroll Guided Questionnaire Selection */}
         {activeScreen === 'reception' && (
           <AvatarReception
             language={language}
@@ -126,7 +125,7 @@ export default function App() {
           />
         )}
 
-        {/* Screen 3: Guided Multi-step IVR-style Decision Journey */}
+        {/* Screen 3: Guided Multi-step Questionnaire Journey (Steps 1 to 4) */}
         {activeScreen === 'step' && (
           <GuidedStepView
             pathway={currentPathway}
@@ -151,14 +150,6 @@ export default function App() {
               setCurrentStepIndex(4);
               setActiveScreen('step');
             }}
-          />
-        )}
-
-        {/* Global SEO Lead Magnet, Comparison Table & Google FAQs (Shown across reception, step, and final screens) */}
-        {activeScreen !== 'map' && (
-          <SeoLeadMagnetSection
-            language={language}
-            onLaunchConcierge={handleGoToReception}
           />
         )}
 

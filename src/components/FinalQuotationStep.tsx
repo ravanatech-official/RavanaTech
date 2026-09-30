@@ -188,302 +188,206 @@ export const FinalQuotationStep: React.FC<FinalQuotationStepProps> = ({
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-65px)] flex flex-col justify-between py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <div className="h-full max-h-full flex-1 flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 max-w-4xl mx-auto w-full overflow-y-auto sm:overflow-hidden select-none">
       
       {/* Top Header & Breadcrumbs */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-neutral-800/80 text-xs">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onStartOver}
-            className="text-neutral-400 hover:text-amber-400 transition-colors"
-          >
-            {language === 'si' ? 'පිළිගැනීමේ මැදිරිය' : 'Virtual Reception'}
-          </button>
-          <span className="text-neutral-600">/</span>
-          <span className="text-neutral-300 font-medium">{pathway.badge[language]}</span>
-          <span className="text-neutral-600">/</span>
-          <span className="text-emerald-400 font-semibold">
-            {language === 'si' ? 'පියවර 5: අවසන් සැලැස්ම (Final Blueprint)' : 'Step 5: Final Blueprint'}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
+      <div className="shrink-0 flex items-center justify-between gap-2 pb-2 mb-1.5 border-b border-neutral-800/80 text-xs">
+        <div className="flex items-center gap-1.5 text-neutral-400">
           <button
             onClick={onBackToPreviousStep}
-            className="px-3 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white transition-colors"
+            className="hover:text-amber-400 transition-colors"
           >
-            {language === 'si' ? 'පසුපසට (Back)' : 'Previous Step'}
+            ← {language === 'si' ? 'පෙර පියවර' : 'Previous Step'}
           </button>
-          <button
-            onClick={onStartOver}
-            className="px-3 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>{language === 'si' ? 'නව සැලැස්මක් (Start Over)' : 'Start Over'}</span>
-          </button>
+          <span>/</span>
+          <span className="text-amber-400 font-semibold">{pathway.badge[language]}</span>
+          <span>/</span>
+          <span className="text-emerald-400 font-bold">{language === 'si' ? 'අවසන් විසඳුම' : 'Final Blueprint'}</span>
         </div>
+
+        <button
+          onClick={onStartOver}
+          className="px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-amber-400 transition-colors flex items-center gap-1 text-[11px]"
+        >
+          <RotateCcw className="w-3 h-3" />
+          <span>{language === 'si' ? 'මුලට' : 'Start Over'}</span>
+        </button>
       </div>
 
-      {/* Hero Completion Banner */}
-      <div className="relative z-10 bg-neutral-900/90 border border-emerald-500/30 rounded-2xl p-6 sm:p-7 shadow-2xl backdrop-blur-xl mb-6">
-        
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-neutral-800">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-7 h-7" />
+      {/* Main Blueprint Card */}
+      <div className="shrink-0 bg-neutral-900/90 border border-emerald-500/30 rounded-2xl p-3 sm:p-4 shadow-xl mb-2">
+        <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-neutral-800">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs uppercase font-mono tracking-wider text-emerald-400 font-semibold">
-                  {language === 'si' ? 'සැලැස්ම සාර්ථකව සකස් විය' : 'Blueprint Ready for Launch'}
-                </span>
-                <span className="text-xs text-neutral-400">· {location?.flag} {location?.country}</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
+                <span>{language === 'si' ? 'සැලැස්ම සාර්ථකව සකස් විය' : 'Blueprint Finalized'}</span>
+                <span>·</span>
+                <span>{location?.flag} {location?.country}</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-neutral-100 font-display">
-                {language === 'si' ? 'ඔබගේ නිල Ravana Tech ව්‍යාපෘති සැලැස්ම' : 'Your Official Ravana Tech Digital Blueprint'}
+              <h2 className="text-sm sm:text-base font-bold text-white truncate">
+                {language === 'si' ? 'ඔබගේ නිල Ravana Tech ව්‍යාපෘති සැලැස්ම' : 'Official Ravana Tech Project Blueprint'}
               </h2>
             </div>
           </div>
 
-          {/* Voice Replay */}
           <button
             type="button"
             onClick={playVoice}
-            className="px-3 py-1.5 rounded-lg bg-neutral-950 border border-neutral-800 hover:border-amber-400 text-amber-300 text-xs font-medium flex items-center gap-1.5 transition-colors"
+            className="p-2 rounded-xl bg-neutral-950 border border-neutral-800 text-amber-400 hover:border-amber-400 transition-colors shrink-0"
+            title="Listen to summary"
           >
-            <Volume2 className={`w-3.5 h-3.5 ${isPlayingVoice ? 'animate-pulse text-amber-400' : ''}`} />
-            <span>{isPlayingVoice ? (language === 'si' ? 'හඬ වාදනය වේ...' : 'Speaking...') : (language === 'si' ? 'හඬ අසන්න' : 'Listen Voice')}</span>
+            <Volume2 className={`w-3.5 h-3.5 ${isPlayingVoice ? 'animate-bounce text-amber-300' : ''}`} />
           </button>
         </div>
 
         {/* Investment & Sprint Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
-          
-          <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-            <div className="flex items-center gap-2 text-xs text-neutral-400 mb-1">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>{language === 'si' ? 'ඇස්තමේන්තුගත ආයෝජනය' : 'Estimated Investment Range'}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 my-2.5">
+          <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-800">
+            <div className="flex items-center gap-1 text-[11px] text-neutral-400 mb-0.5">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>{language === 'si' ? 'ඇස්තමේන්තු ආයෝජනය' : 'Estimated Investment'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-amber-300">
-              {currencySymbol} {minPrice.toLocaleString()} - {maxPrice.toLocaleString()}
+            <div className="text-sm sm:text-base font-extrabold font-mono text-amber-300">
+              {currencySymbol}{minPrice.toLocaleString()} - {maxPrice.toLocaleString()}
             </div>
-            <div className="text-[11px] text-neutral-500 mt-1">
-              {isSriLanka ? 'ශ්‍රී ලංකා රුපියල් වලින් (No Hidden Fees)' : 'Transparent milestone-based pricing'}
-            </div>
-          </div>
-
-          <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-            <div className="flex items-center gap-2 text-xs text-neutral-400 mb-1">
-              <Clock className="w-4 h-4 text-sky-400" />
-              <span>{language === 'si' ? 'නිම කිරීමට ගතවන කාලය' : 'Estimated Sprint Timeline'}</span>
-            </div>
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-sky-300">
-              {totalDays} {language === 'si' ? 'වැඩ කරන දින' : 'Business Days'}
-            </div>
-            <div className="text-[11px] text-neutral-500 mt-1">
-              {language === 'si' ? 'වේගවත් Express බෙදාහැරීම' : 'Rapid turnaround with milestone check-ins'}
+            <div className="text-[10px] text-neutral-500 mt-0.5">
+              {isSriLanka ? 'LKR (No Hidden Fees)' : 'USD Milestone Pricing'}
             </div>
           </div>
 
-          <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-            <div className="flex items-center gap-2 text-xs text-neutral-400 mb-1">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>{language === 'si' ? 'Ravana Tech තත්ත්ව සහතිකය' : 'Architecture Guarantee'}</span>
+          <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-800">
+            <div className="flex items-center gap-1 text-[11px] text-neutral-400 mb-0.5">
+              <Clock className="w-3 h-3 text-sky-400" />
+              <span>{language === 'si' ? 'කාල සීමාව' : 'Delivery Timeline'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-extrabold font-mono text-emerald-300">
+            <div className="text-sm sm:text-base font-extrabold font-mono text-sky-300">
+              {totalDays} {language === 'si' ? 'දින' : 'Days'}
+            </div>
+            <div className="text-[10px] text-neutral-500 mt-0.5">
+              {language === 'si' ? 'වේගවත් Express Delivery' : 'Rapid Sprint Turnaround'}
+            </div>
+          </div>
+
+          <div className="col-span-2 sm:col-span-1 bg-neutral-950 p-2.5 rounded-xl border border-neutral-800 flex flex-col justify-center">
+            <div className="flex items-center gap-1 text-[11px] text-neutral-400 mb-0.5">
+              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <span>{language === 'si' ? 'තත්ත්ව සහතිකය' : 'Architecture Guarantee'}</span>
+            </div>
+            <div className="text-sm sm:text-base font-extrabold font-mono text-emerald-300">
               100% Satisfaction
             </div>
-            <div className="text-[11px] text-neutral-500 mt-1">
-              {language === 'si' ? 'පූර්ණ පාරිභෝගික තෘප්තිය සහතිකයි' : 'Unlimited revisions until client is delighted'}
+            <div className="text-[10px] text-neutral-500 mt-0.5">
+              {language === 'si' ? 'පූර්ණ තෘප්තිය සහතිකයි' : 'Dedicated Engineer'}
             </div>
           </div>
-
         </div>
 
         {/* Selected Specifications Breakdown */}
-        <div className="mb-6">
-          <h4 className="text-xs uppercase font-mono tracking-wider text-neutral-400 font-semibold mb-3">
-            {language === 'si' ? 'ඔබ විසින් තෝරාගත් අංග හා පිරිවිතර:' : 'Architectural Specification Selected:'}
-          </h4>
-
-          <div className="space-y-2">
+        <div className="mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-24 overflow-y-auto pr-1 scrollbar-none">
             {Object.entries(selectedAnswers).map(([stepIdx, opt]) => (
-              <div key={opt.id} className="p-3 bg-neutral-950/70 border border-neutral-800 rounded-lg flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-5 h-5 rounded bg-neutral-900 border border-neutral-800 flex items-center justify-center font-mono font-bold text-[10px] text-amber-400">
+              <div key={opt.id} className="p-2 bg-neutral-950/80 border border-neutral-800 rounded-lg flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="w-4 h-4 rounded bg-neutral-900 border border-neutral-800 flex items-center justify-center font-mono font-bold text-[9px] text-amber-400 shrink-0">
                     0{stepIdx}
                   </span>
-                  <span className="font-semibold text-neutral-200">{opt.title[language]}</span>
+                  <span className="font-semibold text-neutral-200 truncate">{opt.title[language]}</span>
                 </div>
-                <span className="text-neutral-400 hidden sm:inline">{opt.subtitle[language]}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* 1-Click Fast Actions (WhatsApp, Email, Copy) */}
-        <div className="pt-4 border-t border-neutral-800 flex flex-col sm:flex-row items-center gap-3">
-          
-          {/* Primary Action: Direct WhatsApp */}
+        <div className="pt-2 border-t border-neutral-800/80 flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={handleWhatsAppSend}
-            className="w-full sm:w-auto flex-1 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all active:scale-95"
+            className="flex-1 min-w-[180px] py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
           >
-            <MessageCircle className="w-5 h-5 fill-current" />
-            <span>
-              {language === 'si' ? 'WhatsApp මගින් ක්ෂණිකව යවන්න' : 'Send Direct to WhatsApp (Fastest)'}
-            </span>
+            <MessageCircle className="w-4 h-4 fill-current" />
+            <span>{language === 'si' ? 'WhatsApp මගින් ක්ෂණිකව යවන්න' : 'Direct WhatsApp (+94 78 847 0610)'}</span>
           </button>
 
-          {/* Secondary Action: Direct Email to hello.ravanatech@gmail.com */}
           <button
             type="button"
             onClick={handleEmailSend}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
+            className="py-2.5 px-3 rounded-xl bg-neutral-950 hover:bg-neutral-850 text-neutral-200 border border-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
           >
-            <Mail className="w-4 h-4 text-amber-400" />
-            <span>hello.ravanatech@gmail.com</span>
+            <Mail className="w-3.5 h-3.5 text-amber-400" />
+            <span>Email</span>
           </button>
 
-          {/* Copy Button */}
           <button
             type="button"
             onClick={handleCopyClipboard}
-            className="w-full sm:w-auto px-4 py-3 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-neutral-300 border border-neutral-700 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+            className="py-2.5 px-3 rounded-xl bg-neutral-950 hover:bg-neutral-850 text-neutral-300 border border-neutral-800 text-xs font-medium flex items-center justify-center gap-1 transition-colors"
             title="Copy Blueprint"
           >
-            <Copy className="w-4 h-4" />
-            <span>{isCopied ? (language === 'si' ? 'පිටපත් විය!' : 'Copied!') : (language === 'si' ? 'පිටපත් කරන්න' : 'Copy')}</span>
+            <Copy className="w-3.5 h-3.5" />
+            <span>{isCopied ? (language === 'si' ? 'පිටපත් විය!' : 'Copied!') : (language === 'si' ? 'Copy' : 'Copy')}</span>
           </button>
-
         </div>
-
       </div>
 
-      {/* Direct Contact Form & Founder Call Option */}
-      <div className="relative z-10 bg-neutral-900/80 border border-neutral-800 rounded-2xl p-6 sm:p-7 shadow-xl mb-6">
-        
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-base sm:text-lg font-bold text-neutral-100 font-display">
-              {language === 'si' ? 'ඔබගේ තොරතුරු ඇතුළත් කර සැලැස්ම තහවුරු කරන්න' : 'Confirm Your Project Details (Optional)'}
-            </h3>
-            <p className="text-xs text-neutral-400">
-              {language === 'si'
-                ? 'ඔබගේ නම හෝ WhatsApp අංකය ලබා දුනහොත් අපගේ Founder විසින් කෙලින්ම ඔබ අමතනු ඇත.'
-                : 'Provide your name or WhatsApp number so our founder can follow up personally within 2 hours.'}
-            </p>
-          </div>
-          <span className="text-xs font-mono text-emerald-400">Direct VIP Access</span>
-        </div>
-
+      {/* Direct Contact Form (Optional Rapid Submission to Firestore) */}
+      <div className="shrink-0 bg-neutral-900/80 border border-neutral-800 rounded-xl p-2.5 sm:p-3 shadow-md mb-2">
         {savedInquiryId ? (
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
-            <div className="flex-1">
-              <div className="font-bold text-sm text-neutral-100 flex items-center gap-2">
-                <span>{language === 'si' ? 'ස්තූතියි! ඔබගේ විස්තර සාර්ථකව Cloud Database එකෙහි සුරැකිණි.' : 'Success! Your blueprint is secured in Ravana Tech Cloud.'}</span>
-                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-700/60 text-emerald-300">
-                  Ref: {savedInquiryId}
-                </span>
-              </div>
-              <div className="text-neutral-400 mt-0.5">
-                {language === 'si' 
-                  ? 'අපගේ Digital Architect විසින් කෙටි වේලාවකින් ඔබව WhatsApp හෝ දුරකථනය මගින් අමතනු ඇත.' 
-                  : 'Our Digital Architect will reach out via WhatsApp or email promptly with your itemized proposal.'}
-              </div>
+          <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{language === 'si' ? 'ඔබගේ සැලැස්ම Cloud Database එකෙහි සුරැකිණි.' : 'Blueprint secured in Cloud Database.'}</span>
             </div>
+            <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-300 shrink-0">
+              Ref: {savedInquiryId}
+            </span>
           </div>
         ) : (
-          <form onSubmit={handleFormSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs text-neutral-300 mb-1 font-medium">
-                  {language === 'si' ? 'ඔබගේ නම / ආයතනය' : 'Your Name / Business Name'}
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Kasun Silva"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-neutral-300 mb-1 font-medium">
-                  {language === 'si' ? 'WhatsApp හෝ දුරකථන අංකය' : 'WhatsApp / Mobile Number'}
-                </label>
-                <input
-                  type="tel"
-                  placeholder="e.g. +94 77 123 4567"
-                  value={clientPhone}
-                  onChange={(e) => setClientPhone(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-neutral-300 mb-1 font-medium">
-                  {language === 'si' ? 'ඊමේල් ලිපිනය (Email)' : 'Email Address'}
-                </label>
-                <input
-                  type="email"
-                  placeholder="e.g. hello@example.com"
-                  value={clientEmail}
-                  onChange={(e) => setClientEmail(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs text-neutral-300 mb-1 font-medium">
-                {language === 'si' ? 'අමතර සටහන් (Optional Notes)' : 'Additional Notes / Vision'}
-              </label>
-              <textarea
-                rows={2}
-                placeholder={language === 'si' ? 'ඔබගේ විශේෂිත අදහස් හෝ අවශ්‍යතා මෙහි සටහන් කරන්න...' : 'Share any specific deadlines, references, or special requirements...'}
-                value={clientNotes}
-                onChange={(e) => setClientNotes(e.target.value)}
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-400"
+          <form onSubmit={handleFormSubmit} className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input
+                type="text"
+                placeholder={language === 'si' ? 'ඔබගේ නම / ආයතනය' : 'Your Name / Business'}
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-400"
               />
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              <span className="text-xs text-neutral-500 flex items-center gap-1.5">
-                <Database className="w-3.5 h-3.5 text-amber-400" />
-                <span>Connected to: <strong className="text-amber-400 font-mono">raavanaatec</strong> Firestore</span>
-              </span>
-
+              <input
+                type="tel"
+                placeholder={language === 'si' ? 'WhatsApp අංකය' : 'WhatsApp Number'}
+                value={clientPhone}
+                onChange={(e) => setClientPhone(e.target.value)}
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-400"
+              />
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-neutral-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-md shadow-amber-500/20"
+                className="w-full py-1.5 px-3 rounded-lg bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-neutral-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>{language === 'si' ? 'සුරැකෙමින් පවතී...' : 'Securing in Cloud...'}</span>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>{language === 'si' ? 'සුරැකෙමින්...' : 'Securing...'}</span>
                   </>
                 ) : (
                   <>
-                    <Send className="w-3.5 h-3.5" />
-                    <span>{language === 'si' ? 'සැලැස්ම Ravana Tech වෙත යොමු කරන්න' : 'Submit Project Blueprint'}</span>
+                    <Send className="w-3 h-3" />
+                    <span>{language === 'si' ? 'සැලැස්ම Cloud වෙත යවන්න' : 'Save to Cloud'}</span>
                   </>
                 )}
               </button>
             </div>
           </form>
         )}
-
       </div>
 
       {/* Trust & Guarantee Banner */}
-      <div className="relative z-10 pt-4 border-t border-neutral-900 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-2 text-center sm:text-left">
-        <span>Ravana Tech Headquarters · Colombo, Sri Lanka & Worldwide Remote Engineering</span>
-        <span className="text-amber-400/90 font-mono">100% Confidentiality & Non-Disclosure Agreement (NDA) Protected</span>
+      <div className="shrink-0 pt-1 border-t border-neutral-800/80 flex items-center justify-between text-[11px] text-neutral-400">
+        <span>Ravana Tech Headquarters · Colombo, Sri Lanka</span>
+        <span className="text-amber-400/90 font-mono">Direct WhatsApp: +94 78 847 0610</span>
       </div>
 
     </div>

@@ -307,7 +307,7 @@ export const SeoLeadMagnetSection: React.FC<SeoLeadMagnetSectionProps> = ({
             )}
 
             <a
-              href="https://wa.me/94770481492?text=Hello%20Ravana%20Tech,%20I%20am%20interested%20in%20a%20high-converting%20custom%20website%20and%20web%20development%20scoping."
+              href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech,%20I%20am%20interested%20in%20a%20high-converting%20custom%20website%20and%20web%20development%20scoping."
               target="_blank"
               rel="noreferrer"
               className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center gap-2 transition-all hover:scale-[1.02]"
@@ -337,7 +337,7 @@ export const SeoLeadMagnetSection: React.FC<SeoLeadMagnetSectionProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-neutral-400">
-            <span>Direct WhatsApp: +94 77 048 1492</span>
+            <span>Direct WhatsApp: +94 78 847 0610</span>
             <span>•</span>
             <span>hello.ravanatech@gmail.com</span>
             <span>•</span>

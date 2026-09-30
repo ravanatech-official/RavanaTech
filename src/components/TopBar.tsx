@@ -126,7 +126,7 @@ export const TopBar: React.FC<TopBarProps> = ({
 
           {/* Quick WhatsApp Direct link */}
           <a
-            href="https://wa.me/94770481492?text=Hello%20Ravana%20Tech%20Architect,%20I%20am%20visiting%20your%20digital%20headquarters."
+            href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%20Architect,%20I%20am%20visiting%20your%20digital%20headquarters."
             target="_blank"
             rel="noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-neutral-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors"

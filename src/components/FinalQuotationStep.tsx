@@ -130,7 +130,7 @@ export const FinalQuotationStep: React.FC<FinalQuotationStepProps> = ({
     sfx.playClick();
     const text = encodeURIComponent(buildSummaryText());
     // Direct WhatsApp dispatch (Using Sri Lankan international format)
-    const url = `https://wa.me/94701234567?text=${text}`;
+    const url = `https://wa.me/94788470610?text=${text}`;
     window.open(url, '_blank');
   };
 

@@ -88,6 +88,16 @@ export default function App() {
     setActiveScreen('map');
   };
 
+  // Universal Escape: Jump directly to Pathway 06 ("Help Me Choose")
+  const handleHelpMeChoose = () => {
+    sfx.playClick();
+    stopVoice();
+    setActivePathwayId('not_sure');
+    setCurrentStepIndex(1);
+    setSelectedAnswers({});
+    setActiveScreen('step');
+  };
+
   const currentPathway = DECISION_PATHWAYS.find((p) => p.id === activePathwayId) || DECISION_PATHWAYS[0];
 
   return (
@@ -126,7 +136,7 @@ export default function App() {
           />
         )}
 
-        {/* Screen 3: Guided Multi-step Questionnaire Journey (Steps 1 to 4) */}
+        {/* Screen 3: Guided Multi-step Questionnaire Journey (Steps 1 to 3) */}
         {activeScreen === 'step' && (
           <GuidedStepView
             pathway={currentPathway}
@@ -135,6 +145,7 @@ export default function App() {
             onSelectOption={handleSelectOptionInStep}
             onBackStep={handleBackStep}
             onGoToReception={handleGoToReception}
+            onHelpMeChoose={handleHelpMeChoose}
             selectedAnswers={selectedAnswers}
           />
         )}
@@ -155,6 +166,7 @@ export default function App() {
               setCurrentStepIndex(stepIdx);
               setActiveScreen('step');
             }}
+            onHelpMeChoose={handleHelpMeChoose}
           />
         )}
 

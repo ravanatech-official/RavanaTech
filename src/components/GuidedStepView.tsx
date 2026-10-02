@@ -78,11 +78,12 @@ import { InteractiveConceptualShowcase } from './InteractiveConceptualShowcase';
 
 interface GuidedStepViewProps {
   pathway: DecisionPathway;
-  currentStepIndex: number; // 1 to 4
+  currentStepIndex: number;
   language: Language;
   onSelectOption: (stepIndex: number, option: DecisionOption) => void;
   onBackStep: () => void;
   onGoToReception: () => void;
+  onHelpMeChoose?: () => void;
   selectedAnswers: Record<number, DecisionOption>;
 }
 
@@ -93,6 +94,7 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
   onSelectOption,
   onBackStep,
   onGoToReception,
+  onHelpMeChoose,
   selectedAnswers,
 }) => {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
@@ -208,17 +210,40 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
   return (
     <div className="h-full max-h-full flex-1 flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 max-w-4xl mx-auto w-full overflow-hidden select-none">
       
-      {/* 1. Header Navigation & Sleek Progress Bar */}
+      {/* 1. Header Navigation & Sleek Progress Bar (Universal Escape Bar) */}
       <div className="shrink-0 space-y-1.5">
         <div className="flex items-center justify-between gap-2 text-xs">
-          <button
-            type="button"
-            onClick={onBackStep}
-            className="flex items-center gap-1.5 text-neutral-400 hover:text-amber-400 font-medium transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{currentStepIndex === 1 ? (language === 'si' ? 'Reception' : 'Reception') : (language === 'si' ? 'පෙර ප්‍රශ්නය' : 'Previous')}</span>
-          </button>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={onBackStep}
+              className="flex items-center gap-1 text-neutral-400 hover:text-amber-400 font-medium transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{currentStepIndex === 1 ? 'Reception' : (language === 'si' ? 'පෙර' : 'Back')}</span>
+            </button>
+            <span className="text-neutral-700">|</span>
+            <button
+              type="button"
+              onClick={onGoToReception}
+              className="text-neutral-400 hover:text-white transition-colors cursor-pointer text-[11px]"
+            >
+              {language === 'si' ? 'Reset' : 'Reset'}
+            </button>
+            {pathway.id !== 'not_sure' && onHelpMeChoose && (
+              <>
+                <span className="text-neutral-700">|</span>
+                <button
+                  type="button"
+                  onClick={onHelpMeChoose}
+                  className="flex items-center gap-1 text-amber-400 hover:text-amber-300 font-semibold transition-colors cursor-pointer text-[11px]"
+                >
+                  <HelpCircle className="w-3 h-3 text-amber-400" />
+                  <span>{language === 'si' ? '❓ මඟ පෙන්වන්න' : '❓ Help Me Choose'}</span>
+                </button>
+              </>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-mono text-neutral-400">
@@ -228,14 +253,6 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
               {pathway.badge[language]}
             </span>
           </div>
-
-          <button
-            type="button"
-            onClick={onGoToReception}
-            className="text-[11px] text-neutral-500 hover:text-neutral-300 transition-colors"
-          >
-            {language === 'si' ? 'මුලට' : 'Reset'}
-          </button>
         </div>
 
         {/* Progress Bar */}

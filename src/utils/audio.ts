@@ -153,7 +153,9 @@ export const speakVoice = (
     // Natural English transcription for Sinhala greeting so synthetic speech doesn't mangle letters
     let spokenText = text;
     if (lang === 'si') {
-      if (text.includes('Ravana Tech වෙත සාදරයෙන් පිළිගන්නවා') || text.includes('ශාන්තප්‍රිය')) {
+      if (text.includes('රාවණා ටෙක් වෙත සාදරයෙන් පිළිගන්නවා') || text.includes('ඩිජිටල් ගමන')) {
+        spokenText = "Ayubowan! Welcome to Ravana Tech. Click below to start your digital journey.";
+      } else if (text.includes('Ravana Tech වෙත සාදරයෙන් පිළිගන්නවා') || text.includes('ශාන්තප්‍රිය')) {
         spokenText = "Ayubowan! Welcome to Ravana Tech. I am Shanthapriya, your Founder and Digital Architect. Select your solution pathway below to begin your personalized questionnaire.";
       }
     }

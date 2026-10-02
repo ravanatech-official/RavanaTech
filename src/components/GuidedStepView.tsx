@@ -242,18 +242,38 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
         </div>
       </div>
 
-      {/* 2. Questionnaire Question & Speech Prompt */}
-      <div className="shrink-0 bg-neutral-900/90 border border-neutral-800 rounded-xl p-2.5 sm:p-3 my-1 sm:my-2 shadow flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-            <span className="text-[11px] font-mono font-semibold text-amber-400 uppercase tracking-wider">
-              {currentStep.stepTitle[language]}
-            </span>
+      {/* 2. Questionnaire Question & Speech Prompt with Mini Founder Avatar */}
+      <div className="shrink-0 bg-neutral-900/90 border border-neutral-800 rounded-xl p-2 sm:p-2.5 my-1 sm:my-1.5 shadow flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {/* Mini Founder Avatar */}
+          <div className="relative shrink-0">
+            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-neutral-950 border border-amber-400/40 p-0.5 overflow-hidden shadow ${
+              isPlayingVoice ? 'ring-2 ring-amber-400' : ''
+            }`}>
+              <img 
+                src="/assets/founder/founder_transparent_FINAL.png" 
+                alt="Shanthapriya"
+                className="w-full h-full object-cover object-top rounded-lg bg-neutral-900"
+              />
+            </div>
+            <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-neutral-950 ${
+              isPlayingVoice ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'
+            }`}></span>
           </div>
-          <h2 className="text-xs sm:text-sm md:text-base font-bold text-white mt-0.5 truncate">
-            {currentStep.stepQuestion[language]}
-          </h2>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono">
+              <span className="font-bold text-amber-400 uppercase tracking-wider">
+                {currentStep.stepTitle[language]}
+              </span>
+              <span className="text-neutral-500">·</span>
+              <span className="text-neutral-400 font-medium">
+                {language === 'si' ? 'ශාන්තප්‍රිය' : 'Shanthapriya'}
+              </span>
+            </div>
+            <h2 className="text-xs sm:text-sm font-bold text-white mt-0.5 truncate">
+              {currentStep.stepQuestion[language]}
+            </h2>
+          </div>
         </div>
 
         <button

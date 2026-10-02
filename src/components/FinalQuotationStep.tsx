@@ -217,18 +217,28 @@ export const FinalQuotationStep: React.FC<FinalQuotationStepProps> = ({
       {/* Main Blueprint Card */}
       <div className="shrink-0 bg-neutral-900/90 border border-emerald-500/30 rounded-2xl p-3 sm:p-4 shadow-xl mb-2">
         <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-neutral-800">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Real Founder Portrait */}
+            <div className="relative shrink-0">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-neutral-950 border border-amber-400/40 p-0.5 overflow-hidden shadow-lg shadow-amber-400/10">
+                <img 
+                  src="/assets/founder/founder_transparent_FINAL.png" 
+                  alt="Shanthapriya Silva · Founder & Lead Architect"
+                  className="w-full h-full object-cover object-top rounded-[10px] bg-neutral-900"
+                />
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-neutral-950 bg-emerald-500"></span>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
                 <span>{language === 'si' ? 'සැලැස්ම සාර්ථකව සකස් විය' : 'Blueprint Finalized'}</span>
                 <span>·</span>
+                <span className="text-amber-400">{language === 'si' ? 'ශාන්තප්‍රිය සිල්වා' : 'Shanthapriya Silva'}</span>
+                <span>·</span>
                 <span>{location?.flag} {location?.country}</span>
               </div>
-              <h2 className="text-sm sm:text-base font-bold text-white truncate">
-                {language === 'si' ? 'ඔබගේ නිල Ravana Tech ව්‍යාපෘති සැලැස්ම' : 'Official Ravana Tech Project Blueprint'}
+              <h2 className="text-xs sm:text-sm font-bold text-white truncate">
+                {language === 'si' ? 'නිල Ravana Tech ව්‍යාපෘති සැලැස්ම' : 'Official Ravana Tech Project Blueprint'}
               </h2>
             </div>
           </div>

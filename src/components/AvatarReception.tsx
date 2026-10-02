@@ -33,8 +33,8 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
 
   // Exact concise welcome speech
   const welcomeSpeech = language === 'si'
-    ? 'ආයුබෝවන්! රාවණා ටෙක් වෙත සාදරයෙන් පිළිගන්නවා. මම ඔබගේ Digital Architect. ඔබගේ ව්‍යාපෘතිය සඳහා විසඳුම් සැලැස්ම සහ ක්ෂණික මිල ගණන් ලබා ගැනීමට අදාළ අංශය පහතින් තෝරන්න.'
-    : 'Welcome to Ravana Tech! I am your Digital Architect. Select your desired solution pathway below to begin your rapid 4-step scoping questionnaire.';
+    ? 'ආයුබෝවන්! Ravana Tech වෙත සාදරයෙන් පිළිගන්නවා. මම ශාන්තප්‍රිය — ඔබගේ Digital Architect. අද ඔබට අවශ්‍ය දේ අපි එක පියවරකින් එක පියවරකට සරලව හඳුනාගමු.'
+    : 'Hey there! Welcome to Ravana Tech. I am Shanthapriya, your Digital Architect. Tell me what you came here to achieve, and I will guide you from there.';
 
   const playAvatarSpeech = () => {
     setIsPlayingVoice(true);
@@ -79,25 +79,29 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
       {/* 1. Sleek Compact Digital Architect Bar */}
       <div className="shrink-0 bg-neutral-900/90 border border-neutral-800 rounded-2xl p-2.5 sm:p-3 shadow-lg flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          {/* Animated Mini Avatar */}
+          {/* Real Founder Avatar (Shanthapriya Silva) */}
           <div className="relative shrink-0">
-            <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-b from-neutral-800 to-neutral-950 border border-neutral-700 flex items-center justify-center relative overflow-hidden ${
-              isPlayingVoice ? 'ring-2 ring-amber-400 shadow-md shadow-amber-400/30' : ''
-            }`}>
-              <div className="w-6 h-2 rounded-full bg-amber-400/90 flex items-center justify-around px-0.5 shadow-sm">
-                <span className={`w-1 h-1 rounded-full bg-neutral-950 ${isPlayingVoice ? 'animate-ping' : ''}`}></span>
-                <span className={`w-1 h-1 rounded-full bg-neutral-950 ${isPlayingVoice ? 'animate-ping' : ''}`}></span>
-              </div>
+            <div className={`w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-b from-neutral-800 to-neutral-950 border border-amber-400/50 p-0.5 relative overflow-hidden shadow-lg shadow-amber-400/15 ${
+              isPlayingVoice ? 'ring-2 ring-amber-400 shadow-amber-400/40 scale-105' : ''
+            } transition-all duration-300`}>
+              <img 
+                src="/assets/founder/founder_transparent_FINAL.png" 
+                alt="Shanthapriya Silva · Founder & Digital Architect"
+                className="w-full h-full object-cover object-top rounded-[14px]"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
             </div>
-            <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-neutral-950 ${
+            <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-neutral-950 ${
               isPlayingVoice ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'
-            }`}></span>
+            }`} title="Founder Online"></span>
           </div>
 
           {/* Architect Speech Bubble */}
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 font-mono">
-              <span className="font-bold text-neutral-200">Ravana Digital Architect</span>
+              <span className="font-bold text-neutral-200">{language === "si" ? "ශාන්තප්‍රිය · Founder & Digital Architect" : "Shanthapriya · Founder & Digital Architect"}</span>
               <ShieldCheck className="w-3 h-3 text-amber-400 shrink-0" />
               <span className="hidden xs:inline text-neutral-500">·</span>
               <span className="hidden xs:inline text-amber-400/90">

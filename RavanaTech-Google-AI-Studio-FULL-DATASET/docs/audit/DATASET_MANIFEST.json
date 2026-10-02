@@ -1,0 +1,221 @@
+{
+  "dataset": "Ravana Tech \u2014 Google AI Studio Full Data Set",
+  "generated": "2026-09-28",
+  "files": [
+    {
+      "path": "assets/founder/founder-avatar.jpg",
+      "bytes": 696225,
+      "sha256": "93bdf2049fcb244176b8ec3218fd0abc40ee9a49ddcd8f96a82a03d588afb16d"
+    },
+    {
+      "path": "assets/founder/founder-real-full.jpg",
+      "bytes": 808000,
+      "sha256": "7d0967edcddefdfde3dd18f96170ea1f29f4411410cec4431fc29424d44573f7"
+    },
+    {
+      "path": "assets/founder/founder-real-portrait.jpg",
+      "bytes": 750872,
+      "sha256": "d78834d0e185e0f8f64d8dc26500ef4da63fca17954185e83a1aafaf24795017"
+    },
+    {
+      "path": "docs/01_MASTER_ARCHITECTURE.md",
+      "bytes": 2716,
+      "sha256": "807cab832caacfd6356ca889f5c262e55de64ad371fbba4a687f3841b907a302"
+    },
+    {
+      "path": "docs/02_COMPLETE_FLOW.md",
+      "bytes": 7878,
+      "sha256": "4c0ec0590ef19b43a55a3ead51d7ae55d4ee92870cd68a9a7a1aa258d2ac9cda"
+    },
+    {
+      "path": "docs/03_RAVANA_AGENT_TRUTH_ARCHITECTURE.md",
+      "bytes": 3734,
+      "sha256": "124f3863dab642b82a312ee5ae2488ef98d86578cb370b92914d6bd8ce746774"
+    },
+    {
+      "path": "docs/04_FOUNDER_IDENTITY_AND_VOICE.md",
+      "bytes": 1702,
+      "sha256": "7f810f59b6d54fde6a803e651534c5de16c488254f14d9d525407a79bcbb7ab5"
+    },
+    {
+      "path": "docs/05_TRUST_AND_SATISFACTION_MEASUREMENT.md",
+      "bytes": 2181,
+      "sha256": "0e54d1b9ce074a33d0fdf028df795be8a8a62f2903715318eb13cb4818a7e51f"
+    },
+    {
+      "path": "docs/06_ZIP_AUDIT_AND_MERGE.md",
+      "bytes": 2242,
+      "sha256": "d718a480a6b17cb1ea51513687b1eaac2164cf4b747ad02e5ed8facee0e58843"
+    },
+    {
+      "path": "docs/07_IMPLEMENTATION_ORDER.md",
+      "bytes": 1691,
+      "sha256": "fe4dd84a68e5cb867a1f431b1e3d7453b8b742493aab7c104504c772688e64cc"
+    },
+    {
+      "path": "docs/08_AI_DATA_POLICY.md",
+      "bytes": 1062,
+      "sha256": "c4558741782770976a7ec40c1f1b96c72ebc1f00d2c37ecfa0e08bca27cef56b"
+    },
+    {
+      "path": "docs/09_EXPERIENCE_DESIGN.md",
+      "bytes": 2627,
+      "sha256": "349bc866e18ede7c9c1d20ada9020fd834c1066bb36e863f1d858d7b8733c8b0"
+    },
+    {
+      "path": "docs/ADR-001.md",
+      "bytes": 539,
+      "sha256": "0b8c630eb02312391417cbf2a9e4c11d78fffa69867e4a7b1906a21e7008d944"
+    },
+    {
+      "path": "docs/audit/LEGACY_DATA_QUARANTINE.md",
+      "bytes": 780,
+      "sha256": "f8ad4ff167e93efbbfb4284adbd9f6bfb0eaad5e5555edde6c83314f00ed8775"
+    },
+    {
+      "path": "docs/audit/REMOVED_OR_CONSOLIDATED.md",
+      "bytes": 725,
+      "sha256": "81158366c1809d6e00f0ef6102bf818b9151b82bdad359091b634683177d11e0"
+    },
+    {
+      "path": "docs/audit/SOURCE_MAP.md",
+      "bytes": 977,
+      "sha256": "a9de53965d664914b9cd5c42e830a178db69a83fc6fae74b27639607554a7995"
+    },
+    {
+      "path": "public/audio/founder/README.txt",
+      "bytes": 602,
+      "sha256": "dc98e295787c95d07829c82cd9b4a72d901617776c9b5553ccef6e1f38a05277"
+    },
+    {
+      "path": "public/brand/ravana-tech-logo.svg",
+      "bytes": 863,
+      "sha256": "8007d5acf8cc63c8db0e82f0e301c6aa58733f37f9331a7a79c126f9fd3a33fe"
+    },
+    {
+      "path": "public/brand/ravana-tech-mark.svg",
+      "bytes": 2062,
+      "sha256": "04fe09bb476336f90536c92bac4ba957c215e9778dfcd9872778bd3cb8d652ca"
+    },
+    {
+      "path": "public/demos/bakery/index.html",
+      "bytes": 3397,
+      "sha256": "59a2bcd91232e33377829433a818c7eb83db1b5aa687f999e1ec989d9abe592d"
+    },
+    {
+      "path": "public/demos/cafe/index.html",
+      "bytes": 3409,
+      "sha256": "8b5b9e495bc0ace21faaaa6a2c6cd95e26a3a55d14fc0f7fe45874bd8dc8cc16"
+    },
+    {
+      "path": "public/demos/flora/index.html",
+      "bytes": 3368,
+      "sha256": "0aae7c3e85e6323e799ca61571a85015c589256abaf991c55f1e0e4f03251954"
+    },
+    {
+      "path": "public/demos/personal-trainer/index.html",
+      "bytes": 3469,
+      "sha256": "a6b4ab3575827cd8702f4efefae1dc005f8b1adc597963c625483f007dec06e9"
+    },
+    {
+      "path": "public/demos/real-estate/index.html",
+      "bytes": 3428,
+      "sha256": "e2d3e2486b2994db47ab95ac4868c4023ceb54b85eea456576be9c86c3bfb922"
+    },
+    {
+      "path": "public/demos/salon/index.html",
+      "bytes": 3347,
+      "sha256": "75b56d02d4dc71e5617f5e9838e9cc331aa630b3e65859ab136d6c5e659aed84"
+    },
+    {
+      "path": "src/data/PROJECT_KNOWLEDGE_BASE.md",
+      "bytes": 6573,
+      "sha256": "9b617448c505def53f2c2ce20d7a6b51a441b9a5ebd181f7367e0171cd8f9f42"
+    },
+    {
+      "path": "src/data/RAVANA_ABOUT.md",
+      "bytes": 903,
+      "sha256": "f769b513e23e00b226e587a1eb05b86edd29d5f6fd2a19355fc87421262772ec"
+    },
+    {
+      "path": "src/data/RAVANA_BLOG.md",
+      "bytes": 608,
+      "sha256": "cc25b06db29cceb056853506df081b50847c0a9a7aafac5c52f1d1c8c08299fe"
+    },
+    {
+      "path": "src/data/RAVANA_CONTACT.md",
+      "bytes": 1509,
+      "sha256": "079a91ea30470e833000a398a8961dbbe1a8b8881ba6044cc7834a4fbf0245e7"
+    },
+    {
+      "path": "src/data/RAVANA_FAQS.md",
+      "bytes": 1548,
+      "sha256": "6d23ed5924f35f427e3731828688a41c2e5451681c5f088f05310804ce76b51e"
+    },
+    {
+      "path": "src/data/RAVANA_FOUNDER.md",
+      "bytes": 964,
+      "sha256": "acc8b3f69e92300530572c6362631897e54529f6066aff1f65a2b418871a447a"
+    },
+    {
+      "path": "src/data/RAVANA_POLICIES.md",
+      "bytes": 609,
+      "sha256": "f8f81713c4e041bd87f68d08c8cf9516e413313b591cb0058e09dbcdb416fc6b"
+    },
+    {
+      "path": "src/data/RAVANA_PRICING.md",
+      "bytes": 1220,
+      "sha256": "6c35fb1ecc6f181fd132978472c03bebfac3b71cf01de2b834992ea50b95bf5b"
+    },
+    {
+      "path": "src/data/RAVANA_PROJECTS.md",
+      "bytes": 2301,
+      "sha256": "30d16a759f144e653fbef49eafbe902b293c6d547b86a2b08b40c348411857a4"
+    },
+    {
+      "path": "src/data/RAVANA_SERVICES.md",
+      "bytes": 3422,
+      "sha256": "e9de3e22022da32d89815fb01240623432d7ed3f4e6d3341cf2f40f268fdad6b"
+    },
+    {
+      "path": "src/data/faqsData.ts",
+      "bytes": 2571,
+      "sha256": "94dc6611caf761c50d602a8a7d95fdc8bac8166f1cecb27f95e13fa6c33f524d"
+    },
+    {
+      "path": "src/data/projectsData.ts",
+      "bytes": 18947,
+      "sha256": "626e5c53a5ef6c3136935d1d52a3bf9bb9311d57006b37b6fed51a01603613ce"
+    },
+    {
+      "path": "src/data/servicesData.ts",
+      "bytes": 6660,
+      "sha256": "f80288a605fad132a3669d889592bc919032c44e527e3d2438773b3b60bb0501"
+    },
+    {
+      "path": "src/reception/data/JOURNEY_MASTER.md",
+      "bytes": 1109,
+      "sha256": "b26112e66af2a4b4a880abd482ecee37318d54360cbbd13c6bc5f9deb6c83453"
+    },
+    {
+      "path": "src/reception/data/README.md",
+      "bytes": 327,
+      "sha256": "5c3acb545a5439bda0b7a4a7028854b8187b1bd6ed638e5b47f42dda721b85ac"
+    },
+    {
+      "path": "src/reception/data/VOICE_SCRIPTS.md",
+      "bytes": 986,
+      "sha256": "ffb5014ffdfab01bc7a2879158ab4df3158ecf4437fe4f3bee1c08a5d18c923a"
+    },
+    {
+      "path": "src/reception/data/flowCatalog.ts",
+      "bytes": 20979,
+      "sha256": "173826332fa296f0b6b94e8f34477bb1feb8cf4c2380d9a650931df4285c55e8"
+    },
+    {
+      "path": "src/reception/data/verified-bootstrap.md",
+      "bytes": 411,
+      "sha256": "9989c19504747e67417c1df749bdb09d6c23ca108f432294a76b02c7a9dd9993"
+    }
+  ]
+}

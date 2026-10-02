@@ -8,6 +8,7 @@ import {
   Cpu
 } from 'lucide-react';
 import { Language } from '../types';
+import aiAvatarFaceImg from '../assets/images/digital_avatar_face_1790933152711.jpg';
 
 interface DigitalAvatarProps {
   isPlayingVoice: boolean;
@@ -27,8 +28,8 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [avatarMode, setAvatarMode] = useState<'ai_face' | 'studio_cutout'>('ai_face');
 
-  // Exact paths: AI Studio Generated consistent high-fidelity face & studio transparent cutout
-  const aiFaceSrc = "/src/assets/images/digital_avatar_face_1790933152711.jpg";
+  // Exact paths: Imported AI Studio Generated face & static fallback
+  const aiFaceSrc = aiAvatarFaceImg || "/assets/avatar/digital_avatar_face.jpg";
   const studioCutoutSrc = "/assets/founder/founder_transparent_FINAL.png";
 
   return (
@@ -96,26 +97,26 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
         
         {avatarMode === 'ai_face' ? (
           /* 1. AI Studio Generated Consistent Face Portrait with Premium Glass Frame */
-          <div className="relative flex flex-col items-center justify-center animate-fadeIn">
+          <div className="relative flex flex-col items-center justify-center transition-all duration-700">
             <div className={`relative w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-3xl p-1 bg-gradient-to-b from-amber-400/50 via-neutral-800 to-neutral-950 shadow-2xl transition-all duration-500 ${
               isPlayingVoice 
                 ? 'ring-4 ring-amber-400/80 shadow-amber-400/40 scale-105' 
                 : 'hover:scale-[1.02] shadow-black/80'
             }`}>
               
-              {/* Inner Glowing Ring */}
+              {/* Inner Glowing Ring with Fade-In Animation */}
               <div className="w-full h-full rounded-[22px] overflow-hidden bg-neutral-950 relative">
                 <img 
                   src={aiFaceSrc}
                   alt="Shanthapriya Silva — Lead Digital Architect"
                   referrerPolicy="no-referrer"
                   onLoad={() => setImageLoaded(true)}
-                  className={`w-full h-full object-cover object-center transition-all duration-700 ${
+                  className={`w-full h-full object-cover object-center transition-all duration-1000 ease-out ${
                     imageLoaded ? 'opacity-100 scale-100 filter-none' : 'opacity-0 scale-95 blur-sm'
                   }`}
                   onError={(e) => {
-                    // Fallback to public asset
-                    (e.target as HTMLImageElement).src = studioCutoutSrc;
+                    // Fallback to static public image
+                    (e.target as HTMLImageElement).src = "/assets/avatar/digital_avatar_face.jpg";
                   }}
                 />
 
@@ -132,7 +133,7 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
 
             {/* Speaking Wave Equalizer Indicator */}
             {isPlayingVoice && (
-              <div className="absolute -bottom-3 z-20 flex items-center gap-1 px-3 py-1 rounded-full bg-neutral-950/90 backdrop-blur-md border border-amber-400/50 shadow-lg shadow-amber-400/20 animate-fadeIn">
+              <div className="absolute -bottom-3 z-20 flex items-center gap-1 px-3 py-1 rounded-full bg-neutral-950/90 backdrop-blur-md border border-amber-400/50 shadow-lg shadow-amber-400/20 transition-all duration-300">
                 {[0.4, 0.9, 0.5, 1.0, 0.7, 0.3].map((height, idx) => (
                   <span 
                     key={idx} 
@@ -150,7 +151,7 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
           </div>
         ) : (
           /* 2. Studio Cutout Full Portrait */
-          <div className="relative w-full max-w-[260px] sm:max-w-[280px] h-full flex items-end justify-center animate-fadeIn">
+          <div className="relative w-full max-w-[260px] sm:max-w-[280px] h-full flex items-end justify-center transition-all duration-700">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(245,158,11,0.22),transparent_70%)] pointer-events-none rounded-b-2xl" />
             <img 
               src={studioCutoutSrc} 

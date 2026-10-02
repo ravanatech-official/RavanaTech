@@ -32,12 +32,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'ව්‍යාපාර වර්ගය',
         },
         stepQuestion: {
-          en: 'What exact type of business are you building this website for?',
+          en: 'What exact industry does your business operate in?',
           si: 'ඔබ මෙම වෙබ් අඩවිය නිර්මාණය කරන්නේ කුමන ආකාරයේ ව්‍යාපාරයක් සඳහාද?',
         },
+        stepSubBrief: {
+          en: 'Helps us calibrate conversion ergonomics and visual language for your sector.',
+          si: 'ඔබගේ ක්ෂේත්‍රයට වඩාත්ම ගැළපෙන පාරිභෝගික ආකර්ෂණ සැලැස්ම සකස් කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Great choice! First, select your exact business category so we can architect the ideal layout.',
-          si: 'විශිෂ්ට තේරීමක්! මුලින්ම ඔබගේ ව්‍යාපාරික ක්ෂේත්‍රය තෝරන්න. ඒ අනුව අපි නිවැරදිම සැලැස්ම සකස් කරමු.',
+          en: 'Select your exact business category so we can architect the ideal layout.',
+          si: 'විශිෂ්ට තේරීමක්! මුලින්ම ඔබගේ ව්‍යාපාරික ක්ෂේත්‍රය තෝරන්න.',
         },
         options: [
           {
@@ -129,12 +133,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'ප්‍රධාන ඉලක්කය',
         },
         stepQuestion: {
-          en: 'What is the primary result you want this website to generate?',
+          en: 'What is the primary action your website must drive?',
           si: 'නව වෙබ් අඩවියෙන් ඔබ බලාපොරොත්තු වන ප්‍රධානම ප්‍රතිඵලය කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Defines your hero section call-to-action and primary conversion funnel.',
+          si: 'වෙබ් අඩවියේ ප්‍රධාන Call-to-Action එක හා conversion funnel එක තීරණය කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Understood. Now tell me what you want this website to achieve most for your revenue.',
-          si: 'හොඳයි. දැන් කියන්න මෙම වෙබ් අඩවිය හරහා ඔබට ලබාගත යුතු ප්‍රධානම ප්‍රතිඵලය කුමක්ද කියලා.',
+          en: 'Select what you want this website to achieve most for your revenue.',
+          si: 'මෙම වෙබ් අඩවිය හරහා ඔබට ලබාගත යුතු ප්‍රධානම ප්‍රතිඵලය තෝරන්න.',
         },
         options: [
           {
@@ -222,16 +230,20 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
       {
         stepIndex: 3,
         stepTitle: {
-          en: 'Customer Action',
+          en: 'Lead Flow',
           si: 'පාරිභෝගික ක්‍රියාමාර්ගය',
         },
         stepQuestion: {
-          en: 'What exact action should your visitors take on the site?',
+          en: 'How should qualified leads reach your team?',
           si: 'වෙබ් අඩවියට පැමිණෙන පාරිභෝගිකයා කළ යුතු ප්‍රධානතම පියවර කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Configures your direct WhatsApp funnel and instant inquiry routing engine.',
+          si: 'WhatsApp හා ක්ෂණික විමසීම් සෘජුව ලබාගන්නා ක්‍රමය තහවුරු කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Excellent. How do you want visitors to interact and convert on your site?',
-          si: 'අගෙයි. පාරිභෝගිකයා ඔබව සම්බන්ධ කරගත යුතු පහසුම ක්‍රමය තෝරන්න.',
+          en: 'How do you want visitors to interact and convert on your site?',
+          si: 'පාරිභෝගිකයා ඔබව සම්බන්ධ කරගත යුතු පහසුම ක්‍රමය තෝරන්න.',
         },
         options: [
           {
@@ -350,12 +362,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'භාණ්ඩ වර්ගය',
         },
         stepQuestion: {
-          en: 'What exact type of products will you be selling?',
+          en: 'What type of products will you sell online?',
           si: 'ඔබ මෙම Store එකෙන් අලෙවි කිරීමට බලාපොරොත්තු වන්නේ කුමන වර්ගයේ භාණ්ඩද?',
         },
+        stepSubBrief: {
+          en: 'Determines catalog structure, variant logic, and media asset loading.',
+          si: 'භාණ්ඩ වර්ගය අනුව catalog සැකැස්ම සහ image loading වේගය තීරණය කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Awesome! E-commerce needs the right engine. What kind of items are you selling?',
-          si: 'නියමයි! අන්තර්ජාල අලෙවිසැලකට නිවැරදිම පද්ධතිය අවශ්‍යයි. ඔබ අලෙවි කරන්නේ කුමන වර්ගයේ භාණ්ඩද?',
+          en: 'What kind of products will you be offering in your online store?',
+          si: 'ඔබ අලෙවි කරන්නේ කුමන වර්ගයේ භාණ්ඩද?',
         },
         options: [
           {
@@ -447,12 +463,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'භාණ්ඩ ප්‍රමාණය',
         },
         stepQuestion: {
-          en: 'How many items will you be offering in your catalog?',
+          en: 'How many items will you launch in your initial catalog?',
           si: 'ආරම්භයේදී ඔබේ store එකේ භාණ්ඩ කීයක් පමණ අලෙවි කිරීමට තිබේද?',
         },
+        stepSubBrief: {
+          en: 'Calibrates database indexing, filter speeds, and search indexing.',
+          si: 'Store එකේ වේගය සහ Database ප්‍රමාණය නිවැරදිව තීරණය කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Got it. Select your initial catalog volume to size the database and speed optimization.',
-          si: 'හොඳයි. Store එකේ වේගය සහ Database ප්‍රමාණය නිවැරදිව තීරණය කිරීමට භාණ්ඩ ප්‍රමාණය තෝරන්න.',
+          en: 'Select your initial catalog volume to size the database and speed optimization.',
+          si: 'භාණ්ඩ ප්‍රමාණය තෝරන්න.',
         },
         options: [
           {
@@ -544,12 +564,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'ඇණවුම් ක්‍රමය',
         },
         stepQuestion: {
-          en: 'What ordering and payment flow do you want your clients to use?',
+          en: 'How do you want customers to complete checkout?',
           si: 'ගනුදෙනුකරුවන් ඇණවුම් කළ යුතු වඩාත් සුදුසු ක්‍රමය කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Selects your payment gateway, WhatsApp checkout, or hybrid COD pipeline.',
+          si: 'කාඩ්පත් ගෙවීම්, WhatsApp ඇණවුම් හෝ COD ක්‍රමවේදය තෝරාගැනීමට.',
+        },
         avatarSpeech: {
-          en: 'Very clear. Now choose how your customers should pay and place their orders.',
-          si: 'ඉතා පැහැදිලියි. දැන් පාරිභෝගිකයා ඇණවුම තහවුරු කළ යුතු ප්‍රධාන ක්‍රමය තෝරන්න.',
+          en: 'Choose how your customers should pay and place their orders.',
+          si: 'පාරිභෝගිකයා ඇණවුම තහවුරු කළ යුතු ප්‍රධාන ක්‍රමය තෝරන්න.',
         },
         options: [
           {
@@ -668,12 +692,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'සේවා කාණ්ඩය',
         },
         stepQuestion: {
-          en: 'What kind of appointments or reservations will you manage?',
+          en: 'What appointment format do you schedule?',
           si: 'ඔබ වෙන් කරවා ගැනීමට බලාපොරොත්තු වන්නේ කුමන ආකාරයේ සේවාවන් සඳහාද?',
         },
+        stepSubBrief: {
+          en: 'Tailors your booking calendar layout and customer intake flow.',
+          si: 'කාලසටහන හා සේවාදායක intake flow එක නිවැරදිව සකස් කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Online booking eliminates phone tag. What category of appointments will you manage?',
-          si: 'ස්වයංක්‍රීය වෙන්කිරීම් මගින් කාලය ඉතිරි වෙනවා. ඔබ වෙන් කරවා ගන්නේ කුමන ආකාරයේ සේවාවන් සඳහාද?',
+          en: 'What category of appointments will you manage online?',
+          si: 'ඔබ වෙන් කරවා ගන්නේ කුමන ආකාරයේ සේවාවන් සඳහාද?',
         },
         options: [
           {
@@ -765,12 +793,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'අවශ්‍ය පහසුකම්',
         },
         stepQuestion: {
-          en: 'What scheduling logic and automation do you need most?',
+          en: 'What automated scheduling rules do you require?',
           si: 'ඔබේ පද්ධතියට අත්‍යවශ්‍ය වන ප්‍රධානතම තාක්ෂණික පහසුකම් මොනවාද?',
         },
+        stepSubBrief: {
+          en: 'Eliminates double-bookings and automates customer reminder alerts.',
+          si: 'දෙවරක් වෙන්වීම් වැළැක්වීමට සහ ස්වයංක්‍රීය WhatsApp alerts යැවීමට.',
+        },
         avatarSpeech: {
-          en: "Let's define the intelligent logic needed behind your calendar.",
-          si: 'ඔබගේ කාලසටහනට අවශ්‍ය වන ස්වයංක්‍රීය පහසුකම් තෝරන්න.',
+          en: 'Define the intelligent rules and reminders behind your calendar.',
+          si: 'ස්වයංක්‍රීය පහසුකම් තෝරන්න.',
         },
         options: [
           {
@@ -862,12 +894,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'පාරිභෝගික අත්දැකීම',
         },
         stepQuestion: {
-          en: 'How should the customer experience the reservation flow?',
+          en: 'How fast should the booking experience be?',
           si: 'පාරිභෝගිකයා වේලාව වෙන්කරගන්නා අත්දැකීම කෙසේ විය යුතුද?',
         },
+        stepSubBrief: {
+          en: 'Optimizes mobile touch targets for rapid sub-30 second appointments.',
+          si: 'Smart phone එකෙන් තත්පර 30න් වේලාව වෙන්කරගැනීමේ පහසුව.',
+        },
         avatarSpeech: {
-          en: 'Fantastic. Choose the optimal flow for your clients when they reserve.',
-          si: 'විශිෂ්ටයි. පාරිභෝගිකයාට වඩාත්ම පහසු සහ වේගවත් ක්‍රමය තෝරන්න.',
+          en: 'Choose the optimal flow for your clients when they reserve an appointment.',
+          si: 'පාරිභෝගිකයාට වඩාත්ම පහසු සහ වේගවත් ක්‍රමය තෝරන්න.',
         },
         options: [
           {
@@ -986,12 +1022,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'ප්‍රධාන කාර්යය',
         },
         stepQuestion: {
-          en: 'What is the primary core workflow this system will automate?',
+          en: 'What core operational workflow needs custom software?',
           si: 'ඔබේ මෘදුකාංග පද්ධතිය හරහා විසඳිය යුතු ප්‍රධානම කාර්යය කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Defines your business database schema and cloud architecture.',
+          si: 'ව්‍යාපාරික දත්ත සමුදාය හා Cloud architecture එක තීරණය කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Custom web applications transform business operations. What is the core workflow to automate?',
-          si: 'විශේෂිත මෘදුකාංග මගින් ව්‍යාපාරික කාර්යක්ෂමතාව ඉහළ යනවා. පද්ධතියේ ප්‍රධාන කාර්යය තෝරන්න.',
+          en: 'Select the primary core workflow this custom system will automate.',
+          si: 'පද්ධතියේ ප්‍රධාන කාර්යය තෝරන්න.',
         },
         options: [
           {
@@ -1083,12 +1123,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'පරිශීලක අවසර',
         },
         stepQuestion: {
-          en: 'Who will be logging into and using this system?',
+          en: 'Who will access this platform daily?',
           si: 'මෙම පද්ධතියට පිවිසෙන්නේ කුමන ආකාරයේ පරිශීලකයින්ද?',
         },
+        stepSubBrief: {
+          en: 'Configures role-based access control and administrative permissions.',
+          si: 'ආරක්ෂාව හා අවසර කළමනාකරණය නිවැරදිව සකස් කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Security and roles are vital. Select the user access model.',
-          si: 'ආරක්ෂාව හා අවසර කළමනාකරණය සඳහා පද්ධතිය භාවිත කරන පුද්ගලයින් තෝරන්න.',
+          en: 'Select the user access model and role-based permissions needed.',
+          si: 'පද්ධතිය භාවිත කරන පුද්ගලයින් තෝරන්න.',
         },
         options: [
           {
@@ -1180,12 +1224,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'ආරම්භක පරිමාණය',
         },
         stepQuestion: {
-          en: 'What is your planned deployment scope and launch speed?',
+          en: 'What is your target launch horizon?',
           si: 'ඔබේ ව්‍යාපෘතිය ආරම්භ කළ යුතු පරිමාණය හා වේගය කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Establishes your sprint scope between rapid MVP and enterprise platform.',
+          si: 'වේගවත් MVP හෝ සම්පූර්ණ Cloud පද්ධතියක් අතර පරිමාණය තෝරාගැනීමට.',
+        },
         avatarSpeech: {
-          en: 'Great. What deployment scope matches your immediate roadmap?',
-          si: 'විශිෂ්ටයි. ඔබට අවශ්‍ය ආරම්භක පරිමාණය තෝරන්න.',
+          en: 'What deployment scope matches your immediate roadmap?',
+          si: 'ඔබට අවශ්‍ය ආරම්භක පරිමාණය තෝරන්න.',
         },
         options: [
           {
@@ -1304,12 +1352,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'ප්‍රධාන ගැටලුව',
         },
         stepQuestion: {
-          en: 'What is the biggest frustration with your existing website today?',
+          en: 'What is the biggest weakness in your current website?',
           si: 'දැනට පවතින වෙබ් අඩවියේ ඇති ප්‍රධානතම ගැටලුව කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Pinpoints the exact performance or UX bottleneck holding your brand back.',
+          si: 'වෙබ් අඩවියේ වේගය හෝ පාරිභෝගික ආකර්ෂණය අඩු කරන ප්‍රධාන බාධකය හඳුනාගැනීමට.',
+        },
         avatarSpeech: {
-          en: 'We can fix that. What is the single biggest frustration with your existing website?',
-          si: 'අපි ඒක නිවැරදි කරමු. දැනට තිබෙන වෙබ් අඩවියේ ප්‍රධානම ගැටලුව කුමක්ද?',
+          en: 'What is the single biggest weakness in your current website?',
+          si: 'දැනට තිබෙන වෙබ් අඩවියේ ප්‍රධානම ගැටලුව කුමක්ද?',
         },
         options: [
           {
@@ -1397,16 +1449,20 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
       {
         stepIndex: 2,
         stepTitle: {
-          en: 'Desired Fix',
-          si: 'අපේක්ෂිත විසඳුම',
+          en: 'Improvement Focus',
+          si: 'ප්‍රධාන විසඳුම',
         },
         stepQuestion: {
-          en: 'What primary engineering fix do you want us to deliver?',
+          en: 'What is your primary goal for this rebuild?',
           si: 'වෙබ් අඩවියට ලැබිය යුතු ප්‍රධානම සහ වැදගත්ම විසඳුම කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Prioritizes Google PageSpeed 95+ scores, luxury aesthetics, or conversions.',
+          si: 'ක්ෂණික වේගය, සුඛෝපභෝගී පෙනුම හෝ විකුණුම් වැඩි කරවීම ප්‍රමුඛ කිරීමට.',
+        },
         avatarSpeech: {
-          en: 'Understood. Choose the exact improvement focus to engineer.',
-          si: 'පැහැදිලියි. වෙබ් අඩවියට ලැබිය යුතු ප්‍රධානම විසඳුම තෝරන්න.',
+          en: 'Choose the primary engineering focus for this website rebuild.',
+          si: 'ප්‍රධානම විසඳුම තෝරන්න.',
         },
         options: [
           {
@@ -1498,12 +1554,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'දැනට පවතින තත්ත්වය',
         },
         stepQuestion: {
-          en: 'What is your current technical and hosting situation?',
+          en: 'What is the current technical state of your site?',
           si: 'ඔබේ දැනට පවතින තාක්ෂණික තත්ත්වය කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Determines domain migration, content transfer, and server transition.',
+          si: 'Domain මාරු කිරීම, අන්තර්ගතය ගෙනයාම සහ Cloud server සැකැස්ම සඳහා.',
+        },
         avatarSpeech: {
-          en: 'Great. Tell me about your current domain and hosting assets.',
-          si: 'හොඳයි. ඔබේ දැනට පවතින Domain සහ Hosting තත්ත්වය තෝරන්න.',
+          en: 'Select your current domain, hosting, and content assets situation.',
+          si: 'ඔබේ දැනට පවතින Domain සහ Hosting තත්ත්වය තෝරන්න.',
         },
         options: [
           {
@@ -1626,9 +1686,13 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           en: 'What is happening right now in your business?',
           si: 'දැනට ඔබේ ව්‍යාපාරයේ මුහුණ දෙන ප්‍රධානම අභියෝගය කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Identifies your real-world bottleneck without any technical jargon.',
+          si: 'තාක්ෂණික වචන නැතිව, ඔබේ ව්‍යාපාරයේ සැබෑ අභියෝගය හඳුනාගැනීමට.',
+        },
         avatarSpeech: {
-          en: 'No technical knowledge required at all! Just tell me in simple words what is happening right now.',
-          si: 'කිසිම තාක්ෂණික දැනුමක් අවශ්‍ය නැහැ! සරලවම කියන්න දැනට ඔබේ ව්‍යාපාරයේ සිදුවන්නේ කුමක්ද කියලා.',
+          en: 'Tell me in simple words what is happening right now in your business.',
+          si: 'සරලවම කියන්න දැනට ඔබේ ව්‍යාපාරයේ සිදුවන්නේ කුමක්ද කියලා.',
         },
         options: [
           {
@@ -1720,12 +1784,16 @@ export const DECISION_PATHWAYS: DecisionPathway[] = [
           si: 'වටිනාම ප්‍රතිඵලය',
         },
         stepQuestion: {
-          en: 'What is the single most valuable outcome you want from Ravana Tech?',
+          en: 'What is the single most valuable outcome you want?',
           si: 'ඔබට ලැබිය යුතු වටිනාම සහ වැදගත්ම ප්‍රතිඵලය කුමක්ද?',
         },
+        stepSubBrief: {
+          en: 'Matches you with the exact technical solution to achieve your business goal.',
+          si: 'ඔබගේ ඉලක්කය සපුරාගැනීමට වඩාත්ම ගැළපෙන තාක්ෂණික විසඳුම ලබාදීමට.',
+        },
         avatarSpeech: {
-          en: 'Great. And what single result would make the biggest difference to your business?',
-          si: 'විශිෂ්ටයි. ඔබට ලැබිය යුතු වටිනාම සහ වැදගත්ම ප්‍රතිඵලය තෝරන්න.',
+          en: 'What single outcome would make the biggest difference to your business?',
+          si: 'ඔබට ලැබිය යුතු වටිනාම සහ වැදගත්ම ප්‍රතිඵලය තෝරන්න.',
         },
         options: [
           {

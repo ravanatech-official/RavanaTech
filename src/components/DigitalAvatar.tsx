@@ -51,7 +51,7 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
           </span>
           <span className="text-[11px] font-mono font-bold tracking-wider text-amber-400 uppercase flex items-center gap-1">
             <Cpu className="w-3 h-3 text-amber-400" />
-            <span>{language === 'si' ? 'ඩිජිටල් නිර්මාතෘ' : 'DIGITAL ARCHITECT'}</span>
+            <span>DIGITAL ARCHITECT</span>
           </span>
         </div>
 
@@ -61,7 +61,7 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
           <button
             type="button"
             onClick={() => setAvatarMode(avatarMode === 'ai_face' ? 'studio_cutout' : 'ai_face')}
-            className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-neutral-950/80 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-amber-400 transition-colors"
+            className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-neutral-950/80 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-amber-400 transition-colors cursor-pointer"
             title="Toggle between AI Face & Studio Portrait"
           >
             {avatarMode === 'ai_face' ? 'AI Studio Face' : 'Studio Cutout'}
@@ -71,7 +71,7 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
           <button
             type="button"
             onClick={onToggleVoice}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5 border transition-all ${
+            className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
               isPlayingVoice 
                 ? 'bg-amber-400 text-neutral-950 border-amber-400 shadow-md shadow-amber-400/25' 
                 : 'bg-neutral-950 text-amber-400 border-neutral-800 hover:border-amber-400/50'
@@ -80,12 +80,12 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
             {isPlayingVoice ? (
               <>
                 <Pause className="w-3 h-3" />
-                <span className="hidden xs:inline">{language === 'si' ? 'හඬ නවතන්න' : 'Pause'}</span>
+                <span className="hidden xs:inline">Pause</span>
               </>
             ) : (
               <>
                 <Volume2 className="w-3 h-3" />
-                <span className="hidden xs:inline">{language === 'si' ? 'හඬ අසන්න' : 'Play Voice'}</span>
+                <span className="hidden xs:inline">Play Voice</span>
               </>
             )}
           </button>
@@ -170,11 +170,11 @@ export const DigitalAvatar: React.FC<DigitalAvatarProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-              <span>{language === 'si' ? 'ශාන්තප්‍රිය සිල්වා' : 'Shanthapriya Silva'}</span>
+              <span>Shanthapriya Silva</span>
               <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             </h3>
             <p className="text-[11px] text-neutral-400 font-medium">
-              {language === 'si' ? 'නිර්මාතෘ සහ ප්‍රධාන Digital Architect' : 'Founder & Lead Digital Architect'}
+              Founder & Lead Digital Architect
             </p>
           </div>
 

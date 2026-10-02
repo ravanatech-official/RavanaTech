@@ -49,15 +49,19 @@ export interface DecisionStep {
   stepIndex: number; // 1 to 5
   stepTitle: {
     en: string;
-    si: string;
+    si?: string;
   };
   stepQuestion: {
     en: string;
-    si: string;
+    si?: string;
+  };
+  stepSubBrief?: {
+    en: string;
+    si?: string;
   };
   avatarSpeech: {
     en: string;
-    si: string;
+    si?: string;
   };
   options: DecisionOption[];
 }

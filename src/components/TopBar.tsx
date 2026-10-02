@@ -1,11 +1,9 @@
 import React from 'react';
-import { Volume2, VolumeX, Globe2, ShieldCheck } from 'lucide-react';
-import { Language, LocationData } from '../types';
+import { Volume2, VolumeX, Globe2, ShieldCheck, Sparkles } from 'lucide-react';
+import { LocationData } from '../types';
 import { sfx } from '../utils/audio';
 
 interface TopBarProps {
-  language: Language;
-  onLanguageChange: (lang: Language) => void;
   location: LocationData | null;
   onResetLocation: () => void;
   isMuted: boolean;
@@ -15,8 +13,6 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
-  language,
-  onLanguageChange,
   location,
   onResetLocation,
   isMuted,
@@ -25,21 +21,21 @@ export const TopBar: React.FC<TopBarProps> = ({
   onGoToReception,
 }) => {
   return (
-    <header className="sticky top-0 z-50 w-full bg-neutral-950/90 backdrop-blur-md border-b border-neutral-800/80 px-4 md:px-8 py-3.5 transition-colors">
+    <header className="sticky top-0 z-50 w-full bg-neutral-950/90 backdrop-blur-md border-b border-neutral-800/80 px-4 md:px-8 py-3 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         
-        {/* Zone 1: Brand Wordmark (Single text element with icon) */}
+        {/* Zone 1: Brand Wordmark */}
         <div className="flex items-center gap-3">
           <button 
             onClick={onGoToReception}
-            className="flex items-center gap-2.5 text-left group focus-visible:outline-none"
+            className="flex items-center gap-2.5 text-left group focus-visible:outline-none cursor-pointer"
             aria-label="Ravana Tech Home"
           >
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-neutral-950 font-black text-base shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
               R
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-neutral-100 group-hover:text-amber-400 transition-colors">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-neutral-100 group-hover:text-amber-400 transition-colors">
                 Ravana Tech
               </span>
               <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-mono -mt-1">
@@ -53,29 +49,29 @@ export const TopBar: React.FC<TopBarProps> = ({
         <nav className="hidden lg:flex items-center gap-6 text-sm text-neutral-300">
           <button
             onClick={onGoToReception}
-            className={`hover:text-amber-400 transition-colors ${activeScreen === 'reception' ? 'text-amber-400 font-semibold' : ''}`}
+            className={`hover:text-amber-400 transition-colors cursor-pointer ${activeScreen === 'reception' ? 'text-amber-400 font-semibold' : ''}`}
           >
-            {language === 'si' ? 'ප්‍රධාන පිළිගැනීමේ මැදිරිය' : 'Virtual Reception'}
+            Virtual Reception
           </button>
           
           <button
             onClick={onResetLocation}
-            className="flex items-center gap-1.5 hover:text-amber-400 transition-colors text-xs text-neutral-400"
-            title={language === 'si' ? 'රට වෙනස් කරන්න' : 'Change Location'}
+            className="flex items-center gap-1.5 hover:text-amber-400 transition-colors text-xs text-neutral-400 cursor-pointer"
+            title="Change Operating Region"
           >
             <Globe2 className="w-3.5 h-3.5" />
             <span>
-              {location ? `${location.flag} ${location.country}` : (language === 'si' ? 'ස්ථානය තෝරන්න' : 'Select Location')}
+              {location ? `${location.flag} ${location.country}` : 'Select Region'}
             </span>
           </button>
 
           <div className="flex items-center gap-1.5 text-xs text-emerald-400/90 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>{language === 'si' ? 'Founder Direct Line' : 'Architect Online'}</span>
+            <span>Architect Online · LK-HQ</span>
           </div>
         </nav>
 
-        {/* Zone 3: Interactive Affordances (Language Toggle + Sound Toggle) */}
+        {/* Zone 3: Interactive Affordances (Sound Toggle + Direct VIP WhatsApp) */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Audio Mute/Unmute */}
           <button
@@ -83,56 +79,26 @@ export const TopBar: React.FC<TopBarProps> = ({
               sfx.playClick();
               onToggleMute();
             }}
-            className={`p-2 rounded-lg border transition-colors ${
+            className={`p-2 rounded-lg border transition-colors cursor-pointer ${
               isMuted 
                 ? 'bg-neutral-900 border-neutral-800 text-neutral-500 hover:text-neutral-300' 
                 : 'bg-amber-400/10 border-amber-400/30 text-amber-400 hover:bg-amber-400/20'
             }`}
-            title={isMuted ? (language === 'si' ? 'හඬ ක්‍රියාත්මක කරන්න' : 'Unmute Voice & Sound') : (language === 'si' ? 'හඬ අක්‍රිය කරන්න' : 'Mute Voice & Sound')}
+            title={isMuted ? 'Unmute Founder Voice & Sound' : 'Mute Founder Voice & Sound'}
             aria-label="Toggle Sound"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
 
-          {/* Language Selector Segmented Control */}
-          <div className="flex items-center p-1 bg-neutral-900 border border-neutral-800 rounded-lg">
-            <button
-              onClick={() => {
-                sfx.playClick();
-                onLanguageChange('si');
-              }}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                language === 'si'
-                  ? 'bg-amber-400 text-neutral-950 font-bold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200'
-              }`}
-            >
-              සිංහල
-            </button>
-            <button
-              onClick={() => {
-                sfx.playClick();
-                onLanguageChange('en');
-              }}
-              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                language === 'en'
-                  ? 'bg-amber-400 text-neutral-950 font-bold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200'
-              }`}
-            >
-              English
-            </button>
-          </div>
-
           {/* Quick WhatsApp Direct link */}
           <a
-            href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%20Architect,%20I%20am%20visiting%20your%20digital%20headquarters."
+            href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%20Architect,%20I%20am%20visiting%20your%20digital%20reception."
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-neutral-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-neutral-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors shadow-sm"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{language === 'si' ? 'VIP සම්බන්ධතාවය' : 'VIP Contact'}</span>
+            <span>Direct WhatsApp</span>
           </a>
         </div>
 

@@ -4,13 +4,12 @@ import { WorldMapStep } from './components/WorldMapStep';
 import { AvatarReception } from './components/AvatarReception';
 import { GuidedStepView } from './components/GuidedStepView';
 import { FinalQuotationStep } from './components/FinalQuotationStep';
-import { Language, LocationData, MainPathwayId, DecisionOption } from './types';
+import { LocationData, MainPathwayId, DecisionOption } from './types';
 import { DECISION_PATHWAYS } from './data/decisionTree';
 import { sfx, stopVoice } from './utils/audio';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState<'map' | 'reception' | 'step' | 'final'>('map');
-  const [language, setLanguage] = useState<Language>('si');
   const [location, setLocation] = useState<LocationData | null>(null);
   const [activePathwayId, setActivePathwayId] = useState<MainPathwayId | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(1);
@@ -27,19 +26,13 @@ export default function App() {
     }
   };
 
-  // Switch Language
-  const handleLanguageChange = (lang: Language) => {
-    setLanguage(lang);
-  };
-
   // Screen 1 Handler: Location selected on World Map
-  const handleLocationSelected = (selectedLoc: LocationData, autoLanguage: Language) => {
+  const handleLocationSelected = (selectedLoc: LocationData) => {
     setLocation(selectedLoc);
-    setLanguage(autoLanguage);
     setActiveScreen('reception');
   };
 
-  // Screen 2 Handler: Pathway selected from Reception (Options 1 to 5)
+  // Screen 2 Handler: Pathway selected from Reception (Options 1 to 6)
   const handleSelectPathway = (pathwayId: MainPathwayId) => {
     setActivePathwayId(pathwayId);
     setCurrentStepIndex(1);
@@ -103,10 +96,8 @@ export default function App() {
   return (
     <div className="h-[100dvh] max-h-[100dvh] bg-neutral-950 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.06),transparent_60%)] text-neutral-100 flex flex-col font-sans selection:bg-amber-400 selection:text-neutral-950 overflow-hidden">
       
-      {/* 3-Zone Clean Top Navigation */}
+      {/* 3-Zone Clean Top Navigation (Pure English, No Language Switcher) */}
       <TopBar
-        language={language}
-        onLanguageChange={handleLanguageChange}
         location={location}
         onResetLocation={handleResetLocation}
         isMuted={isMuted}
@@ -122,14 +113,13 @@ export default function App() {
         {activeScreen === 'map' && (
           <WorldMapStep
             onLocationSelected={handleLocationSelected}
-            currentLanguage={language}
+            location={location}
           />
         )}
 
         {/* Screen 2: Virtual Reception - Zero-Scroll Guided Questionnaire Selection */}
         {activeScreen === 'reception' && (
           <AvatarReception
-            language={language}
             location={location}
             onSelectPathway={handleSelectPathway}
             onBackToMap={handleResetLocation}
@@ -141,7 +131,6 @@ export default function App() {
           <GuidedStepView
             pathway={currentPathway}
             currentStepIndex={currentStepIndex}
-            language={language}
             onSelectOption={handleSelectOptionInStep}
             onBackStep={handleBackStep}
             onGoToReception={handleGoToReception}
@@ -154,7 +143,6 @@ export default function App() {
         {activeScreen === 'final' && (
           <FinalQuotationStep
             pathway={currentPathway}
-            language={language}
             location={location}
             selectedAnswers={selectedAnswers}
             onStartOver={handleGoToReception}

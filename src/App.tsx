@@ -139,7 +139,7 @@ export default function App() {
           />
         )}
 
-        {/* Screen 4: Step 5 Final Quotation Breakdown & 1-Click WhatsApp/Email Dispatch */}
+        {/* Screen 4: Step 4/5 Final Validation & Project Blueprint Breakdown */}
         {activeScreen === 'final' && (
           <FinalQuotationStep
             pathway={currentPathway}
@@ -148,7 +148,11 @@ export default function App() {
             selectedAnswers={selectedAnswers}
             onStartOver={handleGoToReception}
             onBackToPreviousStep={() => {
-              setCurrentStepIndex(4);
+              setCurrentStepIndex(currentPathway.steps.length);
+              setActiveScreen('step');
+            }}
+            onEditStep={(stepIdx) => {
+              setCurrentStepIndex(stepIdx);
               setActiveScreen('step');
             }}
           />

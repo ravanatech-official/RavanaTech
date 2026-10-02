@@ -54,11 +54,12 @@ export default function App() {
       [stepIdx]: option,
     }));
 
-    // Check if next step is available
-    if (stepIdx < 4) {
+    // Check if next step is available in this pathway
+    const activePathway = DECISION_PATHWAYS.find((p) => p.id === activePathwayId) || DECISION_PATHWAYS[0];
+    if (stepIdx < activePathway.steps.length) {
       setCurrentStepIndex(stepIdx + 1);
     } else {
-      // Reached Step 5: Final Quotation Step
+      // Reached Final Quotation / Blueprint Step
       setActiveScreen('final');
     }
   };

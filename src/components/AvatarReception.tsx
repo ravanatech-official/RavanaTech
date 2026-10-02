@@ -8,7 +8,11 @@ import {
   RotateCcw, 
   ArrowRight,
   MapPin,
-  Sparkles
+  Sparkles,
+  ShoppingBag,
+  CalendarCheck,
+  Cpu,
+  HelpCircle
 } from 'lucide-react';
 import { Language, LocationData, MainPathwayId } from '../types';
 import { DECISION_PATHWAYS } from '../data/decisionTree';
@@ -61,14 +65,15 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
   }, [language]);
 
   const getPathwayIcon = (iconName: string) => {
-    const iconClass = "w-5 h-5 shrink-0";
+    const iconClass = "w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0";
     switch (iconName) {
       case 'Globe': return <Globe className={`${iconClass} text-sky-400`} />;
-      case 'Bot': return <Bot className={`${iconClass} text-amber-400`} />;
-      case 'Eye': return <Eye className={`${iconClass} text-emerald-400`} />;
+      case 'ShoppingBag': return <ShoppingBag className={`${iconClass} text-emerald-400`} />;
+      case 'CalendarCheck': return <CalendarCheck className={`${iconClass} text-amber-400`} />;
+      case 'Cpu': return <Cpu className={`${iconClass} text-cyan-400`} />;
       case 'TrendingUp': return <TrendingUp className={`${iconClass} text-rose-400`} />;
-      case 'PhoneCall': return <PhoneCall className={`${iconClass} text-amber-300`} />;
-      default: return <Globe className={`${iconClass} text-amber-400`} />;
+      case 'HelpCircle': return <HelpCircle className={`${iconClass} text-amber-300`} />;
+      default: return <Sparkles className={`${iconClass} text-amber-400`} />;
     }
   };
 
@@ -141,11 +146,10 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
             </p>
           </div>
 
-          {/* 5 Prominent Solution Tiles */}
-          <div className="flex-1 flex flex-col justify-between gap-1.5 sm:gap-2">
+          {/* 6 Prominent Solution Tiles */}
+          <div className="flex-1 flex flex-col justify-between gap-1.5 sm:gap-2 overflow-y-auto pr-0.5">
             {DECISION_PATHWAYS.map((pathway, index) => {
-              const isVip = pathway.id === 'vip_consultation';
-              const isShowcase = pathway.id === 'conceptual_showcase';
+              const isNotSure = pathway.id === 'not_sure';
 
               return (
                 <div
@@ -154,22 +158,20 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
                     sfx.playClick();
                     onSelectPathway(pathway.id);
                   }}
-                  className={`w-full py-2.5 sm:py-3 px-3.5 sm:px-4 rounded-xl border text-left cursor-pointer transition-all duration-200 flex items-center justify-between gap-3 group active:scale-[0.99] ${
-                    isVip 
-                      ? 'bg-gradient-to-r from-amber-500/10 via-neutral-900 to-neutral-950 border-amber-400/40 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-400/10'
-                      : isShowcase
-                      ? 'bg-gradient-to-r from-sky-500/10 via-neutral-900 to-neutral-950 border-sky-400/40 hover:border-sky-400 hover:shadow-lg hover:shadow-sky-400/10'
+                  className={`w-full py-2 sm:py-2.5 px-3 sm:px-3.5 rounded-xl border text-left cursor-pointer transition-all duration-200 flex items-center justify-between gap-3 group active:scale-[0.99] ${
+                    isNotSure 
+                      ? 'bg-gradient-to-r from-amber-500/15 via-neutral-900 to-neutral-950 border-amber-400/60 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-400/15'
                       : 'bg-neutral-900/90 hover:bg-neutral-900 border-neutral-800 hover:border-amber-400/50 hover:shadow-md hover:shadow-amber-400/5'
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     {/* Number Badge */}
-                    <div className="w-8 h-8 rounded-lg bg-neutral-950 border border-neutral-800 group-hover:border-amber-400/40 flex items-center justify-center font-mono font-bold text-xs text-amber-400 shrink-0 transition-colors">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-neutral-950 border border-neutral-800 group-hover:border-amber-400/40 flex items-center justify-center font-mono font-bold text-xs text-amber-400 shrink-0 transition-colors">
                       0{index + 1}
                     </div>
 
                     {/* Icon */}
-                    <div className="p-2 rounded-lg bg-neutral-950/80 border border-neutral-800/80 shrink-0 group-hover:scale-110 transition-transform">
+                    <div className="p-1.5 sm:p-2 rounded-lg bg-neutral-950/80 border border-neutral-800/80 shrink-0 group-hover:scale-110 transition-transform">
                       {getPathwayIcon(pathway.icon)}
                     </div>
 
@@ -180,7 +182,7 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
                           {pathway.title[language]}
                         </h4>
                         <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase tracking-wider shrink-0 ${
-                          isVip 
+                          isNotSure 
                             ? 'bg-amber-400 text-neutral-950' 
                             : 'bg-neutral-800 text-neutral-400 group-hover:text-amber-300'
                         }`}>
@@ -194,7 +196,7 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
                   </div>
 
                   {/* Arrow Indicator */}
-                  <div className="w-7 h-7 rounded-lg bg-neutral-950 group-hover:bg-amber-400 border border-neutral-800 group-hover:border-amber-400 flex items-center justify-center text-neutral-500 group-hover:text-neutral-950 transition-all shrink-0">
+                  <div className="w-6.5 h-6.5 sm:w-7 sm:h-7 rounded-lg bg-neutral-950 group-hover:bg-amber-400 border border-neutral-800 group-hover:border-amber-400 flex items-center justify-center text-neutral-500 group-hover:text-neutral-950 transition-all shrink-0">
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>

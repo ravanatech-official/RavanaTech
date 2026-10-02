@@ -73,10 +73,82 @@ export const FinalQuotationStep: React.FC<FinalQuotationStepProps> = ({
     ? Math.round((baseMaxLKR * totalCostMultiplier) / 5000) * 5000
     : Math.round((baseMaxUSD * totalCostMultiplier) / 50) * 50;
 
+  // Recommend solution for "not_sure" pathway based on selected answers
+  const getUniversalRecommendation = () => {
+    const step1Choice = selectedAnswers[1]?.id;
+    if (step1Choice === 'p6_now_nocontact') {
+      return {
+        title: {
+          en: 'Path 01: High-Converting Business Website & Local SEO Dominance',
+          si: 'පියවර 01: පාරිභෝගිකයින් ආකර්ෂණය කරවන ව්‍යාපාරික වෙබ් අඩවිය හා Google SEO',
+        },
+        description: {
+          en: 'Engineered specifically to get high-intent phone calls, qualified WhatsApp leads, and rank on top of Google.',
+          si: 'ඔබේ ව්‍යාපාරයට සෘජු ඇමතුම්, WhatsApp පණිවිඩ සහ Google සෙවුම් වල ඉහළින්ම පෙනී සිටීම සඳහා සකස් කරන ලද වෙබ් අඩවියක්.',
+        },
+        badge: { en: 'Path 01 Match', si: 'නිර්දේශිත පියවර 01' }
+      };
+    }
+    if (step1Choice === 'p6_now_manual') {
+      return {
+        title: {
+          en: 'Path 03: Automated Online Booking & WhatsApp Inquiries Engine',
+          si: 'පියවර 03: ස්වයංක්‍රීය WhatsApp සහ කාලසටහන් වෙන්කිරීමේ පද්ධතියක්',
+        },
+        description: {
+          en: 'Saves 3+ hours daily by putting customer inquiries, time slots, and reminders on 100% autopilot.',
+          si: 'දිනපතා පැය ගණනාවක් ඉතිරි කරමින්, පාරිභෝගික වේලාවන් වෙන්කිරීම හා alerts ස්වයංක්‍රීයව සිදුකරන පද්ධතියක්.',
+        },
+        badge: { en: 'Path 03 Match', si: 'නිර්දේශිත පියවර 03' }
+      };
+    }
+    if (step1Choice === 'p6_now_orders') {
+      return {
+        title: {
+          en: 'Path 02: High-Speed Online Store & Instant WhatsApp Checkout',
+          si: 'පියවර 02: අධි-වේගී Online Store සහ WhatsApp ඇණවුම් පද්ධතිය',
+        },
+        description: {
+          en: 'Transforms messy DM orders into a clean, automated digital shop with instant order summaries.',
+          si: 'අපහසු පණිවිඩ වෙනුවට පාරිභෝගිකයාට පහසුවෙන් භාණ්ඩ තෝරාගෙන තත්පර 30න් ඇණවුම් කළ හැකි Store එකක්.',
+        },
+        badge: { en: 'Path 02 Match', si: 'නිර්දේශිත පියවර 02' }
+      };
+    }
+    if (step1Choice === 'p6_now_amateur') {
+      return {
+        title: {
+          en: 'Path 05: Sub-Second PageSpeed Rebuild & Luxury Brand Polish',
+          si: 'පියවර 05: තත්පර 1න් load වන Rebuild එකක් හා සුඛෝපභෝගී නවීන පෙනුම',
+        },
+        description: {
+          en: 'Re-engineers your online presence with bespoke luxury typography, PageSpeed 95+, and high-ticket trust.',
+          si: 'පැරණි පෙනුම වෙනුවට ජාත්‍යන්තර මට්ටමේ ඉහළ විශ්වසනීයත්වයක් ලබාදෙන නවීන කේතකරණයක්.',
+        },
+        badge: { en: 'Path 05 Match', si: 'නිර්දේශිත පියවර 05' }
+      };
+    }
+    return {
+      title: {
+        en: 'Path 04: Custom Web Application & Tailored Operations Portal',
+        si: 'පියවර 04: විශේෂිත මෘදුකාංග පද්ධතියක් (Custom Web App)',
+      },
+      description: {
+        en: 'A bespoke platform built around your unique workflow, staff permissions, and rapid MVP architecture.',
+        si: 'ඔබේ සුවිශේෂී ව්‍යාපාරික අවශ්‍යතාවයටම ගැළපෙන පරිදි නිර්මාණය වන Cloud මෘදුකාංග පද්ධතියක්.',
+      },
+      badge: { en: 'Path 04 Match', si: 'නිර්දේශිත පියවර 04' }
+    };
+  };
+
   // Voice announcement on arrival
-  const finalSpeech = language === 'si'
-    ? 'සුබ පැතුම්! ඔබගේ ව්‍යාපෘති සැලැස්ම හා මිල ගණන් සකස් කර අවසන්. පහත ඇති WhatsApp හෝ Email මගින් ක්ෂණිකවම අප හා සම්බන්ධ වී ඔබගේ ව්‍යාපෘතිය ආරම්භ කළ හැක.'
-    : 'Congratulations! Your customized Ravana Tech architecture blueprint is finalized. Tap WhatsApp or Email below to launch your vision immediately.';
+  const finalSpeech = pathway.id === 'not_sure'
+    ? (language === 'si'
+      ? 'විශිෂ්ටයි! ඔබ ලබාදුන් සරල පිළිතුරු අනුව ඔබට වඩාත්ම ගැළපෙන විසඳුම අප ස්වයංක්‍රීයව හඳුනාගත්තා. ඔබගේ නිල සැලැස්ම පහතින් බලන්න.'
+      : 'Excellent! Based on your answers, we have automatically identified your ideal solution. Review your custom blueprint below.')
+    : (language === 'si'
+      ? 'සුබ පැතුම්! ඔබගේ ව්‍යාපෘති සැලැස්ම හා මිල ගණන් සකස් කර අවසන්. පහත ඇති WhatsApp හෝ Email මගින් ක්ෂණිකවම අප හා සම්බන්ධ වී ඔබගේ ව්‍යාපෘතිය ආරම්භ කළ හැක.'
+      : 'Congratulations! Your customized Ravana Tech architecture blueprint is finalized. Tap WhatsApp or Email below to launch your vision immediately.');
 
   const playVoice = () => {
     setIsPlayingVoice(true);
@@ -107,6 +179,13 @@ export const FinalQuotationStep: React.FC<FinalQuotationStepProps> = ({
       `🎯 Category: ${pathway.title.en}`,
       `---------------------------------------`,
     ];
+
+    if (pathway.id === 'not_sure') {
+      const rec = getUniversalRecommendation();
+      lines.push(`💡 SYSTEM RECOMMENDED SOLUTION: ${rec.title.en}`);
+      lines.push(`ℹ️ ARCHITECTURE RATIONALE: ${rec.description.en}`);
+      lines.push(`---------------------------------------`);
+    }
 
     Object.entries(selectedAnswers).forEach(([stepIdx, opt]) => {
       lines.push(`• Step ${stepIdx}: ${opt.title.en} (${opt.subtitle.en})`);
@@ -252,6 +331,26 @@ export const FinalQuotationStep: React.FC<FinalQuotationStepProps> = ({
             <Volume2 className={`w-3.5 h-3.5 ${isPlayingVoice ? 'animate-bounce text-amber-300' : ''}`} />
           </button>
         </div>
+
+        {/* Recommendation Banner for Path 06 */}
+        {pathway.id === 'not_sure' && (
+          <div className="my-2.5 p-3 rounded-xl bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-neutral-950 border border-amber-400/50 shadow-lg shadow-amber-400/10">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded-full bg-amber-400 text-neutral-950 font-bold text-[10px] uppercase font-mono tracking-wider">
+                {language === 'si' ? 'ස්වයංක්‍රීයව නිර්දේශිත විසඳුම' : 'AI Architect Recommended Solution'}
+              </span>
+              <span className="text-[10px] font-bold text-amber-300 font-mono">
+                {getUniversalRecommendation().badge[language]}
+              </span>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold text-white mb-0.5 text-amber-200">
+              {getUniversalRecommendation().title[language]}
+            </h3>
+            <p className="text-[11px] sm:text-xs text-neutral-300 leading-relaxed">
+              {getUniversalRecommendation().description[language]}
+            </p>
+          </div>
+        )}
 
         {/* Investment & Sprint Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 my-2.5">

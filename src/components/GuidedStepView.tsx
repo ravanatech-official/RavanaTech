@@ -68,7 +68,9 @@ import {
   Palette,
   Copy,
   Server,
-  Smartphone
+  Smartphone,
+  Database,
+  Repeat
 } from 'lucide-react';
 import { Language, DecisionPathway, DecisionOption } from '../types';
 import { sfx, speakVoice, stopVoice } from '../utils/audio';
@@ -194,11 +196,14 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
       case 'Copy': return <Copy {...props} />;
       case 'Server': return <Server {...props} />;
       case 'Smartphone': return <Smartphone {...props} />;
+      case 'Database': return <Database {...props} />;
+      case 'Repeat': return <Repeat {...props} />;
       default: return <Sparkles {...props} />;
     }
   };
 
-  const progressPct = Math.round((currentStepIndex / 4) * 100);
+  const totalSteps = pathway.steps.length;
+  const progressPct = Math.round((currentStepIndex / totalSteps) * 100);
 
   return (
     <div className="h-full max-h-full flex-1 flex flex-col justify-between py-2 sm:py-3 px-3 sm:px-6 max-w-4xl mx-auto w-full overflow-hidden select-none">
@@ -217,7 +222,7 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
 
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-mono text-neutral-400">
-              {language === 'si' ? `ප්‍රශ්න අංක 0${currentStepIndex} / 04` : `Question 0${currentStepIndex} of 04`}
+              {language === 'si' ? `ප්‍රශ්න අංක 0${currentStepIndex} / 0${totalSteps}` : `Question 0${currentStepIndex} of 0${totalSteps}`}
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/30">
               {pathway.badge[language]}

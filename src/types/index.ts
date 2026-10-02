@@ -11,6 +11,11 @@ export interface LocationData {
 
 export type MainPathwayId = 
   | 'new_website'
+  | 'ecommerce_store'
+  | 'booking_system'
+  | 'custom_system'
+  | 'improve_website'
+  | 'not_sure'
   | 'ai_automation'
   | 'conceptual_showcase'
   | 'sales_boost'

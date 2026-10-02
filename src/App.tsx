@@ -90,7 +90,7 @@ export default function App() {
   const currentPathway = DECISION_PATHWAYS.find((p) => p.id === activePathwayId) || DECISION_PATHWAYS[0];
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-amber-400 selection:text-neutral-950 overflow-hidden">
+    <div className="h-[100dvh] max-h-[100dvh] bg-neutral-950 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.06),transparent_60%)] text-neutral-100 flex flex-col font-sans selection:bg-amber-400 selection:text-neutral-950 overflow-hidden">
       
       {/* 3-Zone Clean Top Navigation */}
       <TopBar

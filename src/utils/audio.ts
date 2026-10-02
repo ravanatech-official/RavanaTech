@@ -1,5 +1,4 @@
 // Audio utility using Web Audio API for synthetic sound effects & Web Speech API for voice guidance
-
 class SoundFX {
   private ctx: AudioContext | null = null;
   public isMuted: boolean = false;
@@ -24,21 +23,17 @@ class SoundFX {
       if (!this.ctx) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-
       osc.type = 'sine';
       osc.frequency.setValueAtTime(587.33, this.ctx.currentTime); // D5
       osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08); // A5
-
       gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.09);
-
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-
       osc.start();
       osc.stop(this.ctx.currentTime + 0.1);
     } catch {
-      // Ignore audio context errors if blocked by browser policy
+      // Ignore
     }
   }
 
@@ -50,17 +45,13 @@ class SoundFX {
       if (!this.ctx) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(440, this.ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.2);
-
       gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
-
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-
       osc.start();
       osc.stop(this.ctx.currentTime + 0.3);
     } catch {
@@ -81,13 +72,10 @@ class SoundFX {
         const gain = this.ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.06);
-
         gain.gain.setValueAtTime(0.06, this.ctx.currentTime + idx * 0.06);
         gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.06 + 0.35);
-
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-
         osc.start(this.ctx.currentTime + idx * 0.06);
         osc.stop(this.ctx.currentTime + idx * 0.06 + 0.4);
       });
@@ -104,17 +92,13 @@ class SoundFX {
       if (!this.ctx) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-
       osc.type = 'sine';
       osc.frequency.setValueAtTime(320, this.ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(520, this.ctx.currentTime + 0.15);
-
       gain.gain.setValueAtTime(0.07, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
-
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-
       osc.start();
       osc.stop(this.ctx.currentTime + 0.2);
     } catch {
@@ -125,12 +109,28 @@ class SoundFX {
 
 export const sfx = new SoundFX();
 
-// Web Speech API Voice Synthesizer
 export interface SpeechCallback {
   onStart?: () => void;
   onEnd?: () => void;
   onError?: () => void;
 }
+
+// Female voice name substrings to strictly exclude
+const FEMALE_NAMES = [
+  'zira', 'hazel', 'samantha', 'susan', 'victoria', 'catherine', 'karen',
+  'helena', 'elena', 'maria', 'stephanie', 'jenny', 'aria', 'sarah',
+  'ava', 'emma', 'sonia', 'veena', 'neerja', 'lisa', 'kendra', 'female',
+  'woman', 'girl', 'anna', 'monica', 'amira', 'heera', 'kalpana', 'julie',
+  'alice', 'fiona', 'moira', 'tessa', 'yuna', 'kyoko', 'sin-ji', 'ting-ting'
+];
+
+// Male voice name keywords to strongly prefer
+const MALE_NAMES = [
+  'david', 'mark', 'george', 'daniel', 'oliver', 'guy', 'brian', 'arthur',
+  'ravi', 'prabhat', 'james', 'richard', 'alex', 'fred', 'ryan', 'male',
+  'man', 'andrew', 'steven', 'thomas', 'google uk english male',
+  'microsoft david', 'microsoft mark', 'microsoft george', 'en-in', 'natural'
+];
 
 export const speakVoice = (
   text: string,
@@ -150,41 +150,57 @@ export const speakVoice = (
   try {
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    // Natural English transcription for Sinhala greeting so synthetic speech doesn't mangle letters
+    let spokenText = text;
+    if (lang === 'si') {
+      if (text.includes('Ravana Tech වෙත සාදරයෙන් පිළිගන්නවා') || text.includes('ශාන්තප්‍රිය')) {
+        spokenText = "Ayubowan! Welcome to Ravana Tech. I am Shanthapriya, your Founder and Digital Architect. Select your solution pathway below to begin your personalized questionnaire.";
+      }
+    }
+
+    const utterance = new SpeechSynthesisUtterance(spokenText);
+    
+    // Male Architect vocal settings: Authoritative, calm, deep baritone pitch
+    utterance.pitch = 0.82;
+    utterance.rate = 0.92;
 
     const voices = window.speechSynthesis.getVoices();
     
-    if (lang === 'si') {
-      // Check if Sinhala or Indian subcontinent voice is available
-      const siVoice = voices.find(v => v.lang.startsWith('si') || v.lang.includes('LK'));
-      if (siVoice) {
-        utterance.voice = siVoice;
-        utterance.lang = siVoice.lang;
-      } else {
-        // Fallback to warm English/neutral voice or standard voice
-        const warmVoice = voices.find(v => (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Daniel') || v.name.includes('Arthur')) && v.lang.startsWith('en'));
-        if (warmVoice) utterance.voice = warmVoice;
-        utterance.lang = 'en-US';
-      }
+    // 1. Filter out all female voices
+    const nonFemaleVoices = voices.filter(v => {
+      const lower = v.name.toLowerCase();
+      return !FEMALE_NAMES.some(f => lower.includes(f));
+    });
+
+    // 2. Search for explicit male voices
+    let selectedVoice = nonFemaleVoices.find(v => {
+      const lower = v.name.toLowerCase();
+      return MALE_NAMES.some(m => lower.includes(m)) && v.lang.startsWith('en');
+    });
+
+    // 3. Fallback: Any non-female English voice
+    if (!selectedVoice) {
+      selectedVoice = nonFemaleVoices.find(v => v.lang.startsWith('en'));
+    }
+
+    // 4. Fallback: Any non-female voice
+    if (!selectedVoice && nonFemaleVoices.length > 0) {
+      selectedVoice = nonFemaleVoices[0];
+    }
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+      utterance.lang = selectedVoice.lang;
     } else {
-      // High quality English voice
-      const preferred = voices.find(v => (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Daniel') || v.name.includes('Samantha') || v.name.includes('Premium')) && v.lang.startsWith('en'));
-      if (preferred) {
-        utterance.voice = preferred;
-      }
       utterance.lang = 'en-US';
     }
 
     utterance.onstart = () => {
       callbacks?.onStart?.();
     };
-
     utterance.onend = () => {
       callbacks?.onEnd?.();
     };
-
     utterance.onerror = () => {
       callbacks?.onError?.();
     };

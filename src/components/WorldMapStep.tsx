@@ -381,7 +381,7 @@ export const WorldMapStep: React.FC<WorldMapStepProps> = ({
   );
 
   return (
-    <div className="relative flex-1 flex flex-col justify-between py-4 sm:py-6 px-4 sm:px-6 max-w-6xl mx-auto w-full">
+    <div className="relative flex-1 flex flex-col justify-between py-2 sm:py-4 px-3 sm:px-6 max-w-7xl mx-auto w-full">
       
       {/* 1. Ultra-Clean Minimal Hero */}
       <div className="text-center max-w-lg mx-auto mb-3">
@@ -464,7 +464,7 @@ export const WorldMapStep: React.FC<WorldMapStepProps> = ({
         </div>
 
         {/* Map Viewport */}
-        <div className="relative w-full h-[340px] sm:h-[420px] rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950">
+        <div className="relative w-full h-[340px] sm:h-[420px] lg:h-[480px] xl:h-[520px] rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 shadow-2xl">
           <div ref={mapContainerRef} className="w-full h-full z-0" />
 
           {/* Minimal Floating Map Controls (Top Right) */}

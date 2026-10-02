@@ -1,4 +1,4 @@
-import type { FlowNode, IntentId } from '../types';
+import type { FlowNode, IntentId } from '../../types';
 
 const t = (en: string, si: string) => ({ en, si });
 const option = (id: string, en: string, si: string, descEn: string, descSi: string, nextNodeId: string) => ({

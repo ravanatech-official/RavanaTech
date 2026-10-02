@@ -144,7 +144,7 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
           {/* 5 Prominent Solution Tiles */}
           <div className="flex-1 flex flex-col justify-between gap-1.5 sm:gap-2">
             {DECISION_PATHWAYS.map((pathway, index) => {
-              const isVip = pathway.id === 'founder_vip';
+              const isVip = pathway.id === 'vip_consultation';
               const isShowcase = pathway.id === 'conceptual_showcase';
 
               return (

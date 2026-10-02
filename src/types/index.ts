@@ -101,3 +101,21 @@ export interface ClientInquiry {
   };
   estimatedTimeline: string;
 }
+
+export type IntentId = 'new' | 'improve' | 'showcase' | 'unsure' | 'project';
+
+export interface FlowOption {
+  id: string;
+  title: { en: string; si: string };
+  description: { en: string; si: string };
+  nextNodeId: string;
+}
+
+export interface FlowNode {
+  id: string;
+  intentId: IntentId;
+  title: { en: string; si: string };
+  question: { en: string; si: string };
+  founderSpeech: { en: string; si: string };
+  options: FlowOption[];
+}

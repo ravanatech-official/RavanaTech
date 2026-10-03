@@ -217,12 +217,12 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
             </div>
             
             {/* Prominent Question Headline */}
-            <h2 className="text-sm sm:text-base lg:text-lg font-extrabold text-white tracking-tight mt-0.5 leading-snug">
+            <h2 className="text-sm sm:text-base lg:text-lg font-bold text-white tracking-tight mt-0.5 leading-snug">
               {currentStep.stepQuestion.en}
             </h2>
 
             {/* Exactly 1-Sentence Simple Brief */}
-            <p className="text-[11px] sm:text-xs text-neutral-300 mt-0.5 leading-tight">
+            <p className="text-xs sm:text-sm text-neutral-300 mt-1 leading-relaxed">
               {currentStep.stepSubBrief?.en || currentStep.avatarSpeech.en}
             </p>
           </div>
@@ -248,7 +248,7 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
             <div
               key={option.id}
               onClick={() => handleOptionClick(option)}
-              className={`w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl border text-left cursor-pointer transition-all duration-150 flex items-center justify-between gap-3 group active:scale-[0.99] ${
+              className={`w-full py-2.5 sm:py-3 px-3.5 sm:px-4 rounded-xl border text-left cursor-pointer transition-all duration-150 flex items-center justify-between gap-3 group active:scale-[0.99] ${
                 isSelected
                   ? 'bg-amber-400/10 border-amber-400 shadow-md shadow-amber-400/20 ring-1 ring-amber-400'
                   : 'bg-neutral-900/90 border-neutral-800 hover:border-neutral-700 hover:bg-neutral-850'
@@ -272,18 +272,18 @@ export const GuidedStepView: React.FC<GuidedStepViewProps> = ({
                 {/* Content: Clean Title + 1-Sentence Subtitle */}
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className={`text-xs sm:text-sm font-bold tracking-tight truncate ${
+                    <h3 className={`text-xs sm:text-sm font-semibold tracking-tight truncate ${
                       isSelected ? 'text-amber-300' : 'text-white group-hover:text-amber-200'
                     }`}>
                       {option.title.en}
                     </h3>
                     {option.tag && (
-                      <span className="hidden md:inline-block text-[9px] font-mono text-neutral-400">
+                      <span className="hidden md:inline-block text-[10px] font-mono text-neutral-400">
                         · {option.tag.en}
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-neutral-400 group-hover:text-neutral-300 transition-colors line-clamp-1 leading-snug">
+                  <p className="text-[11px] sm:text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors line-clamp-1 leading-snug">
                     {option.subtitle.en}
                   </p>
                 </div>

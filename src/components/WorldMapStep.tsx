@@ -266,12 +266,12 @@ export const WorldMapStep: React.FC<WorldMapStepProps> = ({
         </div>
 
         {/* Prominent Question Headline */}
-        <h1 className="text-base sm:text-xl lg:text-2xl font-black text-white tracking-tight mt-0.5 leading-snug">
+        <h1 className="text-lg sm:text-2xl font-bold text-white tracking-tight mt-1 leading-snug">
           Select Your Operating Region
         </h1>
         
         {/* Exactly 1-Sentence Simple Brief */}
-        <div className="flex items-center justify-center gap-2 mt-0.5">
+        <div className="flex items-center justify-center gap-2 mt-1">
           <p className="text-xs sm:text-sm text-neutral-300">
             We calibrate milestone pricing and regional currency based on your business location.
           </p>

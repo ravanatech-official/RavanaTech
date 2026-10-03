@@ -124,11 +124,11 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
         <div className="lg:col-span-7 h-full flex flex-col justify-between py-1">
           
           {/* Section Heading: Prominent Headline + 1-Sentence Brief */}
-          <div className="shrink-0 mb-2">
-            <h2 className="text-sm sm:text-base lg:text-lg font-black text-white tracking-tight leading-snug">
+          <div className="shrink-0 mb-2.5">
+            <h2 className="text-base sm:text-xl font-bold text-white tracking-tight leading-snug">
               What digital solution are you looking to architect?
             </h2>
-            <p className="text-[11px] sm:text-xs text-neutral-300 mt-0.5 leading-snug">
+            <p className="text-xs sm:text-sm text-neutral-300 mt-1 leading-relaxed">
               Choose your project category to launch your 3-question adaptive blueprint.
             </p>
           </div>
@@ -155,16 +155,16 @@ export const AvatarReception: React.FC<AvatarReceptionProps> = ({
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className={`text-xs sm:text-sm font-bold tracking-tight truncate ${
+                      <h3 className={`text-xs sm:text-sm font-semibold tracking-tight truncate ${
                         pathway.id === 'not_sure' ? 'text-amber-300' : 'text-white group-hover:text-amber-300'
                       }`}>
                         {pathway.title.en}
                       </h3>
-                      <span className="hidden sm:inline-block text-[9px] font-mono text-neutral-400">
+                      <span className="hidden sm:inline-block text-[10px] font-mono text-neutral-400">
                         · {pathway.badge.en}
                       </span>
                     </div>
-                    <p className="text-[11px] text-neutral-400 group-hover:text-neutral-300 transition-colors truncate leading-snug">
+                    <p className="text-[11px] sm:text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors truncate leading-snug">
                       {pathway.subtitle.en}
                     </p>
                   </div>

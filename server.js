@@ -12,10 +12,16 @@ const HOST = '0.0.0.0';
 // Serve assets folder
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// Static asset alias fallbacks to root directory
+// Static asset alias fallbacks
+app.use('/assets/css', express.static(path.join(__dirname, 'assets/css')));
 app.use('/assets/css', express.static(__dirname));
+app.use('/assets/js', express.static(path.join(__dirname, 'assets/js')));
 app.use('/assets/js', express.static(__dirname));
+app.use('/assets/img', express.static(path.join(__dirname, 'assets/img')));
 app.use('/assets/img', express.static(__dirname));
+
+// Serve files from assets/img at root path as well (for image 01.jpg, etc.)
+app.use(express.static(path.join(__dirname, 'assets/img')));
 
 // Serve all static files from root directory
 app.use(express.static(__dirname));

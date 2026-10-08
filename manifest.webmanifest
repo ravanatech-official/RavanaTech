@@ -1,0 +1,45 @@
+{
+  "name": "RAVANA TECH — Web, Software & AI",
+  "short_name": "RAVANA TECH",
+  "description": "High-performance web applications, resilient software architectures, and AI-driven solutions by Shanthapriya Silva.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#030712",
+  "theme_color": "#030712",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["business", "developer", "technology"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Ravana.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Systems",
+      "url": "/#systems",
+      "description": "Explore AI, Cloud & Web engineering systems"
+    },
+    {
+      "name": "Projects Archive",
+      "url": "/projects",
+      "description": "Browse 50 interactive conceptual blueprints"
+    },
+    {
+      "name": "Contact",
+      "url": "/#contact",
+      "description": "Connect with Shanthapriya Silva"
+    }
+  ]
+}

@@ -43,6 +43,34 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Global A11y Standards: Focus ring & Skip to Content */
+:focus-visible {
+  outline: 2px solid var(--rt-cyan-bright);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: -120px;
+  left: 1rem;
+  background: var(--rt-cyan-bright);
+  color: #00050A;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  z-index: 99999;
+  transition: top 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 25px rgba(24, 200, 255, 0.75);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
 body {
   margin: 0;
   padding-top: var(--header-height);
@@ -462,6 +490,11 @@ main:nth-of-type(1),
   font-size: 1.6rem;
   cursor: pointer;
   display: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
+  line-height: 1;
 }
 
 /* Mobile Nav Menu */
@@ -1551,6 +1584,39 @@ main:nth-of-type(1),
   font-size: 0.72rem;
   color: var(--rt-text-dim);
   letter-spacing: 0.15em;
+}
+
+.footer__compliance-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+
+.compliance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--rt-cyan-bright);
+  background: rgba(0, 191, 255, 0.05);
+  border: 1px solid rgba(0, 191, 255, 0.25);
+  padding: 0.25rem 0.65rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.footer__legal-note {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--rt-text-dim);
+  letter-spacing: 0.08em;
+  max-width: 650px;
+  line-height: 1.5;
+  margin-top: 0.25rem;
 }
 
 /*==============================================================

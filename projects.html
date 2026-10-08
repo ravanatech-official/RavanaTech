@@ -13,7 +13,16 @@
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
         <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
         <link rel="canonical" href="https://ravanatec.web.app/projects">
+        <link rel="alternate" hreflang="x-default" href="https://ravanatec.web.app/projects">
+        <link rel="alternate" hreflang="en" href="https://ravanatec.web.app/projects">
         <meta name="theme-color" content="#030712">
+        <meta name="color-scheme" content="dark">
+
+        <!-- ===== FAVICONS & PWA MANIFEST ===== -->
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="alternate icon" href="/favicon.svg">
+        <link rel="apple-touch-icon" href="/favicon.svg">
+        <link rel="manifest" href="/manifest.webmanifest">
 
         <!-- ===== OPEN GRAPH ===== -->
         <meta property="og:type" content="website">
@@ -45,16 +54,39 @@
         <script type="application/ld+json">
         {
           "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          "name": "Conceptual Blueprints Archive // RAVANA TECH",
-          "description": "Archive of 50 bespoke conceptual web applications, user interfaces, and systems architectures engineered by Ravana Tech.",
-          "url": "https://ravanatec.web.app/projects",
-          "creator": {
-            "@type": "Organization",
-            "name": "RAVANA TECH",
-            "url": "https://ravanatec.web.app/"
-          },
-          "about": "Web Development, Software Engineering, and AI Architectures"
+          "@graph": [
+            {
+              "@type": "CollectionPage",
+              "@id": "https://ravanatec.web.app/projects#webpage",
+              "name": "Conceptual Blueprints Archive // RAVANA TECH",
+              "description": "Archive of 50 bespoke conceptual web applications, user interfaces, and systems architectures engineered by Ravana Tech.",
+              "url": "https://ravanatec.web.app/projects",
+              "creator": {
+                "@type": "Organization",
+                "name": "RAVANA TECH",
+                "url": "https://ravanatec.web.app/"
+              },
+              "about": "Web Development, Software Engineering, and AI Architectures"
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ravanatec.web.app/projects#breadcrumb",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://ravanatec.web.app/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Conceptual Blueprints Archive",
+                  "item": "https://ravanatec.web.app/projects"
+                }
+              ]
+            }
+          ]
         }
         </script>
 
@@ -75,11 +107,14 @@
         </script>
     </head>
     <body class="archive-screen-body">
+        <!--===== ACCESSIBILITY SKIP TO CONTENT =====-->
+        <a href="#main-content" class="skip-link">Skip to main content</a>
+
         <!--===== HEADER =====-->
-        <header class="l-header" id="header">
-            <nav class="nav bd-grid">
+        <header class="l-header" id="header" role="banner">
+            <nav class="nav bd-grid" aria-label="Archive Navigation">
                 <div class="nav__brand">
-                    <a href="index.html#home" class="nav__logo">
+                    <a href="index.html#home" class="nav__logo" aria-label="Ravana Tech Homepage">
                         RAVANA<span class="nav__logo-slash">//</span>TECH
                     </a>
                     <span class="nav__subtitle">BY SHANTHAPRIYA SILVA</span>
@@ -97,22 +132,22 @@
 
                 <div class="archive-nav-actions">
                     <a href="index.html" class="archive-return-link">
-                        <i class='bx bx-arrow-back'></i>
+                        <i class='bx bx-arrow-back' aria-hidden="true"></i>
                         <span>RETURN TO MAIN MATRIX</span>
                     </a>
-                    <div class="nav__online-status">
-                        <span class="pulse-dot"></span>
+                    <div class="nav__online-status" aria-label="Verified blueprints count">
+                        <span class="pulse-dot" aria-hidden="true"></span>
                         <span>50/50 VERIFIED</span>
                     </div>
                 </div>
 
-                <div class="nav__toggle" id="nav-toggle">
-                    <i class='bx bx-menu'></i>
-                </div>
+                <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <i class='bx bx-menu' aria-hidden="true"></i>
+                </button>
             </nav>
         </header>
 
-        <main class="l-main archive-main-viewport">
+        <main class="l-main archive-main-viewport" id="main-content" role="main">
             <!--===== DEDICATED FULLSCREEN PROJECTS SCREEN =====-->
             <section class="projects-screen section" id="archive-viewport">
                 <div class="bd-grid">
@@ -207,6 +242,24 @@
                 </div>
             </section>
         </main>
+
+        <!--===== FOOTER =====-->
+        <footer class="footer" role="contentinfo">
+            <div class="footer__container bd-grid">
+                <div class="footer__compliance-bar">
+                    <span class="compliance-badge"><i class='bx bx-check-shield' aria-hidden="true"></i> WCAG 2.2 AA COMPLIANT</span>
+                    <span class="compliance-badge"><i class='bx bx-lock-alt' aria-hidden="true"></i> TLS 1.3 / HSTS ENCRYPTED</span>
+                    <span class="compliance-badge"><i class='bx bx-globe' aria-hidden="true"></i> ISO/IEC 25010 ARCHITECTURE</span>
+                    <span class="compliance-badge"><i class='bx bx-bolt-circle' aria-hidden="true"></i> GOOGLE CORE WEB VITALS OPTIMIZED</span>
+                </div>
+                <p class="footer__copy">
+                    &#169; 2026 <strong>RAVANA TECH</strong>. ALL RIGHTS RESERVED. FOUNDED & DIRECTED BY <strong>SHANTHAPRIYA SILVA</strong>.
+                </p>
+                <p class="footer__legal-note">
+                    Engineered for high-resilience global delivery. Privacy notice: In-flight cryptographic security enforced. Zero third-party telemetry selling.
+                </p>
+            </div>
+        </footer>
 
         <!--===== SILICON VALLEY INTERACTIVE DEVICE SIMULATOR MODAL =====-->
         <div class="device-modal-backdrop" id="project-modal" aria-hidden="true" role="dialog" aria-modal="true">

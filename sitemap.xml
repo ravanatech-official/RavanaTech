@@ -5,32 +5,14 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
         <loc>https://ravanatec.web.app/</loc>
-        <lastmod>2026-10-08T06:15:00+00:00</lastmod>
-        <changefreq>weekly</changefreq>
+        <lastmod>2026-10-08T07:00:00+00:00</lastmod>
+        <changefreq>daily</changefreq>
         <priority>1.00</priority>
     </url>
     <url>
         <loc>https://ravanatec.web.app/projects</loc>
-        <lastmod>2026-10-08T06:15:00+00:00</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.95</priority>
-    </url>
-    <url>
-        <loc>https://ravanatec.web.app/#about</loc>
-        <lastmod>2026-10-08T06:15:00+00:00</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.80</priority>
-    </url>
-    <url>
-        <loc>https://ravanatec.web.app/#systems</loc>
-        <lastmod>2026-10-08T06:15:00+00:00</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.80</priority>
-    </url>
-    <url>
-        <loc>https://ravanatec.web.app/#contact</loc>
-        <lastmod>2026-10-08T06:15:00+00:00</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.80</priority>
+        <lastmod>2026-10-08T07:00:00+00:00</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.90</priority>
     </url>
 </urlset>

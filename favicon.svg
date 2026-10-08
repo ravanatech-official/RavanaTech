@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff" />
+      <stop offset="50%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#00f5ff" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background Shield -->
+  <rect width="512" height="512" rx="128" fill="#030712" />
+  <rect width="504" height="504" x="4" y="4" rx="124" fill="none" stroke="#00f5ff" stroke-width="6" stroke-opacity="0.3" />
+  <!-- Cyber Hexagonal Core -->
+  <polygon points="256,64 420,158 420,354 256,448 92,354 92,158" fill="none" stroke="url(#cyberGrad)" stroke-width="8" stroke-dasharray="16,8" opacity="0.6" />
+  <!-- Ravana Monogram Emblem (R + Cyber Trident) -->
+  <g filter="url(#glow)">
+    <!-- Central Spear/Pillar -->
+    <path d="M256 100 L256 412" stroke="url(#cyberGrad)" stroke-width="18" stroke-linecap="round" />
+    <!-- Angular R Loop -->
+    <path d="M256 140 H336 C376 140 400 168 400 206 C400 244 376 272 336 272 H256" fill="none" stroke="url(#cyberGrad)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Diagonal Jet Leg -->
+    <path d="M312 272 L388 412" stroke="url(#cyberGrad)" stroke-width="18" stroke-linecap="round" />
+    <!-- Left Wing / Trident Flank -->
+    <path d="M164 220 L164 300 C164 340 200 370 256 370" fill="none" stroke="#00f5ff" stroke-width="12" stroke-linecap="round" opacity="0.8" />
+    <!-- Left Crown Crest -->
+    <polygon points="164,180 148,220 180,220" fill="#00f5ff" />
+    <!-- Top Crown Crest -->
+    <polygon points="256,70 240,110 272,110" fill="#00f5ff" />
+    <!-- Right Crown Crest -->
+    <polygon points="348,180 332,220 364,220" fill="#00f5ff" />
+  </g>
+</svg>

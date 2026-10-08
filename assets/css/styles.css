@@ -800,40 +800,66 @@ img {
   }
 }
 
-.about__photo-panel.hud-circle-portal {
+.about__photo-panel.hud-rounded-card {
   position: relative;
   display: flex;
   flex-direction: column;
+  border-radius: 24px;
+  background: radial-gradient(130% 120% at 10% 10%, rgba(0, 115, 184, 0.16) 0%, rgba(2, 18, 30, 0.88) 60%);
+  border: 1.5px solid rgba(0, 191, 255, 0.28);
+  box-shadow: 
+    inset 0 0 25px rgba(0, 191, 255, 0.06),
+    0 12px 35px rgba(0, 0, 0, 0.5);
+  padding: 1.25rem;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+.about__photo-panel.hud-rounded-card:hover {
+  border-color: var(--rt-cyan-bright);
+  box-shadow: 
+    inset 0 0 35px rgba(0, 191, 255, 0.12),
+    0 16px 45px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(0, 191, 255, 0.2);
+}
+
+.about__telemetry-bar {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  padding: 2.5rem 1.5rem;
-  min-height: 380px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  clip-path: none;
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--rt-border-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--rt-cyan-bright);
+  letter-spacing: 0.15em;
 }
 
-.about-radar-ring {
-  position: absolute;
-  width: 330px;
-  height: 330px;
-  border-radius: 50%;
-  border: 1px dashed rgba(0, 191, 255, 0.25);
-  pointer-events: none;
-  animation: radar-rotate 24s linear infinite;
+.about__photo-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 191, 255, 0.3);
+  background: #000;
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.1);
 }
 
-.about-radar-ring-2 {
-  position: absolute;
-  width: 375px;
-  height: 375px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 191, 255, 0.12);
-  border-top-color: var(--rt-cyan);
-  border-bottom-color: var(--rt-cyan);
-  pointer-events: none;
-  animation: radar-rotate-rev 18s linear infinite;
+.about__img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 18px;
+  filter: contrast(1.05) brightness(0.98);
+  transition: transform 0.4s ease;
+  display: block;
+}
+
+.about__photo-panel:hover .about__img {
+  transform: scale(1.03);
 }
 
 .about__content {

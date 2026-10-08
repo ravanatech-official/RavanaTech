@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conceptual Site for Film Production House — PÆRALLAX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400;1,6..96,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cinema': '#0a0a0a',
+                        'paper': '#fdfaf3',
+                        'clapper': '#f5f2eb',
+                        'kodak': '#ffcc02',
+                        'kodak-dark': '#e6b800',
+                        'grain': '#1a1a1a',
+                    },
+                    fontFamily: {
+                        'serif': ['Bodoni Moda', 'Instrument Serif', 'serif'],
+                        'display': ['Instrument Serif', 'serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                        'reader': ['Newsreader', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        html { scroll-behavior: smooth; }
+        body { background: #0a0a0a; color: #fdfaf3; overflow-x: hidden; }
+        
+        /* Grain */
+        #grain {
+            position: fixed; inset: -50%; width: 200%; height: 200%;
+            z-index: 9999; pointer-events: none; opacity: 0.06;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            animation: grainShift 8s steps(10) infinite;
+        }
+        @keyframes grainShift {
+            0%, 100% { transform: translate(0,0); }
+            10% { transform: translate(-5%,-10%); }
+            20% { transform: translate(-15%,5%); }
+            30% { transform: translate(7%,-25%); }
+            40% { transform: translate(-5%,25%); }
+            50% { transform: translate(-15%,10%); }
+            60% { transform: translate(15%,0%); }
+            70% { transform: translate(0%,15%); }
+            80% { transform: translate(3%,-15%); }
+            90% { transform: translate(-10%,10%); }
+        }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            width: 6px; height: 6px; background: #ffcc02;
+            position: fixed; top: 0; left: 0; border-radius: 50%;
+            pointer-events: none; z-index: 99999; mix-blend-mode: difference;
+            transition: transform 0.15s ease;
+        }
+        .cursor-ring {
+            width: 36px; height: 36px; border: 1px solid rgba(253,250,243,0.5);
+            position: fixed; top: 0; left: 0; border-radius: 50%;
+            pointer-events: none; z-index: 99998; mix-blend-mode: difference;
+            transition: width 0.3s, height 0.3s, border-color 0.3s, transform 0.15s ease-out;
+        }
+        .cursor-ring.hover { width: 70px; height: 70px; border-color: #ffcc02; background: rgba(255,204,2,0.08); }
+        @media (pointer: coarse) { .cursor-dot, .cursor-ring { display: none; } }
+
+        /* Film Perforation */
+        .film-perf {
+            position: relative; background: #0a0a0a;
+        }
+        .film-perf::before, .film-perf::after {
+            content: ''; position: absolute; top: 0; bottom: 0; width: 34px;
+            background-image: repeating-linear-gradient(to bottom, transparent 0 12px, #0a0a0a 12px 26px);
+            background-size: 100% 40px;
+            z-index: 2;
+        }
+        .film-perf::before { left: 0; border-right: 1px solid #1f1f1f; }
+        .film-perf::after { right: 0; border-left: 1px solid #1f1f1f; }
+
+        .perforation-track {
+            display: flex; flex-direction: column; gap: 14px; padding: 18px 10px;
+            background: #0a0a0a;
+        }
+        .perf-hole {
+            width: 16px; height: 12px; background: #fdfaf3; border-radius: 2px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Marquee */
+        .marquee { overflow: hidden; white-space: nowrap; border-top: 1px solid #1f1f1f; border-bottom: 1px solid #1f1f1f; }
+        .marquee-track { display: inline-flex; animation: marquee 45s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* Reveal */
+        .reveal { opacity: 0; transform: translateY(36px); transition: opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1); }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.12s; }
+        .reveal-delay-2 { transition-delay: 0.24s; }
+        .reveal-delay-3 { transition-delay: 0.36s; }
+
+        /* Magnetic */
+        .magnetic { display: inline-block; transition: transform 0.3s cubic-bezier(0.23,1,0.32,1); }
+
+        /* Slate board */
+        .clapper-top {
+            background: repeating-linear-gradient(45deg, #0a0a0a 0 14px, #fdfaf3 14px 28px);
+            height: 22px;
+        }
+
+        /* Film frame */
+        .film-frame {
+            position: relative; background: #111; padding: 36px 46px;
+            border: 1px solid #222;
+        }
+
+        /* Scroll Progress */
+        #progress { position: fixed; top: 0; left: 0; height: 2px; background: #ffcc02; z-index: 100; transform-origin: left; transform: scaleX(0); }
+
+        /* Hover reel */
+        .reel-hover img { transition: transform 1.2s cubic-bezier(0.16,1,0.3,1), filter 0.6s; }
+        .reel-hover:hover img { transform: scale(1.07); filter: brightness(0.6); }
+        .reel-hover .reel-meta { transition: transform 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.5s; }
+        
+        ::selection { background: #ffcc02; color: #0a0a0a; }
+    </style>
+</head>
+<body class="font-reader bg-cinema text-paper selection:bg-kodak selection:text-cinema">
+    <div id="grain"></div>
+    <div id="progress"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- NAV -->
+    <nav id="nav" class="fixed top-0 inset-x-0 z-[50] mix-blend-difference">
+        <div class="border-b border-white/10 bg-cinema/0 backdrop-blur-[12px]">
+            <div class="max-w-[1720px] mx-auto px-6 md:px-10 h-[68px] flex items-center justify-between">
+                <div class="flex items-center gap-12">
+                    <a href="#" class="group flex items-center gap-4 cursor-hover">
+                        <div class="w-9 h-9 rounded-[4px] bg-paper text-cinema grid place-items-center font-mono font-bold text-[11px] leading-none tracking-[-0.02em]">16<br>MM</div>
+                        <span class="font-display text-[22px] tracking-[-0.02em] leading-none">PÆRALLAX</span>
+                        <span class="hidden md:inline font-mono text-[10px] tracking-[0.2em] opacity-60 ml-2">INDIE FILM HAUS / BK • LX</span>
+                    </a>
+                    <div class="hidden lg:flex items-center gap-8 font-mono text-[11px] tracking-[0.14em]">
+                        <a href="#story" class="cursor-hover opacity-70 hover:opacity-100 transition">MANIFESTO</a>
+                        <a href="#services" class="cursor-hover opacity-70 hover:opacity-100 transition">LABORATORY</a>
+                        <a href="#gallery" class="cursor-hover opacity-70 hover:opacity-100 transition">FILMOGRAPHY</a>
+                        <a href="#contact" class="cursor-hover opacity-70 hover:opacity-100 transition">CONTACT</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="hidden md:flex font-mono text-[10px] tracking-[0.2em] items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-kodak animate-pulse"></span>
+                        REEL 04 — AVAILABLE FOR COMMISSIONS 2026
+                    </span>
+                    <button id="menuOpen" class="cursor-hover w-[46px] h-[46px] rounded-full border border-white/20 grid place-items-center hover:bg-white hover:text-cinema transition">
+                        <div class="w-4 flex flex-col gap-[4px]">
+                            <span class="block h-[1.5px] bg-current w-full"></span>
+                            <span class="block h-[1.5px] bg-current w-full"></span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- FULLSCREEN MENU -->
+    <div id="menu" class="fixed inset-0 z-[60] bg-cinema translate-y-[-100%] transition-transform duration-[0.9s] cubic-bezier(0.16,1,0.3,1)] overflow-hidden">
+        <div class="h-full flex flex-col">
+            <div class="h-[68px] flex items-center justify-between px-6 md:px-10 border-b border-white/10">
+                <span class="font-mono text-[11px] tracking-[0.3em]">SLATE 024 — MENU</span>
+                <button id="menuClose" class="cursor-hover w-[46px] h-[46px] rounded-full border border-white/20 grid place-items-center hover:bg-paper hover:text-cinema transition">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.2"/></svg>
+                </button>
+            </div>
+            <div class="flex-1 grid lg:grid-cols-[1.1fr_0.9fr]">
+                <div class="p-6 md:p-16 lg:p-20 flex flex-col justify-center">
+                    <a href="#story" class="menu-link group block py-4 md:py-6 border-b border-white/10">
+                        <div class="flex items-baseline gap-6">
+                            <span class="font-mono text-[12px] opacity-40">01</span>
+                            <span class="font-display text-[12vw] lg:text-[92px] leading-[0.85] tracking-[-0.04em] group-hover:italic">Manifesto</span>
+                        </div>
+                    </a>
+                    <a href="#services" class="menu-link group block py-4 md:py-6 border-b border-white/10">
+                        <div class="flex items-baseline gap-6">
+                            <span class="font-mono text-[12px] opacity-40">02</span>
+                            <span class="font-display text-[12vw] lg:text-[92px] leading-[0.85] tracking-[-0.04em] group-hover:italic">Laboratory</span>
+                        </div>
+                    </a>
+                    <a href="#gallery" class="menu-link group block py-4 md:py-6 border-b border-white/10">
+                        <div class="flex items-baseline gap-6">
+                            <span class="font-mono text-[12px] opacity-40">03</span>
+                            <span class="font-display text-[12vw] lg:text-[92px] leading-[0.85] tracking-[-0.04em] group-hover:italic">Filmography</span>
+                        </div>
+                    </a>
+                    <a href="#contact" class="menu-link group block py-4 md:py-6">
+                        <div class="flex items-baseline gap-6">
+                            <span class="font-mono text-[12px] opacity-40">04</span>
+                            <span class="font-display text-[12vw] lg:text-[92px] leading-[0.85] tracking-[-0.04em] group-hover:italic">Contact</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="relative bg-[#121212] p-6 md:p-12 flex flex-col justify-between border-l border-white/10">
+                    <div class="font-mono text-[11px] leading-[1.8] tracking-[0.12em] opacity-60">
+                        <p>PROD. CO: PÆRALLAX PICTURES LLC<br>BKLYN NAVY YARD BLDG 77 — FLOOR 3<br>LISBOA: RUA DA MADALENA 42</p>
+                        <br>
+                        <p>EST. 2014<br>16MM / 35MM / ALEXA 65<br>REC 709 / DOLBY VISION</p>
+                    </div>
+                    <div class="mt-12">
+                        <div class="aspect-[4/3] bg-[#0a0a0a] border border-white/10 p-2">
+                            <img src="https://images.unsplash.com/photo-1574267432553-4b4628081c31?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale opacity-80" alt="">
+                        </div>
+                        <p class="font-mono text-[10px] mt-3 tracking-[0.16em] opacity-40">ON SET — LISBON UNIT, NOV '25 — ARRI 416 + COKE 25MM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="h-[52px] flex items-center px-6 md:px-10 border-t border-white/10 font-mono text-[10px] tracking-[0.2em] justify-between">
+                <span>©2026 PÆRALLAX — ALL RIGHTS RESERVED</span>
+                <span class="hidden md:inline">FPS 24 • SHUTTER 180° • ISO 400 • ND 0.6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <header id="hero" class="relative pt-[88px] min-h-[92vh] flex flex-col bg-cinema">
+        <!-- timecode top -->
+        <div class="hidden md:flex h-[28px] items-center px-10 border-b border-white/[0.06] font-mono text-[10px] tracking-[0.18em] text-white/40 justify-between">
+            <div class="flex gap-8">
+                <span>TCR 00:42:18:07</span>
+                <span>ROLL #B004_LUMENHAUS</span>
+                <span>COUNTER 00.184.592</span>
+            </div>
+            <div class="flex gap-8">
+                <span>35MM OPEN GATE — KODAK 5219 500T</span>
+                <span class="text-kodak">● REC</span>
+            </div>
+        </div>
+
+        <div class="flex-1 max-w-[1720px] mx-auto w-full px-6 md:px-10 grid lg:grid-cols-[1.15fr_0.85fr] gap-0 lg:gap-16 items-stretch">
+            <!-- left -->
+            <div class="py-12 md:py-20 lg:py-24 flex flex-col justify-center">
+                <div class="reveal">
+                    <div class="inline-flex items-center gap-3 border border-white/10 rounded-full px-4 py-[7px] font-mono text-[10px] tracking-[0.18em]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-kodak"></span>
+                        FESTIVAL SELECT — SUNDANCE / BERLINALE / LOCARNO
+                    </div>
+                </div>
+
+                <h1 class="reveal reveal-delay-1 mt-10 font-display text-[15vw] md:text-[11vw] lg:text-[116px] leading-[0.84] tracking-[-0.05em]">
+                    <span class="block">Films that stay</span>
+                    <span class="block italic font-serif font-light pl-[0.08em]">with you long</span>
+                    <span class="block">after the <span class="relative inline-block"><span class="relative z-10">credits.</span><span class="absolute bottom-[0.12em] left-0 right-0 h-[0.22em] bg-kodak -z-0"></span></span></span>
+                </h1>
+
+                <div class="reveal reveal-delay-2 mt-12 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-10 md:gap-16 items-start max-w-[680px]">
+                    <button id="openReel" class="cursor-hover magnetic group flex items-center gap-5">
+                        <span class="w-[64px] h-[64px] rounded-full bg-paper text-cinema grid place-items-center group-hover:bg-kodak transition-colors">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 3.5L14.5 9L4 14.5V3.5Z" fill="currentColor"/></svg>
+                        </span>
+                        <span class="text-left">
+                            <span class="block font-mono text-[10px] tracking-[0.2em] opacity-60">PLAY REEL 02:33</span>
+                            <span class="block font-display text-[22px] leading-none mt-1">Watch Director's Reel</span>
+                        </span>
+                    </button>
+                    <p class="font-reader text-[17px] leading-[1.55] text-white/70">
+                        Pærallax is a Brooklyn & Lisbon based film house. We develop character-driven cinema that lives between fiction and memory — shot on film, finished with restraint. A24, MUBI, BBC Film trusted collaborators.
+                    </p>
+                </div>
+
+                <div class="reveal reveal-delay-3 mt-16 flex gap-10 border-t border-white/10 pt-8 max-w-[680px]">
+                    <div>
+                        <div class="font-mono text-[10px] tracking-[0.2em] opacity-50">FILMS COMPLETED</div>
+                        <div class="font-display text-[48px] leading-none mt-2">27</div>
+                    </div>
+                    <div>
+                        <div class="font-mono text-[10px] tracking-[0.2em] opacity-50">FESTIVAL LAURELS</div>
+                        <div class="font-display text-[48px] leading-none mt-2">61</div>
+                    </div>
+                    <div>
+                        <div class="font-mono text-[10px] tracking-[0.2em] opacity-50">ON 35MM</div>
+                        <div class="font-display text-[48px] leading-none mt-2">84%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- right film frame -->
+            <div class="reveal reveal-delay-2 relative py-6 lg:py-10">
+                <div class="film-frame h-full min-h-[560px] lg:min-h-[720px] overflow-hidden group">
+                    <div class="absolute left-0 top-0 bottom-0 w-[36px] bg-[#0a0a0a] flex flex-col items-center py-4 gap-[14px] z-10 border-r border-white/10">
+                        <div class="perforation-track">
+                            <div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div>
+                        </div>
+                    </div>
+                    <div class="absolute right-0 top-0 bottom-0 w-[36px] bg-[#0a0a0a] flex flex-col items-center py-4 gap-[14px] z-10 border-l border-white/10">
+                        <div class="perforation-track">
+                            <div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div><div class="perf-hole"></div>
+                        </div>
+                    </div>
+
+                    <div class="h-full mx-[36px] relative bg-[#050505] overflow-hidden">
+                        <img id="heroImg" src="https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover" alt="Film set">
+                        <div class="absolute inset-0 bg-gradient-to-t from-cinema via-cinema/10 to-transparent"></div>
+
+                        <!-- clapper data top -->
+                        <div class="absolute top-0 inset-x-0 z-10">
+                            <div class="clapper-top"></div>
+                            <div class="bg-paper text-cinema font-mono text-[10px] leading-[1.4] tracking-[0.14em] px-4 py-3 grid grid-cols-3 gap-4">
+                                <span>SCENE: 42B — INT. KITCHEN — NIGHT</span>
+                                <span>TAKE: 07 — ROLL B004</span>
+                                <span class="text-right">DIR: E. SORENSEN — DOP: L. MOTA</span>
+                            </div>
+                        </div>
+
+                        <!-- bottom meta -->
+                        <div class="absolute bottom-0 inset-x-0 p-6 md:p-8 z-10">
+                            <div class="flex items-end justify-between gap-6">
+                                <div>
+                                    <div class="font-mono text-[10px] tracking-[0.2em] opacity-60">NOW SCREENING</div>
+                                    <div class="font-display text-[32px] leading-[0.9] mt-2">The Architecture of<br><span class="italic">Longing — 16mm</span></div>
+                                </div>
+                                <div class="hidden md:flex gap-2">
+                                    <span class="w-8 h-8 rounded-full border border-white/20 grid place-items-center font-mono text-[10px]">S</span>
+                                    <span class="w-8 h-8 rounded-full border border-white/20 grid place-items-center font-mono text-[10px]">B</span>
+                                    <span class="w-8 h-8 rounded-full bg-kodak text-cinema grid place-items-center font-mono text-[10px] font-bold">★</span>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex items-center gap-3">
+                                <div class="h-[1px] flex-1 bg-white/15"></div>
+                                <span class="font-mono text-[10px] tracking-[0.2em] opacity-50">35MM SCAN — NO DNR — PRINT LIGHT 23</span>
+                            </div>
+                        </div>
+
+                        <!-- center play -->
+                        <button id="heroPlay" class="cursor-hover absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[88px] h-[88px] rounded-full bg-paper text-cinema grid place-items-center shadow-[0_0_0_12px_rgba(253,250,243,0.1)] hover:scale-110 transition-transform">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M6 4.5L16.5 11L6 17.5V4.5Z" fill="currentColor"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- floating note -->
+                <div class="absolute -right-6 bottom-12 hidden xl:block">
+                    <div class="bg-kodak text-cinema font-mono text-[11px] leading-[1.2] tracking-[0.08em] px-4 py-3 rotate-[4deg] shadow-[6px_6px_0_#0a0a0a]">
+                        <div class="opacity-60">NOTE FROM CUTTING ROOM:</div>
+                        <div class="mt-1 font-bold">LET THE SILENCE<br>DO THE WORK — E.S.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- laurels marquee -->
+        <div class="marquee bg-paper text-cinema py-3">
+            <div class="marquee-track">
+                <span class="font-mono text-[12px] tracking-[0.2em] flex items-center gap-10">
+                    <span class="inline-flex items-center gap-3"><span class="w-6 h-6 rounded-full border border-cinema grid place-items-center text-[9px]">🏆</span> SUNDANCE 2024 — GRAND JURY PRIZE</span>
+                    <span>•</span>
+                    <span>BERLINALE FORUM WINNER</span>
+                    <span>•</span>
+                    <span>LOCARNO FILMMAKERS OF THE PRESENT</span>
+                    <span>•</span>
+                    <span>CANNES CRITICS WEEK SELECTION</span>
+                    <span>•</span>
+                    <span>IDFA BEST CINEMATOGRAPHY</span>
+                    <span>•</span>
+                    <span>ROTTENDAM TIGER NOMINEE</span>
+                    <span>•</span>
+                    <span class="inline-flex items-center gap-3"><span class="w-6 h-6 rounded-full border border-cinema grid place-items-center text-[9px]">🏆</span> SUNDANCE 2024 — GRAND JURY PRIZE</span>
+                    <span>•</span>
+                    <span>BERLINALE FORUM WINNER</span>
+                    <span>•</span>
+                    <span>LOCARNO FILMMAKERS OF THE PRESENT</span>
+                    <span>•</span>
+                    <span>CANNES CRITICS WEEK SELECTION</span>
+                    <span>•</span>
+                    <span>IDFA BEST CINEMATOGRAPHY</span>
+                    <span>•</span>
+                    <span>ROTTENDAM TIGER NOMINEE</span>
+                    <span>•</span>
+                </span>
+                <span class="font-mono text-[12px] tracking-[0.2em] flex items-center gap-10 ml-10">
+                    <span class="inline-flex items-center gap-3"><span class="w-6 h-6 rounded-full border border-cinema grid place-items-center text-[9px]">🏆</span> SUNDANCE 2024 — GRAND JURY PRIZE</span>
+                    <span>•</span>
+                    <span>BERLINALE FORUM WINNER</span>
+                    <span>•</span>
+                    <span>LOCARNO FILMMAKERS OF THE PRESENT</span>
+                    <span>•</span>
+                    <span>CANNES CRITICS WEEK SELECTION</span>
+                    <span>•</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- STORY / MANIFESTO -->
+    <section id="story" class="relative bg-paper text-cinema">
+        <div class="grid lg:grid-cols-[0.95fr_1.05fr] min-h-[880px]">
+            <!-- left visual with film strip -->
+            <div class="relative bg-cinema overflow-hidden">
+                <div class="h-full flex">
+                    <div class="w-[46px] bg-cinema border-r border-white/10 flex flex-col items-center py-6 gap-4">
+                        <span class="font-mono text-[10px] tracking-[0.3em] text-white/50 [writing-mode:vertical-rl]">KODAK 5219 — 500T — EST 2014</span>
+                        <div class="flex-1 flex flex-col gap-[16px] mt-6">
+                            <div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div><div class="w-6 h-4 bg-paper rounded-[2px]"></div>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative">
+                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-90" alt="Cinema camera">
+                        <div class="absolute inset-0 bg-cinema/20"></div>
+                        <div class="absolute bottom-0 inset-x-0 p-8 md:p-10">
+                            <div class="bg-paper text-cinema inline-flex flex-col px-6 py-5 max-w-[360px]">
+                                <span class="font-mono text-[10px] tracking-[0.2em] opacity-60">— THE METHOD</span>
+                                <span class="font-display text-[28px] leading-[1.05] mt-3">We shoot on film because it forces us to <em class="font-serif italic">listen</em> before we roll.</span>
+                                <span class="mt-4 font-mono text-[11px] leading-[1.6] opacity-70">Every take costs. So every take matters. 400ft of 16mm is 11 minutes. No monitors on set. Just eye contact.</span>
+                            </div>
+                        </div>
+                        <div class="absolute top-8 right-8 bg-kodak text-cinema font-mono text-[11px] px-3 py-1.5 tracking-[0.18em]">16MM ORIG — 1.37:1 — OPEN GATE</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- right text -->
+            <div class="px-6 md:px-14 lg:px-20 py-16 lg:py-28 flex flex-col justify-center">
+                <div class="reveal">
+                    <div class="flex items-center gap-4 font-mono text-[11px] tracking-[0.22em]">
+                        <span class="opacity-40">01 / MANIFESTO</span>
+                        <span class="h-[1px] w-12 bg-cinema/15"></span>
+                        <span class="text-kodak-dark font-bold">EST. BROOKLYN 2014</span>
+                    </div>
+                </div>
+
+                <div class="reveal reveal-delay-1 mt-10">
+                    <h2 class="font-display text-[48px] md:text-[64px] leading-[0.86] tracking-[-0.04em]">
+                        We don't make <br>
+                        <span class="italic font-serif font-light">content.</span> We make<br>
+                        cinema that breathes.
+                    </h2>
+                </div>
+
+                <div class="reveal reveal-delay-2 mt-10 space-y-6 font-reader text-[18px] leading-[1.7] text-cinema/75 max-w-[560px]">
+                    <p>Pærallax started in a loft above a laundromat in Bushwick. One Bolex, two lights, and a promise: never shoot anything we wouldn't want to watch in a theater with no phone signal.</p>
+                    <p>Ten years later, we work the same way — small crew, long takes, natural light, real locations. Our films have premiered in competition because we treat festivals as conversations, not markets.</p>
+                    <div class="pt-6 border-t border-cinema/10 grid grid-cols-2 gap-8 font-mono text-[11px] leading-[1.6] tracking-[0.08em]">
+                        <div>
+                            <div class="opacity-50 mb-2">PRINCIPLES</div>
+                            <div>— SHOT ON FILM, NO EXCUSES<br>— CREW OF 12 MAX<br>— NO VIDEO VILLAGE<br>— FINAL CUT WITH DIRECTOR</div>
+                        </div>
+                        <div>
+                            <div class="opacity-50 mb-2">TOOLKIT</div>
+                            <div>ARRI 416 / SR3 / AATON /<br>BOLÉX 16MM / COOKE PANCHRO /<br>KODAK VISION3 / DAS LAB LISBON</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal reveal-delay-3 mt-12 flex flex-wrap gap-3">
+                    <div class="border border-cinema/15 rounded-full px-5 py-2.5 font-mono text-[11px] tracking-[0.16em]">CHARACTER FIRST</div>
+                    <div class="border border-cinema/15 rounded-full px-5 py-2.5 font-mono text-[11px] tracking-[0.16em] bg-cinema text-paper">NO COVERAGE BLOAT</div>
+                    <div class="border border-cinema/15 rounded-full px-5 py-2.5 font-mono text-[11px] tracking-[0.16em]">LIGHT BEFORE LENS</div>
+                </div>
+
+                <div class="reveal mt-12 grid grid-cols-3 gap-0 border border-cinema/15 max-w-[560px]">
+                    <div class="p-6 border-r border-cinema/15">
+                        <div class="font-display text-[36px] leading-none">2014</div>
+                        <div class="font-mono text-[10px] tracking-[0.16em] opacity-50 mt-2">FOUNDED BKLYN</div>
+                    </div>
+                    <div class="p-6 border-r border-cinema/15">
+                        <div class="font-display text-[36px] leading-none">11m</div>
+                        <div class="font-mono text-[10px] tracking-[0.16em] opacity-50 mt-2">AVG SHOOT DAYS</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="font-display text-[36px] leading-none">1:7</div>
+                        <div class="font-mono text-[10px] tracking-[0.16em] opacity-50 mt-2">SHOOTING RATIO</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES / LABORATORY -->
+    <section id="services" class="relative bg-cinema text-paper py-20 md:py-32">
+        <div class="max-w-[1720px] mx-auto px-6 md:px-10">
+            <div class="flex flex-wrap items-end justify-between gap-8 border-b border-white/10 pb-10">
+                <div class="reveal">
+                    <div class="font-mono text-[11px] tracking-[0.26em] text-kodak">02 / LABORATORY — HOW WE WORK</div>
+                    <h2 class="mt-6 font-display text-[56px] md:text-[84px] leading-[0.88] tracking-[-0.04em]">A full cycle lab.<br><span class="italic font-serif font-light opacity-80">From napkin to negative.</span></h2>
+                </div>
+                <div class="reveal reveal-delay-1 max-w-[380px] font-reader text-[16px] leading-[1.6] text-white/60 pb-2">
+                    We don't rent departments. Four rooms under one roof in Navy Yard: story, shoot, cut, colour. Same people who write are there in the lab at 2am.
+                </div>
+            </div>
+
+            <div class="mt-12 md:mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-[1px] bg-white/10 border border-white/10">
+                <!-- Service 1 -->
+                <div class="reveal group bg-cinema p-8 md:p-10 flex flex-col min-h-[460px] hover:bg-[#121212] transition-colors">
+                    <div class="flex justify-between items-start">
+                        <span class="font-mono text-[12px] tracking-[0.2em] opacity-40">S01</span>
+                        <span class="w-8 h-8 rounded-full bg-white/10 grid place-items-center group-hover:bg-kodak group-hover:text-cinema transition">↗</span>
+                    </div>
+                    <div class="mt-20">
+                        <h3 class="font-display text-[34px] leading-[0.95]">Development<br><span class="italic font-serif font-light opacity-70">& Writing Room</span></h3>
+                        <p class="mt-5 font-reader text-[14px] leading-[1.6] opacity-60">Six weeks, locked room, no decks. 30 drafts. We kill darlings on paper, not on set.</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-white/10 font-mono text-[11px] leading-[1.6] opacity-50">
+                        TREATMENT • WORKSHOP • RESEARCH TRIP • 16MM TESTS
+                    </div>
+                    <div class="mt-6 aspect-[16/9] bg-[#111] overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover grayscale group-hover:scale-105 transition duration-700" alt="">
+                    </div>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="reveal reveal-delay-1 group bg-cinema p-8 md:p-10 flex flex-col min-h-[460px] hover:bg-[#121212] transition-colors">
+                    <div class="flex justify-between items-start">
+                        <span class="font-mono text-[12px] tracking-[0.2em] opacity-40">S02</span>
+                        <span class="w-8 h-8 rounded-full bg-white/10 grid place-items-center group-hover:bg-kodak group-hover:text-cinema transition">↗</span>
+                    </div>
+                    <div class="mt-20">
+                        <h3 class="font-display text-[34px] leading-[0.95]">Production<br><span class="italic font-serif font-light opacity-70">On Film, Small Crew</span></h3>
+                        <p class="mt-5 font-reader text-[14px] leading-[1.6] opacity-60">12 people max. No video village. Operator and director side-by-side. 180° shutter, always.</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-white/10 font-mono text-[11px] leading-[1.6] opacity-50">
+                        ARRI 416 • AATON • BOLEX • COOKE PANCHRO • KODAK 5219
+                    </div>
+                    <div class="mt-6 aspect-[16/9] bg-[#111] overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover grayscale group-hover:scale-105 transition duration-700" alt="">
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="reveal reveal-delay-2 group bg-cinema p-8 md:p-10 flex flex-col min-h-[460px] hover:bg-[#121212] transition-colors">
+                    <div class="flex justify-between items-start">
+                        <span class="font-mono text-[12px] tracking-[0.2em] opacity-40">S03</span>
+                        <span class="w-8 h-8 rounded-full bg-white/10 grid place-items-center group-hover:bg-kodak group-hover:text-cinema transition">↗</span>
+                    </div>
+                    <div class="mt-20">
+                        <h3 class="font-display text-[34px] leading-[0.95]">Post &<br><span class="italic font-serif font-light opacity-70">Cutting Room</span></h3>
+                        <p class="mt-5 font-reader text-[14px] leading-[1.6] opacity-60">Edit on Steenbeck first. Then Premiere. We cut for rhythm, not coverage. Sound before music.</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-white/10 font-mono text-[11px] leading-[1.6] opacity-50">
+                        STEENBECK • 2K SCAN • NO DNR • DOLBY 5.1 • FINAL MIX LISBON
+                    </div>
+                    <div class="mt-6 aspect-[16/9] bg-[#111] overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1574267432553-4b4628081c31?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover grayscale group-hover:scale-105 transition duration-700" alt="">
+                    </div>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="reveal reveal-delay-3 group bg-kodak text-cinema p-8 md:p-10 flex flex-col min-h-[460px]">
+                    <div class="flex justify-between items-start">
+                        <span class="font-mono text-[12px] tracking-[0.2em] opacity-60">S04</span>
+                        <span class="w-8 h-8 rounded-full bg-cinema text-kodak grid place-items-center">↗</span>
+                    </div>
+                    <div class="mt-20">
+                        <h3 class="font-display text-[34px] leading-[0.95]">Festival &<br><span class="italic font-serif font-light">Distribution Lab</span></h3>
+                        <p class="mt-5 font-reader text-[14px] leading-[1.6] opacity-80">We don't spray submissions. Four festivals target-built. A24 / MUBI / BBC direct relationships.</p>
+                    </div>
+                    <div class="mt-auto pt-8 border-t border-cinema/15 font-mono text-[11px] leading-[1.6] opacity-70">
+                        SUNDANCE • BERLINALE • LOCARNO • CANNES CRITICS • TIFF • NYFF
+                    </div>
+                    <div class="mt-6 border border-cinema/20 p-3">
+                        <div class="flex items-center justify-between font-mono text-[10px] tracking-[0.2em] mb-2">
+                            <span>LAUREL SHEET — 2023/24</span>
+                            <span>61X</span>
+                        </div>
+                        <div class="flex gap-1.5 flex-wrap">
+                            <span class="w-10 h-5 border border-cinema grid place-items-center text-[8px] font-bold">SUNDANCE</span>
+                            <span class="w-10 h-5 border border-cinema grid place-items-center text-[8px] font-bold">BERLIN</span>
+                            <span class="w-10 h-5 bg-cinema text-kodak grid place-items-center text-[8px] font-bold">CANNES</span>
+                            <span class="w-10 h-5 border border-cinema grid place-items-center text-[8px] font-bold">LOCARNO</span>
+                            <span class="w-10 h-5 border border-cinema grid place-items-center text-[8px] font-bold">IDFA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 grid lg:grid-cols-[auto_1fr_auto] items-center gap-6 border border-white/10 px-6 py-4 font-mono text-[11px] tracking-[0.16em] text-white/50">
+                <span class="flex items-center gap-2"><span class="w-2 h-2 bg-kodak rounded-full"></span> CURRENTLY DEVELOPING: 2 FEATURES / 1 LIMITED SERIES / LAB RESIDENCY LISBON 2026</span>
+                <span class="hidden lg:block h-[1px] bg-white/10"></span>
+                <span class="opacity-40">OPEN FOR CO-PRO — EU + US TAX</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALLERY / FILMOGRAPHY -->
+    <section id="gallery" class="relative bg-[#f3eee3] text-cinema">
+        <div class="max-w-[1720px] mx-auto px-6 md:px-10 py-20 md:py-32">
+            <div class="flex flex-wrap items-baseline justify-between gap-6">
+                <div class="reveal">
+                    <div class="font-mono text-[11px] tracking-[0.26em] opacity-50">03 / SELECTED FILMOGRAPHY — 2018—2025</div>
+                    <h2 class="mt-4 font-display text-[54px] md:text-[92px] leading-[0.86] tracking-[-0.05em]">Nine films.<br>One way of seeing.</h2>
+                </div>
+                <div class="reveal font-mono text-[11px] tracking-[0.18em] opacity-50 max-w-[320px] leading-[1.6]">
+                    ALL SHOT ON 16MM OR 35MM. NO DNR. NO AI. PRINT LIGHTS AVAILABLE ON REQUEST. DCP + 35MM PRINTS ARCHIVED AT DAS LAB.
+                </div>
+            </div>
+
+            <div class="mt-16 grid md:grid-cols-12 gap-[1px] bg-cinema/15 border border-cinema/15">
+                <!-- Featured film wide -->
+                <div class="reveal md:col-span-8 lg:col-span-7 bg-[#f3eee3] group reel-hover relative overflow-hidden cursor-hover">
+                    <div class="aspect-[16/10] relative overflow-hidden bg-cinema">
+                        <img src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover" alt="Film 1">
+                        <div class="absolute inset-0 bg-cinema/15 group-hover:bg-cinema/0 transition-colors duration-700"></div>
+                        <div class="absolute top-4 left-4 bg-paper text-cinema font-mono text-[10px] px-3 py-1.5 tracking-[0.18em]">FEATURE — 2024 — 94 MIN — 1.66:1</div>
+                        <div class="absolute top-4 right-4 flex gap-1.5">
+                            <span class="bg-kodak text-cinema font-mono text-[10px] px-2.5 py-1 font-bold">SUNDANCE GRAND JURY</span>
+                        </div>
+                        <button class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-paper text-cinema grid place-items-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-500"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M4 3.5L14.5 9L4 14.5V3.5Z" fill="currentColor"/></svg></button>
+                    </div>
+                    <div class="p-8 md:p-10">
+                        <div class="flex flex-wrap items-start justify-between gap-6">
+                            <div>
+                                <h3 class="font-display text-[36px] md:text-[44px] leading-[0.9] tracking-[-0.02em]">The Architecture<br><span class="italic font-serif">of Longing</span></h3>
+                                <div class="mt-3 font-mono text-[11px] tracking-[0.16em] opacity-50">DIR. ELLE SØRENSEN — DOP. LUCAS MOTA — SHOT ON 35MM — KODAK 5219 — LISBON / BROOKLYN</div>
+                            </div>
+                            <div class="font-mono text-[11px] leading-[1.5] opacity-60 max-w-[260px]">A mason returns to his childhood apartment after 20 years. He measures walls that have moved. Premiered Sundance 2024 — sold to MUBI.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- side film -->
+                <div class="reveal reveal-delay-1 md:col-span-4 lg:col-span-5 bg-[#f3eee3] group reel-hover relative overflow-hidden cursor-hover border-t md:border-t-0 md:border-l border-cinema/15">
+                    <div class="aspect-[4/3] md:aspect-[4/4.6] relative overflow-hidden bg-cinema">
+                        <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Film 2">
+                        <div class="absolute top-4 left-4 bg-cinema text-paper font-mono text-[10px] px-3 py-1.5">SHORT — 2023 — 18 MIN</div>
+                        <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-cinema to-transparent">
+                            <div class="font-mono text-[10px] tracking-[0.2em] text-white/60">BERLINALE FORUM</div>
+                            <div class="font-display text-[30px] leading-[0.9] text-paper mt-2">Interval</div>
+                        </div>
+                    </div>
+                    <div class="p-6 md:p-8">
+                        <p class="font-reader text-[15px] leading-[1.6] opacity-70">Two sisters share headphones on a train that never arrives. Single location, 18 minute take.</p>
+                    </div>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="reveal md:col-span-4 bg-[#f3eee3] group reel-hover border-t border-cinema/15 cursor-hover">
+                    <div class="aspect-[16/11] relative overflow-hidden bg-cinema">
+                        <img src="https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Film 3">
+                        <div class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-cinema/90 to-transparent">
+                            <div class="font-display text-[24px] text-paper leading-[0.9]">A Song for Ellie</div>
+                            <div class="font-mono text-[10px] text-white/60 mt-1">2022 — 27 MIN — LOCARNO WINNER</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal reveal-delay-1 md:col-span-4 bg-[#f3eee3] group reel-hover border-t border-l-0 md:border-l border-cinema/15 cursor-hover">
+                    <div class="aspect-[16/11] relative overflow-hidden bg-cinema">
+                        <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Film 4">
+                        <div class="absolute inset-0 p-5 flex flex-col justify-end">
+                            <div class="bg-paper text-cinema inline-flex px-3 py-2 font-mono text-[10px] tracking-[0.16em] self-start">35MM — CANNES CRITICS WEEK 2021</div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="font-display text-[22px] leading-[0.95]">The Second Winter</div>
+                        <div class="font-mono text-[10px] opacity-50 mt-2">FEATURE — 84 MIN — SHOT ON 35MM IN TRANSYLVANIA</div>
+                    </div>
+                </div>
+
+                <div class="reveal reveal-delay-2 md:col-span-4 bg-cinema text-paper p-8 md:p-10 flex flex-col justify-between min-h-[320px] border-t border-cinema/15">
+                    <div class="font-mono text-[11px] tracking-[0.24em] text-kodak">FILM STRIP ARCHIVE</div>
+                    <div>
+                        <div class="font-display text-[52px] leading-[0.85]">9<span class="text-[28px] align-super">/27</span></div>
+                        <div class="font-mono text-[11px] opacity-60 mt-3 leading-[1.5]">27 films completed since 2014. 9 currently in circulation. Full archive available for retrospectives + institutional licensing.</div>
+                    </div>
+                    <button class="cursor-hover mt-8 w-full border border-white/15 py-3 font-mono text-[11px] tracking-[0.18em] hover:bg-paper hover:text-cinema transition">REQUEST SCREENING KIT →</button>
+                </div>
+
+                <!-- Row 3 full width film strip -->
+                <div class="reveal md:col-span-12 bg-cinema text-paper border-t border-cinema/15 relative overflow-hidden">
+                    <div class="grid lg:grid-cols-[300px_1fr_300px] items-stretch">
+                        <div class="p-8 md:p-10 border-b lg:border-b-0 lg:border-r border-white/10">
+                            <div class="font-mono text-[10px] tracking-[0.2em] opacity-50">LATEST WORK — COLOR TIMING IN PROGRESS</div>
+                            <h4 class="font-display text-[36px] mt-4 leading-[0.9]">When We Were<br><span class="italic opacity-70">Paper Houses</span></h4>
+                            <div class="mt-6 font-mono text-[10px] leading-[1.6] opacity-60">WRAP MAY 2025 — LISBON<br>16MM — 1.37 — PRINT LIGHT 19 — NO LUT</div>
+                            <div class="mt-10 w-full h-[1px] bg-white/10"></div>
+                            <div class="mt-6 flex gap-2">
+                                <img src="https://images.unsplash.com/photo-1515634928627-2a4e0dae3ddf?q=80&w=100&auto=format&fit=crop" class="w-12 h-12 object-cover">
+                                <img src="https://images.unsplash.com/photo-1524713603082-2c11a6254f3f?q=80&w=100&auto=format&fit=crop" class="w-12 h-12 object-cover">
+                                <img src="https://images.unsplash.com/photo-1507608616759-9e295a6ea5e9?q=80&w=100&auto=format&fit=crop" class="w-12 h-12 object-cover">
+                            </div>
+                        </div>
+                        <div class="relative aspect-[16/9] lg:aspect-auto bg-[#0f0f0f]">
+                            <img src="https://images.unsplash.com/photo-1515634928627-2a4e0dae3ddf?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-80" alt="">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="border border-white/20 backdrop-blur px-6 py-3 font-mono text-[11px] tracking-[0.2em]">35MM WORKPRINT — TIMING NOTES V12</div>
+                            </div>
+                            <div class="absolute top-0 left-0 right-0 h-[18px] bg-[repeating-linear-gradient(90deg,#fdfaf3_0_16px,#0a0a0a_16px_32px)] opacity-60"></div>
+                            <div class="absolute bottom-0 left-0 right-0 h-[18px] bg-[repeating-linear-gradient(90deg,#fdfaf3_0_16px,#0a0a0a_16px_32px)] opacity-60"></div>
+                        </div>
+                        <div class="p-8 md:p-10 border-t lg:border-t-0 lg:border-l border-white/10 flex flex-col justify-between">
+                            <div class="font-mono text-[10px] leading-[1.6] opacity-60">
+                                CO-PRO — BBC FILM + RTP<br>
+                                POST — DAS LAB LISBON<br>
+                                MIX — DOLBY 5.1 — NO TEMP MUSIC EVER
+                            </div>
+                            <div class="mt-10">
+                                <div class="font-display text-[18px] leading-[1.2]">“We shoot winter in winter. Summer in summer. No faking seasons with gels.”</div>
+                                <div class="font-mono text-[10px] mt-3 opacity-50">— ON SET RULE #4 — PINNED ABOVE STEENBECK</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section id="testimonials" class="relative bg-cinema text-paper py-20 md:py-32 overflow-hidden">
+        <div class="max-w-[1720px] mx-auto px-6 md:px-10">
+            <div class="reveal flex items-center gap-6">
+                <span class="font-mono text-[11px] tracking-[0.26em] text-white/40">04 / WHAT THEY SAY — PRESS & COLLABORATORS</span>
+                <span class="h-[1px] flex-1 bg-white/10"></span>
+            </div>
+
+            <div class="mt-12 grid lg:grid-cols-3 gap-[1px] bg-white/10 border border-white/10">
+                <div class="reveal bg-cinema p-10 md:p-12 min-h-[420px] flex flex-col">
+                    <div class="flex gap-1 text-kodak text-[14px]">★★★★★</div>
+                    <blockquote class="mt-8 font-display text-[28px] leading-[1.1] tracking-[-0.02em]">“Pærallax shoots like they're still paying for film stock out of pocket. Because they are. You feel every foot.”</blockquote>
+                    <div class="mt-auto pt-10 flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop" class="w-12 h-12 rounded-full object-cover grayscale" alt="">
+                        <div>
+                            <div class="font-mono text-[11px] tracking-[0.16em] font-bold">MARA KLINE — THE NEW YORKER</div>
+                            <div class="font-mono text-[10px] opacity-50 mt-1">REVIEW: ARCHITECTURE OF LONGING — SUNDANCE '24</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal reveal-delay-1 bg-[#121212] p-10 md:p-12 min-h-[420px] flex flex-col relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-[120px] h-[120px] bg-kodak rounded-full blur-[50px] opacity-20"></div>
+                    <div class="flex gap-1 text-kodak text-[14px]">★★★★★</div>
+                    <blockquote class="mt-8 font-display text-[28px] leading-[1.1] tracking-[-0.02em]">“First company in 10 years that delivered a DCP on time with no email chain. Print came with handwritten timing notes.”</blockquote>
+                    <div class="mt-auto pt-10 flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop" class="w-12 h-12 rounded-full object-cover grayscale" alt="">
+                        <div>
+                            <div class="font-mono text-[11px] tracking-[0.16em] font-bold">JONAS HASS — A24 ACQUISITIONS</div>
+                            <div class="font-mono text-[10px] opacity-50 mt-1">DISTRIBUTOR — 2 FILMS LICENSED</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal reveal-delay-2 bg-cinema p-10 md:p-12 min-h-[420px] flex flex-col">
+                    <div class="flex gap-1 text-kodak text-[14px]">★★★★★</div>
+                    <blockquote class="mt-8 font-display text-[28px] leading-[1.1] tracking-[-0.02em]">“They made us rehearse for 3 weeks before touching a camera. I hated it. Then we shot the film in 11 days.”</blockquote>
+                    <div class="mt-auto pt-10 flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop" class="w-12 h-12 rounded-full object-cover grayscale" alt="">
+                        <div>
+                            <div class="font-mono text-[11px] tracking-[0.16em] font-bold">ELARA VOSS — ACTOR</div>
+                            <div class="font-mono text-[10px] opacity-50 mt-1">LEAD — INTERVAL / SECOND WINTER</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- laurels row -->
+            <div class="reveal mt-16 grid grid-cols-2 md:grid-cols-6 gap-6 border-t border-white/10 pt-12">
+                <div class="text-center">
+                    <div class="mx-auto w-[78px] h-[78px] border border-white/15 rounded-full grid place-items-center font-mono text-[9px] leading-[1.1] tracking-[0.1em] p-2"><span>SUNDANCE<br>★ 2024<br>WINNER</span></div>
+                    <div class="font-mono text-[10px] mt-3 opacity-40">GRAND JURY PRIZE — US DRAMATIC</div>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-[78px] h-[78px] border border-white/15 rounded-full grid place-items-center font-mono text-[9px] leading-[1.1] tracking-[0.1em] p-2"><span>BERLINALE<br>FORUM<br>2023</span></div>
+                    <div class="font-mono text-[10px] mt-3 opacity-40">FORUM SPECIAL MENTION</div>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-[78px] h-[78px] border border-kodak bg-kodak text-cinema rounded-full grid place-items-center font-mono text-[9px] leading-[1.1] tracking-[0.1em] p-2 font-bold"><span>CANNES<br>CRITICS<br>WEEK</span></div>
+                    <div class="font-mono text-[10px] mt-3 opacity-40">OFFICIAL SELECTION 2021</div>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-[78px] h-[78px] border border-white/15 rounded-full grid place-items-center font-mono text-[9px] leading-[1.1] tracking-[0.1em] p-2"><span>LOCARNO<br>FILMMAKERS<br>PRESENT</span></div>
+                    <div class="font-mono text-[10px] mt-3 opacity-40">BEST EMERGING DIRECTOR</div>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-[78px] h-[78px] border border-white/15 rounded-full grid place-items-center font-mono text-[9px] leading-[1.1] tracking-[0.1em] p-2"><span>IDFA<br>BEST<br>CINEMATOGRAPHY</span></div>
+                    <div class="font-mono text-[10px] mt-3 opacity-40">2022 — DOC COMPETITION</div>
+                </div>
+                <div class="text-center">
+                    <div class="mx-auto w-[78px] h-[78px] border border-white/15 rounded-full grid place-items-center font-mono text-[9px] leading-[1.1] tracking-[0.1em] p-2"><span>ROTTEDAM<br>TIGER<br>NOMINEE</span></div>
+                    <div class="font-mono text-[10px] mt-3 opacity-40">2020 — BRIGHT FUTURE</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT / CALL SHEET -->
+    <section id="contact" class="relative bg-paper text-cinema">
+        <div class="max-w-[1720px] mx-auto px-6 md:px-10 py-16 md:py-24">
+            <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-0 border border-cinema">
+                <!-- left info like call sheet -->
+                <div class="bg-cinema text-paper p-8 md:p-12">
+                    <div class="flex justify-between items-start border-b border-white/10 pb-6">
+                        <span class="font-mono text-[11px] tracking-[0.24em]">CALL SHEET — DAY 001 / PROJECT INQUIRY</span>
+                        <span class="font-mono text-[10px] px-2 py-1 bg-kodak text-cinema">OPEN • 2026</span>
+                    </div>
+
+                    <h2 class="mt-10 font-display text-[48px] md:text-[62px] leading-[0.88] tracking-[-0.03em]">Let's make<br><span class="italic font-serif">something<br>that lasts.</span></h2>
+
+                    <div class="mt-12 space-y-10 font-mono text-[11px] leading-[1.7] tracking-[0.08em]">
+                        <div class="grid grid-cols-2 gap-6 border-t border-white/10 pt-6">
+                            <div>
+                                <div class="opacity-40 mb-2">PRODUCTION OFFICE</div>
+                                <div>NAVY YARD BLDG 77<br>141 FLUSHING AVE — 3F<br>BROOKLYN NY 11205</div>
+                            </div>
+                            <div>
+                                <div class="opacity-40 mb-2">LAB / COLOR</div>
+                                <div>RUA DA MADALENA 42<br>1100-321 LISBOA<br>DAS LAB — SUITE 2</div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-white/10 pt-6">
+                            <div class="opacity-40 mb-2">DIRECT CONTACT — NO PRODUCERS BCC'D</div>
+                            <div class="text-[14px] leading-[1.4]">
+                                <a href="mailto:hello@paerallax.photos" class="cursor-hover underline decoration-kodak decoration-2 underline-offset-4 hover:text-kodak">hello@paerallax.photos</a><br>
+                                <a href="tel:+13472223344" class="cursor-hover mt-1 inline-block hover:text-kodak">+1 (347) 222 3344 — ELLE</a>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-white/10 pt-6 grid grid-cols-2 gap-6">
+                            <div>
+                                <div class="opacity-40">CURRENT STATUS</div>
+                                <div class="mt-2 flex items-center gap-2"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> TAKING 2026 FEATURE INQUIRIES — 2 SLOTS LEFT</div>
+                            </div>
+                            <div>
+                                <div class="opacity-40">RESPONSE TIME</div>
+                                <div class="mt-2">24H — WE READ EVERY NOTE — NO AI REPLIES</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 aspect-[16/9] bg-[#111] p-2 border border-white/10">
+                        <img src="https://images.unsplash.com/photo-1524713603082-2c11a6254f3f?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale opacity-80" alt="">
+                    </div>
+                </div>
+
+                <!-- right form styled as slate -->
+                <div class="bg-[#fbf6eb] p-8 md:p-12">
+                    <div class="clapper-top mb-0"></div>
+                    <div class="bg-white border border-cinema border-t-0 p-8 md:p-10 shadow-[8px_8px_0_#0a0a0a]">
+                        <div class="grid grid-cols-2 gap-4 font-mono text-[10px] tracking-[0.16em] border-b border-cinema/20 pb-4 mb-8">
+                            <div>PROD: <span class="font-bold">YOUR FILM / BRAND / IDEA</span></div>
+                            <div class="text-right">DATE: <span id="todayDate"></span></div>
+                            <div>ROLL: PÅRA_001</div>
+                            <div class="text-right">SCENE: INTRO / TREATMENT</div>
+                        </div>
+
+                        <form id="contactForm" class="space-y-8">
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <label class="block">
+                                    <span class="font-mono text-[10px] tracking-[0.2em] opacity-60">NAME / COMPANY — BLOCK CAPS</span>
+                                    <input required type="text" class="mt-3 w-full bg-transparent border-b border-cinema/20 py-3 font-display text-[20px] placeholder:opacity-30 focus:outline-none focus:border-cinema" placeholder="Alex Rivera — Studio">
+                                </label>
+                                <label class="block">
+                                    <span class="font-mono text-[10px] tracking-[0.2em] opacity-60">EMAIL / CONTACT</span>
+                                    <input required type="email" class="mt-3 w-full bg-transparent border-b border-cinema/20 py-3 font-display text-[20px] placeholder:opacity-30 focus:outline-none focus:border-cinema" placeholder="alex@studio.com">
+                                </label>
+                            </div>
+
+                            <label class="block">
+                                <span class="font-mono text-[10px] tracking-[0.2em] opacity-60">PROJECT TYPE — CHECK ONE</span>
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    <button type="button" class="type-btn cursor-hover border border-cinema px-4 py-2 font-mono text-[11px] tracking-[0.14em] hover:bg-cinema hover:text-paper transition" data-type="FEATURE">FEATURE</button>
+                                    <button type="button" class="type-btn cursor-hover border border-cinema px-4 py-2 font-mono text-[11px] tracking-[0.14em] hover:bg-cinema hover:text-paper transition" data-type="SHORT">SHORT</button>
+                                    <button type="button" class="type-btn cursor-hover border border-cinema px-4 py-2 font-mono text-[11px] tracking-[0.14em] bg-cinema text-paper" data-type="DOC">DOC / ESSAY</button>
+                                    <button type="button" class="type-btn cursor-hover border border-cinema px-4 py-2 font-mono text-[11px] tracking-[0.14em] hover:bg-cinema hover:text-paper transition" data-type="BRANDED">BRANDED — ONLY IF REAL</button>
+                                </div>
+                            </label>
+
+                            <label class="block">
+                                <span class="font-mono text-[10px] tracking-[0.2em] opacity-60">LOGLINE — ONE SENTENCE — NO BUZZWORDS</span>
+                                <textarea required rows="3" class="mt-3 w-full bg-transparent border border-cinema/20 p-4 font-reader text-[17px] leading-[1.5] placeholder:opacity-30 focus:outline-none focus:border-cinema resize-none" placeholder="A retired ferry captain starts building the same boat he scrapped 30 years ago..."></textarea>
+                            </label>
+
+                            <div class="grid md:grid-cols-[1fr_140px] gap-6 items-end">
+                                <label class="block">
+                                    <span class="font-mono text-[10px] tracking-[0.2em] opacity-60">BUDGET RANGE / TIMELINE</span>
+                                    <input type="text" class="mt-3 w-full bg-transparent border-b border-cinema/20 py-3 font-mono text-[13px] placeholder:opacity-40 focus:outline-none focus:border-cinema" placeholder="e.g. $150-300k / Shoot Spring 2026">
+                                </label>
+                                <button type="submit" class="cursor-hover magnetic h-[54px] bg-cinema text-paper font-mono text-[12px] tracking-[0.18em] hover:bg-kodak hover:text-cinema transition-colors">
+                                    SEND SLATE →
+                                </button>
+                            </div>
+
+                            <div class="pt-4 border-t border-cinema/10 flex items-center justify-between font-mono text-[10px] tracking-[0.14em] opacity-50">
+                                <span>SHOT ON FILM ONLY. NO VERTICAL VIDEO.</span>
+                                <span>TAKE: 01 — MOS</span>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="mt-6 flex gap-3 font-mono text-[10px] tracking-[0.16em] opacity-60">
+                        <span class="w-5 h-5 border border-cinema/20 grid place-items-center">✓</span>
+                        <span>We reply from a human inbox. No Calendly. If we’re full, we’ll tell you who isn’t bullshitting.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="relative bg-cinema text-paper border-t border-white/10">
+        <div class="max-w-[1720px] mx-auto px-6 md:px-10">
+            <div class="py-12 md:py-20 grid lg:grid-cols-[1.2fr_0.8fr] gap-12 items-start">
+                <div>
+                    <div class="font-display text-[16vw] md:text-[13vw] lg:text-[168px] leading-[0.78] tracking-[-0.06em]">PÆRALLAX</div>
+                    <div class="mt-6 flex flex-wrap gap-6 font-mono text-[11px] tracking-[0.18em] opacity-60">
+                        <span>16MM • 35MM • 65MM — EST 2014</span>
+                        <span class="hidden md:inline">•</span>
+                        <span>BROOKLYN NAVY YARD — LISBON ALFAMA</span>
+                        <span class="hidden md:inline">•</span>
+                        <span class="text-kodak">LAB@PAERALLAX.PHOTOS</span>
+                    </div>
+                </div>
+                <div class="lg:pt-6 grid grid-cols-2 gap-10 font-mono text-[11px] leading-[1.7] tracking-[0.08em]">
+                    <div>
+                        <div class="opacity-40 mb-4">SITEMAP</div>
+                        <div class="space-y-1">
+                            <a class="cursor-hover block hover:text-kodak" href="#story">MANIFESTO / 01</a>
+                            <a class="cursor-hover block hover:text-kodak" href="#services">LABORATORY / 02</a>
+                            <a class="cursor-hover block hover:text-kodak" href="#gallery">FILMOGRAPHY / 03</a>
+                            <a class="cursor-hover block hover:text-kodak" href="#contact">CALL SHEET / 04</a>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="opacity-40 mb-4">COLOPHON</div>
+                        <div class="opacity-70 leading-[1.7]">
+                            SET IN BODONI MODA + INSTRUMENT SERIF + JETBRAINS MONO.<br>
+                            SHOT ON KODAK VISION3. TIMED AT DAS LAB.<br>
+                            SITE BUILT LIKE A CONTACT SHEET — NO TEMPLATES.
+                        </div>
+                        <div class="mt-6 flex gap-2">
+                            <a href="#" class="cursor-hover w-8 h-8 rounded-full border border-white/15 grid place-items-center hover:bg-paper hover:text-cinema transition">IG</a>
+                            <a href="#" class="cursor-hover w-8 h-8 rounded-full border border-white/15 grid place-items-center hover:bg-paper hover:text-cinema transition">VM</a>
+                            <a href="#" class="cursor-hover w-8 h-8 rounded-full border border-white/15 grid place-items-center hover:bg-paper hover:text-cinema transition">IMDb</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-[56px] border-t border-white/10 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] opacity-50">
+                <span>©2026 PÆRALLAX PICTURES LLC — BROOKLYN & LISBON — ALL RIGHTS RESERVED — FILM IS NOT DEAD</span>
+                <span class="hidden md:flex items-center gap-3"><span class="w-10 h-[1px] bg-white/20"></span>PRINT LIGHT 23 — KODAK 2383 — NO DNR</span>
+            </div>
+        </div>
+
+        <!-- big film strip bottom -->
+        <div class="h-[22px] bg-[repeating-linear-gradient(90deg,#fdfaf3_0_18px,#0a0a0a_18px_36px)] opacity-[0.12]"></div>
+    </footer>
+
+    <!-- REEL MODAL -->
+    <div id="reelModal" class="fixed inset-0 z-[80] bg-cinema/90 backdrop-blur-[18px] hidden place-items-center p-6 md:p-12">
+        <div class="relative w-full max-w-[1100px] bg-[#0f0f0f] border border-white/10 film-perf overflow-hidden">
+            <button id="closeReel" class="cursor-hover absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-paper text-cinema grid place-items-center hover:bg-kodak transition"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.2"/></svg></button>
+            <div class="aspect-[16/9] bg-black relative">
+                <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt="">
+                <div class="absolute inset-0 grid place-items-center">
+                    <div class="text-center">
+                        <div class="font-mono text-[11px] tracking-[0.3em] text-white/60">DIRECTOR'S REEL — 02:33 — 24FPS — 1.66:1</div>
+                        <div class="mt-4 font-display text-[32px] md:text-[48px] leading-[0.9] text-paper">Reel is offline —<br><span class="italic">Screening room only.</span></div>
+                        <div class="mt-6 font-mono text-[11px] tracking-[0.18em] text-white/50">REQUEST PRIVATE LINK — HELLO@PAERALLAX.PHOTOS</div>
+                    </div>
+                </div>
+                <div class="absolute top-0 inset-x-0">
+                    <div class="clapper-top"></div>
+                    <div class="bg-paper text-cinema font-mono text-[10px] px-4 py-2 flex justify-between"><span>REEL 2024 — PÆRALLAX</span><span>DCP 2K — DOLBY 5.1</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // date
+        document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US', { month:'short', day:'2-digit', year:'numeric' }).toUpperCase();
+
+        // cursor
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; dot.style.transform = `translate3d(${mouseX-3}px, ${mouseY-3}px, 0)`; });
+        (function animateRing(){ ringX += (mouseX - ringX) * 0.15; ringY += (mouseY - ringY) * 0.15; ring.style.transform = `translate3d(${ringX-18}px, ${ringY-18}px, 0)`; requestAnimationFrame(animateRing); })();
+        document.querySelectorAll('.cursor-hover').forEach(el => {
+            el.addEventListener('mouseenter', ()=> ring.classList.add('hover'));
+            el.addEventListener('mouseleave', ()=> ring.classList.remove('hover'));
+        });
+
+        // reveal
+        const observer = new IntersectionObserver((entries)=> {
+            entries.forEach(entry=> { if(entry.isIntersecting){ entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } })
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el=> observer.observe(el));
+
+        // progress
+        const prog = document.getElementById('progress');
+        window.addEventListener('scroll', ()=> {
+            const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            prog.style.transform = `scaleX(${pct})`;
+            document.getElementById('nav').style.background = window.scrollY > 20 ? 'rgba(10,10,10,0.8)' : 'transparent';
+        });
+
+        // menu
+        const menu = document.getElementById('menu');
+        document.getElementById('menuOpen').addEventListener('click', ()=> { menu.style.transform = 'translateY(0)'; document.body.style.overflow='hidden'; });
+        document.getElementById('menuClose').addEventListener('click', ()=> { menu.style.transform = 'translateY(-100%)'; document.body.style.overflow=''; });
+        document.querySelectorAll('.menu-link').forEach(l=> l.addEventListener('click', ()=> { menu.style.transform = 'translateY(-100%)'; document.body.style.overflow=''; }));
+
+        // reel modal
+        const modal = document.getElementById('reelModal');
+        function openModal(){ modal.classList.remove('hidden'); modal.classList.add('grid'); document.body.style.overflow='hidden'; }
+        function closeModal(){ modal.classList.add('hidden'); modal.classList.remove('grid'); document.body.style.overflow=''; }
+        document.getElementById('openReel').addEventListener('click', openModal);
+        document.getElementById('heroPlay').addEventListener('click', openModal);
+        document.getElementById('closeReel').addEventListener('click', closeModal);
+        modal.addEventListener('click', e=> { if(e.target===modal) closeModal(); });
+
+        // type buttons
+        document.querySelectorAll('.type-btn').forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                document.querySelectorAll('.type-btn').forEach(b=> b.classList.remove('bg-cinema','text-paper'));
+                btn.classList.add('bg-cinema','text-paper');
+            });
+        });
+
+        // form
+        document.getElementById('contactForm').addEventListener('submit', e=>{
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const old = btn.textContent;
+            btn.textContent = 'SLATE SENT — CHECK EMAIL';
+            btn.classList.add('bg-kodak','text-cinema');
+            setTimeout(()=>{ btn.textContent = old; btn.classList.remove('bg-kodak','text-cinema'); e.target.reset(); }, 3000);
+        });
+
+        // magnetic
+        document.querySelectorAll('.magnetic').forEach(btn=>{
+            btn.addEventListener('mousemove', (e)=>{
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width/2;
+                const y = e.clientY - rect.top - rect.height/2;
+                btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+            });
+            btn.addEventListener('mouseleave', ()=> btn.style.transform = 'translate(0,0)');
+        });
+
+        // parallax hero
+        const heroImg = document.getElementById('heroImg');
+        window.addEventListener('scroll', ()=>{
+            const y = window.scrollY * 0.18;
+            if(heroImg) heroImg.style.transform = `translateY(${y}px) scale(1.12)`;
+        });
+    </script>
+</body>
+</html>

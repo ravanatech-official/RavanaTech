@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Tattoo Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        charcoal: '#1a1a1a',
+        bone: '#f5f1e8',
+        blood: '#E10600',
+        bloodDark: '#8A0A0A',
+        paper: '#0f0f0f',
+        stone: '#2a2a2a',
+      },
+      fontFamily: {
+        fraktur: ['UnifrakturMaguntia', 'serif'],
+        grotesk: ['Inter', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  body { background: #1a1a1a; color: #f5f1e8; overscroll-behavior: none; }
+  ::selection { background: #E10600; color: #f5f1e8; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #1a1a1a; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; }
+  ::-webkit-scrollbar-thumb:hover { background: #E10600; }
+
+  .grain {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index:9999; opacity:0.045; mix-blend-mode:overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .cursor-dot, .cursor-ring {
+    position: fixed; top:0; left:0; pointer-events:none; z-index:99999;
+    border-radius:50%; mix-blend-mode: difference; will-change: transform;
+  }
+  .cursor-dot { width:6px; height:6px; background:#E10600; transform:translate(-50%,-50%); }
+  .cursor-ring { width:32px; height:32px; border:1px solid rgba(245,241,232,0.6); transform:translate(-50%,-50%); transition: width .25s, height .25s, border-color .25s, background .25s; }
+  .cursor-ring.hover { width:68px; height:68px; border-color:#E10600; background:rgba(225,6,0,0.08); }
+
+  .ink-bleed { filter: url(#inkFilter); }
+  .torn-edge {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), 98% 100%, 92% calc(100% - 4px), 86% 100%, 78% calc(100% - 6px), 70% 100%, 62% calc(100% - 3px), 54% 100%, 46% calc(100% - 5px), 38% 100%, 30% calc(100% - 4px), 22% 100%, 14% calc(100% - 6px), 6% 100%, 0 calc(100% - 8px));
+  }
+  .torn-edge-top {
+    clip-path: polygon(0 8px, 6% 0, 14% 6px, 22% 0, 30% 4px, 38% 0, 46% 5px, 54% 0, 62% 3px, 70% 0, 78% 6px, 86% 0, 92% 4px, 98% 0, 100% 8px, 100% 100%, 0 100%);
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track { animation: marquee 30s linear infinite; }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  @keyframes inkReveal {
+    0% { clip-path: inset(0 100% 0 0); filter: blur(8px); }
+    60% { clip-path: inset(0 0 0 0); filter: blur(0); }
+    100% { clip-path: inset(0 0 0 0); }
+  }
+  .reveal { opacity:0; transform: translateY(24px); transition: all .9s cubic-bezier(.16,1,.3,1); }
+  .reveal.in { opacity:1; transform:translateY(0); }
+
+  .magnetic { transition: transform .2s cubic-bezier(.16,1,.3,1); will-change: transform; }
+
+  .flash-card img { filter: grayscale(100%) contrast(1.1); transition: all .5s; }
+  .flash-card:hover img { filter: grayscale(0%) contrast(1); transform: scale(1.04); }
+  .flash-card:hover { border-color: #E10600; }
+
+  .ink-stamp {
+    position:relative;
+  }
+  .ink-stamp::after {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(225,6,0,0.15) 100%);
+    opacity:0; transition:.4s; pointer-events:none;
+  }
+  .ink-stamp:hover::after { opacity:1; }
+
+  .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; }
+
+  .blood-link {
+    position:relative; display:inline-block;
+  }
+  .blood-link::after {
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:#E10600; transition: width .4s cubic-bezier(.16,1,.3,1);
+  }
+  .blood-link:hover::after { width:100%; }
+
+  .paper-tear {
+    background: #f5f1e8;
+    color: #1a1a1a;
+    position: relative;
+  }
+  .paper-tear:before {
+    content:''; position:absolute; top:-10px; left:0; right:0; height:20px;
+    background: radial-gradient(ellipse at center, transparent 60%, #1a1a1a 60.5%);
+    background-size: 24px 20px;
+  }
+</style>
+</head>
+<body class="font-grotesk bg-charcoal text-bone selection:bg-blood selection:text-bone overflow-x-hidden">
+<div class="grain"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- SVG Filters for ink bleed -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <filter id="inkFilter" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence baseFrequency="0.015" numOctaves="3" result="turb" seed="2"/>
+      <feDisplacementMap in="SourceGraphic" in2="turb" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="inkHeavy" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence baseFrequency="0.02" numOctaves="4" result="turb" seed="5"/>
+      <feDisplacementMap in="SourceGraphic" in2="turb" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- Progress -->
+<div class="fixed top-0 left-0 w-full h-[2px] z-[100] bg-stone/50">
+  <div id="progress" class="h-full bg-blood w-0 transition-[width] duration-100 ease-linear"></div>
+</div>
+
+<!-- NAV -->
+<nav class="fixed top-0 w-full z-40 mix-blend-difference">
+  <div class="border-b border-bone/10 backdrop-blur-[12px] bg-charcoal/10">
+    <div class="max-w-[1680px] mx-auto px-6 md:px-10 h-[72px] flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <a href="#" class="flex items-center gap-3 group">
+          <span class="font-fraktur text-[34px] tracking-[-0.02em] leading-none">Black Iron</span>
+          <span class="hidden md:inline-flex text-[10px] tracking-[0.3em] uppercase border border-bone/30 px-2 py-[3px] rounded-full group-hover:border-blood group-hover:text-blood transition">Est. 2011</span>
+        </a>
+        <div class="hidden lg:flex items-center gap-8 text-[11px] tracking-[0.2em] uppercase font-medium">
+          <a href="#work" class="blood-link opacity-70 hover:opacity-100 transition">Flash</a>
+          <a href="#artists" class="blood-link opacity-70 hover:opacity-100 transition">Artists</a>
+          <a href="#studio" class="blood-link opacity-70 hover:opacity-100 transition">Studio</a>
+          <a href="#process" class="blood-link opacity-70 hover:opacity-100 transition">Process</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="hidden md:flex items-center gap-3 text-[10px] tracking-widest">
+          <span class="w-2 h-2 rounded-full bg-[#1aff1a] animate-pulse shadow-[0_0_8px_#1aff1a]"></span>
+          <span class="uppercase">OPEN · 12—20H</span>
+        </div>
+        <a href="#booking" class="magnetic bg-bone text-charcoal px-7 h-10 inline-flex items-center text-[11px] tracking-[0.2em] uppercase font-bold hover:bg-blood hover:text-bone transition-colors">
+          Book Session
+        </a>
+        <button id="menuBtn" class="lg:hidden w-10 h-10 border border-bone/20 grid place-items-center">
+          <div class="w-5 flex flex-col gap-[4px]">
+            <span class="h-[1px] bg-bone block w-full"></span>
+            <span class="h-[1px] bg-bone block w-full"></span>
+            <span class="h-[1px] bg-bone block w-3/5 ml-auto"></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobileMenu" class="fixed inset-0 z-50 bg-charcoal translate-y-[-100%] transition-transform duration-[0.8s] cubic-bezier(.16,1,.3,1) lg:hidden">
+  <div class="h-[72px] px-6 flex items-center justify-between border-b border-bone/10">
+    <span class="font-fraktur text-[32px]">Black Iron</span>
+    <button id="closeMenu" class="w-10 h-10 grid place-items-center border border-bone/20">✕</button>
+  </div>
+  <div class="p-6 pt-16 space-y-8">
+    <a class="block font-fraktur text-[64px] leading-none hover:text-blood transition" href="#work">Flash</a>
+    <a class="block font-fraktur text-[64px] leading-none hover:text-blood transition" href="#artists">Artists</a>
+    <a class="block font-fraktur text-[64px] leading-none hover:text-blood transition" href="#studio">Studio</a>
+    <a class="block font-fraktur text-[64px] leading-none hover:text-blood transition" href="#process">Info</a>
+    <div class="pt-12 flex gap-3">
+      <a href="#booking" class="flex-1 bg-blood text-bone h-14 grid place-items-center uppercase tracking-[0.2em] text-[12px] font-bold">Book Now</a>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="relative pt-[72px] min-h-[92vh] flex flex-col overflow-hidden">
+  <div class="max-w-[1680px] mx-auto w-full px-6 md:px-10 flex-1 grid grid-cols-12 gap-6 md:gap-0">
+    <!-- Left Type -->
+    <div class="col-span-12 lg:col-span-7 flex flex-col justify-center py-12 lg:py-20 relative z-10">
+      <div class="flex items-center gap-4 mb-8 reveal">
+        <div class="w-12 h-[1px] bg-blood"></div>
+        <span class="text-[10px] tracking-[0.35em] uppercase text-bone/60">Kottbusser Damm 13 · Berlin Neukölln</span>
+      </div>
+      <h1 class="font-fraktur leading-[0.85] tracking-[-0.03em] text-[16vw] lg:text-[10vw] xl:text-[9.5vw] uppercase reveal" style="transition-delay:.1s">
+        <span class="block">Ink is</span>
+        <span class="block ml-[0.15em] text-bone/20 stroke-text" style="-webkit-text-stroke:1px #f5f1e8;">a scar</span>
+        <span class="block text-blood">you</span>
+        <span class="block ml-[0.35em] -mt-2 lg:-mt-6">choose.</span>
+      </h1>
+      <div class="mt-8 lg:mt-12 grid grid-cols-12 gap-6 reveal" style="transition-delay:.25s">
+        <div class="col-span-12 md:col-span-7">
+          <p class="text-[16px] md:text-[18px] leading-[1.6] font-light text-bone/80 max-w-[44ch]">
+            Raw, hand-poked and machine. No Pinterest. No trends. Custom blackwork, heavy trad, and gothic lettering for those who wear their story.
+            <span class="text-bone font-medium"> By appointment only.</span>
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#work" class="group relative h-[52px] px-8 bg-bone text-charcoal inline-flex items-center gap-3 text-[11px] tracking-[0.2em] uppercase font-bold overflow-hidden">
+              <span class="relative z-10 group-hover:text-bone transition">View Flash — 127</span>
+              <span class="relative z-10 group-hover:text-bone transition">↗</span>
+              <div class="absolute inset-0 bg-blood translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)]"></div>
+            </a>
+            <a href="#artists" class="h-[52px] px-8 border border-bone/20 inline-flex items-center text-[11px] tracking-[0.2em] uppercase hover:border-blood hover:text-blood transition-colors">
+              Meet the Artists
+            </a>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-5 md:pl-6 border-l border-bone/10 hidden md:block">
+          <div class="text-[10px] tracking-[0.2em] uppercase text-bone/40 mb-3">Currently Booking</div>
+          <div class="space-y-2 text-[13px]">
+            <div class="flex justify-between"><span>JANUARY</span><span class="text-blood font-bold">WAITLIST</span></div>
+            <div class="flex justify-between"><span>FEBRUARY</span><span class="underline decoration-blood decoration-2 underline-offset-4">3 SPOTS</span></div>
+            <div class="flex justify-between text-bone/50"><span>MARCH</span><span>OPEN</span></div>
+          </div>
+          <div class="mt-6 pt-6 border-t border-bone/10 flex gap-2">
+            <span class="text-[10px] px-2 py-1 border border-bone/20 rounded-full">BLACKWORK</span>
+            <span class="text-[10px] px-2 py-1 border border-bone/20 rounded-full">TRAD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Image -->
+    <div class="col-span-12 lg:col-span-5 relative lg:h-auto min-h-[420px] lg:min-h-0 reveal" style="transition-delay:.35s">
+      <div class="absolute inset-0 lg:left-6 lg:right-0 lg:top-12 lg:bottom-12 overflow-hidden bg-stone">
+        <img src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=1200&auto=format&fit=crop" alt="Tattoo studio" class="w-full h-full object-cover grayscale contrast-[1.2] brightness-[0.85]">
+        <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/40 to-transparent"></div>
+        <div class="absolute inset-0 opacity-[0.15] mix-blend-multiply" style="background-image:url('https://images.unsplash.com/photo-1568515045052-f9a854d70bfd?q=80&w=600'); background-size:cover; filter: url(#inkHeavy);"></div>
+        <!-- Floating stamps -->
+        <div class="absolute top-6 left-6 bg-bone text-charcoal px-3 py-1 text-[10px] tracking-[0.2em] uppercase font-bold rotate-[-3deg] shadow-[4px_4px_0_#E10600]">No regrets. Only ink.</div>
+        <div class="absolute bottom-6 right-6 bg-blood text-bone px-3 py-[6px] text-[11px] tracking-widest uppercase font-bold">★ Rated brutal</div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-bone/20 w-[75%] h-[75%] pointer-events-none mix-blend-overlay">
+          <div class="absolute -top-2 -left-2 w-4 h-4 border-t border-l border-bone"></div>
+          <div class="absolute -bottom-2 -right-2 w-4 h-4 border-b border-r border-bone"></div>
+        </div>
+      </div>
+      <!-- Vertical side -->
+      <div class="hidden lg:flex absolute -right-10 top-1/2 -translate-y-1/2 vertical-text gap-8 text-[10px] tracking-[0.4em] uppercase text-bone/30">
+        <span>BERLIN</span><span>•</span><span>LONDON</span><span>•</span><span>TOKYO</span><span>•</span><span>LOS ANGELES</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marquee -->
+  <div class="relative border-y border-bone/10 bg-bone text-charcoal overflow-hidden h-[44px] flex items-center">
+    <div class="marquee-track flex whitespace-nowrap will-change-transform">
+      <div class="flex items-center gap-6 px-6 text-[12px] tracking-[0.26em] uppercase font-bold">
+        <span>EST. 2011 BERLIN NEUKÖLLN</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>CUSTOM ONLY — NO FLASH REPEATS</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span class="font-fraktur normal-case tracking-normal text-[18px]">Black Iron Tattoo</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>VEGAN INK • HAND MIXED</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>WALK-INS SATURDAY 14—18H</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>BLACKWORK • TRAD • LETTERING • IGNORANT</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+      </div>
+      <div class="flex items-center gap-6 px-6 text-[12px] tracking-[0.26em] uppercase font-bold" aria-hidden="true">
+        <span>EST. 2011 BERLIN NEUKÖLLN</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>CUSTOM ONLY — NO FLASH REPEATS</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span class="font-fraktur normal-case tracking-normal text-[18px]">Black Iron Tattoo</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>VEGAN INK • HAND MIXED</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>WALK-INS SATURDAY 14—18H</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+        <span>BLACKWORK • TRAD • LETTERING • IGNORANT</span><span class="w-1 h-1 bg-blood rounded-full"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STUDIO MANIFESTO -->
+<section id="studio" class="relative py-24 md:py-36 border-b border-bone/10 overflow-hidden">
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10">
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 md:col-span-3 reveal">
+        <div class="sticky top-28">
+          <div class="text-[10px] tracking-[0.35em] uppercase text-blood mb-6">[01] — MANIFESTO</div>
+          <h2 class="font-fraktur text-[64px] md:text-[84px] leading-[0.85] -ml-1">We<br>dont<br>do<br><span class="text-bone/20">pretty.</span></h2>
+          <div class="mt-8 w-16 h-[1px] bg-blood"></div>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-9 md:pl-16">
+        <div class="border border-bone/10 p-8 md:p-14 bg-[#121212] reveal torn-edge-top">
+          <div class="grid grid-cols-12 gap-8">
+            <div class="col-span-12 md:col-span-8">
+              <p class="text-[24px] md:text-[32px] leading-[1.15] tracking-[-0.02em] font-light">
+                Black Iron started in a Neukölln basement with one machine, a cracked sink and a rule:
+                <span class="font-fraktur text-blood text-[38px] md:text-[44px]">no copies.</span>
+                Every piece is drawn for one body, one story. We don’t chase trends. We bury them.
+              </p>
+              <div class="mt-10 grid grid-cols-3 gap-6 border-t border-bone/10 pt-8">
+                <div>
+                  <div class="font-fraktur text-[48px] leading-none">13</div>
+                  <div class="text-[10px] tracking-[0.2em] uppercase text-bone/50 mt-2">Years underground</div>
+                </div>
+                <div>
+                  <div class="font-fraktur text-[48px] leading-none">8.4k</div>
+                  <div class="text-[10px] tracking-[0.2em] uppercase text-bone/50 mt-2">Pieces inked</div>
+                </div>
+                <div>
+                  <div class="font-fraktur text-[48px] leading-none">0</div>
+                  <div class="text-[10px] tracking-[0.2em] uppercase text-bone/50 mt-2">Flash repeated</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-4">
+              <div class="relative aspect-[3/4] overflow-hidden bg-stone">
+                <img src="https://images.unsplash.com/photo-1568515045052-f9a854d70bfd?q=80&w=800&auto=format&fit=crop" alt="Studio interior" class="w-full h-full object-cover grayscale">
+                <div class="absolute inset-0 p-4 flex flex-col justify-end">
+                  <div class="bg-bone text-charcoal text-[10px] tracking-[0.2em] uppercase p-3 leading-[1.4] font-medium">
+                    <span class="block text-blood font-bold">NOTE FROM THE SHOP:</span>
+                    We use only vegan, EU-certified inks. Needles single-use. Machines built in-house. Music loud.
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 text-[11px] leading-[1.6] text-bone/50">
+                The shop smells like green soap, coffee, and iron. We like it that way. No Instagram walls. No neon. Just work.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quote marquee -->
+        <div class="mt-12 bg-blood text-bone py-3 overflow-hidden reveal">
+          <div class="flex gap-10 whitespace-nowrap text-[11px] tracking-[0.3em] uppercase font-bold marquee-track" style="animation-duration: 18s;">
+            <span>“The best tattoos look like they were always there.” — Luka, Founder</span>
+            <span>•</span>
+            <span>“Wenn es nicht weh tut, ist es kein Tattoo.” — Shop Rule #4</span>
+            <span>•</span>
+            <span>“The best tattoos look like they were always there.” — Luka, Founder</span>
+            <span>•</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES / STYLE -->
+<section class="py-20 md:py-28 border-b border-bone/10 bg-[#111]">
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-12 reveal">
+      <h2 class="font-fraktur text-[56px] md:text-[92px] leading-[0.9]">What we<br><span class="text-bone/25">do.</span></h2>
+      <div class="text-[12px] tracking-[0.2em] uppercase text-bone/50 max-w-[32ch] leading-[1.6]">Four disciplines. One obsession: lines that hold for life. All custom. No minimum, no maximum.</div>
+    </div>
+
+    <div class="grid grid-cols-12 border border-bone/10 reveal">
+      <!-- Service 1 -->
+      <div class="col-span-12 md:col-span-3 border-b md:border-b-0 md:border-r border-bone/10 group relative overflow-hidden bg-charcoal hover:bg-[#151515] transition-colors">
+        <div class="p-7 md:p-8 h-full flex flex-col">
+          <div class="flex justify-between items-start mb-10">
+            <span class="text-[10px] tracking-[0.3em] uppercase px-2 py-1 border border-bone/20 rounded-full">01</span>
+            <span class="text-blood">↗</span>
+          </div>
+          <h3 class="font-fraktur text-[40px] leading-none mb-3">Blackwork</h3>
+          <p class="text-[13px] leading-[1.6] text-bone/60 mb-8">Heavy blacks, brutal ornament, gothic armor. Large scale, freehand, built for aging beautifully.</p>
+          <div class="mt-auto aspect-[4/3] overflow-hidden bg-stone">
+            <img src="https://images.unsplash.com/photo-1597852075234-fd721ac361d3?q=80&w=600&auto=format&fit=crop" alt="blackwork" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
+          </div>
+          <div class="mt-4 text-[10px] tracking-[0.2em] uppercase flex gap-2">
+            <span class="px-2 py-1 bg-bone/10 rounded">Backpiece</span>
+            <span class="px-2 py-1 bg-bone/10 rounded">Sleeve</span>
+          </div>
+        </div>
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-blood scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+      </div>
+
+      <div class="col-span-12 md:col-span-3 border-b md:border-b-0 md:border-r border-bone/10 group relative overflow-hidden bg-charcoal hover:bg-[#151515] transition-colors">
+        <div class="p-7 md:p-8 h-full flex flex-col">
+          <div class="flex justify-between items-start mb-10">
+            <span class="text-[10px] tracking-[0.3em] uppercase px-2 py-1 border border-bone/20 rounded-full">02</span>
+            <span class="text-blood">↗</span>
+          </div>
+          <h3 class="font-fraktur text-[40px] leading-none mb-3">Trad / Old</h3>
+          <p class="text-[13px] leading-[1.6] text-bone/60 mb-8">Bold will hold. Daggers, snakes, girls, eagles. Drawn at the desk, not off the feed. American trad with Berlin teeth.</p>
+          <div class="mt-auto aspect-[4/3] overflow-hidden bg-stone">
+            <img src="https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=600&auto=format&fit=crop" alt="trad tattoo" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
+          </div>
+          <div class="mt-4 text-[10px] tracking-[0.2em] uppercase flex gap-2">
+            <span class="px-2 py-1 bg-bone/10 rounded">Flash</span>
+            <span class="px-2 py-1 bg-bone/10 rounded">One-shot</span>
+          </div>
+        </div>
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-blood scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+      </div>
+
+      <div class="col-span-12 md:col-span-3 border-b md:border-b-0 md:border-r border-bone/10 group relative overflow-hidden bg-charcoal hover:bg-[#151515] transition-colors">
+        <div class="p-7 md:p-8 h-full flex flex-col">
+          <div class="flex justify-between items-start mb-10">
+            <span class="text-[10px] tracking-[0.3em] uppercase px-2 py-1 border border-bone/20 rounded-full">03</span>
+            <span class="text-blood">↗</span>
+          </div>
+          <h3 class="font-fraktur text-[40px] leading-none mb-3">Lettering</h3>
+          <p class="text-[13px] leading-[1.6] text-bone/60 mb-8">Gothic, Old English, hand-style. Names, prayers, threats. Kerned by eye, not font. Built to be read when you’re 80.</p>
+          <div class="mt-auto aspect-[4/3] overflow-hidden bg-stone flex items-center justify-center p-6">
+            <div class="font-fraktur text-[42px] leading-none text-center text-bone/80 group-hover:text-bone transition">In Loving<br><span class="text-blood">Memory</span></div>
+          </div>
+          <div class="mt-4 text-[10px] tracking-[0.2em] uppercase flex gap-2">
+            <span class="px-2 py-1 bg-bone/10 rounded">Gothic</span>
+            <span class="px-2 py-1 bg-bone/10 rounded">Freehand</span>
+          </div>
+        </div>
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-blood scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+      </div>
+
+      <div class="col-span-12 md:col-span-3 group relative overflow-hidden bg-charcoal hover:bg-[#151515] transition-colors">
+        <div class="p-7 md:p-8 h-full flex flex-col">
+          <div class="flex justify-between items-start mb-10">
+            <span class="text-[10px] tracking-[0.3em] uppercase px-2 py-1 border border-bone/20 rounded-full">04</span>
+            <span class="text-blood">↗</span>
+          </div>
+          <h3 class="font-fraktur text-[40px] leading-none mb-3">Fine / Ignorant</h3>
+          <p class="text-[13px] leading-[1.6] text-bone/60 mb-8">Single needle, micro-realism that stays, ignorant blurbs. For fingers, necks, behind ears. Small but permanent.</p>
+          <div class="mt-auto aspect-[4/3] overflow-hidden bg-stone">
+            <img src="https://images.unsplash.com/photo-1543244128-30d1754a1d85?q=80&w=600&auto=format&fit=crop" alt="fine line" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
+          </div>
+          <div class="mt-4 text-[10px] tracking-[0.2em] uppercase flex gap-2">
+            <span class="px-2 py-1 bg-bone/10 rounded">Micro</span>
+            <span class="px-2 py-1 bg-bone/10 rounded">Hidden</span>
+          </div>
+        </div>
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-blood scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTISTS -->
+<section id="artists" class="py-24 md:py-36 relative">
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10">
+    <div class="flex items-baseline gap-4 mb-14 reveal">
+      <h2 class="font-fraktur text-[64px] md:text-[110px] leading-[0.85]">Artists</h2>
+      <span class="text-[10px] tracking-[0.3em] uppercase bg-blood text-bone px-2 py-1">3 resident / 2 guest</span>
+    </div>
+
+    <div class="grid grid-cols-12 gap-[1px] bg-bone/10 border border-bone/10 reveal">
+      <!-- Artist 1 -->
+      <div class="col-span-12 md:col-span-4 bg-charcoal group relative overflow-hidden">
+        <div class="aspect-[4/5] overflow-hidden relative">
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop" alt="Luka" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[800ms] group-hover:scale-[1.03]">
+          <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/10 to-transparent opacity-90"></div>
+          <div class="absolute top-4 left-4 right-4 flex justify-between text-[10px] tracking-[0.2em] uppercase">
+            <span class="bg-bone text-charcoal px-2 py-1 font-bold">Resident · Founder</span>
+            <span class="bg-charcoal/80 backdrop-blur text-bone px-2 py-1 border border-bone/20">Berlin</span>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <h3 class="font-fraktur text-[44px] leading-none">Luka</h3>
+            <p class="text-[11px] tracking-[0.2em] uppercase text-bone/60 mt-2">Blackwork / Large Scale • Freehand Armor • 13yrs</p>
+            <div class="mt-4 flex gap-2 overflow-hidden max-h-0 group-hover:max-h-20 transition-all duration-500">
+              <a href="#" class="text-[10px] uppercase tracking-widest border border-bone/20 px-3 py-2 hover:border-blood hover:text-blood transition">Instagram @luka.iron</a>
+              <a href="#booking" class="text-[10px] uppercase tracking-widest bg-bone text-charcoal px-3 py-2 hover:bg-blood hover:text-bone transition">Book</a>
+            </div>
+          </div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] aspect-square border border-blood/20 rotate-45 opacity-0 group-hover:opacity-100 transition duration-700 pointer-events-none"></div>
+        </div>
+      </div>
+
+      <!-- Artist 2 -->
+      <div class="col-span-12 md:col-span-4 bg-charcoal group relative overflow-hidden">
+        <div class="aspect-[4/5] overflow-hidden relative">
+          <img src="https://images.unsplash.com/photo-1531891437562-4301cf35b854?q=80&w=800&auto=format&fit=crop" alt="Mira" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[800ms] group-hover:scale-[1.03]">
+          <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/10 to-transparent opacity-90"></div>
+          <div class="absolute top-4 left-4 right-4 flex justify-between text-[10px] tracking-[0.2em] uppercase">
+            <span class="bg-bone text-charcoal px-2 py-1 font-bold">Resident</span>
+            <span class="bg-charcoal/80 backdrop-blur text-bone px-2 py-1 border border-bone/20">Seoul → Berlin</span>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <h3 class="font-fraktur text-[44px] leading-none">Mira</h3>
+            <p class="text-[11px] tracking-[0.2em] uppercase text-bone/60 mt-2">Trad / Japanese • Color & B&G • 9yrs</p>
+            <div class="mt-4 flex gap-2 overflow-hidden max-h-0 group-hover:max-h-20 transition-all duration-500">
+              <a href="#" class="text-[10px] uppercase tracking-widest border border-bone/20 px-3 py-2 hover:border-blood hover:text-blood transition">Instagram @mira.tattoo</a>
+              <a href="#booking" class="text-[10px] uppercase tracking-widest bg-bone text-charcoal px-3 py-2 hover:bg-blood hover:text-bone transition">Book</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Artist 3 -->
+      <div class="col-span-12 md:col-span-4 bg-charcoal group relative overflow-hidden">
+        <div class="aspect-[4/5] overflow-hidden relative">
+          <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=800&auto=format&fit=crop" alt="Cass" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[800ms] group-hover:scale-[1.03]">
+          <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/10 to-transparent opacity-90"></div>
+          <div class="absolute top-4 left-4 right-4 flex justify-between text-[10px] tracking-[0.2em] uppercase">
+            <span class="bg-blood text-bone px-2 py-1 font-bold">Resident</span>
+            <span class="bg-charcoal/80 backdrop-blur text-bone px-2 py-1 border border-bone/20">London</span>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <h3 class="font-fraktur text-[44px] leading-none">Cass</h3>
+            <p class="text-[11px] tracking-[0.2em] uppercase text-bone/60 mt-2">Lettering / Ignorant • Type & Ornament • 7yrs</p>
+            <div class="mt-4 flex gap-2 overflow-hidden max-h-0 group-hover:max-h-20 transition-all duration-500">
+              <a href="#" class="text-[10px] uppercase tracking-widest border border-bone/20 px-3 py-2 hover:border-blood hover:text-blood transition">Instagram @cass.letters</a>
+              <a href="#booking" class="text-[10px] uppercase tracking-widest bg-bone text-charcoal px-3 py-2 hover:bg-blood hover:text-bone transition">Book</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guest strip -->
+    <div class="mt-[1px] grid grid-cols-12 bg-bone/10 border-x border-b border-bone/10 reveal">
+      <div class="col-span-12 md:col-span-6 bg-[#0f0f0f] p-5 flex items-center justify-between text-[11px] tracking-[0.2em] uppercase">
+        <span class="text-bone/50">Next Guest: <span class="text-bone">TOBY (NYC) — Feb 12-19 — Japanese Tebori</span></span>
+        <span class="text-blood">Waitlist →</span>
+      </div>
+      <div class="col-span-12 md:col-span-6 bg-[#0f0f0f] p-5 flex items-center justify-between text-[11px] tracking-[0.2em] uppercase border-t md:border-t-0 md:border-l border-bone/10">
+        <span class="text-bone/50">Next Guest: <span class="text-bone">SAGE (LA) — Mar 04-10 — Black & Grey Chicano</span></span>
+        <span class="text-blood">Apply →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLASH SHEET GALLERY -->
+<section id="work" class="py-20 md:py-28 bg-bone text-charcoal relative overflow-hidden">
+  <!-- torn edge top -->
+  <div class="absolute top-0 left-0 right-0 h-6 bg-charcoal" style="clip-path: polygon(0 0, 100% 0, 100% 50%, 97% 100%, 91% 50%, 85% 100%, 77% 40%, 70% 100%, 62% 60%, 54% 100%, 45% 50%, 36% 100%, 28% 60%, 20% 100%, 12% 40%, 5% 100%, 0 60%);"></div>
+
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10 pt-10">
+    <div class="flex flex-wrap items-end justify-between gap-8 mb-10 reveal">
+      <div class="flex items-baseline gap-6">
+        <h2 class="font-fraktur text-[72px] md:text-[120px] leading-[0.8] tracking-[-0.03em]">Flash</h2>
+        <span class="hidden md:inline text-[10px] tracking-[0.3em] uppercase border border-charcoal/20 px-2 py-1 rounded-full">Never repeated. Drawn once, tattooed once.</span>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] tracking-[0.15em] uppercase" id="flashFilters">
+        <button data-filter="all" class="filter-btn active px-4 h-9 bg-charcoal text-bone font-bold">All 127</button>
+        <button data-filter="trad" class="filter-btn px-4 h-9 border border-charcoal/20 hover:border-charcoal transition">Trad</button>
+        <button data-filter="blackwork" class="filter-btn px-4 h-9 border border-charcoal/20 hover:border-charcoal transition">Blackwork</button>
+        <button data-filter="lettering" class="filter-btn px-4 h-9 border border-charcoal/20 hover:border-charcoal transition">Lettering</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-[1px] bg-charcoal/10 border border-charcoal/10 reveal" id="flashGrid">
+      <!-- Row 1 -->
+      <div class="flash-card col-span-6 md:col-span-3 bg-[#f5f1e8] border border-transparent hover:border-blood transition-colors group" data-cat="trad">
+        <div class="aspect-[4/5] overflow-hidden bg-white relative p-3">
+          <img src="https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=600&auto=format&fit=crop" alt="flash" class="w-full h-full object-contain">
+          <div class="absolute bottom-3 left-3 bg-charcoal text-bone text-[9px] tracking-widest px-2 py-1 uppercase">No. 088 — Trad</div>
+          <div class="absolute top-3 right-3 w-6 h-6 rounded-full border border-charcoal/20 grid place-items-center text-[10px]">€</div>
+        </div>
+        <div class="p-3 flex justify-between items-center text-[11px]">
+          <span class="font-bold uppercase tracking-[0.15em]">Dagger & Rose</span>
+          <span class="text-blood font-bold">€240</span>
+        </div>
+      </div>
+      <div class="flash-card col-span-6 md:col-span-3 bg-[#f5f1e8] border border-transparent hover:border-blood transition-colors group" data-cat="blackwork">
+        <div class="aspect-[4/5] overflow-hidden bg-white relative p-3">
+          <img src="https://images.unsplash.com/photo-1542727365-19732a80dcfd?q=80&w=600&auto=format&fit=crop" alt="flash" class="w-full h-full object-contain">
+          <div class="absolute bottom-3 left-3 bg-charcoal text-bone text-[9px] tracking-widest px-2 py-1 uppercase">No. 103 — Blackwork</div>
+        </div>
+        <div class="p-3 flex justify-between items-center text-[11px]">
+          <span class="font-bold uppercase tracking-[0.15em]">Gothic Thorn</span>
+          <span class="text-blood font-bold">€380</span>
+        </div>
+      </div>
+      <div class="flash-card col-span-6 md:col-span-3 bg-[#f5f1e8] border border-transparent hover:border-blood transition-colors group" data-cat="lettering">
+        <div class="aspect-[4/5] overflow-hidden bg-white relative p-8 flex items-center justify-center">
+          <div class="font-fraktur text-[56px] leading-none text-center">Amor<br>Fati</div>
+          <div class="absolute bottom-3 left-3 bg-blood text-bone text-[9px] tracking-widest px-2 py-1 uppercase">No. 112 — Lettering</div>
+        </div>
+        <div class="p-3 flex justify-between items-center text-[11px]">
+          <span class="font-bold uppercase tracking-[0.15em]">Amor Fati</span>
+          <span class="text-blood font-bold">€180</span>
+        </div>
+      </div>
+      <div class="flash-card col-span-6 md:col-span-3 bg-[#f5f1e8] border border-transparent hover:border-blood transition-colors group" data-cat="blackwork">
+        <div class="aspect-[4/5] overflow-hidden bg-white relative p-3">
+          <img src="https://images.unsplash.com/photo-1597852075234-fd721ac361d3?q=80&w=600&auto=format&fit=crop" alt="flash" class="w-full h-full object-contain">
+          <div class="absolute bottom-3 left-3 bg-charcoal text-bone text-[9px] tracking-widest px-2 py-1 uppercase">No. 091 — Blackwork</div>
+        </div>
+        <div class="p-3 flex justify-between items-center text-[11px]">
+          <span class="font-bold uppercase tracking-[0.15em]">Armour Plate</span>
+          <span class="text-blood font-bold">€520</span>
+        </div>
+      </div>
+      <!-- Row 2 -->
+      <div class="flash-card col-span-6 md:col-span-3 bg-[#f5f1e8] border border-transparent hover:border-blood transition-colors group" data-cat="trad">
+        <div class="aspect-[4/5] overflow-hidden bg-white relative p-3">
+          <img src="https://images.unsplash.com/photo-1605647533135-783d1d85d6a9?q=80&w=600&auto=format&fit=crop" alt="flash" class="w-full h-full object-contain">
+          <div class="absolute bottom-3 left-3 bg-charcoal text-bone text-[9px] tracking-widest px-2 py-1 uppercase">No. 074 — Trad</div>
+        </div>
+        <div class="p-3 flex justify-between items-center text-[11px]">
+          <span class="font-bold uppercase tracking-[0.15em]">Panther Head</span>
+          <span class="text-blood font-bold">€260</span>
+        </div>
+      </div>
+      <div class="flash-card col-span-12 md:col-span-6 bg-[#f5f1e8] border border-transparent hover:border-blood transition-colors group relative overflow-hidden" data-cat="blackwork">
+        <div class="h-[420px] md:h-[460px] overflow-hidden bg-[#111] relative">
+          <img src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=1000&auto=format&fit=crop" alt="large flash" class="w-full h-full object-cover opacity-90 grayscale group-hover:grayscale-0 transition duration-700">
+          <div class="absolute inset-0 p-6 flex flex-col justify-between">
+            <div class="flex justify-between">
+              <span class="bg-bone text-charcoal text-[10px] tracking-[0.2em] uppercase px-3 py-1 font-bold">Featured Sheet — Sold as set</span>
+              <span class="bg-blood text-bone text-[10px] tracking-[0.2em] uppercase px-3 py-1 font-bold">Original</span>
+            </div>
+            <div class="bg-bone/90 backdrop-blur p-4 max-w-[34ch]">
+              <div class="font-fraktur text-[28px] leading-none mb-2">The Martyrdom Sheet</div>
+              <div class="text-[11px] leading-[1.5] text-charcoal/70">8-piece blackwork study drawn during winter 2023. Nails, thorns, halos. One owner only. Back or chest.</div>
+              <div class="mt-3 text-[11px] font-bold">€2,400 full set • No splits</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flash-card col-span-6 md:col-span-3 bg-[#f5f1e8] border border-transparent hover:border-blood transition-colors group" data-cat="lettering">
+        <div class="aspect-[4/5] overflow-hidden bg-white relative p-8 flex items-center justify-center">
+          <div class="font-fraktur text-[46px] leading-[0.9] text-center rotate-[-6deg]">Memento<br><span class="text-blood">Mori</span></div>
+          <div class="absolute bottom-3 left-3 bg-charcoal text-bone text-[9px] tracking-widest px-2 py-1 uppercase">No. 119 — Lettering</div>
+        </div>
+        <div class="p-3 flex justify-between items-center text-[11px]">
+          <span class="font-bold uppercase tracking-[0.15em]">Memento Mori</span>
+          <span class="text-blood font-bold">€200</span>
+        </div>
+      </div>
+      <!-- Row 3 small -->
+      <div class="col-span-12 bg-charcoal text-bone p-4 flex items-center justify-between reveal">
+        <div class="text-[10px] tracking-[0.3em] uppercase text-bone/60">All flash claimed = archived. No reprints. Photos are reference only — final piece adapts to body.</div>
+        <a href="#" class="text-[11px] tracking-[0.2em] uppercase border-b border-blood pb-1 hover:text-blood transition">Download PDF catalog →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process" class="py-24 md:py-28 border-y border-bone/10">
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10">
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 md:col-span-4 reveal">
+        <div class="text-[10px] tracking-[0.35em] uppercase text-blood mb-6">[02] — Process</div>
+        <h2 class="font-fraktur text-[56px] md:text-[72px] leading-[0.9]">How it<br>works.</h2>
+        <div class="mt-8 p-4 bg-[#111] border border-bone/10 text-[12px] leading-[1.6] text-bone/60">
+          We reply within 72h. No DMs for booking. Use the form. Bring reference, but expect us to redraw it. Deposits non-refundable. Reschedule once.
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-8 grid grid-cols-12 gap-[1px] bg-bone/10 border border-bone/10 reveal">
+        <div class="col-span-12 md:col-span-6 bg-charcoal p-8">
+          <div class="flex items-start justify-between mb-8">
+            <span class="font-fraktur text-[64px] leading-none text-bone/10">01</span>
+            <span class="text-[10px] tracking-[0.2em] uppercase bg-bone text-charcoal px-2 py-1 font-bold">30 min</span>
+          </div>
+          <h3 class="font-bold uppercase tracking-[0.15em] text-[13px] mb-3">Consultation</h3>
+          <p class="text-[13px] leading-[1.7] text-bone/60">In-shop or video. We talk placement, size, pain, aging. You talk meaning. We measure, photograph, and tell you if it’s a bad idea. Honesty > money.</p>
+        </div>
+        <div class="col-span-12 md:col-span-6 bg-charcoal p-8">
+          <div class="flex items-start justify-between mb-8">
+            <span class="font-fraktur text-[64px] leading-none text-bone/10">02</span>
+            <span class="text-[10px] tracking-[0.2em] uppercase bg-bone text-charcoal px-2 py-1 font-bold">1-2 weeks</span>
+          </div>
+          <h3 class="font-bold uppercase tracking-[0.15em] text-[13px] mb-3">Drawing</h3>
+          <p class="text-[13px] leading-[1.7] text-bone/60">Custom drawn once. You see it day before session. One revision included if it’s off. We don’t send designs early — they get stolen.</p>
+        </div>
+        <div class="col-span-12 md:col-span-6 bg-charcoal p-8 border-t border-bone/10">
+          <div class="flex items-start justify-between mb-8">
+            <span class="font-fraktur text-[64px] leading-none text-bone/10">03</span>
+            <span class="text-[10px] tracking-[0.2em] uppercase bg-blood text-bone px-2 py-1 font-bold">Session</span>
+          </div>
+          <h3 class="font-bold uppercase tracking-[0.15em] text-[13px] mb-3">Tattoo</h3>
+          <p class="text-[13px] leading-[1.7] text-bone/60">No music requests. No bringing 4 friends. 1 guest max. Breaks every 90min. We stop when it’s done, not when you’re done.</p>
+        </div>
+        <div class="col-span-12 md:col-span-6 bg-[#111] p-8 border-t border-bone/10">
+          <div class="flex items-start justify-between mb-8">
+            <span class="font-fraktur text-[64px] leading-none text-blood">04</span>
+            <span class="text-[10px] tracking-[0.2em] uppercase bg-bone text-charcoal px-2 py-1 font-bold">For life</span>
+          </div>
+          <h3 class="font-bold uppercase tracking-[0.15em] text-[13px] mb-3">Healing & After</h3>
+          <p class="text-[13px] leading-[1.7] text-bone/60">Second skin 3 days, then unscented lotion. No gym 7 days, no sun 14. Touch-ups free within 3 months if you followed instructions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-16 md:py-24 overflow-hidden bg-[#0e0e0e] border-b border-bone/10">
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10">
+    <div class="flex items-baseline justify-between mb-10 reveal">
+      <div class="text-[10px] tracking-[0.35em] uppercase text-bone/40">Letters from skin</div>
+      <div class="text-[10px] tracking-[0.2em] uppercase">★ 4.9 / 312 reviews</div>
+    </div>
+    <div class="grid grid-cols-12 gap-6 reveal">
+      <div class="col-span-12 md:col-span-4">
+        <div class="bg-bone text-charcoal p-6 md:p-8 torn-edge relative">
+          <div class="text-[13px] leading-[1.6]">“Luka built my backpiece like architecture. Three sessions, zero bullshit, lines that look cut into stone. He told me no on my first idea and was right.”</div>
+          <div class="mt-6 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover grayscale">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-widest">Alex K. — Backpiece 2023</div>
+              <div class="text-[10px] text-charcoal/50">Berlin • 2-year wait worth it</div>
+            </div>
+          </div>
+          <div class="absolute top-4 right-4 text-blood font-fraktur text-[28px]">“</div>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-4">
+        <div class="bg-charcoal border border-bone/10 p-6 md:p-8 relative">
+          <div class="text-[13px] leading-[1.6] text-bone/80">“Mira’s trad is violent in the best way. Colors that punch through melanin. She freehanded my throat piece in 20 minutes and it’s perfect.”</div>
+          <div class="mt-6 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover grayscale">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-widest text-bone">J. — Throat, color</div>
+              <div class="text-[10px] text-bone/40">London • Walk-in Saturday</div>
+            </div>
+          </div>
+          <div class="absolute -top-px -left-px w-2 h-2 bg-blood"></div>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-4">
+        <div class="bg-charcoal border border-bone/10 p-6 md:p-8 relative">
+          <div class="text-[13px] leading-[1.6] text-bone/80">“Cass lettered my dead brother’s name on my chest. I cried when I saw it. Perfect gothic, perfectly spaced. No stencil — all hand.”</div>
+          <div class="mt-6 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-bone text-charcoal grid place-items-center font-fraktur text-[18px]">C</div>
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-widest text-bone">Sam R. — Chest lettering</div>
+              <div class="text-[10px] text-bone/40">Leipzig • 2024</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section id="booking" class="py-20 md:py-32 relative">
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10">
+    <div class="grid grid-cols-12 gap-8">
+      <!-- Left: form -->
+      <div class="col-span-12 lg:col-span-7 reveal">
+        <div class="flex items-baseline gap-4 mb-8">
+          <h2 class="font-fraktur text-[64px] md:text-[88px] leading-[0.85]">Book</h2>
+          <span class="text-[10px] tracking-[0.3em] uppercase bg-bone text-charcoal px-2 py-1 font-bold">Replies in 72h • Deposit €100</span>
+        </div>
+        <form class="border border-bone/10 bg-[#121212] p-6 md:p-10 grid grid-cols-12 gap-5">
+          <div class="col-span-12 md:col-span-6">
+            <label class="text-[10px] tracking-[0.25em] uppercase text-bone/50 block mb-2">Full Name *</label>
+            <input type="text" placeholder="LENA MÜLLER" class="w-full h-12 bg-charcoal border border-bone/10 px-4 text-[13px] tracking-wide uppercase placeholder:text-bone/20 focus:outline-none focus:border-blood transition">
+          </div>
+          <div class="col-span-12 md:col-span-6">
+            <label class="text-[10px] tracking-[0.25em] uppercase text-bone/50 block mb-2">Email *</label>
+            <input type="email" placeholder="LENA@T-MAIL.DE" class="w-full h-12 bg-charcoal border border-bone/10 px-4 text-[13px] tracking-wide uppercase placeholder:text-bone/20 focus:outline-none focus:border-blood transition">
+          </div>
+          <div class="col-span-12 md:col-span-6">
+            <label class="text-[10px] tracking-[0.25em] uppercase text-bone/50 block mb-2">Artist Preference</label>
+            <select class="w-full h-12 bg-charcoal border border-bone/10 px-4 text-[13px] tracking-wide uppercase focus:outline-none focus:border-blood transition">
+              <option>No preference — you choose</option>
+              <option>Luka — Blackwork / Large</option>
+              <option>Mira — Trad / Color</option>
+              <option>Cass — Lettering / Fine</option>
+              <option>Guest Artist</option>
+            </select>
+          </div>
+          <div class="col-span-12 md:col-span-3">
+            <label class="text-[10px] tracking-[0.25em] uppercase text-bone/50 block mb-2">Placement</label>
+            <input type="text" placeholder="LEFT FOREARM" class="w-full h-12 bg-charcoal border border-bone/10 px-4 text-[13px] tracking-wide uppercase placeholder:text-bone/20 focus:outline-none focus:border-blood transition">
+          </div>
+          <div class="col-span-12 md:col-span-3">
+            <label class="text-[10px] tracking-[0.25em] uppercase text-bone/50 block mb-2">Size (cm)</label>
+            <input type="text" placeholder="15 X 20" class="w-full h-12 bg-charcoal border border-bone/10 px-4 text-[13px] tracking-wide uppercase placeholder:text-bone/20 focus:outline-none focus:border-blood transition">
+          </div>
+          <div class="col-span-12">
+            <label class="text-[10px] tracking-[0.25em] uppercase text-bone/50 block mb-2">Idea — Be specific, we hate “something cool” *</label>
+            <textarea rows="4" placeholder="Describe imagery, mood, references, why you want it. What it means, what it should NOT look like." class="w-full bg-charcoal border border-bone/10 p-4 text-[13px] leading-[1.6] placeholder:text-bone/20 focus:outline-none focus:border-blood transition resize-none"></textarea>
+          </div>
+          <div class="col-span-12 md:col-span-6">
+            <label class="text-[10px] tracking-[0.25em] uppercase text-bone/50 block mb-2">Budget (EUR)</label>
+            <input type="text" placeholder="€400 — €800" class="w-full h-12 bg-charcoal border border-bone/10 px-4 text-[13px] tracking-wide placeholder:text-bone/20 focus:outline-none focus:border-blood transition">
+          </div>
+          <div class="col-span-12 md:col-span-6 flex items-end">
+            <label class="flex gap-3 text-[11px] leading-[1.4] text-bone/60">
+              <input type="checkbox" class="mt-[2px] accent-[#E10600]"> <span>I understand deposits are non-refundable and designs are shown 24h before session. No AI-generated reference.</span>
+            </label>
+          </div>
+          <div class="col-span-12 pt-2 flex gap-3">
+            <button type="submit" class="flex-1 md:flex-none bg-blood text-bone h-14 px-10 text-[11px] tracking-[0.25em] uppercase font-bold hover:bg-bone hover:text-charcoal transition-colors">Send Request — We Reply In 72H</button>
+            <div class="hidden md:flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-bone/40">
+              <span class="w-2 h-2 rounded-full bg-blood animate-pulse"></span> Encrypted form
+            </div>
+          </div>
+          <div class="col-span-12 pt-4 text-[10px] leading-[1.5] text-bone/30 border-t border-bone/10 mt-2">
+            By sending, you agree to our no-show policy: 48h cancellation required, otherwise deposit forfeit. We photograph every piece for our archive (face cropped). Tell us if you don’t want yours published.
+          </div>
+        </form>
+      </div>
+
+      <!-- Right: info -->
+      <div class="col-span-12 lg:col-span-5 lg:pl-10 reveal">
+        <div class="sticky top-28 space-y-[1px] bg-bone/10 border border-bone/10">
+          <div class="bg-charcoal p-8">
+            <div class="text-[10px] tracking-[0.35em] uppercase text-blood mb-6">[03] — Find us</div>
+            <div class="font-fraktur text-[40px] leading-[0.9] mb-6">Kottbusser<br>Damm 13,<br>10967 Berlin</div>
+            <div class="text-[12px] leading-[1.8] text-bone/60">
+              U-Bahn Schönleinstraße (U8)<br>
+              2nd courtyard, left, red door<br>
+              No sign. You’ll smell the coffee.
+            </div>
+            <div class="mt-8 grid grid-cols-2 gap-4 text-[11px]">
+              <div class="border border-bone/10 p-3">
+                <div class="text-bone/40 uppercase tracking-widest text-[9px] mb-1">Hours</div>
+                <div>Mon—Fri 12—20h<br>Sat 14—18h walk-ins<br>Sun closed</div>
+              </div>
+              <div class="border border-bone/10 p-3">
+                <div class="text-bone/40 uppercase tracking-widest text-[9px] mb-1">Contact</div>
+                <div>hello@blackiron.berlin<br>+49 30 555 14 882<br>@blackiron.tattoo</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-[#0f0f0f] p-0 overflow-hidden h-[260px] relative">
+            <img src="https://images.unsplash.com/photo-1568515045052-f9a854d70bfd?q=80&w=800&auto=format&fit=crop" alt="map" class="w-full h-full object-cover grayscale opacity-60">
+            <div class="absolute inset-0 bg-gradient-to-t from-charcoal to-transparent"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <div class="w-3 h-3 bg-blood rounded-full animate-ping"></div>
+              <div class="w-3 h-3 bg-blood rounded-full -mt-3 relative"></div>
+            </div>
+            <div class="absolute bottom-4 left-4 bg-bone text-charcoal text-[10px] tracking-widest px-2 py-1 uppercase font-bold">Berlin — 52.491° N, 13.421° E</div>
+          </div>
+          <div class="bg-blood text-bone p-4 flex items-center justify-between text-[11px] tracking-[0.2em] uppercase font-bold">
+            <span>Press: Highsnobiety, Sang Bleu, TTTISM</span>
+            <span>→</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-bone/10 bg-[#0a0a0a] pt-16 pb-8">
+  <div class="max-w-[1680px] mx-auto px-6 md:px-10">
+    <div class="grid grid-cols-12 gap-8">
+      <div class="col-span-12 md:col-span-5">
+        <div class="font-fraktur text-[72px] md:text-[96px] leading-[0.85] tracking-[-0.03em]">Black<br>Iron</div>
+        <div class="mt-6 flex gap-3">
+          <span class="text-[10px] tracking-[0.2em] uppercase border border-bone/20 px-3 py-1 rounded-full">Vegan ink</span>
+          <span class="text-[10px] tracking-[0.2em] uppercase border border-bone/20 px-3 py-1 rounded-full">EU Certified</span>
+          <span class="text-[10px] tracking-[0.2em] uppercase border border-blood bg-blood text-bone px-3 py-1 rounded-full">No AI Designs</span>
+        </div>
+        <div class="mt-8 text-[12px] leading-[1.7] text-bone/50 max-w-[38ch]">We’re a Berlin tattoo studio that still believes tattooing is a craft, not content. If you want a quick tattoo, go elsewhere. If you want one that outlives you — come in.</div>
+      </div>
+      <div class="col-span-6 md:col-span-2">
+        <div class="text-[10px] tracking-[0.35em] uppercase text-bone/30 mb-5">Studio</div>
+        <div class="space-y-2 text-[13px]">
+          <a href="#" class="block hover:text-blood transition">Flash Archive</a>
+          <a href="#" class="block hover:text-blood transition">Artist Books</a>
+          <a href="#" class="block hover:text-blood transition">Care Guide</a>
+          <a href="#" class="block hover:text-blood transition">Shop — Aftercare</a>
+          <a href="#" class="block hover:text-blood transition">Private Studio Hire</a>
+        </div>
+      </div>
+      <div class="col-span-6 md:col-span-2">
+        <div class="text-[10px] tracking-[0.35em] uppercase text-bone/30 mb-5">Connect</div>
+        <div class="space-y-2 text-[13px]">
+          <a href="#" class="block hover:text-blood transition">Instagram</a>
+          <a href="#" class="block hover:text-blood transition">Are.na / References</a>
+          <a href="#" class="block hover:text-blood transition">Email Newsletter</a>
+          <a href="#" class="block hover:text-blood transition">Press Kit</a>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-3">
+        <div class="bg-bone text-charcoal p-5">
+          <div class="text-[10px] tracking-[0.3em] uppercase font-bold mb-3">Last call — December 2025</div>
+          <div class="font-fraktur text-[26px] leading-[0.9]">We’re closed Dec 22 — Jan 06. Book Jan/Feb now or wait till spring.</div>
+        </div>
+        <div class="mt-3 border border-bone/10 p-3 flex justify-between text-[10px] tracking-widest uppercase text-bone/40">
+          <span>© 2025 Black Iron Tattoo</span>
+          <span>Imprint / Data</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-16 pt-6 border-t border-bone/10 flex flex-wrap items-center justify-between gap-4 text-[10px] tracking-[0.25em] uppercase text-bone/30">
+      <span>Built underground. No cookies. No tracking pixels. Just ink.</span>
+      <div class="flex items-center gap-6">
+        <span>Kottbusser Damm 13 — 10967 Berlin</span>
+        <span class="w-1 h-1 bg-bone/30 rounded-full"></span>
+        <span>4.9 ★ · 312 Reviews · Google / IG</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Progress
+window.addEventListener('scroll', () => {
+  const progress = document.getElementById('progress');
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const scrolled = (scrollTop / docHeight) * 100;
+  progress.style.width = scrolled + '%';
+});
+
+// Custom cursor
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+if (window.matchMedia('(pointer: fine)').matches) {
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%,-50%)`;
+  });
+  const animateRing = () => {
+    ringX += (mouseX - ringX) * 0.15;
+    ringY += (mouseY - ringY) * 0.15;
+    ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%,-50%)`;
+    requestAnimationFrame(animateRing);
+  };
+  animateRing();
+  document.querySelectorAll('a, button, .flash-card, .magnetic').forEach(el=>{
+    el.addEventListener('mouseenter', ()=> ring.classList.add('hover'));
+    el.addEventListener('mouseleave', ()=> ring.classList.remove('hover'));
+  });
+} else {
+  dot.style.display = 'none'; ring.style.display='none';
+}
+
+// magnetic buttons
+document.querySelectorAll('.magnetic').forEach(btn=>{
+  btn.addEventListener('mousemove', (e)=>{
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+  });
+  btn.addEventListener('mouseleave', ()=>{ btn.style.transform='translate(0,0)'; });
+});
+
+// reveal on scroll
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){ entry.target.classList.add('in'); }
+  });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// mobile menu
+const menuBtn = document.getElementById('menuBtn');
+const closeMenu = document.getElementById('closeMenu');
+const mobileMenu = document.getElementById('mobileMenu');
+menuBtn?.addEventListener('click', ()=> mobileMenu.style.transform='translateY(0)');
+closeMenu?.addEventListener('click', ()=> mobileMenu.style.transform='translateY(-100%)');
+mobileMenu?.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=> mobileMenu.style.transform='translateY(-100%)'));
+
+// flash filters
+const filterBtns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.flash-card');
+filterBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    filterBtns.forEach(b=>{ b.classList.remove('active','bg-charcoal','text-bone','font-bold'); b.classList.add('border','border-charcoal/20'); });
+    btn.classList.add('active','bg-charcoal','text-bone','font-bold'); btn.classList.remove('border','border-charcoal/20');
+    const cat = btn.dataset.filter;
+    cards.forEach(card=>{
+      if(cat==='all' || card.dataset.cat===cat){ card.style.display=''; setTimeout(()=>{card.style.opacity='1'; card.style.transform='scale(1)';},10); }
+      else { card.style.opacity='0'; card.style.transform='scale(0.96)'; setTimeout(()=>{card.style.display='none';},300); }
+    });
+  });
+});
+
+// form fake submit
+document.querySelector('form')?.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const orig = btn.textContent;
+  btn.textContent = 'SENT — CHECK EMAIL (MAYBE SPAM) ✓';
+  btn.classList.add('bg-bone','text-charcoal');
+  setTimeout(()=>{ btn.textContent = orig; btn.classList.remove('bg-bone','text-charcoal'); }, 4000);
+});
+
+// keyboard nav ink bleed
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){ mobileMenu.style.transform='translateY(-100%)'; }
+});
+</script>
+</body>
+</html>

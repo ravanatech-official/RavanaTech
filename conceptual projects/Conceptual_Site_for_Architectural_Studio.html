@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Architectural Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@500;700;800&family=Space+Mono&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        raw: '#0A0B0E',
+        concrete: '#14171F',
+        slateZinc: '#242A38',
+        accentGold: '#D4AF37',
+        frost: '#E9ECF2'
+      },
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        display: ['Syne', 'sans-serif'],
+        mono: ['"Space Mono"', 'monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { background-color: #0A0B0E; color: #E9ECF2; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+  .arch-grid {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  }
+  .blueprint-border { border: 1px solid rgba(212, 175, 55, 0.25); }
+</style>
+</head>
+<body class="arch-grid min-h-screen">
+  <!-- Navigation -->
+  <header class="border-b border-white/10 backdrop-blur-md sticky top-0 z-50 bg-[#0A0B0E]/80 px-6 py-5 flex items-center justify-between max-w-7xl mx-auto">
+    <div class="flex items-center gap-3">
+      <span class="w-3 h-3 bg-accentGold"></span>
+      <span class="font-display font-bold text-xl tracking-wider text-white">ATELIER KRONOS</span>
+      <span class="text-xs text-white/40 font-mono hidden sm:inline">ARCHITECTURAL PRACTICE</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
+      <a href="#monographs" class="hover:text-accentGold transition">Monographs</a>
+      <a href="#philosophy" class="hover:text-accentGold transition">Philosophy</a>
+      <a href="#spatial" class="hover:text-accentGold transition">Spatial Labs</a>
+      <a href="#contact" class="hover:text-accentGold transition">Commissions</a>
+    </nav>
+    <a href="#contact" class="px-5 py-2.5 text-xs font-mono tracking-wider bg-white/10 hover:bg-accentGold hover:text-black border border-white/20 transition-all uppercase">
+      Inquire Project
+    </a>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="max-w-7xl mx-auto px-6 py-20 lg:py-32">
+    <div class="grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7 space-y-6">
+        <div class="inline-flex items-center gap-2 text-xs font-mono text-accentGold border border-accentGold/30 px-3 py-1">
+          <span>SPATIAL RESEARCH // 2026 MONOGRAPH</span>
+        </div>
+        <h1 class="font-display text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-white">
+          Structural Purity.<br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-accentGold via-amber-200 to-white">Monumental Light.</span>
+        </h1>
+        <p class="text-white/60 text-lg max-w-xl font-light leading-relaxed">
+          Atelier Kronos crafts monolithic residential, cultural, and commercial architectures engineered with exposed cast concrete, acoustic timber, and passive thermodynamic ventilation.
+        </p>
+        <div class="flex flex-wrap items-center gap-4 pt-4">
+          <a href="#monographs" class="px-7 py-3.5 bg-accentGold text-black font-semibold text-sm tracking-wide uppercase hover:bg-white transition-all shadow-lg shadow-accentGold/20">
+            Explore 14 Structures
+          </a>
+          <a href="#philosophy" class="px-7 py-3.5 border border-white/20 text-white font-mono text-xs uppercase hover:border-white transition-all">
+            Architectural Manifesto
+          </a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 relative">
+        <div class="relative bg-concrete p-4 border border-white/10 shadow-2xl">
+          <div class="aspect-[4/5] bg-slateZinc/60 relative overflow-hidden flex flex-col justify-between p-8 border border-white/5">
+            <div class="flex justify-between items-start font-mono text-xs text-white/50">
+              <span>PROJECT 044</span>
+              <span>KYOTO // 3,400 m²</span>
+            </div>
+            <div class="space-y-3">
+              <span class="text-xs font-mono text-accentGold tracking-widest uppercase">FEATURED RESIDENCE</span>
+              <h3 class="font-display text-2xl font-bold text-white">The Obsidian Pavilion</h3>
+              <p class="text-sm text-white/60">Cantilevered basalt stone, internal bamboo courtyard, and rainwater retention reflecting pools.</p>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center justify-between text-xs font-mono text-white/40 pt-2 border-t border-white/10">
+            <span>LEED PLATINUM CERTIFIED</span>
+            <span>COMPLETED 2025</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architectural Index Cards -->
+    <section id="monographs" class="mt-32">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 border-b border-white/10 pb-6">
+        <div>
+          <span class="font-mono text-xs text-accentGold tracking-widest uppercase">PORTFOLIO INDEX</span>
+          <h2 class="font-display text-3xl font-bold text-white mt-2">Selected Commissions</h2>
+        </div>
+        <p class="text-xs font-mono text-white/50 mt-2 sm:mt-0">12 MONOGRAPHS AVAILABLE // ZERO COMPROMISE</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="p-8 bg-concrete border border-white/10 hover:border-accentGold/60 transition-all duration-300">
+          <span class="font-mono text-xs text-white/40">01 // RESIDENTIAL</span>
+          <h3 class="font-display text-2xl font-bold text-white mt-3 mb-2">Nordic Cliff Villa</h3>
+          <p class="text-sm text-white/60 mb-6">Reykjavik coast. Geothermal heating with black oxidized zinc and triple-insulated floor-to-ceiling glass.</p>
+          <div class="text-xs font-mono text-accentGold flex items-center justify-between pt-4 border-t border-white/10">
+            <span>RESIDENTIAL MONOGRAPH</span>
+            <span>680 m²</span>
+          </div>
+        </div>
+
+        <div class="p-8 bg-concrete border border-white/10 hover:border-accentGold/60 transition-all duration-300">
+          <span class="font-mono text-xs text-white/40">02 // CULTURAL</span>
+          <h3 class="font-display text-2xl font-bold text-white mt-3 mb-2">Lumen Contemporary Art Hall</h3>
+          <p class="text-sm text-white/60 mb-6">Basel, Switzerland. Sculptural subterranean galleries lit exclusively through parabolic roof skylights.</p>
+          <div class="text-xs font-mono text-accentGold flex items-center justify-between pt-4 border-t border-white/10">
+            <span>CIVIC COMMODITY</span>
+            <span>4,800 m²</span>
+          </div>
+        </div>
+
+        <div class="p-8 bg-concrete border border-white/10 hover:border-accentGold/60 transition-all duration-300">
+          <span class="font-mono text-xs text-white/40">03 // HOSPITALITY</span>
+          <h3 class="font-display text-2xl font-bold text-white mt-3 mb-2">Sierra Alpine Retreat</h3>
+          <p class="text-sm text-white/60 mb-6">Lake Tahoe. CLT timber frame structure, zero-grid water micro-filtration, and panoramic cedar sauna wings.</p>
+          <div class="text-xs font-mono text-accentGold flex items-center justify-between pt-4 border-t border-white/10">
+            <span>BOUTIQUE ECO-LODGE</span>
+            <span>2,200 m²</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-12 text-center text-xs font-mono text-white/40 max-w-7xl mx-auto px-6">
+    <p>© 2026 ATELIER KRONOS ARCHITECTURE. ALL RIGHTS RESERVED. CONCEPT DESIGN BY RAVANA TECH.</p>
+  </footer>
+</body>
+</html>

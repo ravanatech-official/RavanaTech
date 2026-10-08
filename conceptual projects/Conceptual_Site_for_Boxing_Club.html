@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Boxing Club</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        canvas: '#f5f0e6',
+        blood: '#c41e1e',
+        ink: '#0a0a0a',
+        concrete: '#d6d1c2',
+        paper: '#e8e2d1'
+      },
+      fontFamily: {
+        stencil: ['Anton', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { font-variant-ligatures: none; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #f5f0e6;
+    color: #0a0a0a;
+    font-family: 'JetBrains Mono', monospace;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: #c41e1e; color: #f5f0e6; }
+
+  /* Grain */
+  .grain-overlay {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: .055;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+  .grain-overlay::after{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.03) 3px);
+  }
+
+  /* Custom Cursor */
+  .cursor-dot {
+    position: fixed; top:0; left:0;
+    width: 8px; height: 8px;
+    background: #c41e1e;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%,-50%);
+    transition: width .2s, height .2s, background .2s;
+    mix-blend-mode: normal;
+  }
+  .cursor-ring {
+    position: fixed; top:0; left:0;
+    width: 44px; height: 44px;
+    border: 1px solid rgba(10,10,10,.8);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width .35s cubic-bezier(.16,1,.3,1), height .35s cubic-bezier(.16,1,.3,1), border-color .2s, background .2s;
+  }
+  .cursor-ring.hover {
+    width: 88px; height: 88px;
+    border-color: #c41e1e;
+    background: rgba(196,30,30,.08);
+  }
+  .cursor-ring.fight {
+    width: 120px; height: 120px;
+    background: #c41e1e;
+    border-color: #c41e1e;
+    mix-blend-mode: normal;
+  }
+  .cursor-ring.fight::after{
+    content:"HIT"; position:absolute; inset:0;
+    display:grid; place-items:center;
+    font-family:'Anton'; font-size:18px; color:#f5f0e6; letter-spacing:.05em;
+  }
+  @media (pointer: coarse){ .cursor-dot,.cursor-ring{ display:none; } }
+
+  /* Stencil Outline */
+  .stencil-outline {
+    -webkit-text-stroke: 2px #0a0a0a;
+    color: transparent;
+  }
+  .stencil-outline-blood {
+    -webkit-text-stroke: 2px #c41e1e;
+    color: transparent;
+  }
+  @media (max-width:768px){
+    .stencil-outline { -webkit-text-stroke: 1.2px #0a0a0a; }
+  }
+
+  /* Tape */
+  .tape {
+    position:absolute;
+    width: 120px; height: 28px;
+    background: rgba(214,209,194,.9);
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    transform: rotate(-8deg);
+    z-index: 2;
+  }
+  .tape::after{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(90deg, transparent 0 2px, rgba(0,0,0,.04) 2px 4px);
+  }
+  .tape-red { background: #c41e1e; }
+  .tape-dark { background: #0a0a0a; }
+
+  /* Marquee */
+  @keyframes marquee { 0%{ transform:translateX(0);} 100%{ transform:translateX(-50%);} }
+  .marquee-track { animation: marquee 28s linear infinite; }
+  .marquee-track:hover { animation-play-state: paused; }
+  @keyframes marquee-reverse { 0%{ transform:translateX(-50%);} 100%{ transform:translateX(0);} }
+  .marquee-rev { animation: marquee-reverse 32s linear infinite; }
+
+  /* Reveal */
+  .reveal { opacity:0; transform:translateY(32px); transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
+  .reveal.in { opacity:1; transform:translateY(0); }
+  .reveal-delay-1{ transition-delay:.12s; }
+  .reveal-delay-2{ transition-delay:.22s; }
+  .reveal-delay-3{ transition-delay:.32s; }
+
+  /* Brutalist borders */
+  .brutal-border { border: 2px solid #0a0a0a; }
+  .brutal-border-blood { border: 2px solid #c41e1e; }
+  .brutal-shadow { box-shadow: 6px 6px 0 #0a0a0a; }
+  .brutal-shadow-blood { box-shadow: 6px 6px 0 #c41e1e; }
+  .brutal-shadow-sm { box-shadow: 4px 4px 0 #0a0a0a; }
+
+  /* Scanlines */
+  .scanlines::before{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,.04) 3px);
+    z-index:1;
+  }
+
+  /* Punch animation */
+  @keyframes punch {
+    0%{ transform: scale(1) rotate(0deg); }
+    20%{ transform: scale(1.04) rotate(-1deg) translateX(-4px); }
+    40%{ transform: scale(.98) rotate(1deg) translateX(4px); }
+    100%{ transform: scale(1) rotate(0deg); }
+  }
+  .punch:hover { animation: punch .35s ease; }
+
+  /* Heavy bag swing */
+  @keyframes bag-swing {
+    0%,100%{ transform: rotate(-1.5deg); }
+    50%{ transform: rotate(1.5deg); }
+  }
+  .bag-swing { transform-origin: top center; animation: bag-swing 4.2s ease-in-out infinite; }
+
+  /* Concrete texture */
+  .concrete-bg {
+    background-image:
+      radial-gradient(rgba(0,0,0,.06) 1px, transparent 1px),
+      linear-gradient(rgba(0,0,0,.02), rgba(0,0,0,.02));
+    background-size: 18px 18px, 100% 100%;
+  }
+
+  /* Stamp */
+  .stamp {
+    border: 3px solid #c41e1e;
+    color: #c41e1e;
+    font-family:'Anton';
+    text-transform: uppercase;
+    transform: rotate(-12deg);
+    display:inline-block;
+    padding: 4px 14px;
+    letter-spacing:.06em;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#0a0a0a; }
+  ::-webkit-scrollbar-track{ background:#e8e2d1; }
+
+  /* Form */
+  .field {
+    border: 2px solid #0a0a0a;
+    background: transparent;
+    transition: all .2s;
+  }
+  .field:focus {
+    outline:none;
+    border-color:#c41e1e;
+    box-shadow: 4px 4px 0 #0a0a0a;
+    background: #fff;
+  }
+
+  /* Image bw to color */
+  .bw-to-color { filter: grayscale(1) contrast(1.15); transition: filter .6s cubic-bezier(.16,1,.3,1), transform .6s; }
+  .bw-to-color:hover { filter: grayscale(0) contrast(1); }
+
+</style>
+</head>
+<body class="selection:bg-blood selection:text-canvas">
+
+<!-- Grain -->
+<div class="grain-overlay"></div>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Top Info Bar -->
+<div class="w-full bg-ink text-canvas font-mono text-[11px] tracking-[0.18em] uppercase py-2 px-4 md:px-8 flex justify-between items-center relative z-40">
+  <div class="flex gap-6 items-center">
+    <span class="hidden md:inline opacity-60">2114 W DIVISION ST / CHICAGO, IL 60622</span>
+    <span class="md:hidden opacity-60">2114 W DIVISION / CHI</span>
+    <span class="w-1 h-1 bg-blood rounded-full"></span>
+    <span>OPEN 5AM — 10PM / 7 DAYS</span>
+  </div>
+  <div class="flex gap-4 items-center">
+    <span class="opacity-60 hidden sm:inline">EST. 1978</span>
+    <span class="bg-blood text-canvas px-2 py-0.5 font-bold">NO DAY PASSES</span>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="sticky top-0 z-30 bg-canvas border-b-2 border-ink">
+  <div class="flex justify-between items-center px-4 md:px-8 py-4 md:py-5">
+    <!-- Logo -->
+    <a href="#" class="group flex items-center gap-3 hover-trigger" data-cursor="CROWN">
+      <div class="w-12 h-12 md:w-[56px] md:h-[56px] bg-ink text-canvas grid place-items-center brutal-border">
+        <span class="font-stencil text-[22px] md:text-[26px] leading-none tracking-[0.02em]">C</span>
+      </div>
+      <div class="leading-[0.9]">
+        <div class="font-stencil text-[20px] md:text-[24px] leading-none tracking-[0.02em]">CROWN</div>
+        <div class="font-stencil text-[20px] md:text-[24px] leading-none tracking-[0.02em] -mt-1 stencil-outline text-[18px]">BOXING CLUB</div>
+      </div>
+      <div class="hidden md:block ml-3 pl-3 border-l-2 border-ink">
+        <div class="font-mono text-[9px] tracking-[0.2em] leading-none opacity-60">FIG. 01</div>
+        <div class="font-mono text-[10px] font-bold tracking-widest leading-none mt-1">CHURCH STREET</div>
+      </div>
+    </a>
+
+    <!-- Desktop Links -->
+    <div class="hidden lg:flex items-center gap-10">
+      <div class="flex items-center gap-8 font-mono text-[12px] tracking-[0.18em] uppercase">
+        <a href="#story" class="hover-trigger relative group py-2" data-cursor="STORY">
+          <span class="group-hover:text-blood transition">Story</span>
+          <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-blood group-hover:w-full transition-all duration-300"></span>
+        </a>
+        <a href="#programs" class="hover-trigger relative group py-2" data-cursor="WORK">
+          <span class="group-hover:text-blood transition">Programs</span>
+          <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-blood group-hover:w-full transition-all duration-300"></span>
+        </a>
+        <a href="#gallery" class="hover-trigger relative group py-2" data-cursor="VIEW">
+          <span class="group-hover:text-blood transition">The Gym</span>
+          <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-blood group-hover:w-full transition-all duration-300"></span>
+        </a>
+        <a href="#contact" class="hover-trigger relative group py-2" data-cursor="JOIN">
+          <span class="group-hover:text-blood transition">Enlist</span>
+          <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-blood group-hover:w-full transition-all duration-300"></span>
+        </a>
+      </div>
+      <a href="#contact" class="hover-trigger bg-ink text-canvas font-mono text-[12px] tracking-[0.2em] uppercase px-7 py-[14px] brutal-border brutal-shadow-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all" data-cursor="NOW">
+        Apply Now →
+      </a>
+    </div>
+
+    <!-- Mobile Toggle -->
+    <button id="menuToggle" class="lg:hidden w-12 h-12 bg-ink text-canvas grid place-items-center brutal-border hover-trigger" data-cursor="MENU">
+      <span class="font-mono text-[10px] tracking-widest" id="menuLabel">MENU</span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="lg:hidden border-t-2 border-ink bg-canvas overflow-hidden max-h-0 transition-all duration-500 ease-[cubic-bezier(.16,1,.3,1)]">
+    <div class="px-4 py-8 space-y-6">
+      <a href="#story" class="block font-stencil text-[48px] leading-[0.9] tracking-[0.01em] mobile-link">01 STORY</a>
+      <a href="#programs" class="block font-stencil text-[48px] leading-[0.9] tracking-[0.01em] mobile-link">02 PROGRAMS</a>
+      <a href="#gallery" class="block font-stencil text-[48px] leading-[0.9] tracking-[0.01em] mobile-link">03 THE GYM</a>
+      <a href="#contact" class="block font-stencil text-[48px] leading-[0.9] tracking-[0.01em] mobile-link">04 ENLIST</a>
+      <div class="pt-6 flex gap-3">
+        <div class="flex-1 bg-paper brutal-border p-3">
+          <div class="font-mono text-[10px] tracking-[0.2em] opacity-60">LOCATION</div>
+          <div class="font-mono text-[12px] font-bold mt-1">2114 W DIVISION<br>CHICAGO IL</div>
+        </div>
+        <div class="flex-1 bg-blood text-canvas brutal-border p-3">
+          <div class="font-mono text-[10px] tracking-[0.2em] opacity-80">PHONE</div>
+          <div class="font-mono text-[12px] font-bold mt-1">+1 773 555<br>0149</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative bg-canvas overflow-hidden border-b-2 border-ink">
+  <!-- Background typography watermark -->
+  <div class="absolute top-[12%] left-0 right-0 pointer-events-none select-none opacity-[0.04] font-stencil text-[28vw] leading-[0.8] tracking-[-0.04em] whitespace-nowrap">CROWN CROWN</div>
+
+  <div class="relative grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] min-h-[84vh] md:min-h-[92vh]">
+    <!-- Left Copy -->
+    <div class="px-4 md:px-8 lg:px-12 py-10 md:py-16 lg:py-12 flex flex-col justify-between order-2 lg:order-1 relative">
+      <!-- Eyebrow -->
+      <div class="reveal flex items-center gap-4">
+        <div class="w-12 h-[2px] bg-blood"></div>
+        <span class="font-mono text-[11px] tracking-[0.28em] uppercase">No AC / No Mirrors / No Excuses / Est. 1978</span>
+      </div>
+
+      <div class="mt-8 md:mt-12">
+        <!-- Main Headline -->
+        <h1 class="font-stencil leading-[0.85] tracking-[-0.02em] uppercase">
+          <span class="reveal block text-[16vw] md:text-[11vw] lg:text-[9.5vw]">KEEP</span>
+          <span class="reveal reveal-delay-1 flex items-baseline gap-3 md:gap-5 text-[16vw] md:text-[11vw] lg:text-[9.5vw]">
+            <span>YOUR</span>
+            <span class="stencil-outline text-[60%] -mt-2">HANDS</span>
+          </span>
+          <span class="reveal reveal-delay-2 flex items-center gap-4 md:gap-6 text-[16vw] md:text-[11vw] lg:text-[9.5vw]">
+            <span class="inline-grid place-items-center">
+              <span class="bg-blood text-canvas px-3 md:px-5 py-1 text-[60%] md:text-[55%] leading-none rotate-[-2deg] brutal-border brutal-shadow-sm">UP</span>
+            </span>
+            <span class="text-[9vw] md:text-[6vw] lg:text-[5vw] opacity-20">. . .</span>
+          </span>
+        </h1>
+
+        <!-- Sub -->
+        <div class="reveal reveal-delay-3 mt-8 md:mt-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-12 max-w-[620px]">
+          <div class="hidden md:block w-[1px] bg-ink/20"></div>
+          <div>
+            <p class="font-mono text-[14px] md:text-[15px] leading-[1.6] tracking-[-0.01em]">
+              This ain’t a fitness boutique. It’s a sweatbox on Division Street with one heavy bag that’s seen 40 years of blood. <span class="bg-ink text-canvas px-1">You don’t join Crown. You survive it.</span>
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <a href="#contact" class="hover-trigger group inline-flex items-center gap-3 bg-blood text-canvas font-stencil text-[18px] md:text-[20px] tracking-[0.06em] px-8 py-4 brutal-border brutal-shadow hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all" data-cursor="JOIN">
+                <span>TAKE A SHOT</span>
+                <span class="w-8 h-8 bg-canvas text-blood grid place-items-center rounded-full text-[14px] group-hover:rotate-45 transition-transform">↗</span>
+              </a>
+              <div class="inline-flex items-center gap-3 brutal-border px-4 py-3 bg-paper">
+                <div class="w-9 h-9 bg-ink rounded-full overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1593352216894-99e4b474bcf1?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover grayscale">
+                </div>
+                <div class="font-mono text-[10px] leading-[1.2]">
+                  <div class="font-bold tracking-[0.14em]">COACH D</div>
+                  <div class="opacity-60">ON DUTY TODAY</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom stats -->
+      <div class="reveal mt-12 md:mt-0 grid grid-cols-3 border-t-2 border-ink">
+        <div class="py-4 pr-4 border-r-2 border-ink">
+          <div class="font-stencil text-[32px] md:text-[40px] leading-none">47</div>
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-1">Golden Gloves<br>Champions</div>
+        </div>
+        <div class="py-4 px-4 border-r-2 border-ink">
+          <div class="font-stencil text-[32px] md:text-[40px] leading-none">193</div>
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-1">Amateur Fights<br>Last Year</div>
+        </div>
+        <div class="py-4 pl-4">
+          <div class="font-stencil text-[32px] md:text-[40px] leading-none">24/7</div>
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60 mt-1">Bag Work<br>No Excuses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Visual -->
+    <div class="relative order-1 lg:order-2 bg-ink overflow-hidden min-h-[56vh] lg:min-h-0 scanlines">
+      <!-- Hero Image -->
+      <div class="absolute inset-0">
+        <img id="heroImage" src="https://images.unsplash.com/photo-1593352216894-99e4b474bcf1?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover opacity-[0.92] bw-to-color scale-105" alt="Old school boxing gym heavy bag">
+        <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent"></div>
+        <div class="absolute inset-0 opacity-40 mix-blend-multiply" style="background-image: radial-gradient(#c41e1e 1px, transparent 1px); background-size: 22px 22px;"></div>
+      </div>
+
+      <!-- Chain & Bag Swing -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-[18%] bg-concrete/60 bag-swing origin-top z-10"></div>
+      <div class="absolute top-[14%] left-1/2 -translate-x-1/2 bag-swing z-10">
+        <div class="w-[2px] h-10 bg-concrete/60 mx-auto"></div>
+        <div class="w-20 h-6 border-2 border-concrete/40 rounded-[2px] -mt-1"></div>
+      </div>
+
+      <!-- Overlays -->
+      <div class="absolute top-6 right-6 z-20 flex flex-col gap-3">
+        <div class="tape tape-red text-[10px] font-mono tracking-[0.2em] text-canvas grid place-items-center !static !transform-none rotate-[3deg]">FRAGILE — HANDS</div>
+        <div class="bg-canvas brutal-border p-2 w-[112px] rotate-[-2deg]">
+          <div class="font-mono text-[8px] tracking-[0.2em] opacity-60">FILM #47</div>
+          <div class="font-stencil text-[14px] leading-[0.9]">SPAR<br>TUE 7PM</div>
+          <div class="mt-2 h-1 w-full bg-blood"></div>
+        </div>
+      </div>
+
+      <!-- Fight Night Poster -->
+      <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-20">
+        <div class="bg-canvas brutal-border brutal-shadow p-4 md:p-5 max-w-[420px] relative overflow-hidden">
+          <div class="tape -top-3 -left-6 rotate-[-12deg]"></div>
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-mono text-[10px] tracking-[0.28em]">NEXT FIGHT NIGHT — 03.14.26</div>
+              <div class="font-stencil text-[28px] md:text-[34px] leading-[0.9] mt-1"><span class="text-blood">CROWN</span> vs LOGAN SQ</div>
+              <div class="font-mono text-[11px] leading-[1.4] mt-2 opacity-70">8 bouts. $10 at door. BYO mouthguard. <br>Doors 7pm. First bell 8pm sharp.</div>
+            </div>
+            <div class="stamp text-[12px]">SOLD OUT LAST 11</div>
+          </div>
+          <div class="mt-4 grid grid-cols-[1fr_auto] gap-3 border-t-2 border-ink pt-3">
+            <div class="flex gap-2">
+              <div class="w-8 h-8 bg-ink text-canvas grid place-items-center font-mono text-[10px]">16+</div>
+              <div class="w-8 h-8 bg-blood text-canvas grid place-items-center font-stencil text-[12px]">BYO</div>
+            </div>
+            <a href="#" class="hover-trigger font-mono text-[11px] tracking-[0.2em] underline decoration-blood decoration-2 underline-offset-4" data-cursor="TICKETS">GET ON LIST →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corner Tape -->
+      <div class="absolute left-0 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-2 z-20">
+        <div class="bg-blood text-canvas font-mono text-[10px] tracking-[0.3em] px-2 py-12 [writing-mode:vertical-lr] rotate-180">HEAVY BAG 3 — 120 LBS — SINCE 1982</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marquee Strip -->
+  <div class="bg-ink text-canvas overflow-hidden border-t-2 border-ink border-b-2 border-ink relative z-10">
+    <div class="flex whitespace-nowrap marquee-track">
+      <div class="flex items-center gap-8 py-3 px-4 font-stencil text-[22px] md:text-[26px] tracking-[0.08em]">
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+        <span class="w-2 h-2 bg-blood rotate-45"></span>
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+        <span class="w-2 h-2 bg-blood rotate-45"></span>
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+        <span class="w-2 h-2 bg-blood rotate-45"></span>
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+      </div>
+      <div class="flex items-center gap-8 py-3 px-4 font-stencil text-[22px] md:text-[26px] tracking-[0.08em]" aria-hidden="true">
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+        <span class="w-2 h-2 bg-blood rotate-45"></span>
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+        <span class="w-2 h-2 bg-blood rotate-45"></span>
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+        <span class="w-2 h-2 bg-blood rotate-45"></span>
+        <span>NO AC — NO MIRRORS — NO EXCUSES — SWEAT IS SACRED — HANDS UP — CHIN DOWN —</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY / HERITAGE -->
+<section id="story" class="relative bg-canvas border-b-2 border-ink concrete-bg overflow-hidden">
+  <div class="px-4 md:px-8 lg:px-12 py-16 md:py-24">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 md:mb-20">
+      <div class="reveal">
+        <div class="flex items-center gap-3 font-mono text-[11px] tracking-[0.28em] uppercase">
+          <span class="bg-ink text-canvas px-2 py-1">SECTION [01]</span>
+          <span class="opacity-60">HERITAGE / WHY WE ARE STILL HERE</span>
+        </div>
+        <h2 class="font-stencil text-[12vw] md:text-[9vw] lg:text-[7.5vw] leading-[0.85] tracking-[-0.02em] uppercase mt-6">
+          <span class="block">IT AIN’T</span>
+          <span class="block stencil-outline">PRETTY.</span>
+          <span class="block flex items-center gap-4">IT <span class="bg-blood text-canvas px-2 md:px-4 py-1 md:py-2 rotate-[-1.5deg] brutal-border">WORKS.</span></span>
+        </h2>
+      </div>
+      <div class="reveal reveal-delay-1 lg:max-w-[340px]">
+        <div class="brutal-border bg-paper p-4 font-mono text-[12px] leading-[1.6]">
+          <div class="font-bold tracking-[0.14em] uppercase text-[11px] mb-2">From Coach D’s Notebook — 11.03.03</div>
+          A gym is not equipment. A gym is the smell at 5:30am when the heat hasn’t kicked and the leather is still cold. If you need music to train, you’re in the wrong place.
+          <div class="mt-3 pt-3 border-t border-ink border-dashed flex justify-between text-[10px] tracking-[0.18em] opacity-60">
+            <span>PAGE 47 / 312</span>
+            <span>COFFEE STAIN INCLUDED</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6 md:gap-8 items-start">
+      <!-- Left Image Stack -->
+      <div class="reveal relative">
+        <div class="relative bg-ink brutal-border brutal-shadow overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=1000&auto=format&fit=crop" class="w-full h-[520px] md:h-[680px] object-cover grayscale contrast-[1.15] opacity-90" alt="Old gym wall">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-ink to-transparent">
+            <div class="font-mono text-[10px] tracking-[0.2em] text-canvas/70">NORTH WALL / SINCE 1978 / 2114 W DIVISION — EVERY CHIP TELLS A STORY</div>
+          </div>
+          <div class="tape top-8 -left-8 !w-[160px] rotate-[-14deg]"></div>
+          <div class="tape bottom-20 -right-10 !w-[140px] bg-ink text-canvas font-mono text-[9px] grid place-items-center tracking-[0.2em]">DO NOT PAINT</div>
+        </div>
+        <!-- Small Polaroid -->
+        <div class="absolute -bottom-10 -right-4 md:-right-12 bg-canvas brutal-border p-3 w-[200px] rotate-[4deg] brutal-shadow-sm hidden md:block">
+          <img src="https://images.unsplash.com/photo-1593352216925-33af48d6dcc4?q=80&w=400&auto=format&fit=crop" class="w-full h-[140px] object-cover grayscale">
+          <div class="pt-2 font-mono text-[10px] leading-[1.3]">Ray “Hammer” Jones / 1979-1985 / 44-2 / Still comes Wednesdays</div>
+        </div>
+      </div>
+
+      <!-- Right Content -->
+      <div class="reveal reveal-delay-1 lg:pl-8">
+        <div class="border-l-2 border-ink pl-6 md:pl-10">
+          <h3 class="font-stencil text-[32px] md:text-[44px] leading-[0.9] uppercase">Founded in sweat,<br>not strategy decks.</h3>
+          <div class="mt-6 font-mono text-[14px] leading-[1.8] space-y-5 max-w-[560px]">
+            <p><span class="font-bold">1978.</span> Eddie Crown, ex-Navy, ex-contender, rents half a meatpacking cold store. He puts one ring in, one heavy bag, one speed bag that squeaks. No sign out front. Word gets around.</p>
+            <p>By ’84 we’ve got Golden Gloves champs sleeping on the mats between shifts. By ’91 we’re loan-sharking wraps because the supplier didn’t show. By ’05 Eddie’s gone. His son Daryl takes the keys. Same rules:</p>
+          </div>
+
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[560px]">
+            <div class="brutal-border p-4 bg-canvas flex gap-3">
+              <span class="font-stencil text-blood text-[24px] leading-none">01</span>
+              <span class="font-mono text-[12px] leading-[1.5] uppercase tracking-[0.06em]">Wraps on before you walk past the desk. No exceptions.</span>
+            </div>
+            <div class="brutal-border p-4 bg-canvas flex gap-3">
+              <span class="font-stencil text-blood text-[24px] leading-none">02</span>
+              <span class="font-mono text-[12px] leading-[1.5] uppercase tracking-[0.06em]">Bag work first. Always. 6 rounds minimum.</span>
+            </div>
+            <div class="brutal-border p-4 bg-canvas flex gap-3">
+              <span class="font-stencil text-blood text-[24px] leading-none">03</span>
+              <span class="font-mono text-[12px] leading-[1.5] uppercase tracking-[0.06em]">You cheer for everyone. Or you leave.</span>
+            </div>
+            <div class="brutal-border p-4 bg-ink text-canvas flex gap-3">
+              <span class="font-stencil text-blood text-[24px] leading-none">04</span>
+              <span class="font-mono text-[12px] leading-[1.5] uppercase tracking-[0.06em]">If you can talk after the last round, you didn’t go hard enough.</span>
+            </div>
+          </div>
+
+          <div class="mt-10 flex flex-wrap items-center gap-6">
+            <div class="flex -space-x-3">
+              <img src="https://images.unsplash.com/photo-1593352216894-99e4b474bcf1?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 rounded-full brutal-border object-cover grayscale">
+              <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 rounded-full brutal-border object-cover grayscale">
+              <img src="https://images.unsplash.com/photo-1517438322307-e67111335449?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 rounded-full brutal-border object-cover">
+              <div class="w-12 h-12 rounded-full brutal-border bg-blood text-canvas grid place-items-center font-mono text-[10px] font-bold">+193</div>
+            </div>
+            <div class="font-mono text-[11px] tracking-[0.14em] uppercase leading-[1.4]">
+              <span class="font-bold">Family of fighters.</span><br>
+              <span class="opacity-60">Not a membership count.</span>
+            </div>
+          </div>
+
+          <div class="mt-12 relative bg-paper brutal-border p-6 md:p-8 overflow-hidden max-w-[560px]">
+            <div class="absolute top-0 right-0 bg-ink text-canvas font-mono text-[9px] tracking-[0.2em] px-3 py-1">ARCHIVE CLIP</div>
+            <div class="font-stencil text-[26px] leading-[0.95] uppercase">“You don’t need motivation. You need a mouthguard.”</div>
+            <div class="mt-3 font-mono text-[12px] opacity-70">— Eddie Crown, taped to the speed bag platform since ‘82. We never took it down.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS -->
+<section id="programs" class="relative bg-ink text-canvas border-b-2 border-ink overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.03]" style="background-image: repeating-linear-gradient(90deg, #f5f0e6 0 1px, transparent 1px 22px);"></div>
+  <div class="relative px-4 md:px-8 lg:px-12 py-16 md:py-24">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+      <div class="reveal">
+        <div class="font-mono text-[11px] tracking-[0.28em] uppercase text-canvas/60">SECTION [02] — WHAT WE ACTUALLY DO</div>
+        <h2 class="font-stencil text-[14vw] md:text-[10vw] lg:text-[8vw] leading-[0.85] uppercase mt-4">
+          <span class="block">PROGRAMS</span>
+          <span class="block text-blood stencil-outline-blood -mt-2 md:-mt-4">FOR HANDS</span>
+        </h2>
+      </div>
+      <div class="reveal reveal-delay-1 font-mono text-[12px] leading-[1.6] max-w-[360px] text-canvas/70">
+        No tiers. No upsells. Just three doors. You pick where you bleed. You can always move up. You never move down.
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      <!-- Card 1 -->
+      <div class="reveal group relative bg-canvas text-ink brutal-border p-6 md:p-7 flex flex-col punch hover-trigger" data-cursor="OPEN">
+        <div class="flex justify-between items-start">
+          <div class="font-mono text-[10px] tracking-[0.28em]">LEVEL 01</div>
+          <div class="w-8 h-8 bg-ink text-canvas grid place-items-center font-stencil text-[14px]">A</div>
+        </div>
+        <h3 class="font-stencil text-[36px] md:text-[44px] leading-[0.9] uppercase mt-6">WHITE<br>COLLAR</h3>
+        <div class="font-mono text-[11px] tracking-[0.18em] uppercase opacity-60 mt-2">For the 9-5 that hits back</div>
+
+        <div class="mt-6 border-y-2 border-ink py-4 font-mono text-[12px] leading-[1.6]">
+          <div class="flex justify-between"><span>3x / WEEK</span><span class="font-bold">$145 / MO</span></div>
+          <div class="mt-2 flex gap-2">
+            <span class="bg-paper border border-ink px-2 py-0.5 text-[10px]">6AM</span>
+            <span class="bg-paper border border-ink px-2 py-0.5 text-[10px]">NOON</span>
+            <span class="bg-paper border border-ink px-2 py-0.5 text-[10px]">6PM</span>
+          </div>
+        </div>
+
+        <ul class="mt-6 space-y-3 font-mono text-[12px] leading-[1.5]">
+          <li class="flex gap-3"><span class="text-blood font-bold">—</span> Fundamentals, footwork, bag work. No spar for 30 days.</li>
+          <li class="flex gap-3"><span class="text-blood font-bold">—</span> Wraps & loaner gloves included. You bring sweat.</li>
+          <li class="flex gap-3"><span class="text-blood font-bold">—</span> Coach checks your hands every session. Old rule.</li>
+        </ul>
+
+        <div class="mt-auto pt-8">
+          <div class="brutal-border p-3 bg-paper flex items-center justify-between">
+            <span class="font-mono text-[10px] tracking-[0.2em] uppercase">CAP: 12 / CLASS</span>
+            <span class="font-mono text-[10px] font-bold">MOST COME AT 6AM →</span>
+          </div>
+          <a href="#contact" class="mt-3 w-full bg-ink text-canvas font-mono text-[12px] tracking-[0.2em] uppercase py-3 grid place-items-center hover:bg-blood transition-colors">Request Spot</a>
+        </div>
+        <div class="tape -top-3 left-10 rotate-6"></div>
+      </div>
+
+      <!-- Card 2 - Featured -->
+      <div class="reveal reveal-delay-1 group relative bg-blood text-canvas brutal-border border-canvas p-6 md:p-7 flex flex-col brutal-shadow-blood lg:-mt-6 lg:mb-6 punch hover-trigger" data-cursor="POPULAR">
+        <div class="absolute -top-4 -right-4 bg-canvas text-ink font-stencil text-[14px] px-3 py-1 brutal-border rotate-[8deg]">MOST CHOSEN</div>
+        <div class="flex justify-between items-start">
+          <div class="font-mono text-[10px] tracking-[0.28em] text-canvas/80">LEVEL 02</div>
+          <div class="w-8 h-8 bg-canvas text-blood grid place-items-center font-stencil text-[14px]">B</div>
+        </div>
+        <h3 class="font-stencil text-[36px] md:text-[44px] leading-[0.9] uppercase mt-6">COMPE<br>TITOR</h3>
+        <div class="font-mono text-[11px] tracking-[0.18em] uppercase opacity-80 mt-2">You spar. You learn to lose.</div>
+
+        <div class="mt-6 border-y-2 border-canvas/30 py-4 font-mono text-[12px] leading-[1.6]">
+          <div class="flex justify-between"><span>5x / WEEK + OPEN GYM</span><span class="font-bold">$195 / MO</span></div>
+          <div class="mt-2 flex gap-2">
+            <span class="bg-ink text-canvas border border-ink px-2 py-0.5 text-[10px]">SPAR TUE/THU</span>
+            <span class="bg-ink text-canvas border border-ink px-2 py-0.5 text-[10px]">SAT 10AM</span>
+          </div>
+        </div>
+
+        <ul class="mt-6 space-y-3 font-mono text-[12px] leading-[1.5] text-canvas/90">
+          <li class="flex gap-3"><span class="font-bold">—</span> Everything in White Collar + controlled sparring</li>
+          <li class="flex gap-3"><span class="font-bold">—</span> Corner work, cut work, how to breathe when you’re gassed</li>
+          <li class="flex gap-3"><span class="font-bold">—</span> Fight night eligibility after 12 weeks + coach sign-off</li>
+        </ul>
+
+        <div class="mt-auto pt-8">
+          <div class="brutal-border border-canvas p-3 bg-ink/20 flex items-center justify-between">
+            <span class="font-mono text-[10px] tracking-[0.2em] uppercase">CAP: 8 / CLASS</span>
+            <span class="font-mono text-[10px] font-bold">TUE/THU SELL FAST →</span>
+          </div>
+          <a href="#contact" class="mt-3 w-full bg-canvas text-blood font-mono text-[12px] tracking-[0.2em] uppercase py-3 grid place-items-center font-bold hover:bg-ink hover:text-canvas transition-colors">Request Spot</a>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="reveal reveal-delay-2 group relative bg-ink text-canvas brutal-border border-canvas/20 p-6 md:p-7 flex flex-col punch hover-trigger" data-cursor="INVITE">
+        <div class="flex justify-between items-start">
+          <div class="font-mono text-[10px] tracking-[0.28em] text-canvas/60">LEVEL 03</div>
+          <div class="w-8 h-8 border border-canvas/30 grid place-items-center font-stencil text-[14px]">C</div>
+        </div>
+        <h3 class="font-stencil text-[36px] md:text-[44px] leading-[0.9] uppercase mt-6">FIGHT<br>CAMP</h3>
+        <div class="font-mono text-[11px] tracking-[0.18em] uppercase opacity-60 mt-2">Invitation only. 12 weeks.</div>
+
+        <div class="mt-6 border-y-2 border-canvas/20 py-4 font-mono text-[12px] leading-[1.6] text-canvas/70">
+          <div class="flex justify-between"><span>6x / WEEK + SUN RUN</span><span class="font-bold text-canvas">-$0-</span></div>
+          <div class="mt-2 font-mono text-[10px] leading-[1.4] opacity-60">If Coach D asks you, the gym pays your entry. You pay with work.</div>
+        </div>
+
+        <ul class="mt-6 space-y-3 font-mono text-[12px] leading-[1.5] text-canvas/60">
+          <li class="flex gap-3"><span class="text-blood font-bold">—</span> Morning roadwork, evening ring. Same as it ever was.</li>
+          <li class="flex gap-3"><span class="text-blood font-bold">—</span> Weight cut supervision, film, hand-made mouthguards</li>
+          <li class="flex gap-3"><span class="text-blood font-bold">—</span> Your name on the board whether you win or lose</li>
+        </ul>
+
+        <div class="mt-auto pt-8">
+          <div class="brutal-border border-canvas/20 p-3 bg-canvas/5 flex items-center justify-between">
+            <span class="font-mono text-[10px] tracking-[0.2em] uppercase">BOARD: 47 NAMES</span>
+            <span class="font-mono text-[10px]">CURRENT CAMP: 4</span>
+          </div>
+          <div class="mt-3 w-full border-2 border-canvas/20 text-canvas/40 font-mono text-[12px] tracking-[0.2em] uppercase py-3 grid place-items-center">By Invitation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule Strip -->
+    <div class="reveal mt-12 md:mt-16 border-2 border-canvas/20 overflow-x-auto">
+      <div class="min-w-[900px] grid grid-cols-[140px_repeat(7,1fr)] font-mono text-[11px]">
+        <div class="bg-canvas text-ink p-3 font-bold tracking-[0.16em] uppercase">Weekly Board</div>
+        <div class="bg-canvas/10 p-3 border-l border-canvas/20">MON</div>
+        <div class="bg-canvas/10 p-3 border-l border-canvas/20">TUE</div>
+        <div class="bg-canvas/10 p-3 border-l border-canvas/20">WED</div>
+        <div class="bg-canvas/10 p-3 border-l border-canvas/20">THU</div>
+        <div class="bg-canvas/10 p-3 border-l border-canvas/20">FRI</div>
+        <div class="bg-canvas/10 p-3 border-l border-canvas/20">SAT</div>
+        <div class="bg-canvas/10 p-3 border-l border-canvas/20">SUN</div>
+
+        <div class="p-3 border-t border-canvas/20 font-bold">5:30AM</div>
+        <div class="p-3 border-t border-l border-canvas/20">Bag Work</div>
+        <div class="p-3 border-t border-l border-canvas/20 bg-blood/20">Spar + Bag</div>
+        <div class="p-3 border-t border-l border-canvas/20">Bag Work</div>
+        <div class="p-3 border-t border-l border-canvas/20 bg-blood/20">Spar + Bag</div>
+        <div class="p-3 border-t border-l border-canvas/20">Bag Work</div>
+        <div class="p-3 border-t border-l border-canvas/20 font-bold">Open 8-11</div>
+        <div class="p-3 border-t border-l border-canvas/20 opacity-40">Roadwork</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY / THE GYM -->
+<section id="gallery" class="relative bg-canvas border-b-2 border-ink overflow-hidden">
+  <div class="px-4 md:px-8 lg:px-12 py-16 md:py-24">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-10">
+      <div class="reveal">
+        <div class="font-mono text-[11px] tracking-[0.28em] flex items-center gap-3">
+          <span class="bg-ink text-canvas px-2 py-1">SECTION [03]</span> <span class="opacity-60">THE GYM / NO FILTER / 6AM LIGHT</span>
+        </div>
+        <h2 class="font-stencil text-[12vw] md:text-[9vw] lg:text-[7vw] leading-[0.85] uppercase mt-4">SWEAT<br><span class="stencil-outline">ON THE</span> WALLS</h2>
+      </div>
+      <div class="reveal reveal-delay-1 flex items-center gap-3">
+        <div class="w-12 h-12 bg-ink text-canvas grid place-items-center font-mono text-[10px]">35MM</div>
+        <div class="font-mono text-[11px] leading-[1.4]">
+          All photos shot on film.<br>
+          <span class="opacity-60">No retouching. That’s the dust.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Masonry-ish Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 auto-rows-[280px] md:auto-rows-[320px]">
+      <!-- Large left -->
+      <div class="reveal md:col-span-7 relative group brutal-border overflow-hidden bg-ink hover-trigger" data-cursor="HEAVY">
+        <img src="https://images.unsplash.com/photo-1517438322307-e67111335449?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover opacity-90 group-hover:scale-[1.03] transition-transform duration-[1.2s] ease-[cubic-bezier(.16,1,.3,1)]" alt="Heavy bag">
+        <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-5 flex justify-between items-end">
+          <div>
+            <div class="font-stencil text-canvas text-[28px] leading-[0.9]">HEAVY BAG 02 / 150 LBS</div>
+            <div class="font-mono text-canvas/60 text-[11px] tracking-[0.18em]">06:12 AM / WRAPS STILL WET FROM YESTERDAY</div>
+          </div>
+          <div class="bg-blood text-canvas font-mono text-[10px] px-2 py-1">EVERY 6AM</div>
+        </div>
+        <div class="tape top-6 left-6 rotate-[-8deg] hidden md:grid place-items-center font-mono text-[9px] tracking-[0.2em]">LEATHER — 1979</div>
+      </div>
+
+      <!-- Top right -->
+      <div class="reveal reveal-delay-1 md:col-span-5 relative group brutal-border overflow-hidden bg-paper hover-trigger" data-cursor="SPEED">
+        <img src="https://images.unsplash.com/photo-1593352216925-33af48d6dcc4?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Speed bag">
+        <div class="absolute top-4 right-4 bg-canvas brutal-border px-3 py-1 font-mono text-[10px]">SPEED BAG PLATFORM — SQUEAKS SINCE ’82</div>
+        <div class="absolute bottom-4 left-4 font-stencil text-[32px] leading-[0.9]">RHYTHM<br>OVER POWER</div>
+      </div>
+
+      <!-- Mid left small -->
+      <div class="reveal md:col-span-4 relative group brutal-border overflow-hidden bg-ink hover-trigger" data-cursor="RING">
+        <img src="https://images.unsplash.com/photo-1593352216894-99e4b474bcf1?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700" alt="Boxing ring">
+        <div class="absolute inset-0 border-[12px] border-canvas/10 pointer-events-none hidden md:block"></div>
+        <div class="absolute bottom-0 left-0 bg-canvas px-4 py-3 brutal-border border-b-0 border-l-0">
+          <div class="font-stencil text-[18px] leading-none">THE RING — 16FT</div>
+          <div class="font-mono text-[10px] opacity-60">CANVAS REPLACED EVERY 14 MONTHS</div>
+        </div>
+      </div>
+
+      <!-- Mid center -->
+      <div class="reveal reveal-delay-1 md:col-span-4 relative brutal-border bg-blood text-canvas p-6 flex flex-col justify-between">
+        <div>
+          <div class="font-mono text-[10px] tracking-[0.28em] opacity-80">RULE // 07</div>
+          <div class="font-stencil text-[38px] leading-[0.9] mt-4 uppercase">Wraps are<br>not optional.<br>They’re<br>respect.</div>
+        </div>
+        <div class="mt-6 font-mono text-[12px] leading-[1.5] opacity-80">Every new person asks why we check hands. Because a broken hand in week 2 ends a career before it starts. We’ve seen it.</div>
+        <div class="mt-6 w-full h-[2px] bg-canvas/30"></div>
+        <div class="mt-3 font-mono text-[10px] tracking-[0.2em]">— COACH D, EVERY MONDAY, SAME SPEECH</div>
+      </div>
+
+      <!-- Mid right -->
+      <div class="reveal reveal-delay-2 md:col-span-4 relative group brutal-border overflow-hidden bg-paper hover-trigger" data-cursor="SWEAT">
+        <img src="https://images.unsplash.com/photo-1583473848882-f9a14bc94fd6?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-700" alt="Sweat boxing">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-ink text-canvas font-stencil text-[64px] leading-none px-6 py-2 brutal-border rotate-[-6deg] opacity-0 group-hover:opacity-100 transition-opacity">SWEAT</div>
+      </div>
+
+      <!-- Bottom wide -->
+      <div class="reveal md:col-span-12 relative group brutal-border overflow-hidden h-[380px] md:h-[460px]">
+        <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover grayscale group-hover:scale-[1.02] transition-transform duration-[1.4s]" alt="Gym interior">
+        <div class="absolute inset-0 bg-ink/20 mix-blend-multiply"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-ink via-ink/60 to-transparent">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+              <div class="font-stencil text-canvas text-[36px] md:text-[54px] leading-[0.85]">FIGHT NIGHT<br><span class="text-blood">IS A POTLUCK</span></div>
+              <div class="font-mono text-canvas/60 text-[11px] tracking-[0.18em] mt-3 max-w-[420px]">Everyone brings something. Water, towels, a cousin who can cut. The ring girls are our accountant’s daughters. They get $40 and all the Gatorade they want.</div>
+            </div>
+            <div class="bg-canvas text-ink brutal-border px-5 py-3 font-mono text-[11px] leading-[1.4]">
+              <span class="font-bold">NEXT:</span> MAR 14 — CROWN vs LOGAN<br>
+              <span class="opacity-60">DOOR: $10 / KIDS FREE / BYO CHAIR IF YOU WANT TO SIT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Marquee Reverse -->
+    <div class="mt-12 md:mt-16 bg-blood text-canvas overflow-hidden border-2 border-ink rotate-[-1deg] scale-[1.02]">
+      <div class="flex whitespace-nowrap marquee-rev">
+        <div class="flex items-center gap-8 py-3 px-4 font-mono text-[13px] tracking-[0.2em] uppercase">
+          <span>★ HAND WRAPS ★ MOUTHGUARD ★ JUMP ROPE ★ 3 MIN ROUNDS ★ 1 MIN REST ★ AGAIN ★ HAND WRAPS ★ MOUTHGUARD ★ JUMP ROPE ★ 3 MIN ROUNDS ★</span>
+        </div>
+        <div class="flex items-center gap-8 py-3 px-4 font-mono text-[13px] tracking-[0.2em] uppercase" aria-hidden="true">
+          <span>★ HAND WRAPS ★ MOUTHGUARD ★ JUMP ROPE ★ 3 MIN ROUNDS ★ 1 MIN REST ★ AGAIN ★ HAND WRAPS ★ MOUTHGUARD ★ JUMP ROPE ★ 3 MIN ROUNDS ★</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / FIGHT RECORDS -->
+<section id="testimonials" class="relative bg-paper border-b-2 border-ink overflow-hidden concrete-bg">
+  <div class="px-4 md:px-8 lg:px-12 py-16 md:py-24">
+    <div class="reveal flex items-baseline gap-6 mb-12">
+      <div class="font-stencil text-[12vw] md:text-[10vw] lg:text-[8vw] leading-[0.8]">RECORDS</div>
+      <div class="hidden md:block h-[2px] flex-1 bg-ink/10"></div>
+      <div class="font-mono text-[11px] tracking-[0.2em] md:text-right">SECTION [04] / WORD ON DIVISION<br><span class="opacity-60">FROM PEOPLE WHO STAYED</span></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+      <!-- Testimonial as fight card -->
+      <div class="reveal group relative bg-canvas brutal-border brutal-shadow p-6 flex flex-col hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+        <div class="flex justify-between items-start border-b-2 border-ink pb-4">
+          <div>
+            <div class="font-stencil text-[28px] leading-[0.9]">MAYA<br>RIVERA</div>
+            <div class="font-mono text-[10px] tracking-[0.18em] mt-1 opacity-60">WHITE COLLAR → COMPETITOR / 2023- NOW</div>
+          </div>
+          <div class="bg-ink text-canvas font-mono text-[10px] px-2 py-1">12-1</div>
+        </div>
+        <div class="mt-4 font-mono text-[13px] leading-[1.7]">
+          “I walked in because my therapist said I needed a place where I couldn’t check my phone. I stayed because nobody here asks what you do. They ask if you kept your hands up. First time I got hit clean, I laughed. Coach said, ‘Good. Now you know it’s real.’”
+        </div>
+        <div class="mt-auto pt-6 flex justify-between items-center">
+          <div class="font-mono text-[10px] tracking-[0.2em]">FIGHT NIGHT 11 / WIN — TKO R2</div>
+          <div class="w-8 h-8 rounded-full bg-blood text-canvas grid place-items-center font-mono text-[10px]">MR</div>
+        </div>
+        <div class="tape top-4 -right-8 w-[80px] !h-[20px] rotate-[22deg] opacity-70"></div>
+      </div>
+
+      <div class="reveal reveal-delay-1 group relative bg-ink text-canvas brutal-border brutal-shadow-sm p-6 flex flex-col hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+        <div class="flex justify-between items-start border-b-2 border-canvas/20 pb-4">
+          <div>
+            <div class="font-stencil text-[28px] leading-[0.9]">JAMES<br>“JUNK” KIM</div>
+            <div class="font-mono text-[10px] tracking-[0.18em] mt-1 opacity-60">COMPETITOR / 2019-NOW / 43 Y/O</div>
+          </div>
+          <div class="bg-canvas text-ink font-mono text-[10px] px-2 py-1">18-4</div>
+        </div>
+        <div class="mt-4 font-mono text-[13px] leading-[1.7] text-canvas/80">
+          “I run a hardware store. I come here at 5:30am because it’s the only hour where nobody needs anything from me. Daryll says I have old man power now. I think he means I’m stubborn.”
+        </div>
+        <div class="mt-6 bg-canvas/10 border border-canvas/20 p-3 font-mono text-[11px] leading-[1.4]">
+          <span class="text-blood font-bold">COACH NOTE:</span> Junk still drops his right. We’re working on it. 4 years and counting.
+        </div>
+        <div class="mt-auto pt-6 flex justify-between items-center">
+          <div class="font-mono text-[10px] tracking-[0.2em] text-canvas/50">CUTMAN APPROVED</div>
+          <img src="https://images.unsplash.com/photo-1517438322307-e67111335449?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover border-2 border-canvas/20 grayscale">
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-2 group relative bg-canvas brutal-border brutal-shadow p-6 flex flex-col hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all lg:row-span-2">
+        <div class="flex justify-between items-start border-b-2 border-ink pb-4">
+          <div>
+            <div class="font-stencil text-[32px] leading-[0.9]">COACH<br>DARYL<br>CROWN</div>
+            <div class="font-mono text-[10px] tracking-[0.18em] mt-1 opacity-60">OWNER / CUTMAN / SON</div>
+          </div>
+          <div class="bg-blood text-canvas font-mono text-[10px] px-2 py-1">COACH</div>
+        </div>
+        <div class="mt-4">
+          <img src="https://images.unsplash.com/photo-1593352216894-99e4b474bcf1?q=80&w=600&auto=format&fit=crop" class="w-full h-[200px] object-cover grayscale brutal-border">
+          <div class="mt-4 font-stencil text-[22px] leading-[0.9]">“You don’t need to be a fighter to train like one.”</div>
+          <div class="mt-4 font-mono text-[13px] leading-[1.7]">
+            My dad built this place so kids from the block had somewhere to go after school besides the corner. Now it’s nurses and teachers and cooks who need somewhere to go before work. Same need.
+            <br><br>
+            We don’t sell transformation. We rent you 3-minute rounds where you have to be honest. That’s it. Everything else is extra.
+          </div>
+        </div>
+        <div class="mt-auto pt-6 border-t-2 border-ink/10 flex gap-3">
+          <div class="flex-1 bg-paper border-2 border-ink p-2 text-center">
+            <div class="font-stencil text-[20px] leading-none">23</div>
+            <div class="font-mono text-[9px] tracking-[0.2em]">YEARS COACHING</div>
+          </div>
+          <div class="flex-1 bg-ink text-canvas border-2 border-ink p-2 text-center">
+            <div class="font-stencil text-[20px] leading-none">0</div>
+            <div class="font-mono text-[9px] tracking-[0.2em]">INSTAGRAM</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal group relative bg-paper brutal-border p-6 flex flex-col md:col-span-2 lg:col-span-2 hover-trigger" data-cursor="READ">
+        <div class="flex flex-col md:flex-row gap-6">
+          <div class="flex-1">
+            <div class="flex justify-between items-start border-b-2 border-ink pb-4">
+              <div class="font-stencil text-[24px] leading-[0.9]">SOFIA + LUIS — 2 PERSON MEMBERSHIP</div>
+              <div class="bg-blood text-canvas font-mono text-[10px] px-2 py-1">30-2 COMBINED</div>
+            </div>
+            <div class="mt-4 font-mono text-[13px] leading-[1.7]">
+              “We signed up after our daughter was born because date nights were too expensive. $145 for both? We come together Tuesday and Thursday. Someone watches the kid. We hit bags next to each other. We’re terrible but we’re terrible together. When Luis won his first bout, Sofia cried so loud the ref looked scared.”
+            </div>
+            <div class="mt-4 flex gap-2">
+              <span class="font-mono text-[10px] border-2 border-ink px-2 py-1">MARRIED 8 YEARS</span>
+              <span class="font-mono text-[10px] border-2 border-ink px-2 py-1 bg-ink text-canvas">TWO KIDS</span>
+              <span class="font-mono text-[10px] border-2 border-ink px-2 py-1">ONE CAR</span>
+            </div>
+          </div>
+          <div class="w-full md:w-[220px] bg-canvas brutal-border p-3 rotate-[-1deg]">
+            <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=400&auto=format&fit=crop" class="w-full h-[140px] object-cover grayscale">
+            <div class="mt-2 font-mono text-[10px] leading-[1.3]">Luis — first win — Mar 2024 — Sofia took the day off work without telling him she was coming</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / ENLIST -->
+<section id="contact" class="relative bg-canvas border-b-2 border-ink overflow-hidden">
+  <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] min-h-[90vh]">
+    <!-- Form Side -->
+    <div class="px-4 md:px-8 lg:px-12 py-12 md:py-20 relative">
+      <div class="absolute top-0 left-0 w-full h-[2px] bg-blood"></div>
+      <div class="reveal max-w-[640px]">
+        <div class="inline-flex items-center gap-2 border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[0.2em] bg-blood text-canvas">
+          <span class="w-2 h-2 bg-canvas rounded-full animate-pulse"></span> APPLICATIONS OPEN FOR MARCH INTAKE
+        </div>
+        <h2 class="font-stencil text-[14vw] md:text-[10vw] lg:text-[7vw] leading-[0.85] uppercase mt-6">
+          <span class="block">SHOW</span>
+          <span class="block stencil-outline">UP. WE</span>
+          <span class="block">DO THE</span>
+          <span class="block bg-ink text-canvas inline-block px-2 md:px-3 mt-1 rotate-[-1deg]">REST.</span>
+        </h2>
+        <div class="mt-6 font-mono text-[13px] leading-[1.6] max-w-[480px] opacity-70">
+          We don’t do trials. We do one week. $40. You come 3 times. If you hate it, we shake hands. If you like it, you stay. No contracts. Month to month. Same as ‘78.
+        </div>
+      </div>
+
+      <form class="reveal reveal-delay-1 mt-10 max-w-[640px] space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="font-mono text-[10px] tracking-[0.28em] uppercase block mb-2">Full Name *</label>
+            <input type="text" required placeholder="RAY ROBINSON" class="field w-full px-4 py-3 font-mono text-[14px] uppercase tracking-[0.04em] placeholder:opacity-30">
+          </div>
+          <div>
+            <label class="font-mono text-[10px] tracking-[0.28em] uppercase block mb-2">Weight Class</label>
+            <select class="field w-full px-4 py-3 font-mono text-[14px] uppercase tracking-[0.04em] bg-transparent">
+              <option>DON’T KNOW YET</option>
+              <option>105-125 LBS</option>
+              <option>126-145 LBS</option>
+              <option>146-165 LBS</option>
+              <option>166-185 LBS</option>
+              <option>186+ LBS</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="font-mono text-[10px] tracking-[0.28em] uppercase block mb-2">Phone</label>
+            <input type="tel" placeholder="773 555 0149" class="field w-full px-4 py-3 font-mono text-[14px] tracking-[0.04em] placeholder:opacity-30">
+          </div>
+          <div>
+            <label class="font-mono text-[10px] tracking-[0.28em] uppercase block mb-2">Experience</label>
+            <select class="field w-full px-4 py-3 font-mono text-[14px] uppercase tracking-[0.04em] bg-transparent">
+              <option>NEVER BOXED</option>
+              <option>HIT A BAG ONCE</option>
+              <option>TRAINED < 6 MO</option>
+              <option>COMPETED BEFORE</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-mono text-[10px] tracking-[0.28em] uppercase block mb-2">Why do you wanna fight? * (One line)</label>
+          <input type="text" required placeholder="BECAUSE I NEED TO KNOW IF I CAN" class="field w-full px-4 py-3 font-mono text-[14px] uppercase tracking-[0.04em] placeholder:opacity-30">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start pt-2">
+          <div class="flex gap-3 items-start">
+            <input type="checkbox" id="rules" class="mt-1 w-5 h-5 border-2 border-ink accent-blood">
+            <label for="rules" class="font-mono text-[11px] leading-[1.5] tracking-[0.02em]">
+              I UNDERSTAND THERE IS NO AC, THE FLOOR ISuneven, THE HEAVY BAG LEAKS A LITTLE SAND, AND COACH WILL YELL “HANDS UP” AT LEAST 14 TIMES PER CLASS. I’M COOL WITH IT.
+            </label>
+          </div>
+          <button type="submit" class="hover-trigger group bg-blood text-canvas brutal-border brutal-shadow px-8 py-4 font-stencil text-[20px] tracking-[0.08em] whitespace-nowrap hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center gap-3" data-cursor="SEND">
+            <span>ENLIST</span>
+            <span class="w-7 h-7 bg-canvas text-blood grid place-items-center rounded-full group-hover:translate-x-1 transition-transform">→</span>
+          </button>
+        </div>
+
+        <div class="pt-6 border-t-2 border-ink/10 flex flex-wrap gap-4 font-mono text-[10px] tracking-[0.18em] opacity-60">
+          <span>★ NO CONTRACTS</span>
+          <span>★ CASH OR VENMO</span>
+          <span>★ YOU BREAK HAND WRAPS YOU BUY HAND WRAPS</span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info Side -->
+    <div class="bg-ink text-canvas relative overflow-hidden flex flex-col">
+      <div class="scanlines absolute inset-0 opacity-40"></div>
+      <div class="relative p-6 md:p-10 flex-1 flex flex-col">
+        <!-- Map / Photo block -->
+        <div class="reveal relative brutal-border border-canvas/20 overflow-hidden h-[300px]">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-70 grayscale">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"></div>
+          <div class="absolute top-4 left-4 bg-canvas text-ink font-mono text-[10px] tracking-[0.2em] px-3 py-1 brutal-border">2114 W DIVISION ST / CHICAGO</div>
+          <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+            <div>
+              <div class="font-stencil text-[26px] leading-[0.9]">HUMBOLDT PARK<br>EDGE</div>
+              <div class="font-mono text-[11px] opacity-60 mt-1">Blue Line to Division / 4 blocks west</div>
+            </div>
+            <div class="bg-blood text-canvas font-mono text-[10px] px-3 py-2 brutal-border">DOOR IS ALWAYS UNLOCKED DURING HOURS</div>
+          </div>
+        </div>
+
+        <!-- Hours & Rules -->
+        <div class="reveal reveal-delay-1 mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="border-2 border-canvas/20 p-4">
+            <div class="font-mono text-[11px] tracking-[0.28em] opacity-60">HOURS — LIKE CLOCKWORK</div>
+            <div class="mt-3 font-mono text-[12px] leading-[2]">
+              <div class="flex justify-between"><span>MON—FRI</span><span>5:30AM—10PM</span></div>
+              <div class="flex justify-between"><span>SATURDAY</span><span>6AM—8PM</span></div>
+              <div class="flex justify-between"><span>SUNDAY</span><span>7AM—6PM / OPEN GYM</span></div>
+              <div class="mt-3 pt-3 border-t border-canvas/20 text-[10px] opacity-50">DOORS OPEN 15 MIN BEFORE FIRST CLASS. COFFEE FROM GAS STATION NEXT DOOR IS FINE.</div>
+            </div>
+          </div>
+          <div class="border-2 border-canvas/20 p-4 bg-blood/10">
+            <div class="font-mono text-[11px] tracking-[0.28em] opacity-60">HOUSE RULES — SHORT VERSION</div>
+            <div class="mt-3 font-mono text-[11px] leading-[1.8]">
+              01. WRAPS ON PAST DESK<br>
+              02. NO PHONES ON FLOOR<br>
+              03. YOU SPOT SOMEONE’S WATER YOU REFILL IT<br>
+              04. KIDS CAN WATCH BUT NOT TOUCH<br>
+              05. EVERYONE CUTS WEIGHT TOGETHER
+            </div>
+          </div>
+        </div>
+
+        <!-- Big Quote -->
+        <div class="reveal reveal-delay-2 mt-auto pt-12">
+          <div class="font-stencil text-[12vw] md:text-[7vw] lg:text-[5.5vw] leading-[0.85] uppercase opacity-10">KEEP YR<br>HANDS UP</div>
+          <div class="mt-4 flex items-center gap-4">
+            <div class="w-10 h-10 bg-canvas text-ink grid place-items-center font-stencil text-[18px]">!</div>
+            <div class="font-mono text-[11px] leading-[1.4]">WE DON’T HAVE A WAITING LIST.<br>WE HAVE A DOOR. WALK THROUGH IT.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-canvas border-t-2 border-ink relative overflow-hidden">
+  <div class="px-4 md:px-8 lg:px-12 py-12 md:py-16">
+    <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr_0.6fr_0.8fr] gap-10">
+      <!-- Big Mark -->
+      <div>
+        <div class="font-stencil text-[18vw] lg:text-[11vw] leading-[0.8] tracking-[-0.04em] uppercase">
+          <span class="block">CROWN</span>
+          <span class="block stencil-outline -mt-2">BOXING</span>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <span class="border-2 border-ink px-3 py-1 font-mono text-[10px] tracking-[0.2em]">EST. 1978</span>
+          <span class="bg-ink text-canvas border-2 border-ink px-3 py-1 font-mono text-[10px] tracking-[0.2em]">CHICAGO, IL</span>
+          <span class="bg-blood text-canvas border-2 border-blood px-3 py-1 font-mono text-[10px] tracking-[0.2em]">2114 W DIVISION</span>
+        </div>
+        <div class="mt-8 font-mono text-[12px] leading-[1.6] max-w-[420px] opacity-70">
+          Not a club. Not a brand. A room with a ring in it that’s been here longer than most of the buildings on this block. Come early. Stay late. Keep your hands up.
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div class="font-mono text-[12px] leading-[2]">
+        <div class="font-bold tracking-[0.2em] text-[10px] mb-3 opacity-60">SITEMAP</div>
+        <a href="#story" class="block hover:text-blood transition">Story / Heritage</a>
+        <a href="#programs" class="block hover:text-blood transition">Programs / Fees</a>
+        <a href="#gallery" class="block hover:text-blood transition">The Gym / Photos</a>
+        <a href="#contact" class="block hover:text-blood transition">Enlist / Apply</a>
+        <a href="#" class="block hover:text-blood transition">Fight Night Archive</a>
+      </div>
+
+      <div class="font-mono text-[12px] leading-[2]">
+        <div class="font-bold tracking-[0.2em] text-[10px] mb-3 opacity-60">FIND US</div>
+        <div>2114 W Division St</div>
+        <div>Chicago, IL 60622</div>
+        <div class="mt-3">+1 773 555 0149</div>
+        <div>hello@crownboxing.club</div>
+        <div class="mt-6 flex gap-2">
+          <a href="#" class="hover-trigger w-9 h-9 brutal-border grid place-items-center hover:bg-ink hover:text-canvas transition" data-cursor="IG">IG</a>
+          <a href="#" class="hover-trigger w-9 h-9 brutal-border grid place-items-center hover:bg-ink hover:text-canvas transition" data-cursor="YT">YT</a>
+        </div>
+      </div>
+
+      <!-- Newsletter brutalist -->
+      <div class="bg-paper brutal-border p-5">
+        <div class="font-stencil text-[22px] leading-[0.9] uppercase">WANT THE<br>FIGHT LIST?</div>
+        <div class="font-mono text-[11px] leading-[1.4] mt-2 opacity-60">Once a month. Who’s fighting, who needs a ride, who’s bringing tamales.</div>
+        <div class="mt-4 flex gap-2">
+          <input type="email" placeholder="YOUR EMAIL" class="field flex-1 px-3 py-2 font-mono text-[11px] uppercase">
+          <button class="bg-ink text-canvas px-4 py-2 font-mono text-[11px] tracking-[0.18em] hover:bg-blood transition">JOIN</button>
+        </div>
+        <div class="mt-3 font-mono text-[9px] tracking-[0.18em] opacity-40">NO SPAM. COACH D HATES COMPUTERS.</div>
+      </div>
+    </div>
+
+    <div class="mt-12 md:mt-16 pt-8 border-t-2 border-ink flex flex-col md:flex-row justify-between gap-4 font-mono text-[10px] tracking-[0.18em] uppercase opacity-60">
+      <div>© 1978—2026 CROWN BOXING CLUB / ALL SWEAT RESERVED / BUILT LIKE A FIGHT — NOT A WEBSITE</div>
+      <div class="flex gap-6">
+        <span>MADE IN HUMBOLDT PARK</span>
+        <span>•</span>
+        <a href="#" class="hover:text-blood underline">PRIVACY (WE DON’T COLLECT MUCH)</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script>
+  // Mobile Menu
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuLabel = document.getElementById('menuLabel');
+  let menuOpen = false;
+  menuToggle.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    mobileMenu.style.maxHeight = menuOpen ? mobileMenu.scrollHeight + 'px' : '0px';
+    menuLabel.textContent = menuOpen ? 'CLOSE' : 'MENU';
+    menuToggle.classList.toggle('bg-blood', menuOpen);
+  });
+  document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => {
+    menuOpen = false;
+    mobileMenu.style.maxHeight = '0px';
+    menuLabel.textContent = 'MENU';
+    menuToggle.classList.remove('bg-blood');
+  }));
+
+  // Custom Cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
+  if (!isTouch) {
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      dot.style.left = mouseX + 'px'; dot.style.top = mouseY + 'px';
+    });
+    const animateRing = () => {
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      ring.style.left = ringX + 'px'; ring.style.top = ringY + 'px';
+      requestAnimationFrame(animateRing);
+    };
+    animateRing();
+
+    document.querySelectorAll('.hover-trigger').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        const txt = el.getAttribute('data-cursor');
+        ring.classList.add('hover');
+        if (txt) {
+          ring.classList.add('fight');
+          ring.setAttribute('data-txt', txt);
+        }
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.classList.remove('hover','fight');
+      });
+    });
+  }
+
+  // Scroll Reveal
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el=> observer.observe(el));
+
+  // Hero parallax
+  const heroImg = document.getElementById('heroImage');
+  let lastScroll = 0;
+  window.addEventListener('scroll', ()=>{
+    const sc = window.scrollY;
+    if(Math.abs(sc - lastScroll) < 5) return;
+    lastScroll = sc;
+    if(heroImg){
+      const rect = heroImg.parentElement.getBoundingClientRect();
+      if(rect.top < window.innerHeight && rect.bottom > 0){
+        heroImg.style.transform = `scale(1.05) translateY(${sc * 0.08}px)`;
+      }
+    }
+  }, { passive:true });
+
+  // Form micro-interaction
+  document.querySelector('form').addEventListener('submit', e=>{
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span>SENT — WE’LL CALL</span>';
+    btn.classList.add('bg-ink');
+    setTimeout(()=>{ btn.innerHTML = orig; alert('Application received. Show up Monday 5:30am with wraps. We’ll be here.'); e.target.reset(); }, 900);
+  });
+
+  // Magnetic buttons subtle
+  document.querySelectorAll('.brutal-shadow, .brutal-shadow-sm').forEach(btn=>{
+    btn.addEventListener('mousemove', (e)=>{
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top - r.height/2;
+      btn.style.transform = `translate(${x*0.12}px, ${y*0.15}px)`;
+    });
+    btn.addEventListener('mouseleave', ()=>{
+      btn.style.transform = 'translate(0,0)';
+    });
+  });
+
+  // Reduce motion
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.marquee-track, .marquee-rev, .bag-swing').forEach(el=>{
+      el.style.animation = 'none';
+    });
+  }
+</script>
+</body>
+</html>

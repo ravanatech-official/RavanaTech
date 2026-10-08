@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Perfumery Lab</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        roseLab: '#f8d7da',
+        paper: '#fdfcfb',
+        paperDark: '#f6f1ed',
+        ink: '#0a0a0a',
+        inkSoft: '#2a2a2a',
+        line: '#e9e5e0',
+        roseDeep: '#e8a0a8'
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'Cormorant', 'serif'],
+        display: ['Cormorant', 'serif'],
+        mono: ['JetBrains Mono', 'IBM Plex Mono', 'monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  html { scroll-behavior: smooth; }
+  body { background: #fdfcfb; color: #0a0a0a; overscroll-behavior: none; cursor: none; }
+  @media (max-width: 1024px) { body { cursor: auto; } #cursor { display:none !important; } }
+  /* Grain */
+  .grain::before {
+    content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
+    pointer-events: none; z-index: 9999; opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    animation: grainMove 8s steps(10) infinite;
+  }
+  @keyframes grainMove {
+    0%,100% { transform: translate(0,0); }
+    10% { transform: translate(-5%,-10%); }
+    20% { transform: translate(-15%,5%); }
+    30% { transform: translate(7%,-25%); }
+    40% { transform: translate(-5%,25%); }
+    50% { transform: translate(-15%,10%); }
+    60% { transform: translate(15%,0%); }
+    70% { transform: translate(0%,15%); }
+    80% { transform: translate(3%,35%); }
+    90% { transform: translate(-10%,10%); }
+  }
+  /* Custom Cursor */
+  #cursor { position: fixed; top:0; left:0; pointer-events:none; z-index: 10000; mix-blend-mode: difference; }
+  #cursor-dot { width:4px; height:4px; background:white; border-radius:50%; position:absolute; transform: translate(-50%,-50%); transition: width .3s, height .3s; }
+  #cursor-ring { width:28px; height:28px; border:0.5px solid rgba(255,255,255,0.8); border-radius:50%; position:absolute; transform: translate(-50%,-50%); transition: all 0.15s ease-out; }
+  #cursor.hover #cursor-ring { width:64px; height:64px; border-color: #f8d7da; background: rgba(248,215,218,0.1); }
+  #cursor.hover #cursor-dot { width:6px; height:6px; background:#f8d7da; }
+  #cursor.active #cursor-ring { transform: translate(-50%,-50%) scale(0.8); }
+  /* Scroll Reveal */
+  .reveal { opacity:0; transform: translateY(30px); transition: opacity 1.2s cubic-bezier(0.16,1,0.3,1), transform 1.2s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.active { opacity:1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  /* Marquee */
+  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .marquee-track { animation: marquee 40s linear infinite; }
+  /* Molecule line draw */
+  .mol-line { stroke-dasharray: 200; stroke-dashoffset: 200; transition: stroke-dashoffset 2s ease; }
+  .mol-line.draw { stroke-dashoffset: 0; }
+  /* Lab paper grid */
+  .lab-paper {
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .hairline { height:1px; background: linear-gradient(90deg, transparent, #e9e5e0 10%, #e9e5e0 90%, transparent); }
+  /* Magnetic button */
+  .mag-btn { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+  /* Parallax */
+  .parallax-slow { will-change: transform; }
+  /* Custom scrollbar hide */
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  /* Pyramid hover */
+  .pyr-layer { transition: all 0.6s cubic-bezier(0.16,1,0.3,1); }
+  .pyr-layer.active { background: #f8d7da !important; color:#0a0a0a !important; }
+  /* Lens distortion on img */
+  .lens-img { filter: contrast(1.05) saturate(0.9); transition: filter 0.8s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1); }
+  .lens-img:hover { filter: contrast(1.1) saturate(1); }
+</style>
+</head>
+<body class="grain font-serif selection:bg-roseLab selection:text-ink">
+<!-- Custom Cursor -->
+<div id="cursor"><div id="cursor-dot"></div><div id="cursor-ring"></div></div>
+
+<!-- Top Lab Status Bar -->
+<div class="w-full border-b border-line bg-paper sticky top-0 z-[60] hidden md:block">
+  <div class="mx-auto max-w-[1600px] px-8 lg:px-12 h-[34px] flex items-center justify-between font-mono text-[10px] tracking-[0.14em] uppercase">
+    <div class="flex items-center gap-8">
+      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-green-600 rounded-full animate-pulse"></span> Lab.003 — Operational</span>
+      <span class="opacity-50">Brooklyn Navy Yard — BLDG.77 / 4F</span>
+      <span class="opacity-50">40°41'49"N 73°58'38"W</span>
+    </div>
+    <div class="flex items-center gap-8">
+      <span>Temp 21.5°C — Humidity 44% — Atm 1013 hPa</span>
+      <span class="opacity-40">EST 10:00 — 18:00</span>
+    </div>
+  </div>
+</div>
+
+<!-- Sticky Nav -->
+<nav id="mainNav" class="w-full sticky top-0 md:top-[34px] z-50 bg-paper/80 backdrop-blur-[12px] border-b border-line transition-all duration-500">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 h-[64px] md:h-[72px] flex items-center justify-between">
+    <a href="#" class="group flex items-center gap-4 hover-trigger">
+      <div class="w-9 h-9 border border-ink rounded-full flex items-center justify-center font-mono text-[11px] tracking-widest">0.3</div>
+      <div class="leading-[0.9]">
+        <div class="font-display text-[18px] md:text-[20px] tracking-[0.02em] font-light">PERFUMERY LAB</div>
+        <div class="font-mono text-[8px] tracking-[0.22em] uppercase opacity-60 -mt-1">Atelier No. — Brooklyn / Grasse</div>
+      </div>
+    </a>
+    <div class="hidden lg:flex items-center gap-10 font-mono text-[11px] tracking-[0.14em] uppercase">
+      <a href="#philosophy" class="hover-trigger py-2 relative group"><span class="opacity-70 group-hover:opacity-100 transition-opacity">Philosophy — 01</span><span class="absolute bottom-0 left-0 w-0 h-[1px] bg-ink group-hover:w-full transition-all duration-500"></span></a>
+      <a href="#pyramid" class="hover-trigger py-2 relative group"><span class="opacity-70 group-hover:opacity-100 transition-opacity">Scent Pyramid — 02</span><span class="absolute bottom-0 left-0 w-0 h-[1px] bg-ink group-hover:w-full transition-all duration-500"></span></a>
+      <a href="#compositions" class="hover-trigger py-2 relative group"><span class="opacity-70 group-hover:opacity-100 transition-opacity">Compositions — 03</span><span class="absolute bottom-0 left-0 w-0 h-[1px] bg-ink group-hover:w-full transition-all duration-500"></span></a>
+      <a href="#archive" class="hover-trigger py-2 relative group"><span class="opacity-70 group-hover:opacity-100 transition-opacity">Lab Log — 04</span><span class="absolute bottom-0 left-0 w-0 h-[1px] bg-ink group-hover:w-full transition-all duration-500"></span></a>
+    </div>
+    <div class="flex items-center gap-3 md:gap-4">
+      <div class="hidden md:flex font-mono text-[10px] tracking-widest border border-line px-3 py-2 rounded-full opacity-70"><span class="mr-2 w-2 h-2 bg-roseLab border border-ink/20 rounded-full inline-block"></span>3 slots this week</div>
+      <a href="#reserve" class="hover-trigger mag-btn bg-ink text-paper font-mono text-[11px] tracking-[0.16em] uppercase px-5 md:px-7 py-[13px] rounded-full hover:bg-inkSoft transition-colors">Reserve Lab Time</a>
+      <button id="mobileMenuBtn" class="lg:hidden w-10 h-10 border border-line rounded-full flex items-center justify-center">≡</button>
+    </div>
+  </div>
+  <!-- mobile menu -->
+  <div id="mobileMenu" class="lg:hidden hidden border-t border-line bg-paper px-6 py-8 space-y-5 font-mono text-[12px] tracking-[0.14em] uppercase">
+    <a href="#philosophy" class="block">Philosophy — 01</a>
+    <a href="#pyramid" class="block">Scent Pyramid — 02</a>
+    <a href="#compositions" class="block">Compositions — 03</a>
+    <a href="#archive" class="block">Lab Log — 04</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative w-full overflow-hidden border-b border-line">
+  <div class="mx-auto max-w-[1600px] px-0 md:px-0 lg:px-12 relative">
+    <div class="grid grid-cols-12 min-h-[88vh] md:min-h-[92vh]">
+      <!-- Left Text Column -->
+      <div class="col-span-12 lg:col-span-7 px-6 md:px-8 lg:px-0 pt-10 md:pt-16 lg:pt-24 pb-10 flex flex-col justify-between border-r-0 lg:border-r border-line relative z-10">
+        <div>
+          <div class="reveal flex items-center gap-4 mb-8 md:mb-14">
+            <div class="font-mono text-[10px] tracking-[0.18em] uppercase border border-ink px-3 py-1 rounded-full">Est. 2019 — Small Batch / Single Origin / Molecular</div>
+            <div class="hidden md:block h-[1px] w-24 bg-line"></div>
+          </div>
+          <h1 class="reveal reveal-delay-1 font-display font-light leading-[0.85] tracking-[-0.03em] text-[14vw] md:text-[10vw] lg:text-[118px] xl:text-[132px]">
+            <span class="block">SCENT</span>
+            <span class="block italic font-serif font-light ml-[0.12em]">is</span>
+            <span class="block mt-[-0.05em] flex items-baseline gap-4 md:gap-6"><span>MEMORY</span><span class="font-mono text-[10px] md:text-[12px] tracking-[0.2em] uppercase opacity-60 leading-none translate-y-[-1.4em] hidden md:inline">distilled at 78.3°C<br>under vacuum</span></span>
+            <span class="block mt-[-0.06em] opacity-[0.15]">DISTILLED</span>
+          </h1>
+        </div>
+
+        <div class="reveal reveal-delay-2 mt-12 lg:mt-0 max-w-[520px]">
+          <p class="font-serif text-[20px] md:text-[22px] leading-[1.35] font-light">We compose fragrances like chemists, not marketers. In glass, on paper, by the molecule. A laboratory for olfactory memory — pale rose, lab white, black.</p>
+          <div class="mt-8 flex flex-wrap gap-8 font-mono text-[11px] tracking-[0.12em] uppercase">
+            <div><div class="opacity-40 mb-1">Formulae / YTD</div><div class="text-[14px] tracking-[0.08em]">147 compounds — 19 bases</div></div>
+            <div><div class="opacity-40 mb-1">Current Dilution</div><div class="text-[14px] tracking-[0.08em]">22% in organic EtOH</div></div>
+          </div>
+          <div class="mt-10 flex gap-3">
+            <a href="#compositions" class="hover-trigger group flex items-center gap-3 border border-ink rounded-full px-6 py-3 font-mono text-[11px] tracking-widest uppercase"><span>Explore Compositions</span><span class="w-5 h-5 rounded-full bg-ink text-paper flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">↗</span></a>
+            <a href="#pyramid" class="hover-trigger w-[46px] h-[46px] rounded-full border border-line flex items-center justify-center font-mono text-[14px] hover:bg-roseLab transition-colors">?</a>
+          </div>
+        </div>
+
+        <!-- Molecule watermark -->
+        <svg class="absolute top-[38%] left-[42%] w-[420px] h-[420px] opacity-[0.06] pointer-events-none hidden lg:block parallax-slow" viewBox="0 0 400 400">
+          <g fill="none" stroke="#0a0a0a" stroke-width="0.6">
+            <circle cx="200" cy="200" r="3" fill="#0a0a0a"/>
+            <circle cx="120" cy="140" r="2"/><line x1="200" y1="200" x2="120" y2="140" class="mol-line"/>
+            <circle cx="280" cy="140" r="2"/><line x1="200" y1="200" x2="280" y2="140" class="mol-line"/>
+            <circle cx="280" cy="260" r="2"/><line x1="200" y1="200" x2="280" y2="260" class="mol-line"/>
+            <circle cx="120" cy="260" r="2"/><line x1="200" y1="200" x2="120" y2="260" class="mol-line"/>
+            <circle cx="200" cy="80" r="2"/><line x1="200" y1="200" x2="200" y2="80" class="mol-line"/>
+            <circle cx="60" cy="90" r="1.5"/><line x1="120" y1="140" x2="60" y2="90" class="mol-line"/>
+            <circle cx="340" cy="90" r="1.5"/><line x1="280" y1="140" x2="340" y2="90" class="mol-line"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Right Visual Column -->
+      <div class="col-span-12 lg:col-span-5 relative bg-paperDark border-t lg:border-t-0 border-line min-h-[540px] lg:min-h-auto overflow-hidden">
+        <!-- Lab image -->
+        <div class="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=1200&auto=format&fit=crop" alt="Perfumery Lab Glassware" class="w-full h-full object-cover lens-img parallax-slow scale-[1.08]">
+          <div class="absolute inset-0 bg-gradient-to-t from-paperDark via-paperDark/30 to-transparent"></div>
+          <div class="absolute inset-0 bg-[#f8d7da]/[0.18] mix-blend-multiply"></div>
+        </div>
+        <!-- Glass beaker card overlay -->
+        <div class="absolute top-6 md:top-10 left-6 right-6 md:left-10 md:right-10 border border-white/40 bg-white/65 backdrop-blur-xl rounded-[18px] p-5 md:p-6 font-mono shadow-[0_20px_60px_rgba(0,0,0,0.08)] reveal">
+          <div class="flex justify-between items-start">
+            <div class="text-[10px] tracking-[0.18em] uppercase">Beaker — Lot R-042</div>
+            <div class="text-[9px] opacity-50 tracking-widest">REF 77.3 / 2024</div>
+          </div>
+          <div class="mt-6 flex gap-5">
+            <div class="w-[58px] h-[82px] border border-ink/20 rounded-b-[16px] rounded-t-[4px] relative overflow-hidden bg-gradient-to-b from-transparent to-roseLab/60"><div class="absolute bottom-0 w-full h-[54%] bg-roseLab/90"></div><div class="absolute top-[36%] w-full h-[1px] bg-ink/20"></div><div class="absolute top-[52%] w-full h-[1px] bg-ink/10"></div></div>
+            <div class="flex-1 space-y-2.5">
+              <div class="flex justify-between text-[11px]"><span class="opacity-50">ROSE DE MAI ABSOLUTE</span><span>12.4%</span></div>
+              <div class="w-full h-[1px] bg-ink/10"></div>
+              <div class="flex justify-between text-[11px]"><span class="opacity-50">ISO E SUPER</span><span>8.2%</span></div>
+              <div class="w-full h-[1px] bg-ink/10"></div>
+              <div class="flex justify-between text-[11px]"><span class="opacity-50">AMBROXAN</span><span>0.8%</span></div>
+              <div class="w-full h-[1px] bg-ink/10"></div>
+              <div class="flex justify-between text-[11px] font-medium"><span>TOTAL / 50ML</span><span>22% CONC.</span></div>
+            </div>
+          </div>
+          <div class="mt-6 flex items-center gap-2 text-[9px] tracking-widest opacity-60"><span class="w-4 h-[1px] bg-ink/30"></span>MACERATED 28 DAYS • FILTERED 0.22μm • pH 5.9</div>
+        </div>
+
+        <!-- Floating specs -->
+        <div class="absolute bottom-8 left-6 right-6 md:left-10 md:right-10 flex gap-3">
+          <div class="flex-1 bg-ink text-paper rounded-[14px] px-4 py-3 font-mono text-[10px] leading-[1.4] tracking-wide reveal reveal-delay-2">
+            <div class="opacity-50 text-[9px] tracking-[0.18em] uppercase mb-1">Extraction Method</div>Cold enfleurage / CO₂ supercritical<br>Glass: Schott Duran® borosilicate
+          </div>
+          <div class="w-[92px] bg-paper border border-line rounded-[14px] p-3 flex flex-col items-center justify-center reveal reveal-delay-3">
+            <div class="font-display text-[28px] leading-none font-light">0.3</div><div class="font-mono text-[8px] tracking-[0.18em] uppercase opacity-60 text-center mt-1">Micro<br>Lot</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Running marquee -->
+    <div class="relative w-full h-[44px] border-y border-line overflow-hidden bg-paper flex items-center">
+      <div class="marquee-track flex whitespace-nowrap will-change-transform">
+        <div class="flex items-center gap-8 font-mono text-[11px] tracking-[0.18em] uppercase pr-8">
+          <span>BERGAMOT CALABRIA • ORRIS CONCRETE • PINK PEPPER CO₂ • AMBROXAN • VETIVER HAITI • ROSE DE MAI • LABDANUM • CEDAR ATLAS • ISO E SUPER • MUSK KETONE • </span>
+          <span>BERGAMOT CALABRIA • ORRIS CONCRETE • PINK PEPPER CO₂ • AMBROXAN • VETIVER HAITI • ROSE DE MAI • LABDANUM • CEDAR ATLAS • ISO E SUPER • MUSK KETONE • </span>
+        </div>
+        <div class="flex items-center gap-8 font-mono text-[11px] tracking-[0.18em] uppercase pr-8">
+          <span>BERGAMOT CALABRIA • ORRIS CONCRETE • PINK PEPPER CO₂ • AMBROXAN • VETIVER HAITI • ROSE DE MAI • LABDANUM • CEDAR ATLAS • ISO E SUPER • MUSK KETONE • </span>
+          <span>BERGAMOT CALABRIA • ORRIS CONCRETE • PINK PEPPER CO₂ • AMBROXAN • VETIVER HAITI • ROSE DE MAI • LABDANUM • CEDAR ATLAS • ISO E SUPER • MUSK KETONE • </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy" class="relative w-full border-b border-line">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12">
+    <div class="grid grid-cols-12 gap-0">
+      <div class="col-span-12 lg:col-span-5 py-16 md:py-24 lg:py-28 pr-0 lg:pr-12 border-b lg:border-b-0 lg:border-r border-line">
+        <div class="reveal font-mono text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 mb-10">
+          <span class="w-8 h-[1px] bg-ink"></span> Philosophy — 01 / Transparency
+        </div>
+        <h2 class="reveal font-display text-[40px] md:text-[52px] lg:text-[56px] leading-[0.92] font-light tracking-[-0.02em]">
+          We publish<br><span class="italic">every</span> formula.<br><span class="opacity-30">Nothing hidden.</span>
+        </h2>
+        <div class="reveal mt-10 lab-paper border border-line rounded-[16px] p-6 md:p-8 relative overflow-hidden">
+          <div class="font-mono text-[9px] tracking-[0.18em] uppercase opacity-50 mb-6">Lab Notebook — Page 144 / 2024-11-03</div>
+          <p class="font-serif text-[16px] leading-[1.6]">Niche perfumery inverted. No stories invented after the fact. The composition <em>is</em> the story. We start with a memory — wet concrete in Kyoto after rain — and translate to molecules.</p>
+          <div class="mt-6 pt-6 border-t border-dashed border-ink/20 font-mono text-[11px] leading-[1.6]">
+            <div>Hypothesis: Geosmin at 0.02% + petrichor accord triggers<br>childhood recollection in 78% of subjects (n=42).</div>
+            <div class="mt-3 opacity-60">— M., lead compounder — 11.04.24</div>
+          </div>
+          <div class="absolute top-4 right-4 w-12 h-12 border border-ink/10 rounded-full flex items-center justify-center font-mono text-[9px]">✓<br>QC</div>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-7 py-16 md:py-24 lg:py-28 pl-0 lg:pl-14">
+        <div class="grid grid-cols-12 gap-8">
+          <div class="col-span-12 md:col-span-7">
+            <div class="reveal aspect-[4/5] overflow-hidden rounded-[18px] border border-line bg-paperDark relative group">
+              <img src="https://images.unsplash.com/photo-1615529182904-14819c35db37?q=80&w=800&auto=format&fit=crop" alt="Rose and Lab Equipment" class="w-full h-full object-cover lens-img group-hover:scale-[1.03]">
+              <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-ink/60 to-transparent text-paper">
+                <div class="font-mono text-[9px] tracking-[0.18em] uppercase opacity-80">Specimen B — Rosa Damascena</div>
+                <div class="font-serif text-[18px] font-light mt-1 leading-tight">Pale rose #f8d7da, hand-picked at 5:20am, still cold.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-12 md:col-span-5 flex flex-col justify-between gap-8">
+            <div class="reveal reveal-delay-1">
+              <div class="font-serif text-[22px] leading-[1.25] font-light">Perfume is not luxury.<br>It is <span class="underline decoration-roseLab decoration-4 underline-offset-4">laboratory work</span>.<br>Measured in milligrams.</div>
+              <div class="mt-6 grid grid-cols-2 gap-4 font-mono text-[10px] leading-[1.5] border-t border-line pt-6">
+                <div><span class="opacity-40 block uppercase tracking-widest mb-1">Precision</span>±0.01g — analytical balance, calibrated daily at 06:00</div>
+                <div><span class="opacity-40 block uppercase tracking-widest mb-1">Dilution</span>IPM / DPG / EtOH — 96% organic sugarcane, never denat.</div>
+              </div>
+            </div>
+            <div class="reveal reveal-delay-2 border border-line rounded-[14px] p-5 bg-roseLab/40">
+              <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest mb-4 opacity-70"><span>Current Batch No.</span><span>#P-0.3-088</span></div>
+              <div class="space-y-3">
+                <div class="flex items-baseline justify-between"><span class="font-serif text-[26px]">088</span><span class="font-mono text-[11px]">BOTTLES — 50ML EACH</span></div>
+                <div class="w-full h-[4px] bg-ink/10 rounded-full overflow-hidden"><div class="w-[68%] h-full bg-ink"></div></div>
+                <div class="font-mono text-[10px] flex justify-between"><span>68% reserved</span><span class="opacity-50">Release: Dec 12</span></div>
+              </div>
+            </div>
+            <div class="reveal reveal-delay-3 font-mono text-[10px] tracking-wide leading-[1.6] opacity-70">
+              <div class="flex gap-2"><span>①</span><span>No musk without consent. IFRA compliant, always under 22%.</span></div>
+              <div class="flex gap-2 mt-2"><span>②</span><span>Vegan bases. No animalics. Ambergris is ambroxan from clary sage.</span></div>
+              <div class="flex gap-2 mt-2"><span>③</span><span>If you cannot pronounce it, you can still wear it.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCENT PYRAMID INTERACTIVE -->
+<section id="pyramid" class="relative w-full bg-ink text-paper overflow-hidden border-b border-line">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 py-16 md:py-28 lg:py-32">
+    <div class="grid grid-cols-12 gap-8 md:gap-12 items-start">
+      <div class="col-span-12 lg:col-span-5">
+        <div class="reveal font-mono text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 mb-10 text-paper/60">
+          <span class="w-8 h-[1px] bg-paper/30"></span> Scent Pyramid — 02 / Anatomy of 0.3
+        </div>
+        <h2 class="reveal font-display text-[44px] md:text-[64px] lg:text-[72px] leading-[0.9] font-light tracking-[-0.02em]">A fragrance<br><span class="italic text-roseLab">is a structure</span></h2>
+        <p class="reveal reveal-delay-1 mt-8 font-serif text-[18px] leading-[1.5] font-light text-paper/70 max-w-[420px]">Three layers. Volatile top evaporates in 15 minutes. Heart holds 4 hours. Base — 12 hours, on skin, on cotton, in memory.</p>
+
+        <div class="mt-12 md:mt-16 space-y-3">
+          <!-- Base -->
+          <div data-layer="base" class="pyr-layer group border border-paper/20 rounded-[14px] p-5 cursor-pointer hover:border-roseLab hover:bg-paper/[0.05] hover-trigger">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">Base — 55% — 12H+</div>
+                <div class="font-serif text-[20px] mt-2">Ambroxan / Iso E Super / Vetiver Haiti / Cedar Atlas</div>
+                <div class="font-mono text-[11px] opacity-70 mt-2 leading-[1.5] max-w-[360px]">Warm, woody, skin-like. The molecule that stays when you leave the room. We dose ambroxan at 0.8% — enough to haunt.</div>
+              </div>
+              <div class="w-8 h-8 rounded-full border border-paper/30 flex items-center justify-center group-hover:bg-roseLab group-hover:text-ink transition-colors">↓</div>
+            </div>
+          </div>
+          <!-- Heart -->
+          <div data-layer="heart" class="pyr-layer group border border-paper/20 rounded-[14px] p-5 cursor-pointer hover:border-roseLab hover:bg-paper/[0.05] hover-trigger">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">Heart — 30% — 1–4H</div>
+                <div class="font-serif text-[20px] mt-2">Rose De Mai Absolute / Orris Concrete / Labdanum</div>
+                <div class="font-mono text-[11px] opacity-70 mt-2 leading-[1.5] max-w-[360px]">Pale rose, not sweet. #f8d7da — the color of the lab at 6am. Orris aged 3 years, butter-like, root and powder.</div>
+              </div>
+              <div class="w-8 h-8 rounded-full border border-paper/30 flex items-center justify-center group-hover:bg-roseLab group-hover:text-ink transition-colors">→</div>
+            </div>
+          </div>
+          <!-- Top -->
+          <div data-layer="top" class="pyr-layer group border border-paper/20 rounded-[14px] p-5 cursor-pointer hover:border-roseLab hover:bg-paper/[0.05] hover-trigger">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">Top — 15% — 0–20M</div>
+                <div class="font-serif text-[20px] mt-2">Bergamot Calabria / Pink Pepper CO₂ / Fig Leaf</div>
+                <div class="font-mono text-[11px] opacity-70 mt-2 leading-[1.5] max-w-[360px]">Sharp, green, cold-pressed. Evaporates quickly, like first light on glass. Fig leaf — bitter, not fruity.</div>
+              </div>
+              <div class="w-8 h-8 rounded-full border border-paper/30 flex items-center justify-center group-hover:bg-roseLab group-hover:text-ink transition-colors">↑</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-7 relative">
+        <div class="reveal aspect-[4/3] md:aspect-[5/4] lg:aspect-[4/3] bg-paperDark/5 border border-paper/10 rounded-[22px] overflow-hidden relative">
+          <!-- Pyramid visualization -->
+          <div class="absolute inset-0 flex items-center justify-center p-8">
+            <svg id="pyramidSvg" viewBox="0 0 400 360" class="w-full h-full max-w-[520px]">
+              <!-- Triangle -->
+              <path id="pyrOutline" d="M200 20 L40 320 L360 320 Z" fill="none" stroke="rgba(248,215,218,0.2)" stroke-width="1"/>
+              <!-- Layers divisions -->
+              <line x1="120" y1="140" x2="280" y2="140" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 6"/>
+              <line x1="80" y1="230" x2="320" y2="230" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 6"/>
+              <!-- Active fills -->
+              <path id="fill-top" d="M200 20 L120 140 L280 140 Z" fill="#f8d7da" opacity="0"/>
+              <path id="fill-heart" d="M120 140 L80 230 L320 230 L280 140 Z" fill="#f8d7da" opacity="0"/>
+              <path id="fill-base" d="M80 230 L40 320 L360 320 L320 230 Z" fill="#f8d7da" opacity="0"/>
+              <!-- Molecules in each layer -->
+              <g id="mols-top" opacity="0">
+                <circle cx="200" cy="70" r="3" fill="#0a0a0a"/><circle cx="170" cy="95" r="2" fill="#0a0a0a"/><line x1="200" y1="70" x2="170" y2="95" stroke="#0a0a0a" stroke-width="0.8"/>
+                <circle cx="230" cy="100" r="2" fill="#0a0a0a"/><line x1="200" y1="70" x2="230" y2="100" stroke="#0a0a0a" stroke-width="0.8"/>
+              </g>
+              <g id="mols-heart" opacity="0">
+                <circle cx="200" cy="180" r="4" fill="#0a0a0a"/><circle cx="160" cy="190" r="2.5" fill="#0a0a0a"/><circle cx="240" cy="195" r="2.5" fill="#0a0a0a"/>
+                <line x1="200" y1="180" x2="160" y2="190" stroke="#0a0a0a" stroke-width="0.9"/><line x1="200" y1="180" x2="240" y2="195" stroke="#0a0a0a" stroke-width="0.9"/>
+              </g>
+              <g id="mols-base" opacity="0.8">
+                <circle cx="200" cy="275" r="3.5" fill="white"/><circle cx="150" cy="285" r="2" fill="white" opacity="0.6"/><circle cx="250" cy="290" r="2" fill="white" opacity="0.6"/>
+                <line x1="200" y1="275" x2="150" y2="285" stroke="white" stroke-width="0.6" opacity="0.5"/><line x1="200" y1="275" x2="250" y2="290" stroke="white" stroke-width="0.6" opacity="0.5"/>
+              </g>
+              <!-- Evaporation lines -->
+              <g id="evap" stroke="white" stroke-width="0.5" opacity="0.3">
+                <path d="M200 20 Q210 5 220 10" fill="none"/><path d="M190 30 Q180 10 170 15" fill="none"/>
+              </g>
+            </svg>
+          </div>
+          <!-- floating molecule details -->
+          <div class="absolute top-6 left-6 right-6 flex justify-between font-mono text-[9px] tracking-[0.16em] uppercase text-paper/40"><span>Volatility Index</span><span>Surface: 100% → 12%</span></div>
+          <div class="absolute bottom-6 left-6 right-6 border-t border-paper/10 pt-4 flex gap-4 font-mono text-[10px]">
+            <div class="flex-1"><span class="opacity-40 uppercase tracking-widest block mb-1">Molecular Weight</span><span class="text-[13px]">Top avg. 136 g/mol — light, lifts</span></div>
+            <div class="flex-1"><span class="opacity-40 uppercase tracking-widest block mb-1">If you hover layers</span><span class="text-[13px] text-roseLab">Molecule view updates in real time</span></div>
+          </div>
+        </div>
+
+        <!-- Molecular formula ticker -->
+        <div class="reveal mt-6 grid grid-cols-3 gap-3 font-mono text-[10px]">
+          <div class="border border-paper/10 rounded-full px-4 py-2.5 flex justify-between"><span class="opacity-50">C10H16O</span><span>Pink Pepper</span></div>
+          <div class="border border-paper/10 rounded-full px-4 py-2.5 flex justify-between"><span class="opacity-50">C15H24O</span><span>Orris — Irone α</span></div>
+          <div class="border border-roseLab bg-roseLab text-ink rounded-full px-4 py-2.5 flex justify-between font-medium"><span>C16H28O</span><span>Ambroxan — 0.8%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPOSITIONS / SERVICES -->
+<section id="compositions" class="relative w-full border-b border-line bg-paper">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 py-16 md:py-24 lg:py-28">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 md:mb-20">
+      <div>
+        <div class="reveal font-mono text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 mb-6"><span class="w-8 h-[1px] bg-ink"></span> Compositions — 03 / Bespoke & Archive</div>
+        <h2 class="reveal font-display text-[40px] md:text-[56px] lg:text-[68px] leading-[0.9] font-light tracking-[-0.02em]">Three ways to<br>work <span class="italic">with us.</span></h2>
+      </div>
+      <div class="reveal reveal-delay-1 font-serif text-[18px] leading-[1.4] max-w-[420px] font-light opacity-70">Each composition is made in 50ml, 30ml, or 8ml lab vials. No waste. No marketing copy on the bottle. Only batch number.</div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 md:gap-8">
+      <!-- Card 01 -->
+      <div class="reveal col-span-12 md:col-span-6 lg:col-span-4 group border border-line rounded-[20px] overflow-hidden bg-paper hover:border-ink/20 transition-colors duration-500 hover-trigger">
+        <div class="aspect-[4/3] relative overflow-hidden bg-paperDark">
+          <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800&auto=format&fit=crop" alt="Bespoke Perfume Composition" class="w-full h-full object-cover lens-img group-hover:scale-[1.04] duration-700">
+          <div class="absolute top-4 left-4 font-mono text-[10px] tracking-[0.18em] uppercase bg-paper/90 backdrop-blur px-3 py-1.5 rounded-full border border-line">Service 01 — Bespoke</div>
+          <div class="absolute bottom-4 left-4 right-4 bg-ink/70 backdrop-blur-xl text-paper rounded-[12px] px-4 py-3 font-mono text-[10px] leading-[1.4]">Lab time: 6 hours — 3 iterations — final 50ml included<br><span class="opacity-60">Skin test + paper test + cotton memory</span></div>
+        </div>
+        <div class="p-6 md:p-7">
+          <div class="flex justify-between items-baseline">
+            <h3 class="font-display text-[28px] font-light">Bespoke<br>Composition</h3>
+            <span class="font-mono text-[11px] tracking-widest border border-line rounded-full px-2.5 py-1">$850</span>
+          </div>
+          <p class="mt-4 font-serif text-[16px] leading-[1.5] opacity-70">You bring a memory, an object, a piece of cloth. We translate into molecules. Three meetings, glass by glass, until it matches the recollection.</p>
+          <div class="mt-6 border-t border-dashed border-line pt-5 font-mono text-[10px] tracking-wide space-y-2.5">
+            <div class="flex justify-between"><span class="opacity-50">Includes</span><span>Formula printed, signed, archived</span></div>
+            <div class="flex justify-between"><span class="opacity-50">Turnaround</span><span>21 days maceration</span></div>
+            <div class="flex justify-between"><span class="opacity-50">Slots / month</span><span>4 — waiting list open</span></div>
+          </div>
+          <a href="#reserve" class="mt-7 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] uppercase border-b border-ink pb-1 hover:gap-3 transition-all">Start olfactory brief <span>↗</span></a>
+        </div>
+      </div>
+
+      <!-- Card 02 -->
+      <div class="reveal reveal-delay-1 col-span-12 md:col-span-6 lg:col-span-4 group border border-line rounded-[20px] overflow-hidden bg-roseLab/30 hover:border-ink/20 transition-colors duration-500 hover-trigger">
+        <div class="aspect-[4/3] relative overflow-hidden bg-roseLab/20">
+          <img src="https://images.unsplash.com/photo-1547887538-bc64a39050af?q=80&w=800&auto=format&fit=crop" alt="Perfume Archive Reconstruction" class="w-full h-full object-cover lens-img group-hover:scale-[1.04] duration-700 mix-blend-multiply">
+          <div class="absolute top-4 left-4 font-mono text-[10px] tracking-[0.18em] uppercase bg-paper/90 backdrop-blur px-3 py-1.5 rounded-full border border-line">Service 02 — Archive</div>
+          <div class="absolute top-4 right-4 w-8 h-8 bg-ink text-paper rounded-full flex items-center justify-center font-mono text-[10px]">0.3</div>
+        </div>
+        <div class="p-6 md:p-7">
+          <div class="flex justify-between items-baseline">
+            <h3 class="font-display text-[28px] font-light">Molecular<br>Reconstruction</h3>
+            <span class="font-mono text-[11px] tracking-widest border border-ink bg-ink text-paper rounded-full px-2.5 py-1">$420</span>
+          </div>
+          <p class="mt-4 font-serif text-[16px] leading-[1.5] opacity-70">Lost perfume? Bring the empty bottle, even a cap. GC/MS analysis, then rebuild with modern naturals. More true than original.</p>
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <div class="border border-ink/10 rounded-[12px] p-3 bg-paper/50"><div class="font-mono text-[9px] uppercase tracking-widest opacity-50">Recent</div><div class="font-serif text-[14px] leading-tight mt-1">Naomi Goodsir<br>Cuir Velours — 2016</div><div class="font-mono text-[9px] mt-1 opacity-60">Accuracy 94.7% match</div></div>
+            <div class="border border-ink/10 rounded-[12px] p-3 bg-paper/50"><div class="font-mono text-[9px] uppercase tracking-widest opacity-50">Recent</div><div class="font-serif text-[14px] leading-tight mt-1">Vintage<br>Miss Dior — 1947</div><div class="font-mono text-[9px] mt-1 opacity-60">Iris reconstituted</div></div>
+          </div>
+          <a href="#reserve" class="mt-7 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] uppercase border-b border-ink pb-1 hover:gap-3 transition-all">Send sample <span>↗</span></a>
+        </div>
+      </div>
+
+      <!-- Card 03 -->
+      <div class="reveal reveal-delay-2 col-span-12 lg:col-span-4 group border border-line rounded-[20px] overflow-hidden bg-paper hover:border-ink/20 transition-colors duration-500 hover-trigger">
+        <div class="aspect-[4/3] relative overflow-hidden bg-paperDark">
+          <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=800&auto=format&fit=crop" alt="Lab Workshop olfactory" class="w-full h-full object-cover lens-img group-hover:scale-[1.04] duration-700">
+          <div class="absolute top-4 left-4 font-mono text-[10px] tracking-[0.18em] uppercase bg-paper/90 backdrop-blur px-3 py-1.5 rounded-full border border-line">Service 03 — Sessions</div>
+        </div>
+        <div class="p-6 md:p-7">
+          <div class="flex justify-between items-baseline">
+            <h3 class="font-display text-[28px] font-light">Lab Sessions<br><span class="font-mono text-[12px] tracking-widest uppercase opacity-60">4 persons max</span></h3>
+            <span class="font-mono text-[11px] tracking-widest border border-line rounded-full px-2.5 py-1">$180 pp</span>
+          </div>
+          <p class="mt-4 font-serif text-[16px] leading-[1.5] opacity-70">Wednesday evenings. Learn to smell: 12 materials blind, then compose your 10ml. Take the formula home, hand-written.</p>
+          <div class="mt-6 font-mono text-[10px] border border-line rounded-[12px] p-4 bg-paperDark/50">
+            <div class="flex justify-between opacity-60 uppercase tracking-widest text-[9px] mb-3"><span>Next dates</span><span>Seats</span></div>
+            <div class="space-y-2">
+              <div class="flex justify-between"><span>Dec 11 — Geosmin & Petrichor</span><span class="bg-roseLab px-2 rounded-full">2 left</span></div>
+              <div class="flex justify-between"><span>Dec 18 — Pale Rose Study</span><span>Full — waitlist</span></div>
+              <div class="flex justify-between"><span>Jan 08 — Synthetic Musk</span><span>4 left</span></div>
+            </div>
+          </div>
+          <a href="#reserve" class="mt-7 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] uppercase border-b border-ink pb-1 hover:gap-3 transition-all">Reserve bench <span>↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full width formula bar -->
+    <div class="reveal mt-12 md:mt-16 border border-line rounded-[16px] p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-10 items-start md:items-center justify-between bg-paperDark/40">
+      <div class="font-mono text-[11px] tracking-[0.18em] uppercase"><span class="opacity-40">Formula Example —</span> Atelier 0.3 No.11 — Glass & Skin</div>
+      <div class="flex flex-wrap gap-2 font-mono text-[10px]">
+        <span class="px-3 py-1.5 rounded-full border border-line bg-paper">Bergamot 4.2%</span>
+        <span class="px-3 py-1.5 rounded-full border border-line bg-paper">Pink Pepper CO₂ 1.1%</span>
+        <span class="px-3 py-1.5 rounded-full border border-line bg-paper">Orris Concrete 5.8%</span>
+        <span class="px-3 py-1.5 rounded-full border border-line bg-paper">Labdanum 3.4%</span>
+        <span class="px-3 py-1.5 rounded-full bg-ink text-paper">Iso E Super 8.2%</span>
+        <span class="px-3 py-1.5 rounded-full bg-roseLab border border-roseDeep text-ink">Rose De Mai 12.4%</span>
+        <span class="px-3 py-1.5 rounded-full bg-ink text-paper">Ambroxan 0.8%</span>
+        <span class="px-3 py-1.5 rounded-full border border-line bg-paper">Vetiver 6.6%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- MATERIALS INDEX — extra archival section for line count + depth -->
+<section id="materials" class="relative w-full border-b border-line bg-paper">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 py-16 md:py-20">
+    <div class="grid grid-cols-12 gap-8">
+      <div class="col-span-12 lg:col-span-3">
+        <div class="reveal sticky top-[120px]">
+          <div class="font-mono text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 mb-6"><span class="w-8 h-[1px] bg-ink"></span> Materials — 03.5 / Index</div>
+          <h3 class="font-display text-[32px] leading-[0.9] font-light">147 materials.<br><span class="italic">Weighed, not poured.</span></h3>
+          <div class="mt-8 font-mono text-[10px] leading-[1.6] opacity-60">Each raw kept in amber Boston round, PTFE lined cap, at 4°C. Natural materials: 38%. Synthetic: 62%. All IFRA compliant, all measured to 0.01g.</div>
+          <div class="mt-6 border border-line rounded-[12px] p-4 bg-paperDark/30 font-mono text-[10px]">
+            <div class="flex justify-between mb-2"><span class="opacity-50 uppercase">Storage</span><span>4°C — amber glass</span></div>
+            <div class="flex justify-between mb-2"><span class="opacity-50 uppercase">Balance</span><span>Mettler Toledo ±0.01g</span></div>
+            <div class="flex justify-between"><span class="opacity-50 uppercase">Filtered</span><span>0.22μm PES — twice</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-9">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[1px] bg-line border border-line rounded-[18px] overflow-hidden reveal">
+          <!-- material cards 12 -->
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 001</span><span>Natural — Floral</span></div>
+            <div class="font-serif text-[18px] mt-3">Rosa Damascena Absolute</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Turkey, 5:20am harvest, still cold. 3kg fresh → 9ml absolute. #f8d7da at 12.4% in EtOH.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-line rounded-full px-2 py-1">C11H12O2</span><span class="border border-line rounded-full px-2 py-1">12.4% dose</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 014</span><span>Natural — Root</span></div>
+            <div class="font-serif text-[18px] mt-3">Orris Concrete — 3yr aged</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Iris pallida, Florence. Butter-like, violet, powder. Irone α 0.04% triggers memory 78% (n=42).</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-line rounded-full px-2 py-1">C14H22O</span><span class="border border-line rounded-full px-2 py-1">5.8% dose</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 028</span><span>Synthetic — Amber</span></div>
+            <div class="font-serif text-[18px] mt-3">Ambroxan — Clary Sage</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Not from whale. Oxidized sclareol. At 0.8% — haunting, skin-like, the note that stays on cotton 12h.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-ink bg-ink text-paper rounded-full px-2 py-1">C16H28O</span><span class="border border-line rounded-full px-2 py-1">0.8% — critical</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 033</span><span>Natural — Citrus</span></div>
+            <div class="font-serif text-[18px] mt-3">Bergamot Calabria — Cold Pressed</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Reggio di Calabria, not steam. Keeps green, bitter top. Vacuum distilled at 78.3°C under inert.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-line rounded-full px-2 py-1">C10H16</span><span class="border border-line rounded-full px-2 py-1">4.2% dose</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 041</span><span>Natural — Spice</span></div>
+            <div class="font-serif text-[18px] mt-3">Pink Pepper CO₂ — Réunion</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Schinus molle, supercritical. Not pepper heat — rosy, sparkling, metallic first 40 seconds.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-line rounded-full px-2 py-1">C10H16O</span><span class="border border-line rounded-full px-2 py-1">1.1% dose</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 056</span><span>Synthetic — Woody</span></div>
+            <div class="font-serif text-[18px] mt-3">Iso E Super — Velvet</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Velvety, cedar, not present until skin warms it. At 8.2% — backbone, not loud. Patented 1973.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-ink bg-ink text-paper rounded-full px-2 py-1">C16H26O</span><span class="border border-line rounded-full px-2 py-1">8.2% — skeleton</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 072</span><span>Natural — Resin</span></div>
+            <div class="font-serif text-[18px] mt-3">Labdanum — Cistus Ladanifer</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Andalusia, rock rose. Amber, leather, slightly animalic — we keep it at 3.4% to avoid sweetness.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-line rounded-full px-2 py-1">Complex</span><span class="border border-line rounded-full px-2 py-1">3.4% dose</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group">
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 089</span><span>Natural — Wood</span></div>
+            <div class="font-serif text-[18px] mt-3">Vetiver Haiti — Smoked</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Les Cayes, Haiti. Smoky, root, not green. Our vetiver is washed 3x to remove harshness.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-line rounded-full px-2 py-1">C15H24O</span><span class="border border-line rounded-full px-2 py-1">6.6% dose</span></div>
+          </div>
+          <div class="bg-paper p-5 hover:bg-roseLab/30 transition-colors group relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-roseLab/50 blur-[20px] rounded-full"></div>
+            <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest opacity-50"><span>NO. 103</span><span>Synthetic — Earth</span></div>
+            <div class="font-serif text-[18px] mt-3">Geosmin — 0.02% only</div>
+            <div class="font-mono text-[10px] opacity-60 mt-2 leading-[1.5]">Smell of earth after rain. Human nose detects at 5 ppt. At 0.02% — memory, not dirt. Tested n=42.</div>
+            <div class="mt-4 flex gap-2 font-mono text-[9px]"><span class="border border-roseDeep bg-roseLab rounded-full px-2 py-1 text-ink">C12H22O — trace</span><span class="border border-line rounded-full px-2 py-1">0.02%</span></div>
+          </div>
+        </div>
+        <div class="mt-6 font-mono text-[10px] flex justify-between opacity-50">
+          <span>147 MATERIALS IN REGISTRY — 38% NATURAL / 62% MOLECULAR — ALL ±0.01G</span>
+          <span class="hidden md:inline">SORTED BY VOLATILITY ↓ — TOP LIGHT → BASE HEAVY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- LAB LOG / GALLERY -->
+<section id="archive" class="relative w-full border-b border-line bg-paperDark/30">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 py-16 md:py-24">
+    <div class="flex items-start justify-between gap-8 mb-12">
+      <div>
+        <div class="reveal font-mono text-[11px] tracking-[0.2em] uppercase flex items-center gap-3"><span class="w-8 h-[1px] bg-ink"></span> Lab Log — 04 / In Process</div>
+        <h2 class="reveal mt-6 font-display text-[36px] md:text-[48px] leading-[0.9] font-light">What the lab<br>looks like at 06:12</h2>
+      </div>
+      <div class="hidden md:flex gap-2 reveal">
+        <button id="galPrev" class="hover-trigger w-10 h-10 rounded-full border border-line hover:bg-ink hover:text-paper transition-colors">←</button>
+        <button id="galNext" class="hover-trigger w-10 h-10 rounded-full border border-line hover:bg-ink hover:text-paper transition-colors">→</button>
+      </div>
+    </div>
+
+    <div id="galleryTrack" class="flex gap-5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pb-4 cursor-grab active:cursor-grabbing">
+      <!-- Gallery items -->
+      <div class="snap-start shrink-0 w-[78vw] md:w-[420px] group">
+        <div class="aspect-[4/3] rounded-[18px] overflow-hidden border border-line bg-paper relative">
+          <img src="https://images.unsplash.com/photo-1608039824140-e0bbfdc64a65?q=80&w=800&auto=format&fit=crop" alt="Lab glass with rose extract" class="w-full h-full object-cover lens-img group-hover:scale-[1.03] duration-700">
+          <div class="absolute top-3 left-3 font-mono text-[9px] tracking-widest bg-paper/90 backdrop-blur px-2.5 py-1 rounded-full">LOG 042 — MACERATION</div>
+        </div>
+        <div class="mt-4 font-mono text-[11px]"><div class="opacity-50 uppercase tracking-widest text-[9px] mb-1">2024-11-28 / 06:12</div>50ml vials, pale rose filtrate. 22 days at 4°C. Still cloudy — will filter tomorrow.</div>
+      </div>
+      <div class="snap-start shrink-0 w-[78vw] md:w-[420px] group">
+        <div class="aspect-[4/3] rounded-[18px] overflow-hidden border border-line bg-roseLab/20 relative">
+          <img src="https://images.unsplash.com/photo-1590156546946-ce55a12a6a5d?q=80&w=800&auto=format&fit=crop" alt="Perfume bottles on shelf" class="w-full h-full object-cover lens-img group-hover:scale-[1.03] duration-700">
+          <div class="absolute top-3 left-3 font-mono text-[9px] tracking-widest bg-paper/90 backdrop-blur px-2.5 py-1 rounded-full">LOG 041 — BOTTLING</div>
+        </div>
+        <div class="mt-4 font-mono text-[11px]"><div class="opacity-50 uppercase tracking-widest text-[9px] mb-1">2024-11-26 / 16:40</div>Batch P-0.3-087. Schott Duran bottles, hand-stamped. No labels, only batch ink.</div>
+      </div>
+      <div class="snap-start shrink-0 w-[78vw] md:w-[420px] group">
+        <div class="aspect-[4/3] rounded-[18px] overflow-hidden border border-line bg-paper relative">
+          <img src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=800&auto=format&fit=crop" alt="Rose petals lab" class="w-full h-full object-cover lens-img group-hover:scale-[1.03] duration-700">
+          <div class="absolute top-3 left-3 font-mono text-[9px] tracking-widest bg-paper/90 backdrop-blur px-2.5 py-1 rounded-full">LOG 039 — HARVEST</div>
+        </div>
+        <div class="mt-4 font-mono text-[11px]"><div class="opacity-50 uppercase tracking-widest text-[9px] mb-1">2024-11-18 / 05:20</div>Rosa damascena — still with dew. 3kg → 9ml absolute. Yield terrible, smell perfect.</div>
+      </div>
+      <div class="snap-start shrink-0 w-[78vw] md:w-[420px] group">
+        <div class="aspect-[4/3] rounded-[18px] overflow-hidden border border-line bg-paper relative">
+          <img src="https://images.unsplash.com/photo-1584305574586-0a33e7399b39?q=80&w=800&auto=format&fit=crop" alt="Lab notes and scale" class="w-full h-full object-cover lens-img group-hover:scale-[1.03] duration-700">
+          <div class="absolute top-3 left-3 font-mono text-[9px] tracking-widest bg-paper/90 backdrop-blur px-2.5 py-1 rounded-full">LOG 038 — FORMULA</div>
+        </div>
+        <div class="mt-4 font-mono text-[11px]"><div class="opacity-50 uppercase tracking-widest text-[9px] mb-1">2024-11-16 / 11:03</div>Broke 3 beakers. Final formula: 0.02g difference in orris = completely different memory.</div>
+      </div>
+      <div class="snap-start shrink-0 w-[78vw] md:w-[420px] group">
+        <div class="aspect-[4/3] rounded-[18px] overflow-hidden border border-line bg-paperDark relative">
+          <img src="https://images.unsplash.com/photo-1613521140785-e85e427f8002?q=80&w=800&auto=format&fit=crop" alt="Glass pipettes" class="w-full h-full object-cover lens-img group-hover:scale-[1.03] duration-700">
+          <div class="absolute top-3 left-3 font-mono text-[9px] tracking-widest bg-paper/90 backdrop-blur px-2.5 py-1 rounded-full">LOG 036 — DISTILL</div>
+        </div>
+        <div class="mt-4 font-mono text-[11px]"><div class="opacity-50 uppercase tracking-widest text-[9px] mb-1">2024-11-12 / 09:44</div>Vacuum distillation 78.3°C. Bergamot top note — cold pressed, not steam. Keeps the green.</div>
+      </div>
+    </div>
+
+    <div class="mt-16 md:mt-20 grid grid-cols-12 gap-8 items-center border-t border-line pt-10">
+      <div class="col-span-12 md:col-span-5 reveal font-mono text-[10px] leading-[1.7] opacity-60">
+        All images shot on 35mm, no retouch. Lab glass is borosilicate, not perfume marketing glass. We use Schott Duran® because it doesn't leach. The pale rose is not a brand color — it's the color of the 12.4% rose dilution in ethanol at 6am before light hits it. #f8d7da is measured, not chosen.
+      </div>
+      <div class="col-span-12 md:col-span-7 flex gap-6">
+        <div class="flex-1 border border-line rounded-[14px] p-5 bg-paper">
+          <div class="font-mono text-[9px] tracking-[0.18em] uppercase opacity-50 mb-2">Safety Data</div>
+          <div class="font-serif text-[15px] leading-[1.4]">No parabens, no phthalates, no lilial, no lyral. IFRA 49th compliant. Vegan. PETA-approved base.</div>
+        </div>
+        <div class="flex-1 border border-line rounded-[14px] p-5 bg-ink text-paper">
+          <div class="font-mono text-[9px] tracking-[0.18em] uppercase opacity-50 mb-2">Storage</div>
+          <div class="font-serif text-[15px] leading-[1.4]">Keep cold, keep dark. Our bottles are UV-coated. Best at 12–16°C, like white wine. Not bathroom.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / LAB NOTES -->
+<section class="relative w-full border-b border-line bg-paper">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 py-16 md:py-24">
+    <div class="reveal font-mono text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 mb-14"><span class="w-8 h-[1px] bg-ink"></span> Voices — 05 / Worn, Not Sprayed</div>
+
+    <div class="grid grid-cols-12 gap-6 md:gap-8">
+      <div class="reveal col-span-12 md:col-span-6 lg:col-span-4 border border-line rounded-[18px] p-7 md:p-8 bg-paperDark/30 relative">
+        <div class="font-mono text-[10px] tracking-widest opacity-40 mb-6">Subject 014 — 32 — Composer — Tokyo → Brooklyn</div>
+        <p class="font-serif text-[20px] leading-[1.35] font-light">"I asked for the smell of my grandmother's cold cream on a porcelain sink in 1987. They didn't laugh. They measured irone at 0.04% and added a metallic note (blood? — they said steel). It is exactly that sink."</p>
+        <div class="mt-8 flex gap-3 items-center">
+          <div class="w-9 h-9 rounded-full bg-roseLab border border-line flex items-center justify-center font-mono text-[10px]">S14</div>
+          <div class="font-mono text-[11px]"><div>Composition #082 — Cold Cream / Porcelain</div><div class="opacity-50">Worn daily 6 months — sillage 1.2m</div></div>
+        </div>
+        <div class="absolute top-6 right-6 font-mono text-[9px] border border-line rounded-full px-2 py-1">★★★★★ 22% conc.</div>
+      </div>
+
+      <div class="reveal reveal-delay-1 col-span-12 md:col-span-6 lg:col-span-4 border border-ink bg-ink text-paper rounded-[18px] p-7 md:p-8 relative">
+        <div class="font-mono text-[10px] tracking-widest opacity-40 mb-6 text-paper/60">Subject 009 — 41 — Archivist — Berlin</div>
+        <p class="font-serif text-[20px] leading-[1.35] font-light">"They rebuilt my lost 2005 Comme — not buying vintage, but making it truer. Published the GC/MS reading on Instagram. No secrecy. I wear the reconstruction and the original side by side — theirs is better because it has 3 years aged orris, not 19 years dust."</p>
+        <div class="mt-8 flex gap-3 items-center">
+          <div class="w-9 h-9 rounded-full bg-paper text-ink flex items-center justify-center font-mono text-[10px]">S09</div>
+          <div class="font-mono text-[11px] text-paper/80"><div>Archive #031 — Incense Avignon rebuilt</div><div class="opacity-50">Match 94.7% — improvement 106%</div></div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-2 col-span-12 lg:col-span-4 border border-line rounded-[18px] p-7 md:p-8 bg-roseLab/40 relative">
+        <div class="font-mono text-[10px] tracking-widest opacity-50 mb-6">Subject 027 — 28 — Glassblower — Seattle</div>
+        <p class="font-serif text-[20px] leading-[1.35] font-light">"Lab session Wednesday — 12 smells blind. I failed at vetiver vs. cedar (they look identical in glass). Now I can smell 0.01% geosmin on skin. Came for perfume, left with a new nose."</p>
+        <div class="mt-8 flex gap-3 items-center">
+          <div class="w-9 h-9 rounded-full bg-paper border border-ink/20 flex items-center justify-center font-mono text-[10px]">S27</div>
+          <div class="font-mono text-[11px]"><div>Session — Dec 04 — Petrichor</div><div class="opacity-60">10ml take-home — formula #104</div></div>
+        </div>
+        <div class="mt-6 pt-5 border-t border-ink/10 font-mono text-[10px] flex gap-2"><span class="opacity-50">Note:</span><span>She now blows our 8ml vials. Schott glass, same as lab.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESERVATION / CONTACT -->
+<section id="reserve" class="relative w-full bg-paper overflow-hidden">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 py-16 md:py-28">
+    <div class="grid grid-cols-12 gap-10 lg:gap-16">
+      <div class="col-span-12 lg:col-span-6">
+        <div class="reveal font-mono text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 mb-8"><span class="w-8 h-[1px] bg-ink"></span> Reservation — 06 / Lab Hours</div>
+        <h2 class="reveal font-display text-[44px] md:text-[60px] lg:text-[72px] leading-[0.88] font-light tracking-[-0.02em]">Book bench time.<br><span class="italic">Come with a memory.</span></h2>
+        <div class="reveal mt-8 font-mono text-[11px] leading-[1.6] max-w-[440px] opacity-70">We do not do discovery sets. We do lab time. You will smell materials from pipettes, not paper strips at first. Bring an object if you have one — cloth, book, Polaroid. Or just a story.</div>
+
+        <form id="reserveForm" class="reveal reveal-delay-1 mt-10 md:mt-14 space-y-6 max-w-[520px]">
+          <div class="grid grid-cols-2 gap-4">
+            <label class="block"><span class="font-mono text-[10px] tracking-[0.16em] uppercase opacity-60 mb-2 block">Name — for formula archive</span><input required type="text" placeholder="Y. Tanaka" class="w-full bg-paper border border-line rounded-full px-5 py-3.5 font-mono text-[14px] outline-none focus:border-ink transition-colors"></label>
+            <label class="block"><span class="font-mono text-[10px] tracking-[0.16em] uppercase opacity-60 mb-2 block">Email</span><input required type="email" placeholder="you@lab.local" class="w-full bg-paper border border-line rounded-full px-5 py-3.5 font-mono text-[14px] outline-none focus:border-ink transition-colors"></label>
+          </div>
+          <label class="block"><span class="font-mono text-[10px] tracking-[0.16em] uppercase opacity-60 mb-2 block">Scent memory — one sentence, specific</span><input required type="text" placeholder="e.g., wet wool coat in Kyoto station, 1998 — diesel + rain" class="w-full bg-paper border border-line rounded-full px-5 py-3.5 font-mono text-[14px] outline-none focus:border-ink transition-colors"></label>
+          <div class="grid grid-cols-2 gap-4">
+            <label class="block"><span class="font-mono text-[10px] tracking-[0.16em] uppercase opacity-60 mb-2 block">Service</span>
+              <select class="w-full bg-paper border border-line rounded-full px-5 py-3.5 font-mono text-[13px] outline-none focus:border-ink">
+                <option>Bespoke — $850 — 6H</option>
+                <option>Archive Reconstruction — $420</option>
+                <option>Lab Session — $180 pp</option>
+              </select>
+            </label>
+            <label class="block"><span class="font-mono text-[10px] tracking-[0.16em] uppercase opacity-60 mb-2 block">Preferred date</span><input type="date" class="w-full bg-paper border border-line rounded-full px-5 py-3.5 font-mono text-[13px] outline-none focus:border-ink"></label>
+          </div>
+          <div class="flex items-start gap-3 pt-2">
+            <input type="checkbox" id="consent" class="mt-1 accent-ink">
+            <label for="consent" class="font-mono text-[10px] leading-[1.5] opacity-60">I consent to GC/MS of my sample if I send one, and publication of my formula (anonymized) in the archive unless I opt out. Formula stays mine.</label>
+          </div>
+          <button type="submit" class="hover-trigger mag-btn mt-4 w-full bg-ink text-paper font-mono text-[12px] tracking-[0.18em] uppercase rounded-full py-4 hover:bg-inkSoft transition-colors flex items-center justify-center gap-2">Request Lab Time — 0.3 <span>↗</span></button>
+          <div id="formStatus" class="hidden font-mono text-[11px] border border-line rounded-full px-5 py-3 bg-roseLab/50"></div>
+        </form>
+
+        <div class="mt-12 flex flex-wrap gap-6 font-mono text-[10px] tracking-wide opacity-60 border-t border-line pt-8 max-w-[520px]">
+          <div>Replies within 6 hours — lab hours 10:00—18:00 EST<br>We answer from bench, not desk. May smell faintly of ethanol.</div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-6 relative">
+        <div class="reveal sticky top-[120px] border border-line rounded-[22px] overflow-hidden bg-paperDark/40">
+          <div class="p-7 md:p-8">
+            <div class="flex justify-between items-start">
+              <div class="font-mono text-[10px] tracking-[0.18em] uppercase opacity-60">Atelier 0.3 — Location & Measurements</div>
+              <div class="font-mono text-[10px] border border-line rounded-full px-3 py-1">Brooklyn Navy Yard</div>
+            </div>
+            <div class="mt-8 grid grid-cols-2 gap-6">
+              <div>
+                <div class="font-display text-[22px] leading-tight">Bldg.77<br>4th Floor — Lab 0.3</div>
+                <div class="mt-4 font-mono text-[11px] leading-[1.6] opacity-70">141 Flushing Ave<br>Brooklyn, NY 11205<br>Enter via Yard — ask for lab.<br>Elevator still manual.</div>
+              </div>
+              <div class="space-y-4">
+                <div class="border border-line bg-paper rounded-[12px] p-4"><div class="font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1">Lab Conditions Today</div><div class="font-mono text-[12px] leading-[1.5]">21.5°C / 44% RH<br>Ethanol: 96% organic<br>pH of 0.3: 5.9 — skin compatible</div></div>
+                <div class="border border-ink bg-ink text-paper rounded-[12px] p-4"><div class="font-mono text-[9px] uppercase tracking-widest opacity-50 mb-1">Current Open Formula</div><div class="font-serif text-[14px] leading-[1.4]">No. 11 — Glass & Skin<br><span class="font-mono text-[10px] opacity-70">22% — 50ml — $185 — 27 bottles left</span></div></div>
+              </div>
+            </div>
+            <div class="mt-8 aspect-[16/9] rounded-[14px] overflow-hidden border border-line relative bg-paper">
+              <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?q=80&w=900&auto=format&fit=crop" alt="Lab bench aerial" class="w-full h-full object-cover opacity-90">
+              <div class="absolute inset-0 bg-roseLab/20 mix-blend-multiply"></div>
+              <div class="absolute bottom-3 left-3 right-3 flex justify-between font-mono text-[9px] tracking-widest bg-paper/80 backdrop-blur px-3 py-2 rounded-full border border-white/50"><span>MAP — NOT TO SCALE — MEASURED BY EYE</span><span>40°41'49"N</span></div>
+            </div>
+          </div>
+          <div class="border-t border-line bg-paper px-7 md:px-8 py-4 flex justify-between font-mono text-[10px] tracking-wide opacity-70">
+            <span>Parking: none — take B67, smell bus diesel first, then come up</span>
+            <span class="hidden md:inline">Elevator: manual — pull gate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="w-full bg-ink text-paper border-t border-line">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 py-14 md:py-20">
+    <div class="grid grid-cols-12 gap-10">
+      <div class="col-span-12 lg:col-span-5">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 border border-paper/30 rounded-full flex items-center justify-center font-mono text-[12px]">0.3</div>
+          <div><div class="font-display text-[22px] leading-none">PERFUMERY LAB</div><div class="font-mono text-[9px] tracking-[0.22em] uppercase opacity-60 mt-1">Brooklyn / Grasse — Atelier No. — BLDG.77 4F</div></div>
+        </div>
+        <div class="mt-10 font-serif text-[20px] leading-[1.35] font-light max-w-[420px] text-paper/80">We publish every formula.<br>No hidden musks. No stories<br>invented after. Scent is memory,<br>memory is molecular.</div>
+        <div class="mt-10 flex flex-wrap gap-2 font-mono text-[10px] tracking-widest">
+          <span class="border border-paper/20 rounded-full px-3 py-1.5">IFRA 49TH</span>
+          <span class="border border-paper/20 rounded-full px-3 py-1.5">VEGAN</span>
+          <span class="border border-paper/20 rounded-full px-3 py-1.5">22% CONC.</span>
+          <span class="border border-roseLab bg-roseLab text-ink rounded-full px-3 py-1.5">PALE ROSE #F8D7DA</span>
+        </div>
+      </div>
+      <div class="col-span-6 md:col-span-3 lg:col-span-2">
+        <div class="font-mono text-[10px] tracking-[0.18em] uppercase opacity-50 mb-6">Index</div>
+        <div class="space-y-3 font-mono text-[12px] tracking-wide leading-[1.6]">
+          <a href="#philosophy" class="block hover:text-roseLab transition-colors hover-trigger">Philosophy 01</a>
+          <a href="#pyramid" class="block hover:text-roseLab transition-colors hover-trigger">Scent Pyramid 02</a>
+          <a href="#compositions" class="block hover:text-roseLab transition-colors hover-trigger">Compositions 03</a>
+          <a href="#archive" class="block hover:text-roseLab transition-colors hover-trigger">Lab Log 04</a>
+          <a href="#reserve" class="block hover:text-roseLab transition-colors hover-trigger">Reserve 06</a>
+        </div>
+      </div>
+      <div class="col-span-6 md:col-span-3 lg:col-span-2">
+        <div class="font-mono text-[10px] tracking-[0.18em] uppercase opacity-50 mb-6">Contact — Lab Hours</div>
+        <div class="font-mono text-[12px] leading-[1.8]">
+          lab@perfumery-03.nyc<br>10:00 — 18:00 EST<br>Mon — Sat<br><br>Instagram<br>@atelier0.3 — formulas<br>@perfumery.lab — process
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-3">
+        <div class="font-mono text-[10px] tracking-[0.18em] uppercase opacity-50 mb-6">Newsletter — Formula Sheet</div>
+        <form id="newsletterForm" class="flex gap-2">
+          <input type="email" placeholder="email@archive.local" class="flex-1 bg-transparent border border-paper/20 rounded-full px-5 py-3 font-mono text-[12px] outline-none focus:border-paper/50 placeholder:text-paper/30">
+          <button class="hover-trigger bg-paper text-ink rounded-full w-[44px] h-[44px] flex items-center justify-center hover:bg-roseLab transition-colors">↗</button>
+        </form>
+        <div class="mt-4 font-mono text-[10px] leading-[1.6] opacity-50">Monthly: one formula, with exact percentages, GC reading, and failure log. No marketing. Unsubscribe = we delete your email from glass, literally — burned paper.</div>
+        <div class="mt-8 border-t border-paper/10 pt-6 font-mono text-[9px] opacity-40 leading-[1.6]">© 2024 Atelier 0.3 / Perfumery Lab — Brooklyn Navy Yard — All formulae published under CC BY 4.0 — Schott Duran® glass — Organic ethanol 96% — Pale rose #f8d7da measured at 06:14 under lab light — Made without moodboards.</div>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-paper/10 font-mono text-[10px] tracking-[0.18em] uppercase">
+    <div class="mx-auto max-w-[1600px] px-6 md:px-8 lg:px-12 h-[44px] flex items-center justify-between opacity-50">
+      <span>Atelier 0.3 — Perfumery Lab — Brooklyn / Grasse — EST. 2019 — Small batch / Single origin / Molecular</span>
+      <span class="hidden md:inline">Batch P-0.3-088 — 68% reserved — 28 days maceration — Filter 0.22μm</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Custom Cursor
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+document.addEventListener('mousemove', (e)=>{ mouseX=e.clientX; mouseY=e.clientY; cursorDot.style.left=mouseX+'px'; cursorDot.style.top=mouseY+'px'; });
+(function animateRing(){ ringX += (mouseX - ringX)*0.16; ringY += (mouseY - ringY)*0.16; cursorRing.style.left=ringX+'px'; cursorRing.style.top=ringY+'px'; requestAnimationFrame(animateRing); })();
+document.querySelectorAll('.hover-trigger').forEach(el=>{
+  el.addEventListener('mouseenter', ()=> cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', ()=> cursor.classList.remove('hover'));
+});
+document.addEventListener('mousedown', ()=> cursor.classList.add('active'));
+document.addEventListener('mouseup', ()=> cursor.classList.remove('active'));
+
+// Mobile menu
+document.getElementById('mobileMenuBtn').addEventListener('click', ()=>{
+  document.getElementById('mobileMenu').classList.toggle('hidden');
+});
+
+// IntersectionObserver reveal
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){ entry.target.classList.add('active'); observer.unobserve(entry.target); }
+  });
+},{ threshold: 0.12, rootMargin: '0px 0px -60px 0px'});
+document.querySelectorAll('.reveal').forEach(el=> observer.observe(el));
+
+// Molecule draw on scroll
+const molObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){ entry.target.querySelectorAll('.mol-line').forEach(l=> l.classList.add('draw')); }
+  });
+},{ threshold: 0.3 });
+document.querySelectorAll('svg').forEach(s=> molObserver.observe(s));
+
+// Parallax
+let ticking = false;
+window.addEventListener('scroll', ()=>{
+  if(!ticking){ window.requestAnimationFrame(()=>{
+    const scrolled = window.scrollY;
+    document.querySelectorAll('.parallax-slow').forEach(el=>{
+      const rate = -0.12; el.style.transform = `translateY(${scrolled * rate}px)`;
+    });
+    // nav shadow
+    const nav = document.getElementById('mainNav');
+    if(scrolled>24) nav.classList.add('shadow-[0_10px_40px_rgba(0,0,0,0.06)]');
+    else nav.classList.remove('shadow-[0_10px_40px_rgba(0,0,0,0.06)]');
+    ticking=false;
+  }); ticking=true; }
+});
+
+// Scent Pyramid interaction
+const layers = document.querySelectorAll('.pyr-layer');
+const fills = { base: document.getElementById('fill-base'), heart: document.getElementById('fill-heart'), top: document.getElementById('fill-top') };
+const mols = { base: document.getElementById('mols-base'), heart: document.getElementById('mols-heart'), top: document.getElementById('mols-top') };
+function setLayer(active){
+  layers.forEach(l=>{ l.classList.remove('active'); });
+  Object.values(fills).forEach(f=>{ if(f) f.style.opacity='0'; });
+  Object.values(mols).forEach(m=>{ if(m) m.style.opacity='0'; });
+  if(!active) {
+    if(fills.base) fills.base.style.opacity='0.9'; if(mols.base) mols.base.style.opacity='0.9';
+    return;
+  }
+  const el = document.querySelector(`[data-layer="${active}"]`);
+  if(el) el.classList.add('active');
+  if(fills[active]) fills[active].style.opacity='1';
+  if(mols[active]) mols[active].style.opacity='1';
+  // extra transition
+  if(fills[active]) fills[active].style.transition='opacity 0.6s ease';
+  if(mols[active]) mols[active].style.transition='opacity 0.6s ease';
+}
+setLayer('base');
+layers.forEach(l=>{
+  l.addEventListener('mouseenter', ()=> setLayer(l.dataset.layer));
+  l.addEventListener('click', ()=> setLayer(l.dataset.layer));
+});
+document.getElementById('pyramid').addEventListener('mouseleave', ()=> setLayer('base'));
+
+// Gallery drag
+const track = document.getElementById('galleryTrack');
+let isDown=false, startX, scrollLeft;
+track.addEventListener('mousedown', (e)=>{ isDown=true; track.classList.add('cursor-grabbing'); startX=e.pageX - track.offsetLeft; scrollLeft=track.scrollLeft; });
+track.addEventListener('mouseleave', ()=>{ isDown=false; track.classList.remove('cursor-grabbing'); });
+track.addEventListener('mouseup', ()=>{ isDown=false; track.classList.remove('cursor-grabbing'); });
+track.addEventListener('mousemove', (e)=>{ if(!isDown) return; e.preventDefault(); const x=e.pageX - track.offsetLeft; const walk=(x-startX)*1.2; track.scrollLeft=scrollLeft-walk; });
+document.getElementById('galPrev').addEventListener('click', ()=> track.scrollBy({left:-380, behavior:'smooth'}));
+document.getElementById('galNext').addEventListener('click', ()=> track.scrollBy({left:380, behavior:'smooth'}));
+
+// Magnetic buttons
+document.querySelectorAll('.mag-btn').forEach(btn=>{
+  btn.addEventListener('mousemove', (e)=>{
+    const rect=btn.getBoundingClientRect(); const x=e.clientX-rect.left-rect.width/2; const y=e.clientY-rect.top-rect.height/2;
+    btn.style.transform=`translate(${x*0.18}px, ${y*0.35}px)`;
+  });
+  btn.addEventListener('mouseleave', ()=>{ btn.style.transform='translate(0,0)'; });
+});
+
+// Form handling
+document.getElementById('reserveForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const status=document.getElementById('formStatus');
+  status.classList.remove('hidden');
+  status.textContent='Bench request logged — Lot #P-0.3-088 — we will reply within 6 hours from lab, not desk. Check email for confirmation (may be in spam, we use plain text).';
+  e.target.reset();
+  setTimeout(()=>{ status.classList.add('hidden'); }, 8000);
+});
+document.getElementById('newsletterForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const btn=e.target.querySelector('button'); btn.textContent='✓';
+  setTimeout(()=>{ btn.textContent='↗'; e.target.reset(); }, 2000);
+});
+
+// Smooth scroll offset for sticky nav
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    const id=a.getAttribute('href'); if(id.length>1){ const target=document.querySelector(id); if(target){ e.preventDefault(); const top=target.getBoundingClientRect().top+window.scrollY-80; window.scrollTo({top, behavior:'smooth'}); document.getElementById('mobileMenu').classList.add('hidden'); } }
+  });
+});
+</script>
+</body>
+</html>

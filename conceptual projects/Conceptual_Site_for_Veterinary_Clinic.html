@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Veterinary Clinic</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Fredoka','sans-serif'],
+        sans: ['Nunito','sans-serif'],
+      },
+      colors: {
+        cream: '#fff7ed',
+        sage: '#a8b5a2',
+        sageDark: '#8a9a84',
+        sageLight: '#d1d9ce',
+        terracotta: '#e07a5f',
+        terracottaDark: '#c86b4a',
+        ink: '#1e2a24',
+        inkLight: '#4a5a52',
+        sand: '#f5ebe0',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+        '6xl': '3rem',
+      }
+    }
+  }
+}
+</script>
+<style>
+* { font-family: 'Nunito', sans-serif; }
+h1,h2,h3,.font-display { font-family: 'Fredoka', sans-serif; }
+::selection { background:#e07a5f; color:#fff7ed; }
+html { scroll-behavior:smooth; }
+body { background:#fff7ed; color:#1e2a24; overflow-x:hidden; cursor:none; }
+a,button { cursor:none; }
+
+/* Grain */
+.grain::before {
+  content:"";
+  position:fixed; inset:-50%;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity:0.035; pointer-events:none; z-index:9999; animation:grainShift 8s steps(10) infinite;
+}
+@keyframes grainShift { 0%,100%{transform:translate(0,0)} 10%{transform:translate(-5%,-5%)} 20%{transform:translate(-10%,5%)} 30%{transform:translate(5%,-10%)} 40%{transform:translate(-5%,15%)} 50%{transform:translate(-10%,5%)} 60%{transform:translate(15%,0)} 70%{transform:translate(0,10%)} 80%{transform:translate(3%,15%)} 90%{transform:translate(-10%,10%)} }
+
+/* Custom Cursor */
+.cursor-dot, .cursor-ring {
+  position:fixed; top:0; left:0; pointer-events:none; border-radius:50%; z-index:10000; mix-blend-mode:normal;
+  transform:translate(-50%,-50%); transition:transform 0.15s ease, width 0.3s ease, height 0.3s ease, background 0.3s, opacity 0.3s;
+}
+.cursor-dot { width:8px; height:8px; background:#1e2a24; }
+.cursor-ring { width:44px; height:44px; border:1.5px solid rgba(30,42,36,0.18); background:rgba(168,181,162,0.12); }
+body.hovering .cursor-ring { width:72px; height:72px; background:rgba(224,122,95,0.12); border-color:rgba(224,122,95,0.4); }
+body.hovering .cursor-dot { background:#e07a5f; transform:translate(-50%,-50%) scale(1.6); }
+
+/* Scroll Reveal */
+.reveal { opacity:0; transform:translateY(28px); transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); }
+.reveal.active { opacity:1; transform:translateY(0); }
+.reveal-delay-1{transition-delay:0.1s} .reveal-delay-2{transition-delay:0.22s} .reveal-delay-3{transition-delay:0.36s}
+
+/* Marquee */
+.marquee { overflow:hidden; white-space:nowrap; }
+.marquee-track { display:inline-flex; animation:marquee 36s linear infinite; will-change:transform; }
+.marquee:hover .marquee-track { animation-play-state:paused; }
+@keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+/* Magnetic */
+.magnetic { transition:transform 0.3s cubic-bezier(0.16,1,0.3,1); will-change:transform; }
+
+/* Soft blob */
+.blob { filter:blur(40px); animation:blobFloat 12s ease-in-out infinite; }
+@keyframes blobFloat { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-30px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.95)} }
+
+/* Card hover lift */
+.lift { transition:transform 0.6s cubic-bezier(0.16,1,0.3,1), box-shadow 0.6s; }
+.lift:hover { transform:translateY(-6px) rotate(-0.3deg); box-shadow:0 24px 48px rgba(30,42,36,0.11); }
+
+/* Hide scrollbar for marquee etc */
+.no-scrollbar::-webkit-scrollbar{display:none} .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
+
+/* Paw print subtle */
+.paw-bg { background-image: radial-gradient(circle at 1px 1px, rgba(30,42,36,0.06) 1px, transparent 0); background-size: 28px 28px; }
+
+@media (max-width:768px){ body{cursor:auto} .cursor-dot,.cursor-ring{display:none} a,button{cursor:pointer} }
+</style>
+</head>
+<body class="grain antialiased">
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Nav -->
+<nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] md:w-auto">
+  <div class="flex items-center gap-2 md:gap-6 bg-white/80 backdrop-blur-xl border border-ink/10 rounded-full px-3 py-2 md:px-6 md:py-3 shadow-[0_12px_32px_rgba(30,42,36,0.08)]">
+    <a href="#" class="flex items-center gap-2 pr-2 md:pr-4 border-r border-ink/10">
+      <div class="w-9 h-9 rounded-full bg-ink text-cream grid place-items-center font-display font-bold text-[18px]">m</div>
+      <span class="font-display font-semibold text-[17px] tracking-tight hidden md:block">milo & sage</span>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-[14.5px] font-semibold tracking-wide">
+      <a href="#story" class="hover:text-terracotta transition">Our Story</a>
+      <a href="#services" class="hover:text-terracotta transition">Care</a>
+      <a href="#spaces" class="hover:text-terracotta transition">The Clinic</a>
+      <a href="#reviews" class="hover:text-terracotta transition">Families</a>
+    </div>
+    <div class="flex items-center gap-2 ml-auto md:ml-2">
+      <a href="#contact" class="hidden md:inline-flex bg-ink text-cream px-5 py-2.5 rounded-full text-[14px] font-bold hover:bg-terracotta transition magnetic">Book Visit</a>
+      <a href="#contact" class="md:hidden w-9 h-9 rounded-full bg-ink text-cream grid place-items-center">↗</a>
+      <button id="menuBtn" class="w-9 h-9 rounded-full bg-sage/30 grid place-items-center md:hidden">
+        <span class="w-4 h-[2px] bg-ink block"></span>
+        <span class="w-4 h-[2px] bg-ink block mt-1"></span>
+      </button>
+    </div>
+  </div>
+  <!-- Mobile drawer -->
+  <div id="mobileMenu" class="hidden mt-3 bg-white rounded-3xl p-6 shadow-2xl border border-ink/10">
+    <div class="flex flex-col gap-4 font-semibold">
+      <a href="#story">Our Story</a><a href="#services">Care Menu</a><a href="#spaces">The Clinic</a><a href="#reviews">Families</a>
+      <a href="#contact" class="mt-2 bg-terracotta text-white rounded-full py-3 text-center">Book a Visit</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="relative pt-28 md:pt-36 pb-16 md:pb-24 px-4 md:px-8 max-w-[1440px] mx-auto">
+  <div class="absolute top-24 right-[8%] w-[420px] h-[420px] bg-sage/40 rounded-full blob hidden md:block"></div>
+  <div class="absolute top-32 left-[5%] w-[280px] h-[280px] bg-terracotta/20 rounded-full blob hidden md:block" style="animation-delay:-4s"></div>
+
+  <div class="grid md:grid-cols-12 gap-6 items-end relative">
+    <!-- Left copy -->
+    <div class="md:col-span-7 z-10">
+      <div class="reveal inline-flex items-center gap-2 bg-white border border-ink/10 rounded-full px-4 py-2 text-[12px] font-bold tracking-widest uppercase">
+        <span class="w-2 h-2 rounded-full bg-terracotta animate-pulse"></span> Open Today • 8am — 7pm • Walk-ins Welcome
+      </div>
+      <h1 class="reveal reveal-delay-1 font-display font-semibold leading-[0.92] tracking-[-0.03em] text-[12vw] md:text-[6.8vw] lg:text-[92px] mt-6">
+        A calmer<br>
+        <span class="relative inline-block">
+          kind of
+          <span class="absolute -right-8 -top-3 md:-right-12 md:-top-4 w-10 h-10 md:w-14 md:h-14 rounded-full bg-sage grid place-items-center rotate-6">
+            <span class="text-[18px] md:text-[24px]">🐾</span>
+          </span>
+        </span><br>
+        <span class="text-sageDark">vet clinic.</span>
+      </h1>
+      <p class="reveal reveal-delay-2 mt-6 max-w-[46ch] text-[18px] md:text-[20px] leading-[1.5] text-inkLight font-medium">
+        Boutique hospital, fear-free handling, warm floors for cold noses. We treat your companions like our own — with time, softness, and science.
+      </p>
+      <div class="reveal reveal-delay-3 mt-8 flex flex-wrap gap-3">
+        <a href="#contact" class="bg-ink text-cream rounded-full px-8 py-[18px] font-bold text-[16px] inline-flex items-center gap-3 hover:bg-terracotta transition group magnetic">
+          Book First Visit <span class="w-7 h-7 rounded-full bg-white/15 grid place-items-center group-hover:rotate-45 transition-transform">→</span>
+        </a>
+        <a href="#story" class="bg-white border border-ink/10 rounded-full px-8 py-[18px] font-bold text-[16px] inline-flex items-center gap-2 hover:border-ink/30 transition magnetic">
+          <span class="w-7 h-7 rounded-full bg-sage/40 grid place-items-center">▶</span> Watch Clinic Film
+        </a>
+      </div>
+
+      <div class="reveal mt-12 grid grid-cols-3 gap-4 max-w-[520px]">
+        <div class="bg-white rounded-[20px] p-4 border border-ink/10">
+          <div class="text-[28px] font-display font-bold leading-none">4.9</div>
+          <div class="text-[11px] font-bold uppercase tracking-widest mt-1 opacity-60">Google Rating</div>
+          <div class="flex gap-0.5 mt-2 text-terracotta">★★★★★</div>
+        </div>
+        <div class="bg-sage rounded-[20px] p-4 text-ink border border-sageDark/20">
+          <div class="text-[28px] font-display font-bold leading-none">12yr</div>
+          <div class="text-[11px] font-bold uppercase tracking-widest mt-1 opacity-70">In the neighborhood</div>
+          <div class="text-[13px] font-semibold mt-2 leading-tight">Same corner since 2013</div>
+        </div>
+        <div class="bg-ink rounded-[20px] p-4 text-cream">
+          <div class="text-[28px] font-display font-bold leading-none">24/7</div>
+          <div class="text-[11px] font-bold uppercase tracking-widest mt-1 opacity-60">Text Line</div>
+          <div class="text-[13px] font-medium mt-2 leading-tight">We answer. Really.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right visual -->
+    <div class="md:col-span-5 relative">
+      <div class="reveal relative rounded-[2.5rem] overflow-hidden bg-sand aspect-[4/5] md:aspect-[4/5.2] border-[10px] border-white shadow-[0_30px_80px_rgba(30,42,36,0.12)]">
+        <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?q=80&w=1200&auto=format&fit=crop" alt="Veterinarian hugging dog" class="w-full h-full object-cover">
+        <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-xl rounded-[20px] p-4 flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1558788353-6fc6f73e283e?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 rounded-full object-cover" alt="">
+          <div>
+            <div class="font-display font-semibold leading-tight">Dr. Mira Chen, DVM</div>
+            <div class="text-[12px] opacity-60 font-bold uppercase tracking-widest">Fear Free Certified • Surgery</div>
+          </div>
+          <span class="ml-auto w-9 h-9 rounded-full bg-terracotta text-white grid place-items-center">✦</span>
+        </div>
+        <!-- floating badge -->
+        <div class="absolute top-6 left-6 bg-cream rounded-full px-4 py-2 text-[12px] font-bold border border-ink/10 shadow-lg flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 2 exam rooms free now
+        </div>
+      </div>
+
+      <!-- Side stack -->
+      <div class="reveal reveal-delay-2 absolute -right-6 top-16 hidden lg:flex flex-col gap-3">
+        <div class="bg-white rounded-[20px] border border-ink/10 p-3 shadow-xl w-[180px]">
+          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1d76?q=80&w=300&auto=format&fit=crop" class="w-full h-24 object-cover rounded-[14px]" alt="">
+          <div class="mt-3 font-display font-semibold text-[14px] leading-tight">Luna's first visit went so calmly we cried happy tears 🥹</div>
+          <div class="text-[11px] opacity-50 mt-1">— @luna.the.tabby</div>
+        </div>
+        <div class="bg-ink text-cream rounded-[20px] p-4 w-[180px] rotate-2">
+          <div class="text-[11px] uppercase tracking-widest opacity-60 font-bold">Next available</div>
+          <div class="font-display font-bold text-[18px] mt-1">Today 3:20pm</div>
+          <div class="text-[13px] opacity-70 mt-1">Dr. Milo • Wellness</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee bg-ink text-cream py-4 border-y border-white/10 mt-2">
+  <div class="marquee-track">
+    <span class="font-display text-[22px] md:text-[28px] tracking-wide flex items-center gap-8 pr-8">
+      <span>FEAR-FREE HANDLING</span> <span class="w-2 h-2 rounded-full bg-terracotta"></span>
+      <span>LONG APPOINTMENTS</span> <span class="w-2 h-2 rounded-full bg-sage"></span>
+      <span>WARM FLOORS</span> <span class="w-2 h-2 rounded-full bg-cream"></span>
+      <span>CAT-NOSER APPROVED</span> <span class="w-2 h-2 rounded-full bg-terracotta"></span>
+      <span>NO SCRUFFING, EVER</span> <span class="w-2 h-2 rounded-full bg-sage"></span>
+      <span>TRANSPARENT PRICING</span> <span class="w-2 h-2 rounded-full bg-cream"></span>
+    </span>
+    <span class="font-display text-[22px] md:text-[28px] tracking-wide flex items-center gap-8 pr-8" aria-hidden="true">
+      <span>FEAR-FREE HANDLING</span> <span class="w-2 h-2 rounded-full bg-terracotta"></span>
+      <span>LONG APPOINTMENTS</span> <span class="w-2 h-2 rounded-full bg-sage"></span>
+      <span>WARM FLOORS</span> <span class="w-2 h-2 rounded-full bg-cream"></span>
+      <span>CAT-NOSER APPROVED</span> <span class="w-2 h-2 rounded-full bg-terracotta"></span>
+      <span>NO SCRUFFING, EVER</span> <span class="w-2 h-2 rounded-full bg-sage"></span>
+      <span>TRANSPARENT PRICING</span> <span class="w-2 h-2 rounded-full bg-cream"></span>
+    </span>
+  </div>
+</div>
+
+<!-- Story / Philosophy -->
+<section id="story" class="px-4 md:px-8 max-w-[1440px] mx-auto py-20 md:py-28">
+  <div class="grid md:grid-cols-12 gap-8 md:gap-10 items-start">
+    <div class="md:col-span-5">
+      <div class="reveal inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest">
+        ✦ Our Philosophy
+      </div>
+      <h2 class="reveal reveal-delay-1 font-display font-medium text-[42px] md:text-[56px] leading-[0.95] tracking-[-0.02em] mt-6">
+        Medicine<br>should feel<br>like a<br><span class="text-terracotta">hug, not a hurry.</span>
+      </h2>
+      <div class="reveal reveal-delay-2 mt-10 bg-white rounded-[24px] border border-ink/10 p-2 flex gap-2 max-w-[360px]">
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=200&auto=format&fit=crop" class="w-20 h-20 rounded-[18px] object-cover" alt="">
+        <div class="py-1 pr-2">
+          <div class="font-display font-semibold leading-tight text-[15px]">We built Milo & Sage for nervous pets (and nervous people).</div>
+          <div class="text-[12px] opacity-60 mt-1">Founder note • 2013</div>
+        </div>
+      </div>
+    </div>
+    <div class="md:col-span-7">
+      <div class="reveal grid md:grid-cols-2 gap-6">
+        <p class="text-[18px] leading-[1.6] font-medium text-inkLight">
+          Most clinics are loud. Bright lights. Cold steel. It makes sense animals hate going. We flipped it.
+          Warm cream walls that absorb sound, sage that calms the nervous system, floors heated to 78°F because bellies like warm.
+          <br><br>
+          Every appointment is 45 minutes minimum. No double booking. If your dog needs to sniff the room for ten minutes — we budget for ten minutes. If your cat wants to stay in her carrier, we examine her inside it.
+        </p>
+        <div class="space-y-6">
+          <p class="text-[18px] leading-[1.6] font-medium text-inkLight">
+            Our vets are Fear Free & Low Stress Handling certified, but more importantly — they're pet parents who get it. Slow hands. Soft voices. Treats everywhere.
+          </p>
+          <div class="rounded-[28px] bg-sage/30 p-6 border border-sage/40">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-ink text-cream grid place-items-center font-display font-bold">3</div>
+              <div class="font-display font-semibold">promises we keep</div>
+            </div>
+            <ul class="mt-4 space-y-3 text-[15px] font-semibold">
+              <li class="flex gap-3"><span class="text-terracotta">—</span> You will see pricing before we start</li>
+              <li class="flex gap-3"><span class="text-terracotta">—</span> You can stay for everything</li>
+              <li class="flex gap-3"><span class="text-terracotta">—</span> We will never scruff, pin, or alpha-roll</li>
+            </ul>
+          </div>
+          <div class="flex items-center gap-4 text-[13px] font-bold uppercase tracking-widest">
+            <span class="w-10 h-10 rounded-full bg-white border border-ink/10 grid place-items-center">↘</span>
+            Est. 2013 • Silver Lake, Los Angeles
+          </div>
+        </div>
+      </div>
+
+      <!-- stats strip -->
+      <div class="reveal reveal-delay-2 mt-12 grid grid-cols-3 gap-3">
+        <div class="rounded-[22px] bg-white border border-ink/10 p-5">
+          <div class="text-[36px] font-display font-bold leading-none">8.2k</div>
+          <div class="text-[11px] uppercase tracking-widest font-bold opacity-50 mt-2">Happy patients</div>
+        </div>
+        <div class="rounded-[22px] bg-terracotta text-white p-5">
+          <div class="text-[36px] font-display font-bold leading-none">45m</div>
+          <div class="text-[11px] uppercase tracking-widest font-bold opacity-80 mt-2">Minimum appointment</div>
+        </div>
+        <div class="rounded-[22px] bg-ink text-cream p-5">
+          <div class="text-[36px] font-display font-bold leading-none">0</div>
+          <div class="text-[11px] uppercase tracking-widest font-bold opacity-60 mt-2">Minutes rushed, ever</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services" class="relative px-4 md:px-8 max-w-[1440px] mx-auto pb-10">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div class="reveal">
+      <div class="inline-flex items-center gap-2 rounded-full bg-ink text-cream px-4 py-2 text-[11px] font-bold uppercase tracking-widest">✦ Care Menu</div>
+      <h2 class="font-display font-semibold text-[44px] md:text-[64px] leading-[0.9] tracking-[-0.03em] mt-5">Wellness that<br>fits in a real life.</h2>
+    </div>
+    <p class="reveal max-w-[36ch] text-[16px] leading-[1.5] text-inkLight font-medium pb-2">Pick what you need. Transparent pricing, no surprises. We text you the estimate before we begin and you tap approve.</p>
+  </div>
+
+  <div class="mt-10 grid md:grid-cols-12 gap-4 auto-rows-[minmax(280px,auto)]">
+    <!-- Large card -->
+    <div class="reveal md:col-span-7 rounded-[32px] bg-white border border-ink/10 p-6 md:p-8 flex flex-col justify-between overflow-hidden relative lift">
+      <div class="absolute top-0 right-0 w-[240px] h-[240px] bg-sage/30 rounded-full blur-[18px] -translate-y-10 translate-x-10"></div>
+      <div class="relative z-10">
+        <div class="flex justify-between items-start">
+          <div class="w-14 h-14 rounded-full bg-sage grid place-items-center text-[22px]">🩺</div>
+          <span class="rounded-full bg-cream border border-ink/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest">Most Popular</span>
+        </div>
+        <h3 class="font-display text-[32px] md:text-[40px] leading-[0.95] mt-6">The Whole<br>Nose-to-Tail</h3>
+        <p class="mt-3 max-w-[36ch] text-[15px] leading-[1.6] text-inkLight font-medium">Yearly wellness for dogs & cats. Bloodwork, heart, teeth, nutrition, behavior — plus 30 days of text access to your vet. For anxious pets, we split into two calm visits.</p>
+      </div>
+      <div class="relative z-10 mt-8 flex items-center justify-between">
+        <div class="flex items-baseline gap-2"><span class="font-display text-[32px] font-bold">$245</span><span class="text-[13px] opacity-60 font-bold uppercase tracking-widest"> / dog • $195 cat</span></div>
+        <button class="w-12 h-12 rounded-full bg-ink text-cream grid place-items-center hover:bg-terracotta transition magnetic">→</button>
+      </div>
+      <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop" class="absolute right-6 bottom-20 w-[160px] h-[160px] rounded-[24px] object-cover rotate-3 border-[6px] border-white shadow-xl hidden md:block" alt="">
+    </div>
+
+    <!-- Small -->
+    <div class="reveal reveal-delay-1 md:col-span-5 rounded-[32px] bg-sage border border-sageDark/20 p-6 md:p-8 flex flex-col justify-between lift">
+      <div>
+        <div class="w-12 h-12 rounded-full bg-white grid place-items-center text-[20px]">🦷</div>
+        <h3 class="font-display text-[28px] leading-[0.95] mt-5">Dental Day Spa</h3>
+        <p class="mt-3 text-[15px] leading-[1.5] font-medium text-ink/80">Burr-free cleanings with pre-anesthetic cuddles, warm air blanket, and a full mouth video so you see what we see.</p>
+      </div>
+      <div class="mt-8">
+        <div class="text-[12px] font-bold uppercase tracking-widest opacity-60">Starts at $485 • includes X-rays</div>
+        <div class="mt-3 h-[88px] rounded-[18px] overflow-hidden bg-white">
+          <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+        </div>
+      </div>
+    </div>
+
+    <!-- Mid -->
+    <div class="reveal md:col-span-5 rounded-[32px] bg-ink text-cream p-6 md:p-8 relative overflow-hidden lift">
+      <div class="absolute -right-10 -top-10 w-[200px] h-[200px] bg-terracotta/40 rounded-full blur-xl"></div>
+      <div class="relative">
+        <div class="w-12 h-12 rounded-full bg-white/10 grid place-items-center">🌙</div>
+        <h3 class="font-display text-[28px] leading-[0.95] mt-5">After-Hours<br>Video Triage</h3>
+        <p class="mt-3 text-[15px] leading-[1.6] opacity-70 font-medium">“Did my dog eat a sock?” Text us. Nurse on call 7am-11pm. We tell you: ER, come in tomorrow, or just monitor. No Dr. Google panic.</p>
+        <div class="mt-6 inline-flex items-center gap-2 bg-white text-ink rounded-full px-4 py-2 text-[12px] font-bold">$0 for members • $35 otherwise</div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-1 md:col-span-3 rounded-[32px] bg-terracotta text-white p-6 md:p-8 flex flex-col justify-between lift">
+      <div>
+        <div class="w-12 h-12 rounded-full bg-white/15 grid place-items-center text-[20px]">🐶</div>
+        <h3 class="font-display text-[24px] leading-[0.95] mt-5">Puppy & Kitten<br>Club</h3>
+      </div>
+      <div class="mt-8">
+        <p class="text-[14px] leading-[1.5] font-medium opacity-90">Vaccines spaced gently, socialization field trips, and a “home alone” plan so you don’t lose your couch.</p>
+        <div class="mt-4 font-display font-bold text-[20px]">From $38/mo</div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-2 md:col-span-4 rounded-[32px] bg-white border border-ink/10 p-6 md:p-8 lift">
+      <div class="flex items-start justify-between">
+        <div class="w-12 h-12 rounded-full bg-sand grid place-items-center">🧡</div>
+        <span class="text-[11px] font-bold uppercase tracking-widest opacity-50">Surgery</span>
+      </div>
+      <h3 class="font-display text-[26px] leading-[0.95] mt-5">Soft Surgery</h3>
+      <p class="mt-3 text-[14px] leading-[1.6] text-inkLight font-medium">Low-stress induction, forced-air warming, one tech per pet watching vitals like a hawk. You get photos and updates mid-surgery.</p>
+      <div class="mt-6 flex gap-2">
+        <span class="rounded-full bg-ink text-cream px-3 py-1 text-[11px] font-bold">Spay/Neuter</span>
+        <span class="rounded-full bg-cream border border-ink/10 px-3 py-1 text-[11px] font-bold">Mass removal</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1581888511429-4520a6d1d85c?q=80&w=400&auto=format&fit=crop" alt="" class="mt-6 w-full h-28 object-cover rounded-[18px]">
+    </div>
+  </div>
+
+  <!-- Additional service row -->
+  <div class="reveal mt-4 grid md:grid-cols-4 gap-4">
+    <div class="rounded-[24px] bg-cream border border-ink/10 p-5 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-full bg-white border border-ink/10 grid place-items-center">🥗</div>
+      <div><div class="font-display font-semibold">Nutrition Plan</div><div class="text-[12px] opacity-60 font-bold uppercase">Custom • 30 min</div></div>
+    </div>
+    <div class="rounded-[24px] bg-cream border border-ink/10 p-5 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-full bg-white border border-ink/10 grid place-items-center">🧠</div>
+      <div><div class="font-display font-semibold">Behavior Chats</div><div class="text-[12px] opacity-60 font-bold uppercase">No shame, just help</div></div>
+    </div>
+    <div class="rounded-[24px] bg-cream border border-ink/10 p-5 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-full bg-white border border-ink/10 grid place-items-center">🏠</div>
+      <div><div class="font-display font-semibold">Home Visits</div><div class="text-[12px] opacity-60 font-bold uppercase">For seniors & cats</div></div>
+    </div>
+    <div class="rounded-[24px] bg-ink text-cream p-5 flex items-center justify-between">
+      <div><div class="font-display font-semibold">View full menu →</div><div class="text-[12px] opacity-60">12 more services</div></div>
+      <div class="w-9 h-9 rounded-full bg-white/10 grid place-items-center">↗</div>
+    </div>
+  </div>
+</section>
+
+<!-- Spaces Gallery -->
+<section id="spaces" class="px-4 md:px-8 max-w-[1440px] mx-auto py-20">
+  <div class="rounded-[40px] bg-white border border-ink/10 overflow-hidden">
+    <div class="p-6 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest opacity-60">✦ The Clinic</div>
+        <h2 class="font-display text-[40px] md:text-[52px] leading-[0.9] tracking-[-0.02em] mt-3">Not a cold lab.<br>A sunny living room.</h2>
+      </div>
+      <div class="reveal flex gap-3">
+        <span class="rounded-full bg-sage/50 px-4 py-2 text-[13px] font-bold">Heated floors</span>
+        <span class="rounded-full bg-cream border border-ink/10 px-4 py-2 text-[13px] font-bold">Pheromone diffusers</span>
+        <span class="rounded-full bg-ink text-cream px-4 py-2 text-[13px] font-bold hidden md:block">Separate cat entrance</span>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-12 gap-3 p-3">
+      <div class="reveal md:col-span-7 rounded-[28px] overflow-hidden aspect-[4/3] md:aspect-[16/10] bg-sand relative group">
+        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" alt="Clinic reception">
+        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded-full px-4 py-2 text-[12px] font-bold">Reception • no overhead paging, just tea</div>
+      </div>
+      <div class="md:col-span-5 grid grid-rows-2 gap-3">
+        <div class="reveal reveal-delay-1 rounded-[28px] overflow-hidden bg-sand relative group">
+          <img src="https://images.unsplash.com/photo-1601758174585-7d1bf5c1f2db?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" alt="Exam room">
+          <div class="absolute bottom-3 left-3 bg-ink text-cream rounded-full px-3 py-1 text-[11px] font-bold">Exam Room Sage • yoga mat for dogs</div>
+        </div>
+        <div class="reveal reveal-delay-2 rounded-[28px] overflow-hidden bg-sand relative group">
+          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" alt="Cat cozy">
+          <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur rounded-full px-3 py-1 text-[11px] font-bold">Cat trees, not cages • carriers always welcome</div>
+        </div>
+      </div>
+      <div class="reveal md:col-span-4 rounded-[28px] overflow-hidden aspect-[4/3] bg-sand relative group">
+        <img src="https://images.unsplash.com/photo-1558788353-6fc6f73e283e?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" alt="Vet with cat">
+        <div class="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent"></div>
+        <div class="absolute bottom-4 left-4 right-4 text-cream">
+          <div class="font-display text-[20px] leading-tight">We sit on the floor.<br>Eye level = calm.</div>
+          <div class="text-[12px] opacity-70 mt-2 uppercase tracking-widest font-bold">low stress handling</div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-1 md:col-span-4 rounded-[28px] overflow-hidden aspect-[4/3] bg-terracotta p-6 flex flex-col justify-between text-white">
+        <div>
+          <div class="w-10 h-10 rounded-full bg-white/15 grid place-items-center">☀</div>
+          <div class="font-display text-[26px] leading-[0.9] mt-4">Sunroom for<br>recoveries</div>
+        </div>
+        <div class="mt-8">
+          <p class="text-[14px] leading-[1.5] opacity-90">After surgery, pets wake up to sunlight, not cages. Private pods with your t-shirt for scent.</p>
+          <div class="mt-4 text-[11px] uppercase tracking-widest font-bold opacity-70">• 6 pods • heated • camera for you</div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2 md:col-span-4 rounded-[28px] overflow-hidden aspect-[4/3] bg-sand relative group">
+        <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" alt="Dog owner">
+        <div class="absolute top-4 left-4 bg-white rounded-full px-3 py-1 text-[11px] font-bold">People welcome to stay</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team strip -->
+<section class="px-4 md:px-8 max-w-[1440px] mx-auto py-10">
+  <div class="flex items-center justify-between">
+    <h3 class="reveal font-display text-[28px]">Your neighborhood vets</h3>
+    <div class="reveal text-[13px] font-bold uppercase tracking-widest opacity-60 hidden md:block">Fear-free • bilingual • dog & cat owned</div>
+  </div>
+  <div class="mt-6 grid md:grid-cols-4 gap-4">
+    <div class="reveal rounded-[28px] bg-white border border-ink/10 p-4 flex gap-4">
+      <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&auto=format&fit=crop" class="w-16 h-16 rounded-full object-cover" alt="">
+      <div><div class="font-display font-semibold">Dr. Milo Park</div><div class="text-[12px] opacity-60 font-bold uppercase tracking-widest mt-1">Founder • internal</div><div class="text-[13px] mt-2 leading-tight">2 dachshunds, snores louder than both.</div></div>
+    </div>
+    <div class="reveal reveal-delay-1 rounded-[28px] bg-white border border-ink/10 p-4 flex gap-4">
+      <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=200&auto=format&fit=crop" class="w-16 h-16 rounded-full object-cover" alt="">
+      <div><div class="font-display font-semibold">Dr. Mira Chen</div><div class="text-[12px] opacity-60 font-bold uppercase tracking-widest mt-1">Surgery • cats</div><div class="text-[13px] mt-2 leading-tight">Rescues seniors. Has 3.</div></div>
+    </div>
+    <div class="reveal reveal-delay-2 rounded-[28px] bg-white border border-ink/10 p-4 flex gap-4">
+      <img src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?q=80&w=200&auto=format&fit=crop" class="w-16 h-16 rounded-full object-cover" alt="">
+      <div><div class="font-display font-semibold">Sam Lee, LVT</div><div class="text-[12px] opacity-60 font-bold uppercase tracking-widest mt-1">Behavior • pups</div><div class="text-[13px] mt-2 leading-tight">Will sit on floor with your dog for 20 min.</div></div>
+    </div>
+    <div class="reveal reveal-delay-3 rounded-[28px] bg-sage border border-sageDark/20 p-4 flex flex-col justify-between">
+      <div class="font-display text-[18px] leading-tight">We're hiring a vet<br>who loves weird cats.</div>
+      <a href="#" class="mt-4 inline-flex text-[12px] font-bold uppercase tracking-widest bg-white rounded-full px-4 py-2 w-fit">See roles →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section id="reviews" class="px-4 md:px-8 max-w-[1440px] mx-auto py-20 md:py-28">
+  <div class="rounded-[40px] bg-ink text-cream p-6 md:p-10 relative overflow-hidden">
+    <div class="absolute top-0 right-[10%] w-[600px] h-[600px] bg-terracotta/20 rounded-full blur-[80px] pointer-events-none"></div>
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-widest">✦ Love Letters</div>
+        <h2 class="font-display text-[44px] md:text-[64px] leading-[0.9] tracking-[-0.03em] mt-5">From the<br>people (and paws)</h2>
+      </div>
+      <div class="reveal flex items-center gap-3">
+        <button id="prevBtn" class="w-12 h-12 rounded-full bg-white/10 grid place-items-center hover:bg-white hover:text-ink transition">←</button>
+        <button id="nextBtn" class="w-12 h-12 rounded-full bg-white text-ink grid place-items-center hover:bg-terracotta hover:text-white transition">→</button>
+      </div>
+    </div>
+
+    <div class="reveal mt-10 overflow-hidden">
+      <div id="testimonialTrack" class="flex gap-4 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform">
+        <!-- Card 1 -->
+        <div class="min-w-[320px] md:min-w-[420px] rounded-[28px] bg-white text-ink p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex gap-1 text-terracotta">★★★★★</div>
+            <p class="font-display text-[20px] leading-[1.25] mt-4">“My chihuahua shakes everywhere else. Here she fell asleep in Dr. Mira’s lap. I cried.”</p>
+          </div>
+          <div class="mt-8 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1d76?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover" alt="">
+            <div><div class="font-bold text-[14px]">Jenna & Miso</div><div class="text-[11px] opacity-60 uppercase tracking-widest font-bold">Silver Lake • dog + cat</div></div>
+            <span class="ml-auto text-[10px] rounded-full bg-sage/40 px-2 py-1 font-bold">ANXIETY FREE</span>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="min-w-[320px] md:min-w-[420px] rounded-[28px] bg-sage text-ink p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex gap-1 text-ink">★★★★★</div>
+            <p class="font-display text-[20px] leading-[1.25] mt-4">“They explained my bill like I’m a human. No upsell. Sent me home with a video of the X-ray.”</p>
+          </div>
+          <div class="mt-8 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover" alt="">
+            <div><div class="font-bold text-[14px]">Marcus & Bixby</div><div class="text-[11px] opacity-60 uppercase tracking-widest font-bold">Dog dad since 2019</div></div>
+            <span class="ml-auto text-[10px] rounded-full bg-white px-2 py-1 font-bold">TRANSPARENT</span>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="min-w-[320px] md:min-w-[420px] rounded-[28px] bg-terracotta text-white p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex gap-1 text-white">★★★★★</div>
+            <p class="font-display text-[20px] leading-[1.25] mt-4">“Our cat is 19. They do home visits. They brought a mat and lay on our floor with her.”</p>
+          </div>
+          <div class="mt-8 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover" alt="">
+            <div><div class="font-bold text-[14px]">Priya & Momo</div><div class="text-[11px] opacity-80 uppercase tracking-widest font-bold">Senior care</div></div>
+            <span class="ml-auto text-[10px] rounded-full bg-white/20 px-2 py-1 font-bold">HOME VISIT</span>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="min-w-[320px] md:min-w-[420px] rounded-[28px] bg-white text-ink p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex gap-1 text-terracotta">★★★★★</div>
+            <p class="font-display text-[20px] leading-[1.25] mt-4">“Finally a vet that asks about behavior first, health second. They get rescue dogs.”</p>
+          </div>
+          <div class="mt-8 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover" alt="">
+            <div><div class="font-bold text-[14px]">Alex & Pepper</div><div class="text-[11px] opacity-60 uppercase tracking-widest font-bold">Adopted • 2023</div></div>
+            <span class="ml-auto text-[10px] rounded-full bg-sage/40 px-2 py-1 font-bold">FEAR FREE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="reveal mt-10 flex flex-col md:flex-row gap-4 md:items-center justify-between border-t border-white/10 pt-6">
+      <div class="flex items-center gap-4">
+        <div class="flex -space-x-3">
+          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1d76?q=80&w=100&auto=format&fit=crop" class="w-9 h-9 rounded-full border-2 border-ink object-cover" alt="">
+          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=100&auto=format&fit=crop" class="w-9 h-9 rounded-full border-2 border-ink object-cover" alt="">
+          <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=100&auto=format&fit=crop" class="w-9 h-9 rounded-full border-2 border-ink object-cover" alt="">
+        </div>
+        <div class="text-[14px]"><span class="font-bold">642 reviews</span><span class="opacity-60"> • avg 4.9 • replies from actual vets</span></div>
+      </div>
+      <div class="flex gap-2 text-[11px] font-bold uppercase tracking-widest">
+        <span class="rounded-full bg-white/10 px-3 py-1">Google • 4.9</span>
+        <span class="rounded-full bg-white/10 px-3 py-1">Yelp • 4.8</span>
+        <span class="rounded-full bg-white text-ink px-3 py-1">All replies within 24h</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact / Booking -->
+<section id="contact" class="px-4 md:px-8 max-w-[1440px] mx-auto pb-20">
+  <div class="grid md:grid-cols-12 gap-4">
+    <div class="md:col-span-5">
+      <div class="reveal rounded-[36px] bg-white border border-ink/10 p-7 md:p-8 h-full flex flex-col">
+        <div class="w-12 h-12 rounded-full bg-sage grid place-items-center text-[20px]">📍</div>
+        <h3 class="font-display text-[32px] leading-[0.9] mt-5">Come sniff us out.</h3>
+        <div class="mt-6 space-y-5 text-[15px] font-medium">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-widest opacity-50">Visit</div>
+            <div class="mt-1 font-semibold">3210 Sunset Blvd<br>Silver Lake, Los Angeles 90026</div>
+            <div class="mt-2 inline-flex rounded-full bg-cream border border-ink/10 px-3 py-1 text-[12px] font-bold">Sep entrance for cats → side door, blue</div>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-widest opacity-50">Hours</div>
+            <div class="mt-1 grid grid-cols-2 gap-2 text-[14px]">
+              <div>Mon – Fri <span class="opacity-60">8am – 7pm</span></div>
+              <div>Sat <span class="opacity-60">9am – 5pm</span></div>
+              <div>Sun <span class="opacity-60">10am – 4pm</span></div>
+              <div class="font-bold text-terracotta">Text line 7a-11p</div>
+            </div>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-widest opacity-50">Get in touch</div>
+            <div class="mt-1"><span class="font-bold">hello@miloandsage.com</span><br><span class="opacity-70">(323) 555-0199 • Text (323) 555-0198</span></div>
+          </div>
+        </div>
+
+        <div class="mt-8 rounded-[22px] overflow-hidden bg-sand aspect-[16/10] relative">
+          <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Map placeholder">
+          <div class="absolute inset-0 grid place-items-center">
+            <div class="bg-ink text-cream rounded-full px-4 py-2 text-[12px] font-bold flex items-center gap-2 shadow-xl"><span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> We're here • heated mat on</div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex gap-2">
+          <span class="rounded-full bg-ink text-cream px-3 py-1 text-[11px] font-bold">Street parking • 2hr</span>
+          <span class="rounded-full bg-sage/40 px-3 py-1 text-[11px] font-bold">Patio for nervous pups</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="md:col-span-7">
+      <div class="reveal rounded-[36px] bg-sand border border-ink/10 p-7 md:p-10">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-white border border-ink/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest">✦ New family intake • 4 steps • 2 min</div>
+            <h3 class="font-display text-[36px] md:text-[44px] leading-[0.9] mt-4">Book a calm visit.</h3>
+            <p class="mt-3 text-[15px] leading-[1.5] text-inkLight font-medium max-w-[38ch]">No phone tag. Tell us about your companion, pick a slow slot. We’ll text you a prep guide so arrival isn’t chaos.</p>
+          </div>
+          <div class="hidden md:grid place-items-center w-14 h-14 rounded-full bg-ink text-cream text-[22px]">✦</div>
+        </div>
+
+        <form id="bookingForm" class="mt-8 space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <label class="group">
+              <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Your name</span>
+              <input required type="text" placeholder="Riley" class="mt-2 w-full rounded-[16px] border border-ink/10 bg-white px-4 py-3 text-[15px] font-medium focus:outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition"/>
+            </label>
+            <label class="group">
+              <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Companion’s name</span>
+              <input required type="text" placeholder="Milo (he/him, 3, beagle)" class="mt-2 w-full rounded-[16px] border border-ink/10 bg-white px-4 py-3 text-[15px] font-medium focus:outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition"/>
+            </label>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <label>
+              <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Phone / Text</span>
+              <input required type="tel" placeholder="(323) ___ ____" class="mt-2 w-full rounded-[16px] border border-ink/10 bg-white px-4 py-3 text-[15px] font-medium focus:outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition"/>
+            </label>
+            <label>
+              <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Species & vibe</span>
+              <select class="mt-2 w-full rounded-[16px] border border-ink/10 bg-white px-4 py-3 text-[15px] font-medium focus:outline-none focus:border-terracotta">
+                <option>Dog • wiggly but nervous</option>
+                <option>Dog • confident greeter</option>
+                <option>Cat • hides, needs time</option>
+                <option>Cat • spicy but sweet</option>
+                <option>Other • tell us</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="rounded-[20px] bg-white border border-ink/10 p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-widest">Preferred slow slot</span>
+              <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">45 min min • no rush</span>
+            </div>
+            <div class="mt-3 grid grid-cols-3 gap-2">
+              <button type="button" class="slot-btn rounded-full border border-ink/10 py-2.5 text-[13px] font-bold bg-ink text-cream">Mon 9:20am</button>
+              <button type="button" class="slot-btn rounded-full border border-ink/10 py-2.5 text-[13px] font-bold hover:bg-white">Mon 2:40pm</button>
+              <button type="button" class="slot-btn rounded-full border border-ink/10 py-2.5 text-[13px] font-bold hover:bg-white">Tue 10:10am</button>
+              <button type="button" class="slot-btn rounded-full border border-ink/10 py-2.5 text-[13px] font-bold hover:bg-white">Tue 3:00pm</button>
+              <button type="button" class="slot-btn rounded-full border border-ink/10 py-2.5 text-[13px] font-bold hover:bg-white">Wed 11:30am</button>
+              <button type="button" class="slot-btn rounded-full border border-ink/10 py-2.5 text-[13px] font-bold hover:bg-white">Thu 9:00am</button>
+            </div>
+          </div>
+
+          <label>
+            <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Anything we should know? (fears, meds, history)</span>
+            <textarea rows="3" placeholder="Luna hates the scale but loves cheese. She’s on Apoquel..." class="mt-2 w-full rounded-[16px] border border-ink/10 bg-white px-4 py-3 text-[15px] font-medium focus:outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition"></textarea>
+          </label>
+
+          <div class="flex items-center gap-3 pt-2">
+            <input type="checkbox" id="consent" class="w-4 h-4 rounded border-ink/20">
+            <label for="consent" class="text-[12px] leading-[1.4] text-inkLight font-medium">I consent to gentle handling and slow medicine. I understand you’ll text me an estimate before starting.</label>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-3 pt-2">
+            <button type="submit" class="flex-1 bg-ink text-cream rounded-full py-4 font-bold text-[15px] inline-flex items-center justify-center gap-2 hover:bg-terracotta transition magnetic">
+              Request Visit <span class="w-6 h-6 rounded-full bg-white/15 grid place-items-center">→</span>
+            </button>
+            <button type="button" class="rounded-full border border-ink/10 bg-white px-6 py-4 font-bold text-[14px] hover:border-ink/30 transition">Text Us Instead</button>
+          </div>
+
+          <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest opacity-60 pt-2">
+            <span class="w-6 h-6 rounded-full bg-white border border-ink/10 grid place-items-center">🔒</span> No spam • Estimate first • Cancel anytime over text
+          </div>
+        </form>
+
+        <div id="successNote" class="hidden mt-6 rounded-[20px] bg-ink text-cream p-5">
+          <div class="font-display text-[20px]">Got it! We’ll text you in ~10 min 💛</div>
+          <div class="text-[13px] opacity-70 mt-1">Check your texts for a prep guide: park on the side, blue door for cats, treats in pocket #3.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Membership & FAQ -->
+<section class="px-4 md:px-8 max-w-[1440px] mx-auto py-16">
+  <div class="grid md:grid-cols-12 gap-4">
+    <div class="reveal md:col-span-5 rounded-[36px] bg-terracotta text-white p-8 md:p-10 relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-[300px] h-[300px] bg-white/10 rounded-full blur-2xl"></div>
+      <div class="relative">
+        <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-widest">✦ Membership</div>
+        <h3 class="font-display text-[38px] md:text-[46px] leading-[0.9] tracking-[-0.02em] mt-5">The Slow Club</h3>
+        <p class="mt-4 text-[15px] leading-[1.5] opacity-90 font-medium">For regulars who want text access, gentle vaccine spacing, and annual labs without surprise bills. Pause anytime.</p>
+        <div class="mt-8 space-y-3">
+          <div class="rounded-[18px] bg-white text-ink p-4 flex items-center justify-between">
+            <div><div class="font-display font-bold">Paw Plan • Dogs</div><div class="text-[12px] opacity-60">Wellness + 24/7 text + 2 urgent slots</div></div>
+            <div class="font-display font-bold text-[20px]">$58/mo</div>
+          </div>
+          <div class="rounded-[18px] bg-ink text-cream p-4 flex items-center justify-between">
+            <div><div class="font-display font-bold">Whisker Plan • Cats</div><div class="text-[12px] opacity-60">Wellness + carrier coaching</div></div>
+            <div class="font-display font-bold text-[20px]">$42/mo</div>
+          </div>
+        </div>
+        <div class="mt-6 flex items-center gap-2 text-[12px] opacity-80 font-medium">
+          <span class="w-7 h-7 rounded-full bg-white/15 grid place-items-center">✓</span> No contracts • Cancel over text • Family discount 15% for 2+ pets
+        </div>
+        <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1d76?q=80&w=400&auto=format&fit=crop" alt="Cat membership" class="mt-8 w-full h-[180px] object-cover rounded-[20px] border-4 border-white/20">
+      </div>
+    </div>
+    <div class="md:col-span-7">
+      <div class="reveal rounded-[36px] bg-white border border-ink/10 p-7 md:p-10">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display text-[28px] md:text-[32px]">Good questions we get</h3>
+          <span class="hidden md:inline-flex rounded-full bg-sage/30 px-3 py-1 text-[11px] font-bold uppercase tracking-widest">Transparent fees</span>
+        </div>
+        <div class="mt-8 divide-y divide-ink/10" id="faq">
+          <details open class="group py-5">
+            <summary class="list-none flex items-start justify-between gap-4 cursor-pointer">
+              <span class="font-display font-semibold text-[18px] leading-tight">Do you see anxious or reactive pets? Really?</span>
+              <span class="w-8 h-8 rounded-full bg-ink text-cream grid place-items-center group-open:rotate-45 transition">+</span>
+            </summary>
+            <p class="mt-3 text-[14px] leading-[1.6] text-inkLight font-medium max-w-[55ch]">That’s literally why we exist. Separate entrance for cats, patio pre-sniff for dogs, 45-min slots, floor seating, and we chart their fear score every visit and adjust. If they need a break, we pause and give cheese.</p>
+          </details>
+          <details class="group py-5">
+            <summary class="list-none flex items-start justify-between gap-4 cursor-pointer">
+              <span class="font-display font-semibold text-[18px] leading-tight">Will I be pressured into upsells I don’t need?</span>
+              <span class="w-8 h-8 rounded-full bg-cream border border-ink/10 grid place-items-center group-open:rotate-45 transition">+</span>
+            </summary>
+            <p class="mt-3 text-[14px] leading-[1.6] text-inkLight font-medium max-w-[55ch]">No. We text you an estimate before touching your pet. You approve on your phone. If you say “just essentials today,” we honor it. No guilt.</p>
+          </details>
+          <details class="group py-5">
+            <summary class="list-none flex items-start justify-between gap-4 cursor-pointer">
+              <span class="font-display font-semibold text-[18px] leading-tight">What about senior pets and end-of-life care?</span>
+              <span class="w-8 h-8 rounded-full bg-cream border border-ink/10 grid place-items-center group-open:rotate-45 transition">+</span>
+            </summary>
+            <p class="mt-3 text-[14px] leading-[1.6] text-inkLight font-medium max-w-[55ch]">Home visits, quality-of-life scoring, and a private sunroom if you want to be together. We partner with a grief counselor who loves animals and has a cat named Biscuit.</p>
+          </details>
+          <details class="group py-5">
+            <summary class="list-none flex items-start justify-between gap-4 cursor-pointer">
+              <span class="font-display font-semibold text-[18px] leading-tight">How does pricing work? Is parking awful?</span>
+              <span class="w-8 h-8 rounded-full bg-cream border border-ink/10 grid place-items-center group-open:rotate-45 transition">+</span>
+            </summary>
+            <p class="mt-3 text-[14px] leading-[1.6] text-inkLight font-medium max-w-[55ch]">Parking is 2-hour on Sunset and usually fine before 11am. We validate curiosity, not cars. Prices live on our wall and our site. No hidden fees for “medical waste” — we bake that into care.</p>
+          </details>
+        </div>
+        <div class="mt-8 rounded-[20px] bg-sand p-4 flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1601758174597-67f380407532?q=80&w=100&auto=format&fit=crop" class="w-12 h-12 rounded-full object-cover" alt="">
+          <div class="text-[13px] leading-tight"><span class="font-bold">Still nervous?</span> Text us (323) 555-0198 — humans answer, not bots. We’ll send you a video tour of the exam room first.</div>
+        </div>
+      </div>
+      <!-- micro stats -->
+      <div class="reveal mt-4 grid grid-cols-3 gap-3">
+        <div class="rounded-[20px] bg-white border border-ink/10 p-4 text-center">
+          <div class="font-display font-bold text-[22px]">1.2k</div><div class="text-[10px] uppercase tracking-widest font-bold opacity-50">Home visits done</div>
+        </div>
+        <div class="rounded-[20px] bg-sage/40 border border-sageDark/20 p-4 text-center">
+          <div class="font-display font-bold text-[22px]">0%</div><div class="text-[10px] uppercase tracking-widest font-bold opacity-70">Alpha rolls ever</div>
+        </div>
+        <div class="rounded-[20px] bg-ink text-cream p-4 text-center">
+          <div class="font-display font-bold text-[22px]">98%</div><div class="text-[10px] uppercase tracking-widest font-bold opacity-60">Would bring cheese</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="px-4 md:px-8 max-w-[1440px] mx-auto pb-8">
+  <div class="rounded-[36px] bg-ink text-cream overflow-hidden">
+    <div class="p-8 md:p-12">
+      <div class="flex flex-col md:flex-row justify-between gap-10">
+        <div class="max-w-[360px]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-cream text-ink grid place-items-center font-display font-bold text-[18px]">m</div>
+            <span class="font-display font-semibold text-[20px] tracking-tight">milo & sage</span>
+            <span class="rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-widest">Est. 2013</span>
+          </div>
+          <p class="mt-5 text-[15px] leading-[1.6] opacity-70 font-medium">A neighborhood animal hospital that chooses calm over quick. Fear-free, transparent, and warm floors for cold bellies. Silver Lake, Los Angeles.</p>
+          <div class="mt-6 flex gap-2">
+            <a href="#" class="w-10 h-10 rounded-full bg-white/10 grid place-items-center hover:bg-terracotta transition">ig</a>
+            <a href="#" class="w-10 h-10 rounded-full bg-white/10 grid place-items-center hover:bg-terracotta transition">tt</a>
+            <a href="#" class="w-10 h-10 rounded-full bg-white/10 grid place-items-center hover:bg-terracotta transition">✦</a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-10 text-[14px]">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-widest opacity-50 mb-4">Care</div>
+            <ul class="space-y-2 font-medium opacity-80">
+              <li><a href="#" class="hover:opacity-100 hover:text-white transition">Whole Nose-to-Tail</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Dental Day Spa</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Soft Surgery</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Puppy & Kitten Club</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Behavior Chats</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-widest opacity-50 mb-4">Clinic</div>
+            <ul class="space-y-2 font-medium opacity-80">
+              <li><a href="#" class="hover:opacity-100 transition">Our Story & Why</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Team & Floors</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Fees & Transparency</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Careers (we're hiring)</a></li>
+              <li><a href="#" class="hover:opacity-100 transition">Fear Free Promise</a></li>
+            </ul>
+          </div>
+          <div class="col-span-2 md:col-span-1">
+            <div class="text-[11px] font-bold uppercase tracking-widest opacity-50 mb-4">Newsletter • slow mail, good tips</div>
+            <div class="rounded-full bg-white/10 p-1 flex">
+              <input placeholder="your email" class="flex-1 bg-transparent px-4 py-2 text-[14px] outline-none placeholder:text-white/40"/>
+              <button class="rounded-full bg-cream text-ink px-5 py-2 text-[13px] font-bold">Join</button>
+            </div>
+            <div class="mt-4 text-[12px] opacity-60 leading-[1.4]">Monthly tips: how to trim nails without drama, what poop means, etc. Unsubscribe to a paw-print.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 grid md:grid-cols-12 gap-6 border-t border-white/10 pt-8 text-[12px]">
+        <div class="md:col-span-6 opacity-60">© 2025 Milo & Sage Veterinary. All warm bellies reserved. • Fear-free certified • No scruffing policy • Silver Lake • Made with 🐾 in LA.</div>
+        <div class="md:col-span-6 flex flex-wrap gap-4 md:justify-end opacity-60">
+          <a href="#">Privacy • gentle</a><a href="#">Terms • fair</a><a href="#">Accessibility</a><a href="#">Press Kit</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- big word -->
+    <div class="border-t border-white/10 overflow-hidden">
+      <div class="font-display font-bold tracking-[-0.06em] leading-none text-[18vw] md:text-[14vw] whitespace-nowrap opacity-[0.06] py-2 select-none">milo & sage — calm care — warm floors — slow medicine —</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Custom cursor
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  dot.style.left = mouseX + 'px'; dot.style.top = mouseY + 'px';
+});
+(function animateRing(){
+  ringX += (mouseX - ringX) * 0.14; ringY += (mouseY - ringY) * 0.14;
+  ring.style.left = ringX + 'px'; ring.style.top = ringY + 'px';
+  requestAnimationFrame(animateRing);
+})();
+document.querySelectorAll('a,button,input,select,textarea').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
+});
+
+// Reveal
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){ entry.target.classList.add('active'); }
+  });
+},{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// Magnetic
+document.querySelectorAll('.magnetic').forEach(btn=>{
+  btn.addEventListener('mousemove', e=>{
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{ btn.style.transform='translate(0,0)'; });
+});
+
+// Mobile menu
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+menuBtn?.addEventListener('click',()=> mobileMenu.classList.toggle('hidden'));
+
+// Testimonials slider
+const track = document.getElementById('testimonialTrack');
+let idx = 0;
+function updateSlider(){
+  const cardW = 420 + 16; // approx including gap
+  const max = Math.max(0, track.children.length - 2);
+  idx = Math.min(Math.max(idx,0), max);
+  track.style.transform = `translateX(-${idx*cardW}px)`;
+}
+document.getElementById('nextBtn')?.addEventListener('click',()=>{ idx++; updateSlider(); });
+document.getElementById('prevBtn')?.addEventListener('click',()=>{ idx--; updateSlider(); });
+let auto = setInterval(()=>{ idx = (idx+1) % 3; updateSlider(); }, 5000);
+track.addEventListener('mouseenter',()=>clearInterval(auto));
+track.addEventListener('mouseleave',()=>{ auto = setInterval(()=>{ idx=(idx+1)%3; updateSlider(); }, 5000); });
+
+// Form
+const form = document.getElementById('bookingForm');
+const success = document.getElementById('successNote');
+form?.addEventListener('submit', e=>{
+  e.preventDefault();
+  success.classList.remove('hidden');
+  form.reset();
+  success.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(()=>success.classList.add('hidden'), 6000);
+});
+
+// Slot toggle
+document.querySelectorAll('.slot-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.slot-btn').forEach(x=>{
+      x.classList.remove('bg-ink','text-cream');
+      x.classList.add('hover:bg-white');
+    });
+    b.classList.add('bg-ink','text-cream');
+    b.classList.remove('hover:bg-white');
+  });
+});
+
+// Parallax subtle on hero image
+window.addEventListener('scroll', ()=>{
+  const sc = window.scrollY;
+  document.querySelectorAll('.blob').forEach((bl,i)=>{
+    bl.style.transform = `translateY(${sc* (0.04 + i*0.02)}px)`;
+  });
+}, {passive:true});
+</script>
+</body>
+</html>

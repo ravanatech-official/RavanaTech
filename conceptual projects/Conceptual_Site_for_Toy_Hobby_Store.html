@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Toy & Hobby Store</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'kikai-red': '#ff1a1a',
+        'kikai-yellow': '#ffde00',
+        'kikai-blue': '#0047ff',
+        'kikai-black': '#0a0a0a',
+        'kikai-paper': '#fffef5',
+      },
+      fontFamily: {
+        'display': ['Bowlby One SC', 'cursive'],
+        'grotesk': ['Space Grotesk', 'sans-serif'],
+        'rounded': ['M PLUS Rounded 1c', 'sans-serif'],
+      },
+      boxShadow: {
+        'brutal': '6px 6px 0px 0px #0a0a0a',
+        'brutal-lg': '10px 10px 0px 0px #0a0a0a',
+        'brutal-sm': '3px 3px 0px 0px #0a0a0a',
+        'brutal-blue': '6px 6px 0px 0px #0047ff',
+        'brutal-red': '6px 6px 0px 0px #ff1a1a',
+      }
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Space+Grotesk:wght@400;500;700&family=Syne:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  body {
+    background: #fffef5;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #0a0a0a;
+    overflow-x: hidden;
+    cursor: none;
+  }
+  @media (max-width: 768px) {
+    body { cursor: auto; }
+    #cursor, #cursor-follower { display: none !important; }
+  }
+  ::selection { background: #ffde00; color: #0a0a0a; }
+  /* Grain */
+  #grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+  /* Custom cursor */
+  #cursor {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: #ff1a1a;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    mix-blend-mode: normal;
+    transition: transform 0.15s ease;
+  }
+  #cursor-follower {
+    position: fixed;
+    width: 48px;
+    height: 48px;
+    border: 2.5px solid #0a0a0a;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.2s, height 0.2s, background 0.2s, border-color 0.2s;
+  }
+  #cursor-follower.hover {
+    width: 80px;
+    height: 80px;
+    background: #ffde00;
+    border-color: #0a0a0a;
+    mix-blend-mode: normal;
+  }
+  #cursor-follower.blind {
+    background: #0047ff;
+    border-color: white;
+    width: 100px;
+    height: 100px;
+  }
+  /* Marquee */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 30s linear infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  /* Reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px) rotate(0.5deg);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* Toy card hover */
+  .toy-card {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+  }
+  .toy-card:hover {
+    transform: translate(-4px, -6px) rotate(-1deg);
+    box-shadow: 12px 12px 0px 0px #0a0a0a !important;
+  }
+  /* Brutal button */
+  .btn-brutal {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #0a0a0a;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    transition: all 0.15s ease;
+  }
+  .btn-brutal:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px 0px #0a0a0a !important;
+  }
+  /* Halftone */
+  .halftone {
+    background-image: radial-gradient(#0a0a0a 1.5px, transparent 1.5px);
+    background-size: 14px 14px;
+    opacity: 0.08;
+  }
+  /* Shake */
+  @keyframes shake {
+    0% { transform: translateX(0) rotate(0deg); }
+    15% { transform: translateX(-6px) rotate(-3deg); }
+    30% { transform: translateX(5px) rotate(3deg); }
+    45% { transform: translateX(-5px) rotate(-2deg); }
+    60% { transform: translateX(4px) rotate(2deg); }
+    75% { transform: translateX(-3px) rotate(-1deg); }
+    100% { transform: translateX(0) rotate(0deg); }
+  }
+  .shake { animation: shake 0.6s ease infinite; }
+  /* Sticker */
+  .sticker {
+    transform: rotate(-6deg);
+    box-shadow: 2px 4px 0 #0a0a0a;
+  }
+  /* Scroll bar */
+  #progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 6px;
+    background: #ff1a1a;
+    z-index: 10001;
+    transform-origin: left;
+    width: 100%;
+    transform: scaleX(0);
+  }
+  /* Outline text */
+  .outline-text {
+    -webkit-text-stroke: 2.5px #0a0a0a;
+    color: transparent;
+  }
+  .outline-text-white {
+    -webkit-text-stroke: 2px white;
+    color: transparent;
+  }
+</style>
+</head>
+<body class="bg-kikai-paper">
+
+<div id="grain"></div>
+<div id="progress"></div>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+
+<!-- NAV -->
+<nav class="fixed top-0 w-full z-50 bg-white border-b-[3px] border-kikai-black">
+  <div class="flex items-center justify-between px-4 md:px-8 h-[64px] md:h-[72px]">
+    <!-- Logo -->
+    <div class="flex items-center gap-4">
+      <div class="w-11 h-11 rounded-full bg-kikai-red border-[3px] border-kikai-black flex items-center justify-center font-display text-[18px] text-white leading-none pt-1">K!</div>
+      <div class="leading-[0.9]">
+        <div class="font-display text-[19px] md:text-[22px] tracking-[-0.02em] leading-none">KIKAI MART</div>
+        <div class="font-rounded font-bold text-[10px] tracking-[0.2em] uppercase opacity-60 -mt-[1px]">機界トイ • SINCE 2011</div>
+      </div>
+      <div class="hidden lg:flex items-center gap-2 ml-6">
+        <span class="px-2 py-1 bg-kikai-yellow border-2 border-kikai-black text-[10px] font-bold rounded-full">HARAJUKU</span>
+        <span class="px-2 py-1 bg-white border-2 border-kikai-black text-[10px] font-bold rounded-full">LOS ANGELES</span>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <div class="hidden md:flex items-center gap-1">
+      <a href="#inventory" class="px-4 py-2 font-bold text-[13px] uppercase tracking-wider hover:bg-kikai-yellow border-2 border-transparent hover:border-kikai-black rounded-full transition-all">Inventory</a>
+      <a href="#blind" class="px-4 py-2 font-bold text-[13px] uppercase tracking-wider hover:bg-kikai-yellow border-2 border-transparent hover:border-kikai-black rounded-full transition-all">Blind Box</a>
+      <a href="#vault" class="px-4 py-2 font-bold text-[13px] uppercase tracking-wider hover:bg-kikai-yellow border-2 border-transparent hover:border-kikai-black rounded-full transition-all">Vault</a>
+      <a href="#visit" class="px-4 py-2 font-bold text-[13px] uppercase tracking-wider hover:bg-kikai-yellow border-2 border-transparent hover:border-kikai-black rounded-full transition-all">Visit</a>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2 md:gap-3">
+      <button id="searchBtn" class="w-[42px] h-[42px] md:w-[44px] md:h-[44px] border-[2.5px] border-kikai-black rounded-full bg-white grid place-items-center hover:bg-kikai-yellow transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/></svg>
+      </button>
+      <button id="cartBtn" class="hidden md:flex items-center gap-2 pl-2 pr-4 h-[44px] border-[2.5px] border-kikai-black rounded-full bg-kikai-blue text-white font-bold text-[13px] shadow-brutal-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_#0a0a0a] transition-all">
+        <span class="w-7 h-7 rounded-full bg-white text-kikai-blue grid place-items-center text-[12px]">0</span>
+        CART
+      </button>
+      <button id="menuToggle" class="md:hidden w-[44px] h-[44px] border-[2.5px] border-kikai-black rounded-full bg-kikai-yellow grid place-items-center font-display text-[16px]">≡</button>
+    </div>
+  </div>
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="hidden md:hidden border-t-[3px] border-kikai-black bg-white px-4 py-6 flex-col gap-3">
+    <a href="#inventory" class="py-3 font-display text-[22px] border-b-2 border-black/10">Inventory</a>
+    <a href="#blind" class="py-3 font-display text-[22px] border-b-2 border-black/10">Blind Box Lab</a>
+    <a href="#vault" class="py-3 font-display text-[22px] border-b-2 border-black/10">Vault</a>
+    <a href="#visit" class="py-3 font-display text-[22px]">Visit Store</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="relative pt-[64px] md:pt-[72px] min-h-[92vh] bg-white overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+    <div class="absolute left-[4%] top-[18%] w-[22vw] h-[22vw] max-w-[320px] max-h-[320px] rounded-full bg-kikai-yellow border-[3px] border-kikai-black"></div>
+    <div class="absolute right-[6%] bottom-[10%] w-[18vw] h-[18vw] max-w-[260px] max-h-[260px] rounded-full bg-kikai-blue border-[3px] border-kikai-black"></div>
+    <div class="halftone absolute inset-0"></div>
+  </div>
+
+  <div class="relative max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] min-h-[88vh]">
+    <!-- Left typography -->
+    <div class="px-6 md:px-10 lg:px-14 xl:px-20 py-10 md:py-16 lg:py-20 flex flex-col justify-center order-2 lg:order-1">
+      <div class="reveal inline-flex items-center gap-3 mb-6">
+        <span class="inline-block px-3 py-1 bg-kikai-red text-white border-[2.5px] border-kikai-black rounded-full font-bold text-[11px] tracking-[0.15em] uppercase shadow-brutal-sm">New in: Sofubi Archive Drop #42</span>
+        <span class="hidden md:inline font-rounded text-[13px] font-bold opacity-60">在庫あり • 限定生産 • コレクターズグレード</span>
+      </div>
+
+      <h1 class="font-display leading-[0.85] tracking-[-0.03em] text-[15vw] md:text-[9vw] lg:text-[6.8vw] xl:text-[7.2vw]">
+        <span class="block reveal">TOYS</span>
+        <span class="block reveal reveal-delay-1 flex items-center gap-3 md:gap-6">
+          <span class="outline-text">FOR</span>
+          <span class="inline-block w-[12vw] md:w-[7vw] lg:w-[5.5vw] h-[8vw] md:h-[4.5vw] lg:h-[3.6vw] bg-kikai-blue border-[3px] border-kikai-black rounded-full relative overflow-hidden -rotate-2">
+            <img src="https://images.unsplash.com/photo-1563396983906-b3795482a59a?q=80&w=400" class="absolute inset-0 w-full h-full object-cover" alt="">
+          </span>
+          <span>GROWN</span>
+        </span>
+        <span class="block reveal reveal-delay-2 flex items-center">
+          <span class="bg-kikai-yellow border-[3px] border-kikai-black px-3 md:px-6 rounded-[20px] -rotate-1">—UPS</span>
+          <span class="ml-3 md:ml-6">WHO</span>
+        </span>
+        <span class="block reveal reveal-delay-3 text-kikai-red">NEVER GREW UP.</span>
+      </h1>
+
+      <div class="mt-8 md:mt-10 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-end">
+        <p class="font-grotesk text-[18px] md:text-[20px] leading-[1.3] max-w-[46ch] font-medium reveal">
+          A collector-grade toy depot in Ray-Kashiku and Arts District. We hunt sofubi, kaiju, be@rbrick, gacha, and deadstock miracles. No algorithms. Just shelves, stories, and plastic that hums.
+          <span class="inline-block ml-2 px-2 py-0.5 bg-kikai-black text-white text-[12px] rounded-full">機界</span>
+        </p>
+        <div class="flex gap-3 reveal">
+          <a href="#inventory" class="btn-brutal bg-kikai-red text-white px-7 h-[56px] rounded-full text-[15px] shadow-brutal hover:shadow-[8px_8px_0px_0px_#0a0a0a] hover:translate-x-[-2px] hover:translate-y-[-2px]">
+            Enter Inventory →
+          </a>
+          <a href="#blind" class="btn-brutal bg-white px-6 h-[56px] rounded-full text-[13px] shadow-brutal-sm hover:bg-kikai-yellow">
+            Blind Box?
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="mt-10 md:mt-14 grid grid-cols-3 border-[3px] border-kikai-black rounded-[24px] overflow-hidden bg-white shadow-brutal reveal">
+        <div class="p-4 md:p-6 border-r-[3px] border-kikai-black">
+          <div class="font-display text-[26px] md:text-[34px] leading-none">12,000+</div>
+          <div class="font-bold text-[11px] tracking-[0.15em] uppercase opacity-60 mt-1">Toys Catalogued</div>
+        </div>
+        <div class="p-4 md:p-6 border-r-[3px] border-kikai-black bg-kikai-yellow">
+          <div class="font-display text-[26px] md:text-[34px] leading-none">1987</div>
+          <div class="font-bold text-[11px] tracking-[0.15em] uppercase opacity-60 mt-1">Oldest Kaiju In Stock</div>
+        </div>
+        <div class="p-4 md:p-6">
+          <div class="font-display text-[26px] md:text-[34px] leading-none">4.9/5</div>
+          <div class="font-bold text-[11px] tracking-[0.15em] uppercase opacity-60 mt-1">Collector Trust • 2,103 reviews</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right showcase -->
+    <div class="relative bg-kikai-paper border-b-[3px] lg:border-b-0 lg:border-l-[3px] border-kikai-black p-4 md:p-8 order-1 lg:order-2 min-h-[520px] md:min-h-[640px] overflow-hidden">
+      <div class="absolute top-6 left-6 right-6 flex justify-between items-start z-20">
+        <div class="flex gap-2">
+          <span class="sticker inline-block bg-white border-[2px] border-kikai-black rounded-full px-3 py-1 font-bold text-[10px] uppercase">Staff Picks</span>
+          <span class="sticker inline-block bg-kikai-red text-white border-[2px] border-kikai-black rounded-full px-3 py-1 font-bold text-[10px] uppercase rotate-[3deg]">Deadstock</span>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-kikai-black text-white grid place-items-center font-bold text-[10px] leading-none text-center">OPEN<br>DAILY</div>
+      </div>
+
+      <!-- Toy shelf grid -->
+      <div class="relative mt-16 md:mt-14 grid grid-cols-2 gap-4 max-w-[560px] mx-auto">
+        <!-- Card 1 large -->
+        <div class="toy-card col-span-2 row-span-2 bg-white border-[3px] border-kikai-black rounded-[28px] p-3 shadow-brutal overflow-hidden relative">
+          <div class="absolute top-3 left-3 z-10 flex gap-1">
+            <span class="px-2 py-1 bg-kikai-blue text-white text-[10px] font-bold rounded-full border-2 border-kikai-black">RARE</span>
+            <span class="px-2 py-1 bg-kikai-yellow text-black text-[10px] font-bold rounded-full border-2 border-kikai-black">¥28,000</span>
+          </div>
+          <img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?q=80&w=800&auto=format&fit=crop" alt="Collector toy" class="w-full h-[300px] md:h-[380px] object-cover rounded-[20px] border-[2.5px] border-kikai-black">
+          <div class="pt-4 px-2 pb-2 flex justify-between items-end">
+            <div>
+              <div class="font-display text-[22px] leading-none">Bullmark • Mechagodzilla</div>
+              <div class="font-rounded text-[13px] opacity-60 mt-1">1974 • Showa • Sofubi • Repainted</div>
+            </div>
+            <button class="w-10 h-10 rounded-full bg-kikai-black text-white grid place-items-center">→</button>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="toy-card bg-kikai-yellow border-[3px] border-kikai-black rounded-[24px] p-3 shadow-brutal overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=600&auto=format&fit=crop" alt="toy" class="w-full h-[140px] object-cover rounded-[16px] border-[2.5px] border-kikai-black">
+          <div class="mt-3 font-display text-[14px] leading-[1]">MediCom<br>Be@rbrick 400%</div>
+          <div class="mt-2 inline-block px-2 py-1 bg-white border-2 border-kikai-black rounded-full text-[10px] font-bold">$185</div>
+        </div>
+        <!-- Card 3 -->
+        <div class="toy-card bg-white border-[3px] border-kikai-black rounded-[24px] p-3 shadow-brutal overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1558060370-d644479cb6f7?q=80&w=600&auto=format&fit=crop" alt="toy" class="w-full h-[140px] object-cover rounded-[16px] border-[2.5px] border-kikai-black">
+          <div class="mt-3 font-display text-[14px] leading-[1]">Gundam RX<br>Ver. Ka MG</div>
+          <div class="mt-2 inline-block px-2 py-1 bg-kikai-red text-white border-2 border-kikai-black rounded-full text-[10px] font-bold">$92</div>
+        </div>
+        <!-- Floating sticker -->
+        <div class="absolute -bottom-6 -left-6 md:-bottom-8 md:-left-8 sticker bg-kikai-blue text-white border-[3px] border-white rounded-[16px] px-4 py-3 rotate-[-8deg] shadow-brutal z-30">
+          <div class="font-display text-[18px] leading-none">BLIND BOX<br>INSIDE →</div>
+          <div class="font-bold text-[10px] mt-1 uppercase tracking-wider">Shake to reveal rarity</div>
+        </div>
+      </div>
+
+      <!-- Vertical JP -->
+      <div class="hidden lg:block absolute right-4 top-1/2 -translate-y-1/2 writing-mode-vertical font-rounded font-bold text-[13px] tracking-[0.3em] opacity-20 [writing-mode:vertical-rl]">機界トイマート • コレクターズデポ • 原宿 • ロサンゼルス</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="relative bg-kikai-black text-white border-y-[3px] border-kikai-black overflow-hidden h-[54px] flex items-center">
+  <div class="marquee-track">
+    <div class="flex items-center gap-8 px-6 font-display text-[22px] tracking-[0.02em] whitespace-nowrap">
+      <span>SOFUBI • ソフビ</span><span class="w-2 h-2 rounded-full bg-kikai-yellow"></span>
+      <span>GASHAPON • ガチャポン</span><span class="w-2 h-2 rounded-full bg-kikai-red"></span>
+      <span>KAIJU • 怪獣</span><span class="w-2 h-2 rounded-full bg-kikai-blue"></span>
+      <span>BE@RBRICK • ベアブリック</span><span class="w-2 h-2 rounded-full bg-white"></span>
+      <span>GUNDAM • ガンダム</span><span class="w-2 h-2 rounded-full bg-kikai-yellow"></span>
+      <span>BIDDY BUDDIES</span><span class="w-2 h-2 rounded-full bg-kikai-red"></span>
+    </div>
+    <div class="flex items-center gap-8 px-6 font-display text-[22px] tracking-[0.02em] whitespace-nowrap" aria-hidden="true">
+      <span>SOFUBI • ソフビ</span><span class="w-2 h-2 rounded-full bg-kikai-yellow"></span>
+      <span>GASHAPON • ガチャポン</span><span class="w-2 h-2 rounded-full bg-kikai-red"></span>
+      <span>KAIJU • 怪獣</span><span class="w-2 h-2 rounded-full bg-kikai-blue"></span>
+      <span>BE@RBRICK • ベアブリック</span><span class="w-2 h-2 rounded-full bg-white"></span>
+      <span>GUNDAM • ガンダム</span><span class="w-2 h-2 rounded-full bg-kikai-yellow"></span>
+      <span>BIDDY BUDDIES</span><span class="w-2 h-2 rounded-full bg-kikai-red"></span>
+    </div>
+  </div>
+</div>
+
+<!-- STORY / ORIGIN -->
+<section id="story" class="relative bg-white border-b-[3px] border-kikai-black overflow-hidden">
+  <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
+    <!-- Image collage -->
+    <div class="relative bg-kikai-yellow border-b-[3px] lg:border-b-0 lg:border-r-[3px] border-kikai-black p-6 md:p-10">
+      <div class="reveal relative aspect-[4/5] md:aspect-[5/5.5] max-w-[560px] mx-auto">
+        <div class="absolute inset-0 bg-white border-[3px] border-kikai-black rounded-[32px] shadow-brutal-lg rotate-[-1.5deg] overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=1000&auto=format&fit=crop" alt="Toy collector shop" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+        </div>
+        <!-- floating polaroids -->
+        <div class="absolute -top-6 -right-2 md:top-4 md:-right-8 bg-white border-[3px] border-kikai-black rounded-[16px] p-2 shadow-brutal rotate-[6deg] w-[160px] md:w-[190px]">
+          <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?q=80&w=400&auto=format&fit=crop" class="w-full h-[110px] md:h-[130px] object-cover rounded-[10px] border-2 border-kikai-black" alt="">
+          <div class="pt-2 pb-1 px-1 font-rounded font-bold text-[11px] leading-[1.2]">First store in<br>Harajuku, 2011 — before the hype.</div>
+        </div>
+        <div class="absolute bottom-8 -left-6 md:-left-10 bg-kikai-blue text-white border-[3px] border-kikai-black rounded-[18px] p-4 shadow-brutal rotate-[-4deg] max-w-[200px]">
+          <div class="font-display text-[16px] leading-[1]">“We don’t sell toys. We re-home memories.”</div>
+          <div class="mt-2 font-bold text-[10px] uppercase tracking-wider opacity-80">— Yuki, Founder</div>
+        </div>
+      </div>
+
+      <!-- timeline -->
+      <div class="mt-12 md:mt-16 grid grid-cols-3 gap-3 max-w-[560px] mx-auto">
+        <div class="bg-white border-[2.5px] border-kikai-black rounded-[16px] p-3 md:p-4">
+          <div class="font-display text-[18px] leading-none">1964</div>
+          <div class="text-[11px] font-bold mt-1 leading-[1.2]">Bullmark invents soft vinyl kaiju</div>
+        </div>
+        <div class="bg-kikai-red text-white border-[2.5px] border-kikai-black rounded-[16px] p-3 md:p-4 -rotate-1">
+          <div class="font-display text-[18px] leading-none">1999</div>
+          <div class="text-[11px] font-bold mt-1 leading-[1.2]">Kubrick & Bounty Hunter era</div>
+        </div>
+        <div class="bg-white border-[2.5px] border-kikai-black rounded-[16px] p-3 md:p-4 rotate-1">
+          <div class="font-display text-[18px] leading-none">Now</div>
+          <div class="text-[11px] font-bold mt-1 leading-[1.2]">Archive + artists + trade tables</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Story copy -->
+    <div class="px-6 md:px-12 lg:px-16 xl:px-20 py-12 md:py-20 lg:py-24">
+      <div class="reveal inline-flex items-center gap-2 mb-8">
+        <span class="w-2 h-2 rounded-full bg-kikai-red"></span>
+        <span class="font-bold text-[11px] tracking-[0.2em] uppercase">Our Story • ストーリー</span>
+      </div>
+      <h2 class="reveal font-display leading-[0.9] text-[42px] md:text-[64px] lg:text-[56px] xl:text-[72px] tracking-[-0.03em]">
+        <span class="block">MADE FOR THE KIDS</span>
+        <span class="block outline-text">WHO CHECKED</span>
+        <span class="block">THE BOTTOM OF THE BOX.</span>
+      </h2>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-8 md:gap-10">
+        <div class="reveal font-grotesk text-[17px] leading-[1.5] space-y-4">
+          <p><strong>KIKAI MART</strong> started as one folding table outside a Nakano arcade. Yuki traded duplicate M1 Gorgos for ramen vouchers, then for a garage, then for two shops that smell like cardboard and new paint.</p>
+          <p>We’re not a big-box nostalgia farm. We’re a <span class="bg-kikai-yellow px-2 py-0.5 border-[1.5px] border-kikai-black rounded-full font-bold">collector’s field notebook</span> — every stain on a cardback, every factory swirl in sofubi recorded.</p>
+          <div class="bg-kikai-paper border-[2.5px] border-kikai-black rounded-[16px] p-4 flex gap-4">
+            <img src="https://images.unsplash.com/photo-1602734846297-9299b2402aad?q=80&w=200&auto=format&fit=crop" class="w-[64px] h-[64px] rounded-full border-2 border-kikai-black object-cover" alt="">
+            <div>
+              <div class="font-bold text-[13px]">Yuki Tanaka × Maya Ruiz</div>
+              <div class="text-[12px] leading-[1.3] opacity-70 mt-1">Founders — one hunts in Osaka wholesalers at 5am, the other restores sun-faded boxes with cotton swabs. Together, 24 years of receipts.</div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1 space-y-4">
+          <div class="border-[3px] border-kikai-black rounded-[20px] overflow-hidden bg-white shadow-brutal-sm">
+            <div class="px-4 py-3 border-b-[3px] border-kikai-black flex justify-between items-center bg-kikai-blue text-white">
+              <span class="font-display text-[14px]">WHAT WE DO BEST</span>
+              <span class="w-5 h-5 rounded-full bg-white text-kikai-blue grid place-items-center font-bold text-[10px]">4</span>
+            </div>
+            <ul class="p-2 space-y-2">
+              <li class="flex gap-3 items-start p-3 border-[2px] border-kikai-black rounded-[12px] bg-kikai-paper">
+                <span class="w-6 h-6 rounded-full bg-kikai-red text-white grid place-items-center text-[12px] font-bold">1</span>
+                <div><div class="font-bold text-[13px] uppercase">Archive Hunting</div><div class="text-[12px] opacity-70">We buy entire apartments. Yes, really.</div></div>
+              </li>
+              <li class="flex gap-3 items-start p-3 border-[2px] border-kikai-black rounded-[12px]">
+                <span class="w-6 h-6 rounded-full bg-kikai-yellow border-2 border-kikai-black grid place-items-center text-[12px] font-bold">2</span>
+                <div><div class="font-bold text-[13px] uppercase">Sofubi Curation</div><div class="text-[12px] opacity-70">Hand-picked paint, legit provenance.</div></div>
+              </li>
+              <li class="flex gap-3 items-start p-3 border-[2px] border-kikai-black rounded-[12px]">
+                <span class="w-6 h-6 rounded-full bg-kikai-blue text-white grid place-items-center text-[12px] font-bold">3</span>
+                <div><div class="font-bold text-[13px] uppercase">Custom & Fix-it Lab</div><div class="text-[12px] opacity-70">Restoration, repaints, kit-bashes.</div></div>
+              </li>
+              <li class="flex gap-3 items-start p-3 border-[2px] border-kikai-black rounded-[12px] bg-kikai-yellow">
+                <span class="w-6 h-6 rounded-full bg-white border-2 border-kikai-black grid place-items-center text-[12px] font-bold">4</span>
+                <div><div class="font-bold text-[13px] uppercase">Trade Nights</div><div class="text-[12px] opacity-70">Every Thursday, BYO shelf dust.</div></div>
+              </li>
+            </ul>
+          </div>
+          <a href="#visit" class="w-full btn-brutal h-[52px] bg-kikai-black text-white rounded-full shadow-brutal-sm text-[13px]">Visit the lab →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INVENTORY / PRODUCTS -->
+<section id="inventory" class="relative bg-kikai-paper border-b-[3px] border-kikai-black">
+  <div class="px-6 md:px-10 lg:px-14 py-12 md:py-16 max-w-[1600px] mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 mb-4">
+          <span class="px-3 py-1 bg-kikai-blue text-white border-[2px] border-kikai-black rounded-full font-bold text-[11px] tracking-[0.15em] uppercase">Inventory • 在庫</span>
+          <span class="font-rounded font-bold text-[12px] opacity-60">Updated daily • Photos = actual item</span>
+        </div>
+        <h2 class="font-display text-[46px] md:text-[72px] leading-[0.85] tracking-[-0.02em]">THE TOY GRID.<br><span class="outline-text">PICK YOUR POISON.</span></h2>
+      </div>
+      <div class="reveal flex flex-wrap gap-2">
+        <button data-filter="all" class="filter-btn active px-5 h-[40px] rounded-full border-[2.5px] border-kikai-black bg-kikai-black text-white font-bold text-[12px] uppercase tracking-wider">All • 全部</button>
+        <button data-filter="sofubi" class="filter-btn px-5 h-[40px] rounded-full border-[2.5px] border-kikai-black bg-white font-bold text-[12px] uppercase tracking-wider hover:bg-kikai-yellow">Sofubi</button>
+        <button data-filter="art" class="filter-btn px-5 h-[40px] rounded-full border-[2.5px] border-kikai-black bg-white font-bold text-[12px] uppercase tracking-wider hover:bg-kikai-yellow">Art Toys</button>
+        <button data-filter="gacha" class="filter-btn px-5 h-[40px] rounded-full border-[2.5px] border-kikai-black bg-white font-bold text-[12px] uppercase tracking-wider hover:bg-kikai-yellow">Gacha • ガチャ</button>
+        <button data-filter="kits" class="filter-btn px-5 h-[40px] rounded-full border-[2.5px] border-kikai-black bg-white font-bold text-[12px] uppercase tracking-wider hover:bg-kikai-yellow">Kits</button>
+        <button data-filter="archive" class="filter-btn px-5 h-[40px] rounded-full border-[2.5px] border-kikai-black bg-white font-bold text-[12px] uppercase tracking-wider hover:bg-kikai-yellow">Archive</button>
+      </div>
+    </div>
+
+    <!-- Toy grid -->
+    <div id="toyGrid" class="mt-10 md:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+      <!-- item -->
+      <article data-cat="sofubi archive" class="toy-card group bg-white border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-kikai-yellow">
+          <img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?q=80&w=800&auto=format&fit=crop" alt="sofubi" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3 flex gap-1">
+            <span class="px-2.5 py-1 bg-kikai-red text-white border-2 border-kikai-black rounded-full text-[10px] font-bold uppercase">Sofubi</span>
+            <span class="px-2.5 py-1 bg-white border-2 border-kikai-black rounded-full text-[10px] font-bold uppercase">1/1 Paint</span>
+          </div>
+          <div class="absolute bottom-3 right-3 w-9 h-9 bg-white border-2 border-kikai-black rounded-full grid place-items-center font-bold text-[12px]">♡</div>
+        </div>
+        <div class="pt-4 px-1 flex-1 flex flex-col">
+          <div class="font-display text-[20px] leading-[0.95]">Marusan • Hedorah Smog ver.</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">1972 mold • 2024 TTF repaint • 9.5"</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$240</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-kikai-black text-white text-[11px] font-bold uppercase tracking-wider">Add • カート</button>
+          </div>
+        </div>
+      </article>
+
+      <article data-cat="art" class="toy-card group bg-white border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-kikai-blue">
+          <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=800&auto=format&fit=crop" alt="art toy" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3 flex gap-1">
+            <span class="px-2.5 py-1 bg-kikai-blue text-white border-2 border-white rounded-full text-[10px] font-bold uppercase">Art Toys</span>
+          </div>
+        </div>
+        <div class="pt-4 px-1 flex-1 flex flex-col">
+          <div class="font-display text-[20px] leading-[0.95]">MediCom Toy • Be@rbrick 400% B&W</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">Krzysztof Wodiczko collab • sealed</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$185</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-white border-2 border-kikai-black text-[11px] font-bold uppercase">Add</button>
+          </div>
+        </div>
+      </article>
+
+      <article data-cat="gacha" class="toy-card group bg-white border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col rotate-[0.6deg]">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-white">
+          <img src="https://images.unsplash.com/photo-1558060370-d644479cb6f7?q=80&w=800&auto=format&fit=crop" alt="gacha" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3">
+            <span class="px-2.5 py-1 bg-kikai-yellow border-2 border-kikai-black rounded-full text-[10px] font-bold uppercase">Gacha • 5 for $15</span>
+          </div>
+        </div>
+        <div class="pt-4 px-1">
+          <div class="font-display text-[20px] leading-[0.95]">Kenelephant • Dinosaur Skeleton Mini</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">Capsule • 2023 • glow in dark chase</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$4</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-kikai-yellow border-2 border-kikai-black text-[11px] font-bold uppercase">Add</button>
+          </div>
+        </div>
+      </article>
+
+      <article data-cat="kits" class="toy-card group bg-kikai-paper border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-white">
+          <img src="https://images.unsplash.com/photo-1602734846297-9299b2402aad?q=80&w=800&auto=format&fit=crop" alt="gundam kit" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3 flex gap-1">
+            <span class="px-2.5 py-1 bg-kikai-black text-white rounded-full text-[10px] font-bold uppercase">Kits • MG</span>
+            <span class="px-2.5 py-1 bg-kikai-red text-white border-2 border-kikai-black rounded-full text-[10px] font-bold">New Tool</span>
+          </div>
+        </div>
+        <div class="pt-4 px-1">
+          <div class="font-display text-[20px] leading-[0.95]">Bandai • MSN-06S Sinanju Stein Narrative</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">Ver. Ka • waterslides incl.</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$92</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-white border-2 border-kikai-black text-[11px] font-bold uppercase">Add</button>
+          </div>
+        </div>
+      </article>
+
+      <article data-cat="archive sofubi" class="toy-card group bg-white border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-kikai-paper">
+          <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=800&auto=format&fit=crop" alt="archive" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3 flex gap-1">
+            <span class="px-2.5 py-1 bg-white border-2 border-kikai-black rounded-full text-[10px] font-bold uppercase">Archive • 1989</span>
+          </div>
+        </div>
+        <div class="pt-4 px-1">
+          <div class="font-display text-[20px] leading-[0.95]">Takara • Microman M16 Jack</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">C-9 box • chrome fade • rare variant</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$310</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-kikai-black text-white text-[11px] font-bold uppercase">Add</button>
+          </div>
+        </div>
+      </article>
+
+      <article data-cat="art sofubi" class="toy-card group bg-white border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col -rotate-[0.7deg]">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-kikai-red">
+          <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?q=80&w=800&auto=format&fit=crop" alt="toy" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3 flex gap-1">
+            <span class="px-2.5 py-1 bg-white border-2 border-kikai-black rounded-full text-[10px] font-bold uppercase">Excl.</span>
+            <span class="px-2.5 py-1 bg-kikai-yellow border-2 border-kikai-black rounded-full text-[10px] font-bold uppercase">Artist Proof</span>
+          </div>
+        </div>
+        <div class="pt-4 px-1">
+          <div class="font-display text-[20px] leading-[0.95]">Instinctoy × Hiroto Ohkubo – Fluffy Diver</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">11" • Milky Milky colorway • 50 pcs</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$440</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-kikai-black text-white text-[11px] font-bold uppercase">Add</button>
+          </div>
+        </div>
+      </article>
+
+      <article data-cat="gacha kits" class="toy-card group bg-white border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-white">
+          <img src="https://images.unsplash.com/photo-1558877388-ff90a0d3f71a?q=80&w=800&auto=format&fit=crop" alt="toy" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3">
+            <span class="px-2.5 py-1 bg-kikai-blue text-white border-2 border-kikai-black rounded-full text-[10px] font-bold uppercase">Gacha Lab</span>
+          </div>
+        </div>
+        <div class="pt-4 px-1">
+          <div class="font-display text-[20px] leading-[0.95]">Fuchiko on the Cup • Blind Bag 2024</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">Kitan Club • 6 to collect + secret</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$5</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-white border-2 border-kikai-black text-[11px] font-bold uppercase">Add</button>
+          </div>
+        </div>
+      </article>
+
+      <article data-cat="archive kits" class="toy-card group bg-kikai-yellow border-[3px] border-kikai-black rounded-[28px] overflow-hidden shadow-brutal p-3 flex flex-col">
+        <div class="relative rounded-[18px] overflow-hidden border-[2.5px] border-kikai-black bg-white">
+          <img src="https://images.unsplash.com/photo-1515041219749-89347f83291a?q=80&w=800&auto=format&fit=crop" alt="vintage kit" class="w-full h-[250px] object-cover group-hover:scale-[1.05] transition-transform duration-700">
+          <div class="absolute top-3 left-3">
+            <span class="px-2.5 py-1 bg-kikai-black text-white rounded-full text-[10px] font-bold uppercase">Deadstock</span>
+          </div>
+        </div>
+        <div class="pt-4 px-1">
+          <div class="font-display text-[20px] leading-[0.95]">Bandai • Super MiniPla LiveRobo (1988)</div>
+          <div class="font-rounded text-[12px] opacity-60 mt-1">Unbuilt • candy toy • box art faded cool</div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="font-display text-[22px]">$68</div>
+            <button class="add-cart px-4 h-[36px] rounded-full bg-white border-2 border-kikai-black text-[11px] font-bold uppercase">Add</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="mt-10 flex justify-center">
+      <button id="loadMore" class="btn-brutal bg-white px-8 h-[50px] rounded-full border-[3px] border-kikai-black shadow-brutal text-[13px]">Load 24 more archive pulls →</button>
+    </div>
+  </div>
+</section>
+
+<!-- BLIND BOX LAB -->
+<section id="blind" class="relative bg-kikai-blue text-white border-b-[3px] border-kikai-black overflow-hidden">
+  <div class="absolute inset-0 halftone opacity-[0.07] bg-white"></div>
+  <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+    <div class="absolute left-[-5%] top-[15%] text-[28vw] font-display leading-none opacity-[0.06] select-none">???</div>
+  </div>
+  <div class="relative max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-2">
+    <div class="px-6 md:px-12 lg:px-16 py-14 md:py-20 lg:py-28">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-kikai-yellow text-kikai-black border-[2px] border-kikai-black rounded-full font-bold text-[11px] uppercase tracking-[0.15em]">Blind Box Lab • 実験室</div>
+      <h2 class="mt-6 font-display text-[48px] md:text-[76px] leading-[0.85] tracking-[-0.03em]">
+        SHAKE IT.<br>CRACK IT.<br><span class="text-kikai-yellow">PRAY IT’S<br>NOT A DUPE.</span>
+      </h2>
+      <p class="mt-6 font-grotesk text-[18px] leading-[1.4] max-w-[46ch] opacity-90">
+        Every blind box is packed in-store, not in a warehouse. We weight nothing. We peek nothing. 1 in 72 is the chase “Midnight Kaiju” — hand-sprayed in our back room at 2am.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <div class="px-4 py-3 bg-white text-kikai-black border-[2.5px] border-kikai-black rounded-[16px] shadow-brutal-sm">
+          <div class="font-display text-[12px] uppercase">Odds</div>
+          <div class="font-bold text-[13px] mt-1">Common 42% • Rare 28% • Super Rare 18% • Chase 1.4%</div>
+        </div>
+        <div class="px-4 py-3 bg-kikai-red border-[2.5px] border-white rounded-[16px] shadow-brutal-sm">
+          <div class="font-display text-[12px] uppercase">Drop</div>
+          <div class="font-bold text-[13px] mt-1">Daily at 11:11am — both shops + online</div>
+        </div>
+      </div>
+      <div class="mt-10 flex items-center gap-4">
+        <button id="shakeBtn" class="btn-brutal bg-kikai-yellow text-kikai-black px-8 h-[60px] rounded-full text-[16px] shadow-brutal hover:shadow-brutal-lg">SHAKE MY BOX 🎲</button>
+        <div class="font-rounded text-[12px] leading-[1.3] opacity-70 max-w-[18ch]">Interactive demo — no purchase. Real boxes are $12-$22, tradeable in store.</div>
+      </div>
+    </div>
+
+    <!-- Interactive box visual -->
+    <div class="relative bg-kikai-paper lg:border-l-[3px] border-kikai-black flex items-center justify-center p-8 md:p-12 min-h-[560px]">
+      <div class="relative w-full max-w-[420px]">
+        <!-- Box -->
+        <div id="blindBox" class="relative mx-auto w-[280px] md:w-[320px] aspect-[4/4.6] bg-white border-[4px] border-kikai-black rounded-[28px] shadow-brutal-lg overflow-hidden cursor-pointer select-none">
+          <div class="absolute top-0 left-0 w-full h-[56px] bg-kikai-red border-b-[4px] border-kikai-black flex items-center justify-between px-5">
+            <span class="font-display text-white text-[16px] tracking-wide">KIKAI MART • BLIND</span>
+            <span class="w-6 h-6 rounded-full bg-kikai-yellow border-2 border-kikai-black"></span>
+          </div>
+          <div class="pt-[56px] h-full flex flex-col">
+            <div class="flex-1 p-5 flex flex-col items-center justify-center relative">
+              <div id="boxQuestion" class="font-display text-[90px] leading-none text-kikai-black/10">?</div>
+              <div id="boxReveal" class="hidden absolute inset-0 p-4 flex flex-col">
+                <img id="revealImg" src="" class="w-full h-[220px] object-cover rounded-[16px] border-[3px] border-kikai-black" alt="">
+                <div class="mt-4">
+                  <div id="revealName" class="font-display text-[20px] leading-none"></div>
+                  <div id="revealMeta" class="font-rounded text-[12px] mt-1"></div>
+                  <div id="revealRarity" class="mt-3 inline-block px-3 py-1 border-2 border-kikai-black rounded-full text-[11px] font-bold uppercase"></div>
+                </div>
+              </div>
+              <div class="mt-6 text-center">
+                <div class="inline-block px-3 py-1 bg-kikai-yellow border-[2px] border-kikai-black rounded-full font-bold text-[11px] uppercase">Tap to shake</div>
+              </div>
+            </div>
+            <div class="h-[58px] border-t-[4px] border-kikai-black bg-kikai-black text-white flex items-center justify-between px-5 font-bold text-[11px] tracking-[0.15em] uppercase">
+              <span>機界ブラインドボックス</span><span>Vol. 7 — Harajuku Nights</span>
+            </div>
+          </div>
+          <!-- tape -->
+          <div class="absolute top-[76px] -left-2 w-[48px] h-[20px] bg-kikai-yellow border-[2px] border-kikai-black rounded-full rotate-[-12deg] grid place-items-center font-bold text-[8px]">SEALED</div>
+        </div>
+
+        <!-- floating hints -->
+        <div class="absolute -top-4 -right-2 md:right-0 bg-kikai-blue text-white border-[2.5px] border-white rounded-full px-4 py-2 font-bold text-[11px] uppercase rotate-[8deg] shadow-brutal">No peeking policy</div>
+        <div class="absolute -bottom-2 -left-2 bg-white border-[2.5px] border-kikai-black rounded-[12px] px-3 py-2 rotate-[-6deg] shadow-brutal-sm">
+          <div class="font-display text-[12px] leading-none">72 variants + 2 secrets</div>
+          <div class="font-bold text-[10px] opacity-60">Trading post: Bring dupes = get 10% off</div>
+        </div>
+      </div>
+
+      <!-- confetti canvas -->
+      <canvas id="confetti" class="absolute inset-0 pointer-events-none"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- VAULT / GALLERY -->
+<section id="vault" class="relative bg-white border-b-[3px] border-kikai-black overflow-hidden">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 py-14 md:py-20">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-2 mb-4">
+          <span class="w-2 h-2 bg-kikai-red rounded-full animate-pulse"></span>
+          <span class="font-bold text-[11px] tracking-[0.2em] uppercase">The Vault • 金庫 • Archive Room</span>
+        </div>
+        <h2 class="font-display text-[44px] md:text-[72px] leading-[0.85] tracking-[-0.03em]">
+          SHELVES THAT<br>
+          <span class="bg-kikai-black text-white px-3 rounded-[14px]">SMELL LIKE 1987.</span>
+        </h2>
+      </div>
+      <p class="reveal max-w-[44ch] font-grotesk text-[16px] leading-[1.5]">No glass cases with spotlights. Just milk crates, Detolfs, and labels written in marker that smudged. Come pull a figure, check the joints, sniff the plastic. That’s the test.</p>
+    </div>
+
+    <!-- masonry gallery -->
+    <div class="mt-10 md:mt-14 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5 auto-rows-[240px]">
+      <div class="reveal md:col-span-7 md:row-span-2 relative rounded-[28px] border-[3px] border-kikai-black overflow-hidden shadow-brutal group">
+        <img src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=1200&auto=format&fit=crop" alt="vault shelf" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+        <div class="absolute bottom-0 left-0 p-6 md:p-8 text-white">
+          <div class="font-display text-[26px] md:text-[30px] leading-none">Wall of 1,400 Gacha Capsules</div>
+          <div class="font-rounded text-[13px] mt-2 opacity-80">Every capsule cracked, logged, and back-sealed with a smile. Ask for the ladder.</div>
+        </div>
+        <div class="absolute top-4 left-4 bg-kikai-yellow text-black border-[2px] border-kikai-black rounded-full px-3 py-1 text-[10px] font-bold uppercase">Currently: Harajuku store</div>
+      </div>
+      <div class="reveal reveal-delay-1 md:col-span-5 md:row-span-1 relative rounded-[28px] border-[3px] border-kikai-black overflow-hidden shadow-brutal group bg-kikai-yellow p-0">
+        <img src="https://images.unsplash.com/photo-1558060370-d644479cb6f7?q=80&w=800&auto=format&fit=crop" alt="collection" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700">
+        <div class="absolute bottom-3 left-3 bg-white border-[2px] border-kikai-black rounded-full px-3 py-1 text-[10px] font-bold uppercase">Kitbash corner • BYO nippers</div>
+      </div>
+      <div class="reveal reveal-delay-2 md:col-span-5 md:row-span-1 relative rounded-[28px] border-[3px] border-kikai-black overflow-hidden shadow-brutal bg-kikai-blue">
+        <div class="p-6 md:p-7 h-full flex flex-col justify-between text-white">
+          <div class="font-display text-[28px] leading-[0.9]">THE COLOR<br>TEST WALL.</div>
+          <div class="flex gap-2 mt-4">
+            <div class="w-10 h-10 rounded-full bg-kikai-yellow border-[3px] border-white"></div>
+            <div class="w-10 h-10 rounded-full bg-kikai-red border-[3px] border-white"></div>
+            <div class="w-10 h-10 rounded-full bg-white border-[3px] border-kikai-black"></div>
+            <div class="w-10 h-10 rounded-full bg-black border-[3px] border-white"></div>
+          </div>
+          <p class="font-rounded text-[12px] mt-4 opacity-80 leading-[1.3]">Every paint app is compared under daylight. No filtered photos, ever. What you see is what yellows in 10 years.</p>
+        </div>
+      </div>
+      <div class="reveal md:col-span-5 md:row-span-1 relative rounded-[28px] border-[3px] border-kikai-black overflow-hidden shadow-brutal group">
+        <img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?q=80&w=800&auto=format&fit=crop" alt="shelf" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700">
+        <div class="absolute inset-0 bg-kikai-black/20"></div>
+        <div class="absolute bottom-3 left-3 bg-white border-[2px] border-kikai-black rounded-full px-3 py-1 font-bold text-[11px]">Sofubi hospital →</div>
+      </div>
+      <div class="reveal reveal-delay-1 md:col-span-7 md:row-span-1 relative rounded-[28px] border-[3px] border-kikai-black overflow-hidden shadow-brutal group">
+        <img src="https://images.unsplash.com/photo-1563396983906-b3795482a59a?q=80&w=1200&auto=format&fit=crop" alt="store interior" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700">
+        <div class="absolute top-4 right-4 bg-kikai-red text-white border-[2px] border-kikai-black rounded-full px-3 py-1 text-[10px] font-bold uppercase">No photos? Nah, photos OK. Just don’t use flash.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / VOICES -->
+<section id="voices" class="relative bg-kikai-yellow border-b-[3px] border-kikai-black overflow-hidden">
+  <div class="absolute inset-0 halftone opacity-[0.06]"></div>
+  <div class="relative max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 py-14 md:py-20">
+    <div class="flex items-center justify-between mb-10">
+      <h2 class="reveal font-display text-[36px] md:text-[54px] leading-[0.9]">COLLECTOR VOICES • <span class="text-kikai-blue">声</span></h2>
+      <div class="hidden md:flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-kikai-red animate-pulse"></span>
+        <span class="font-bold text-[11px] tracking-[0.15em] uppercase">Live from Discord • #pulls-today</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+      <!-- Voice 1 -->
+      <div class="reveal bg-white border-[3px] border-kikai-black rounded-[24px] p-5 md:p-6 shadow-brutal -rotate-[0.6deg]">
+        <div class="flex items-start gap-4">
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 rounded-full border-[2.5px] border-kikai-black object-cover" alt="">
+          <div class="flex-1">
+            <div class="font-display text-[14px] leading-none">@kenji_god_zilla</div>
+            <div class="font-rounded text-[11px] opacity-60">Collector since 1998 • 412 pieces</div>
+          </div>
+          <span class="px-2 py-1 bg-kikai-blue text-white border-2 border-kikai-black rounded-full text-[10px] font-bold">VERIFIED</span>
+        </div>
+        <p class="mt-4 font-grotesk text-[15px] leading-[1.4]">“Yuki found my grail Bullmark Gigan in a box labeled ‘broken toys – free.’ It wasn’t broken. It was just missing love. Still has the original price tag ¥500.”</p>
+        <div class="mt-4 flex gap-1">
+          <span class="text-[16px]">★★★★★</span><span class="font-bold text-[11px] opacity-60 ml-2">in-store trade • Harajuku</span>
+        </div>
+      </div>
+      <!-- Voice 2 -->
+      <div class="reveal reveal-delay-1 bg-kikai-black text-white border-[3px] border-kikai-black rounded-[24px] p-5 md:p-6 shadow-brutal rotate-[0.8deg]">
+        <div class="flex items-start gap-4">
+          <img src="https://images.unsplash.com/photo-1526510747491-58f928ec870f?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 rounded-full border-[2.5px] border-white object-cover" alt="">
+          <div class="flex-1">
+            <div class="font-display text-[14px] leading-none text-kikai-yellow">Maya R.</div>
+            <div class="font-rounded text-[11px] opacity-60">Custom painter • LA</div>
+          </div>
+          <span class="px-2 py-1 bg-kikai-yellow text-black border-2 border-white rounded-full text-[10px] font-bold">ARTIST</span>
+        </div>
+        <p class="mt-4 font-grotesk text-[15px] leading-[1.4]">“They let me use the back room to spray. No rent, just bring snacks. That’s how my ‘Neon Ghost’ sofubi was born. Now it’s shelf #3 in the store. Wild.”</p>
+        <div class="mt-4 flex gap-2">
+          <span class="px-2 py-1 bg-white text-kikai-black rounded-full text-[10px] font-bold border-2 border-kikai-black">Custom in stock</span>
+          <span class="px-2 py-1 bg-kikai-red text-white rounded-full text-[10px] font-bold border-2 border-white">Exclusive</span>
+        </div>
+      </div>
+      <!-- Voice 3 -->
+      <div class="reveal reveal-delay-2 bg-white border-[3px] border-kikai-black rounded-[24px] p-5 md:p-6 shadow-brutal rotate-[-0.5deg]">
+        <div class="flex items-start gap-4">
+          <img src="https://images.unsplash.com/photo-1544723795-3fb6469f2f70?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 rounded-full border-[2.5px] border-kikai-black object-cover" alt="">
+          <div class="flex-1">
+            <div class="font-display text-[14px] leading-none">Sofia & Leo (10)</div>
+            <div class="font-rounded text-[11px] opacity-60">First time collectors</div>
+          </div>
+          <span class="px-2 py-1 bg-kikai-yellow border-2 border-kikai-black rounded-full text-[10px] font-bold">NEWBIES</span>
+        </div>
+        <p class="mt-4 font-grotesk text-[15px] leading-[1.4]">“We went for one gacha and left with a box of building instructions in Japanese. The staff taught Leo how to say ‘kakkoii!’ We’ve been back 6 Saturdays in a row.”</p>
+        <div class="mt-4 font-bold text-[11px] uppercase tracking-wider opacity-60">Arts District location • Trade night Thursdays 6-9pm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT / CONTACT -->
+<section id="visit" class="relative bg-white overflow-hidden">
+  <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr]">
+    <div class="px-6 md:px-10 lg:px-14 xl:px-20 py-12 md:py-20">
+      <div class="reveal inline-flex items-center gap-2 mb-6">
+        <span class="px-3 py-1 bg-kikai-red text-white border-2 border-kikai-black rounded-full font-bold text-[11px] uppercase tracking-wider">Visit • 来店</span>
+        <span class="font-bold text-[11px] tracking-[0.2em] uppercase opacity-60">Two shops, same chaos</span>
+      </div>
+      <h2 class="reveal font-display text-[46px] md:text-[68px] leading-[0.85] tracking-[-0.02em]">
+        PULL UP.<br>
+        <span class="outline-text">TOUCH STUFF.</span><br>
+        <span class="bg-kikai-blue text-white px-3 rounded-[12px]">STAY AWHILE.</span>
+      </h2>
+
+      <!-- locations -->
+      <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="reveal bg-kikai-paper border-[3px] border-kikai-black rounded-[24px] p-6 shadow-brutal">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-kikai-yellow border-[2.5px] border-kikai-black grid place-items-center font-display text-[14px]">JP</div>
+            <div><div class="font-display text-[18px] leading-none">Harajuku • 原宿</div><div class="font-rounded text-[11px] opacity-60">2F, 1-8-9 Jingumae, Shibuya-ku</div></div>
+          </div>
+          <div class="mt-4 space-y-2 font-grotesk text-[13px] leading-[1.4]">
+            <div class="flex justify-between border-b border-dashed border-kikai-black/20 py-1.5"><span class="opacity-60">Mon–Fri</span><span class="font-bold">12:00–20:00</span></div>
+            <div class="flex justify-between border-b border-dashed border-kikai-black/20 py-1.5"><span class="opacity-60">Sat–Sun</span><span class="font-bold">11:00–21:00</span></div>
+            <div class="flex justify-between py-1.5"><span class="opacity-60">Trade night</span><span class="font-bold">Thu 18:00–21:00 • Free</span></div>
+          </div>
+          <div class="mt-4 inline-flex gap-2">
+            <span class="px-2.5 py-1 bg-white border-2 border-kikai-black rounded-full text-[10px] font-bold">Sofubi wall 3F high</span>
+            <span class="px-2.5 py-1 bg-kikai-red text-white border-2 border-kikai-black rounded-full text-[10px] font-bold">Cash only for archive</span>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-1 bg-kikai-black text-white border-[3px] border-kikai-black rounded-[24px] p-6 shadow-brutal-blue">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-kikai-blue border-[2.5px] border-white grid place-items-center font-display text-[14px] text-white">LA</div>
+            <div><div class="font-display text-[18px] leading-none">Arts District • DTLA</div><div class="font-rounded text-[11px] opacity-60">1024 S Santa Fe Ave, Los Angeles</div></div>
+          </div>
+          <div class="mt-4 space-y-2 font-grotesk text-[13px] leading-[1.4]">
+            <div class="flex justify-between border-b border-dashed border-white/20 py-1.5"><span class="opacity-60">Wed–Sun</span><span class="font-bold">11:30–19:00</span></div>
+            <div class="flex justify-between border-b border-dashed border-white/20 py-1.5"><span class="opacity-60">Mon–Tue</span><span class="font-bold">Closed • Hunting</span></div>
+            <div class="flex justify-between py-1.5"><span class="opacity-60">Workshop</span><span class="font-bold">Sat 14:00 — Kitbash</span></div>
+          </div>
+          <div class="mt-4 inline-flex gap-2">
+            <span class="px-2.5 py-1 bg-kikai-yellow text-black border-2 border-white rounded-full text-[10px] font-bold">Parking behind • mural side</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- newsletter / contact form -->
+      <div class="mt-10 reveal border-[3px] border-kikai-black rounded-[24px] p-6 md:p-8 bg-white shadow-brutal">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="font-display text-[22px] leading-none">Get the drop list. No spam, just shelf restocks.</div>
+            <div class="font-rounded text-[12px] opacity-60 mt-1">We email once a week, Tuesday 10am JST. Includes secret keyword for 10% off blind boxes.</div>
+          </div>
+          <form id="newsletter" class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
+            <input required type="email" placeholder="your@email — we love lowercase" class="flex-1 md:w-[300px] h-[48px] px-4 border-[2.5px] border-kikai-black rounded-full font-bold text-[13px] outline-none focus:bg-kikai-yellow placeholder:opacity-50">
+            <button class="btn-brutal bg-kikai-red text-white h-[48px] px-6 rounded-full shadow-brutal-sm text-[13px] whitespace-nowrap">JOIN →</button>
+          </form>
+        </div>
+        <div id="newsletterMsg" class="hidden mt-4 px-4 py-3 bg-kikai-yellow border-[2.5px] border-kikai-black rounded-[12px] font-bold text-[12px]"></div>
+      </div>
+    </div>
+
+    <!-- Map / visual -->
+    <div class="relative bg-kikai-yellow border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-kikai-black min-h-[520px] lg:min-h-full overflow-hidden">
+      <div class="absolute inset-0 halftone"></div>
+      <!-- toy city illustration using divs -->
+      <div class="relative h-full p-6 md:p-10 flex flex-col">
+        <div class="flex justify-between items-start">
+          <div class="bg-white border-[3px] border-kikai-black rounded-[16px] px-4 py-2 shadow-brutal-sm rotate-[-1deg]">
+            <div class="font-display text-[16px] leading-none">KIKAI MAP • 机海地图</div>
+            <div class="font-bold text-[10px] uppercase opacity-60">Drawn by Leo, 10 — our official cartographer</div>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-kikai-red border-[3px] border-kikai-black grid place-items-center text-white font-display text-[18px]">✦</div>
+        </div>
+
+        <div class="mt-10 md:mt-12 grid grid-cols-2 gap-4">
+          <div class="space-y-4">
+            <div class="bg-white border-[3px] border-kikai-black rounded-[16px] p-3 shadow-brutal-sm">
+              <img src="https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=600&auto=format&fit=crop" class="w-full h-[120px] object-cover rounded-[10px] border-2 border-kikai-black" alt="">
+              <div class="font-display text-[13px] mt-2 leading-none">Front counter • Please don’t tap glass</div>
+            </div>
+            <div class="bg-kikai-blue text-white border-[3px] border-kikai-black rounded-[16px] p-4 shadow-brutal-sm">
+              <div class="font-display text-[14px] leading-none">HOW TO FIND US IN DTLA:</div>
+              <div class="font-rounded text-[12px] mt-2 leading-[1.3] opacity-90">We’re behind the blue mural of Godzilla eating a taco. If you see the brewery, you’ve gone too far. Turn back, we have better drinks (Ramune).</div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="bg-white border-[3px] border-kikai-black rounded-[20px] p-4 shadow-brutal rotate-[1deg]">
+              <div class="font-display text-[32px] leading-none">35°C</div>
+              <div class="font-bold text-[10px] uppercase">Inside, AC + dehumidifier</div>
+              <div class="mt-2 text-[11px] leading-[1.3] opacity-70">Sofubi sweats. We don’t.</div>
+            </div>
+            <div class="bg-kikai-red text-white border-[3px] border-kikai-black rounded-[20px] p-4 shadow-brutal -rotate-[1deg]">
+              <div class="font-display text-[16px] leading-none">ASK FOR:</div>
+              <div class="font-bold text-[12px] mt-2">• Box condition scale card<br>• Loupe (we have 3)<br>• Water if you’ve been hunting all day</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-auto pt-8 flex flex-wrap gap-2">
+          <a href="mailto:hello@kikai.mart" class="px-4 h-[38px] rounded-full bg-kikai-black text-white border-[2px] border-kikai-black font-bold text-[12px] grid place-items-center">hello@kikai.mart</a>
+          <span class="px-4 h-[38px] rounded-full bg-white border-[2.5px] border-kikai-black font-bold text-[12px] grid place-items-center">IG: @kikai.mart</span>
+          <span class="px-4 h-[38px] rounded-full bg-white border-[2.5px] border-kikai-black font-bold text-[12px] grid place-items-center">Discord: kikai.gg</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-kikai-blue text-white border-t-[3px] border-kikai-black relative overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-[20px] bg-kikai-yellow border-b-[3px] border-kikai-black"></div>
+  <div class="absolute bottom-0 right-0 text-[28vw] font-display leading-none opacity-[0.05] pointer-events-none select-none translate-y-[20%]">KIKAI</div>
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 pt-12 md:pt-16 pb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr_0.7fr_0.8fr] gap-10">
+      <div>
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-full bg-kikai-red border-[3px] border-white flex items-center justify-center font-display text-[22px] text-white">K!</div>
+          <div>
+            <div class="font-display text-[28px] leading-none tracking-[-0.01em]">KIKAI MART</div>
+            <div class="font-rounded font-bold text-[11px] tracking-[0.2em] uppercase opacity-80">機界トイマート — COLLECTOR DEPOT</div>
+          </div>
+        </div>
+        <p class="mt-6 font-grotesk text-[14px] leading-[1.5] max-w-[38ch] opacity-90">We buy, sell, trade, fix, and obsess over toys that were never meant to be kept mint. If you kept yours mint anyway, we salute you and will pay handsomely.</p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="px-3 py-1 bg-white text-kikai-blue border-2 border-white rounded-full text-[11px] font-bold">OPEN • SHOP • TRADE • REPEAT</span>
+          <span class="px-3 py-1 bg-kikai-yellow text-kikai-black border-2 border-kikai-black rounded-full text-[11px] font-bold">Since 2011 • Harajuku & DTLA</span>
+        </div>
+      </div>
+      <div>
+        <div class="font-display text-[16px] uppercase mb-4">Explore</div>
+        <ul class="space-y-2 font-bold text-[13px] opacity-90">
+          <li><a href="#inventory" class="hover:underline">Inventory / Toy Grid</a></li>
+          <li><a href="#blind" class="hover:underline">Blind Box Lab</a></li>
+          <li><a href="#vault" class="hover:underline">Vault Archive</a></li>
+          <li><a href="#" class="hover:underline">Wholesale Hunt Requests</a></li>
+          <li><a href="#" class="hover:underline">Restoration Menu</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-display text-[16px] uppercase mb-4">Collect</div>
+        <ul class="space-y-2 font-bold text-[13px] opacity-90">
+          <li>Sofubi • ソフビ</li>
+          <li>Kaiju • 怪獣</li>
+          <li>Gasha • ガチャ</li>
+          <li>Be@rbrick & Kubrick</li>
+          <li>Gundam, Microman, Transform</li>
+        </ul>
+      </div>
+      <div class="bg-white text-kikai-black border-[3px] border-kikai-black rounded-[20px] p-5 shadow-brutal -rotate-[1deg]">
+        <div class="font-display text-[18px] leading-none">TODAY'S SECRET WORD:</div>
+        <div id="secretWord" class="mt-3 font-display text-[28px] text-kikai-red leading-none tracking-tight">NOSTALGIC</div>
+        <div class="font-rounded text-[11px] mt-2 leading-[1.3]">Say it at counter for 10% off one gacha. Changes daily. We’re not kidding — Leo picks it.</div>
+        <button id="regenWord" class="mt-4 w-full h-[36px] border-[2.5px] border-kikai-black rounded-full bg-kikai-yellow font-bold text-[11px] uppercase">New word (cheating)</button>
+      </div>
+    </div>
+    <div class="mt-12 pt-6 border-t-[2px] border-white/20 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center font-bold text-[11px] tracking-[0.08em] uppercase opacity-70">
+      <span>© 2025 KIKAI MART — No bots, no drops algorithm, just humans stacking plastic.</span>
+      <span class="flex gap-4"><span>Privacy? We keep your grails safe.</span><span>Terms: Be nice, don’t scalp too hard.</span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL CART -->
+<div id="cartModal" class="fixed inset-0 z-[60] hidden">
+  <div id="cartBackdrop" class="absolute inset-0 bg-kikai-black/60 backdrop-blur-[2px]"></div>
+  <div class="absolute right-0 top-0 h-full w-full max-w-[420px] bg-kikai-paper border-l-[3px] border-kikai-black shadow-brutal-lg flex flex-col">
+    <div class="h-[64px] flex items-center justify-between px-6 border-b-[3px] border-kikai-black bg-white">
+      <span class="font-display text-[18px]">CART • <span id="cartCount">0</span> items</span>
+      <button id="closeCart" class="w-9 h-9 rounded-full border-[2.5px] border-kikai-black bg-kikai-yellow grid place-items-center font-bold">✕</button>
+    </div>
+    <div id="cartItems" class="flex-1 overflow-auto p-4 space-y-3"></div>
+    <div class="p-6 border-t-[3px] border-kikai-black bg-white">
+      <div class="flex justify-between font-display text-[18px]"><span>Subtotal</span><span id="cartTotal">$0</span></div>
+      <button class="mt-4 w-full btn-brutal bg-kikai-red text-white h-[52px] rounded-full shadow-brutal text-[14px]">Checkout • レジへ →</button>
+      <div class="mt-3 font-rounded text-[11px] opacity-60 text-center">Real checkout is in store. Online checkout = pickup or tracked parcel with bubble wrap ceremony.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// progress
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+  document.getElementById('progress').style.transform = `scaleX(${scrolled})`;
+});
+
+// custom cursor
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursor-follower');
+let mouseX = 0, mouseY = 0, fx = 0, fy = 0;
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursor.style.left = mouseX - 6 + 'px';
+  cursor.style.top = mouseY - 6 + 'px';
+});
+(function anim() {
+  fx += (mouseX - fx) * 0.13;
+  fy += (mouseY - fy) * 0.13;
+  follower.style.left = fx - 24 + 'px';
+  follower.style.top = fy - 24 + 'px';
+  requestAnimationFrame(anim);
+})();
+document.querySelectorAll('a, button, .toy-card, #blindBox').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    follower.classList.add('hover');
+    if(el.id === 'blindBox') follower.classList.add('blind');
+  });
+  el.addEventListener('mouseleave', () => {
+    follower.classList.remove('hover');
+    follower.classList.remove('blind');
+  });
+});
+
+// reveal
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// mobile menu
+document.getElementById('menuToggle').addEventListener('click', () => {
+  document.getElementById('mobileMenu').classList.toggle('hidden');
+  document.getElementById('mobileMenu').classList.toggle('flex');
+});
+
+// filter
+const filterBtns = document.querySelectorAll('.filter-btn');
+const toys = document.querySelectorAll('#toyGrid [data-cat]');
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => { b.classList.remove('active','bg-kikai-black','text-white'); b.classList.add('bg-white'); });
+    btn.classList.add('active','bg-kikai-black','text-white'); btn.classList.remove('bg-white');
+    const f = btn.dataset.filter;
+    toys.forEach(t => {
+      const cats = t.dataset.cat;
+      if(f==='all' || cats.includes(f)){ t.style.display='flex'; t.classList.remove('hidden'); setTimeout(()=> t.style.opacity='1', 20); }
+      else { t.style.display='none'; }
+    });
+  });
+});
+
+// cart
+let cart = [];
+const cartCountEls = [document.querySelector('#cartBtn span'), document.getElementById('cartCount')];
+function updateCartUI(){
+  const total = cart.length;
+  cartCountEls.forEach(el => { if(el) el.textContent = total; });
+  const sum = cart.reduce((s,i)=> s+i.price, 0);
+  document.getElementById('cartTotal').textContent = '$'+sum;
+  const wrap = document.getElementById('cartItems');
+  wrap.innerHTML = '';
+  if(cart.length===0){
+    wrap.innerHTML = '<div class="py-20 text-center font-rounded text-[13px] opacity-60">Your cart is empty, like a fresh Detolf. Add some plastic.</div>';
+    return;
+  }
+  cart.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'flex gap-3 bg-white border-[2.5px] border-kikai-black rounded-[16px] p-3 shadow-brutal-sm';
+    div.innerHTML = `<img src="${item.img}" class="w-16 h-16 rounded-[10px] border-2 border-kikai-black object-cover"><div class="flex-1"><div class="font-display text-[13px] leading-[1]">${item.name}</div><div class="font-bold text-[12px] mt-1">$${item.price}</div></div><button data-idx="${idx}" class="w-7 h-7 rounded-full border-2 border-kikai-black bg-kikai-yellow grid place-items-center font-bold text-[12px]">✕</button>`;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('button[data-idx]').forEach(b=>{
+    b.addEventListener('click', ()=>{ cart.splice(parseInt(b.dataset.idx),1); updateCartUI(); });
+  });
+}
+document.querySelectorAll('.add-cart').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    const card = e.target.closest('article');
+    const name = card.querySelector('.font-display').textContent.trim();
+    const priceText = card.querySelector('.font-display.text-\\[22px\\]').textContent.replace('$','');
+    const img = card.querySelector('img').src;
+    cart.push({ name, price: parseFloat(priceText)||0, img });
+    updateCartUI();
+    // pop
+    btn.textContent='Added!';
+    setTimeout(()=> btn.textContent = btn.classList.contains('bg-kikai-black') ? 'Add • カート' : 'Add', 900);
+  });
+});
+document.getElementById('cartBtn').addEventListener('click', ()=> document.getElementById('cartModal').classList.remove('hidden'));
+document.getElementById('closeCart').addEventListener('click', ()=> document.getElementById('cartModal').classList.add('hidden'));
+document.getElementById('cartBackdrop').addEventListener('click', ()=> document.getElementById('cartModal').classList.add('hidden'));
+
+// blind box logic
+const pool = [
+  { name: 'M1 Gorgos — Midnight Spray', meta: 'Showa mold • one-off paint by Yuki', rarity: 'Chase • 1.4%', color: 'bg-kikai-black text-white', img: 'https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?q=80&w=600&auto=format&fit=crop' },
+  { name: 'Fuchiko — Coffee Break', meta: 'Kitan Club • 2024 • common but cute', rarity: 'Common • 42%', color: 'bg-white text-black border-2 border-kikai-black', img: 'https://images.unsplash.com/photo-1558877388-ff90a0d3f71a?q=80&w=600&auto=format&fit=crop' },
+  { name: 'Bullmark Kaiju Jr. Green', meta: 'Retro colorway • 6in • soft vinyl', rarity: 'Rare • 28%', color: 'bg-kikai-yellow text-black border-2 border-kikai-black', img: 'https://images.unsplash.com/photo-1563396983906-b3795482a59a?q=80&w=600&auto=format&fit=crop' },
+  { name: 'Be@rbrick Fragment 100%', meta: 'Mini • keychain series', rarity: 'Common', color: 'bg-kikai-blue text-white', img: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=600&auto=format&fit=crop' },
+  { name: 'Instinctoy Fluffy Mini – Pink', meta: 'Artist proof • secret head sculpt', rarity: 'Super Rare • 18%', color: 'bg-kikai-red text-white', img: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=600&auto=format&fit=crop' },
+  { name: 'Dino Skeleton – Clear Glitter', meta: 'Kenelephant • chase glitter', rarity: 'Secret • ???', color: 'bg-kikai-black text-kikai-yellow border-2 border-kikai-yellow', img: 'https://images.unsplash.com/photo-1558060370-d644479cb6f7?q=80&w=600&auto=format&fit=crop' },
+];
+const blindBox = document.getElementById('blindBox');
+const shakeBtn = document.getElementById('shakeBtn');
+const qEl = document.getElementById('boxQuestion');
+const revealWrap = document.getElementById('boxReveal');
+let shaking = false;
+function doShake(){
+  if(shaking) return;
+  shaking = true;
+  blindBox.classList.add('shake');
+  qEl.textContent = '???';
+  qEl.classList.add('animate-pulse');
+  revealWrap.classList.add('hidden');
+  // confetti trigger after delay
+  setTimeout(()=>{
+    blindBox.classList.remove('shake');
+    const pick = pool[Math.floor(Math.random()*pool.length)];
+    document.getElementById('revealImg').src = pick.img;
+    document.getElementById('revealName').textContent = pick.name;
+    document.getElementById('revealMeta').textContent = pick.meta;
+    const rEl = document.getElementById('revealRarity');
+    rEl.textContent = pick.rarity;
+    rEl.className = 'mt-3 inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase ' + pick.color;
+    qEl.classList.add('hidden');
+    revealWrap.classList.remove('hidden');
+    burstConfetti();
+    shaking = false;
+  }, 900);
+}
+blindBox.addEventListener('click', doShake);
+shakeBtn.addEventListener('click', doShake);
+
+// simple confetti
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+function resize(){
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+}
+resize(); window.addEventListener('resize', resize);
+let particles = [];
+function burstConfetti(){
+  particles = [];
+  const colors = ['#ff1a1a','#ffde00','#0047ff','#0a0a0a','#ffffff'];
+  for(let i=0;i<80;i++){
+    particles.push({
+      x: canvas.width/2,
+      y: canvas.height/2,
+      vx: (Math.random()-0.5)*12,
+      vy: (Math.random()-0.8)*12,
+      r: Math.random()*6+2,
+      c: colors[Math.floor(Math.random()*colors.length)],
+      life: 1
+    });
+  }
+  let t=0;
+  (function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.25; p.life-=0.015;
+      ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+    particles = particles.filter(p=>p.life>0);
+    if(particles.length>0){ requestAnimationFrame(frame); }
+  })();
+}
+
+// newsletter
+document.getElementById('newsletter').addEventListener('submit', e=>{
+  e.preventDefault();
+  const email = e.target.querySelector('input').value;
+  const msg = document.getElementById('newsletterMsg');
+  msg.textContent = `ありがとう! Drop list confirmed for ${email} — check Tuesday 10am JST. Secret word inside is: ${document.getElementById('secretWord').textContent}`;
+  msg.classList.remove('hidden');
+  e.target.reset();
+});
+
+// secret word regen
+const words = ['NOSTALGIC','KAIJU','SOFUBI','PLASTIC','GACHA','DETOLF','RAYGUN','NEVERGROW','HARAJUKU','M1GO'];
+document.getElementById('regenWord').addEventListener('click', ()=>{
+  document.getElementById('secretWord').textContent = words[Math.floor(Math.random()*words.length)];
+});
+
+// load more fake
+document.getElementById('loadMore').addEventListener('click', (e)=>{
+  const btn = e.target;
+  btn.textContent = 'Pulling from back room…';
+  setTimeout(()=>{
+    // duplicate some cards
+    const grid = document.getElementById('toyGrid');
+    for(let i=0;i<4;i++){
+      const clone = grid.children[i].cloneNode(true);
+      grid.appendChild(clone);
+    }
+    btn.textContent = 'Loaded! No paginations, just infinite shelves →';
+    document.querySelectorAll('.add-cart').forEach(b=>{
+      if(!b._bound){ b._bound=true; b.addEventListener('click', (ev)=>{
+        const card = ev.target.closest('article');
+        const name = card.querySelector('.font-display').textContent.trim();
+        const priceText = card.querySelector('.font-display.text-\\[22px\\]').textContent.replace('$','');
+        const img = card.querySelector('img').src;
+        cart.push({ name, price: parseFloat(priceText)||0, img });
+        updateCartUI();
+      }); }
+    });
+  }, 800);
+});
+
+// search btn fun
+document.getElementById('searchBtn').addEventListener('click', ()=>{
+  const term = prompt('Search our brain — try: sofubi, 1974, gacha, paint, mecha');
+  if(!term) return;
+  const low = term.toLowerCase();
+  let found=false;
+  toys.forEach(t=>{
+    const txt = t.textContent.toLowerCase();
+    if(txt.includes(low)){ t.style.display='flex'; found=true; } else { t.style.display='none'; }
+  });
+  if(!found){ alert('No matches in this grid. Try asking staff in Harajuku — we have back stock not listed.'); toys.forEach(t=> t.style.display='flex'); }
+});
+
+</script>
+</body>
+</html>

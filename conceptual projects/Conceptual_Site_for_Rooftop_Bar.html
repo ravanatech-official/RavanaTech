@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Rooftop Bar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=IBM+Plex+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        dark: '#0f0f0f',
+        paper: '#f5f3ef',
+        neon: '#ff006e',
+        amber: '#ffb019',
+        ink: '#1a1a1a',
+      },
+      fontFamily: {
+        serif: ['Playfair Display', 'serif'],
+        sans: ['DM Sans', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
+      }
+    }
+  }
+}
+</script>
+<style>
+:root{--neon:#ff006e;--amber:#ffb019;--dark:#0f0f0f;--paper:#f5f3ef;--ink:#1a1a1a;}
+*{ -webkit-font-smoothing: antialiased; }
+html{scroll-behavior:smooth;}
+body{background:var(--dark);color:var(--paper);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}
+/* Hide custom cursor on touch */
+@media (pointer: coarse){
+  body{cursor:auto;}
+  #cursor, #cursor-dot{display:none!important;}
+}
+/* Grain */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.045;}
+.grain:after{
+  content:"";position:absolute;inset:-50%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  animation:grainMove 8s steps(10) infinite;
+}
+@keyframes grainMove{
+  0%,100%{transform:translate(0,0)}
+  10%{transform:translate(-5%,10%)}
+  20%{transform:translate(-15%,5%)}
+  30%{transform:translate(7%,-25%)}
+  40%{transform:translate(-5%,25%)}
+  50%{transform:translate(-15%,10%)}
+  60%{transform:translate(15%,0%)}
+  70%{transform:translate(0%,15%)}
+  80%{transform:translate(3%,35%)}
+  90%{transform:translate(-10%,10%)}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:#0f0f0f;}
+::-webkit-scrollbar-thumb{background:rgba(255,0,110,.5);border-radius:10px;}
+
+/* Custom cursor */
+#cursor{position:fixed;top:0;left:0;width:42px;height:42px;border:1px solid rgba(245,243,239,.25);border-radius:50%;pointer-events:none;z-index:10000;mix-blend-mode:difference;transition:transform .25s cubic-bezier(.16,1,.3,1), width .3s, height .3s, background .3s, border-color .3s;will-change:transform;}
+#cursor-dot{position:fixed;top:0;left:0;width:4px;height:4px;background:var(--neon);border-radius:50%;pointer-events:none;z-index:10001;box-shadow:0 0 12px var(--neon);transition:transform .15s ease;}
+#cursor.hover{width:86px;height:86px;background:rgba(255,0,110,.12);border-color:rgba(255,0,110,.8);}
+#cursor.hover .cursor-label{opacity:1;}
+.cursor-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.18em;color:var(--neon);opacity:0;transition:.3s;white-space:nowrap;}
+
+/* Text stroke */
+.stroke{ -webkit-text-stroke:1px rgba(245,243,239,.2); color:transparent; }
+.stroke-neon{ -webkit-text-stroke:1px rgba(255,0,110,.5); color:transparent; text-shadow:0 0 20px rgba(255,0,110,.35); }
+
+/* Gradient mask */
+.hero-vignette{ background: radial-gradient(120% 120% at 50% 20%, transparent 30%, rgba(15,15,15,.6) 80%, #0f0f0f 100%); }
+.hero-glow{ background: radial-gradient(600px at 70% 20%, rgba(255,0,110,.18), transparent 70%), radial-gradient(800px at 10% 80%, rgba(255,176,25,.12), transparent 70%); }
+
+/* Marquee */
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.marquee-track{animation:marquee 40s linear infinite;display:flex;width:max-content;will-change:transform;}
+.marquee-track:hover{animation-play-state:paused;}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+.reveal-del-1{transition-delay:.1s}
+.reveal-del-2{transition-delay:.22s}
+.reveal-del-3{transition-delay:.36s}
+
+/* Bokeh */
+.bokeh{position:absolute;border-radius:50%;filter:blur(1px);opacity:.6;animation:bFloat 8s ease-in-out infinite;}
+@keyframes bFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-16px) scale(1.08)}}
+
+/* Menu image preview */
+#menu-preview{position:fixed;left:0;top:0;width:280px;height:380px;pointer-events:none;z-index:50;opacity:0;transform:translate(-50%,-50%) scale(.88) rotate(-2deg);transition:opacity .45s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);will-change:transform,opacity;overflow:hidden;border-radius:4px;}
+#menu-preview.show{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+#menu-preview img{width:100%;height:100%;object-fit:cover;filter:grayscale(.15) contrast(1.05) brightness(.9);}
+#menu-preview:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(15,15,15,.55), transparent 60%);}
+
+/* Magnetic */
+.magnetic{transition:transform .28s cubic-bezier(.16,1,.3,1);will-change:transform;}
+
+/* Progress */
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--neon);width:100%;transform-origin:left;transform:scaleX(0);z-index:9998;box-shadow:0 0 10px var(--neon);}
+
+/* Glass */
+.glass{background:rgba(26,26,26,.6);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);border:1px solid rgba(245,243,239,.08);}
+
+/* Underline animation */
+.link-u{position:relative;display:inline-block;}
+.link-u:after{content:"";position:absolute;left:0;bottom:-2px;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s cubic-bezier(.16,1,.3,1);}
+.link-u:hover:after{transform:scaleX(1);transform-origin:left;}
+
+/* Floating badge */
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* Shine on hover */
+.shine{position:relative;overflow:hidden;}
+.shine:before{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);transform:skewX(-18deg);transition:left .9s cubic-bezier(.16,1,.3,1);}
+.shine:hover:before{left:140%;}
+
+/* Hero parallax text */
+.hero-parallax{will-change:transform;}
+
+/* Noise card */
+.noise-card:before{content:"";position:absolute;inset:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;}
+
+@media(max-width:768px){
+  .stroke{ -webkit-text-stroke:.6px rgba(245,243,239,.25); }
+}
+</style>
+</head>
+<body class="bg-dark text-paper selection:bg-neon selection:text-white">
+
+<div class="grain"></div>
+<div id="progress"></div>
+<div id="cursor"><span class="cursor-label">OPEN</span></div>
+<div id="cursor-dot"></div>
+<div id="menu-preview"><img src="" alt="" id="menu-preview-img"></div>
+
+<!-- NAV -->
+<nav id="navbar" class="fixed top-0 w-full z-[100] border-b border-white/[0.06] transition-all duration-700">
+  <div class="absolute inset-0 bg-dark/70 backdrop-blur-[14px]"></div>
+  <div class="relative flex items-center justify-between px-6 md:px-10 lg:px-[56px] h-[72px] md:h-[80px]">
+    <!-- left -->
+    <div class="flex items-center gap-10">
+      <a href="#" class="group flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-paper text-dark grid place-items-center font-serif font-black text-[15px] leading-none tracking-tight">K</div>
+        <div class="leading-[0.9]">
+          <div class="font-serif font-bold text-[18px] tracking-[0.14em]">KUMO</div>
+          <div class="font-mono text-[9px] tracking-[0.32em] text-white/50 -mt-[1px]">SHINJUKU 41F</div>
+        </div>
+      </a>
+      <div class="hidden lg:flex items-center gap-8 ml-10">
+        <a href="#story" class="font-mono text-[11px] tracking-[0.22em] text-white/60 hover:text-paper transition link-u">STORY</a>
+        <a href="#menu" class="font-mono text-[11px] tracking-[0.22em] text-white/60 hover:text-paper transition link-u">MENU</a>
+        <a href="#atmos" class="font-mono text-[11px] tracking-[0.22em] text-white/60 hover:text-paper transition link-u">ATMOSPHERE</a>
+        <a href="#visit" class="font-mono text-[11px] tracking-[0.22em] text-white/60 hover:text-paper transition link-u">VISIT</a>
+      </div>
+    </div>
+    <!-- right -->
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-3 mr-2">
+        <span class="w-[6px] h-[6px] rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,.8)] animate-pulse"></span>
+        <span class="font-mono text-[10px] tracking-[0.2em] text-white/70">OPEN — 19:00—02:00</span>
+      </div>
+      <button id="reserve-btn" class="magnetic group relative overflow-hidden rounded-full border border-white/15 px-6 md:px-7 h-[42px] flex items-center gap-3 hover:border-neon/50 transition">
+        <span class="font-mono text-[11px] tracking-[0.2em]">RESERVE</span>
+        <span class="w-5 h-5 rounded-full bg-neon text-white grid place-items-center group-hover:scale-110 transition duration-500">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5H9M9 5L5 1M9 5L5 9" stroke="white" stroke-width="1.2"/></svg>
+        </span>
+      </button>
+      <button id="mobile-toggle" class="lg:hidden w-10 h-10 grid place-items-center rounded-full border border-white/10">
+        <span class="block w-4 h-[1px] bg-paper mb-[5px]"></span>
+        <span class="block w-4 h-[1px] bg-paper"></span>
+      </button>
+    </div>
+  </div>
+  <!-- mobile menu -->
+  <div id="mobile-menu" class="lg:hidden absolute top-full left-0 w-full bg-dark/95 backdrop-blur-xl border-b border-white/10 translate-y-[-10px] opacity-0 pointer-events-none transition-all duration-500">
+    <div class="px-6 py-8 flex flex-col gap-6">
+      <a href="#story" class="font-serif text-3xl">Story</a>
+      <a href="#menu" class="font-serif text-3xl">Menu</a>
+      <a href="#atmos" class="font-serif text-3xl">Atmosphere</a>
+      <a href="#visit" class="font-serif text-3xl">Visit</a>
+      <div class="pt-6 border-t border-white/10 font-mono text-[11px] tracking-widest text-white/50">35.6895°N / 139.6917°E — SHINJUKU</div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative h-[100svh] min-h-[740px] overflow-hidden bg-dark">
+  <!-- bg image -->
+  <div id="hero-bg" class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1513407030348-c983a97b98d8?q=80&w=2072&auto=format&fit=crop" alt="Tokyo neon night" class="w-full h-[115%] object-cover object-[50%_30%] scale-[1.05]">
+    <div class="absolute inset-0 bg-dark/55"></div>
+    <div class="absolute inset-0 hero-vignette"></div>
+    <div class="absolute inset-0 hero-glow"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/40 to-transparent"></div>
+  </div>
+
+  <!-- bokeh lights -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <span class="bokeh w-[6px] h-[6px] bg-amber left-[22%] top-[32%] blur-[0.5px]" style="animation-delay:.2s"></span>
+    <span class="bokeh w-[4px] h-[4px] bg-neon left-[68%] top-[24%] shadow-[0_0_18px_#ff006e]" style="animation-delay:.8s"></span>
+    <span class="bokeh w-[8px] h-[8px] bg-white/60 left-[84%] top-[55%]" style="animation-delay:1.4s"></span>
+    <span class="bokeh w-[5px] h-[5px] bg-amber left-[12%] top-[72%]" style="animation-delay:.6s"></span>
+    <span class="bokeh w-[3px] h-[3px] bg-neon left-[91%] top-[33%]" style="animation-delay:2s"></span>
+  </div>
+
+  <!-- vertical side labels -->
+  <div class="hidden md:flex absolute left-[28px] top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-10">
+    <span class="font-mono text-[10px] tracking-[0.4em] text-white/30 [writing-mode:vertical-rl] rotate-180">35°41'22"N — 139°41'30"E</span>
+    <span class="w-[1px] h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent"></span>
+    <span class="font-mono text-[10px] tracking-[0.4em] text-white/30 [writing-mode:vertical-rl] rotate-180">EST. MMXXI</span>
+  </div>
+  <div class="hidden md:flex absolute right-[28px] top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-6">
+    <span class="w-[1px] h-20 bg-white/10"></span>
+    <span class="font-mono text-[10px] tracking-[0.38em] text-white/40 [writing-mode:vertical-rl]">SCROLL — SCROLL — SCROLL</span>
+  </div>
+
+  <!-- center content -->
+  <div class="relative z-10 h-full flex flex-col justify-center px-6 md:px-10 lg:px-[112px] pt-[86px]">
+    <div class="max-w-[1440px] mx-auto w-full">
+      <div class="flex flex-col">
+        <!-- eyebrow -->
+        <div class="reveal flex items-center gap-4 mb-8 md:mb-10">
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 h-[28px]">
+            <span class="w-2 h-2 rounded-full bg-neon shadow-[0_0_8px_#ff006e]"></span>
+            <span class="font-mono text-[10px] tracking-[0.26em]">HIDDEN ROOFTOP / FLOOR 41</span>
+          </span>
+          <span class="hidden md:block h-[1px] w-20 bg-white/15"></span>
+          <span class="hidden md:block font-mono text-[10px] tracking-[0.26em] text-white/40">SHINJUKU, TOKYO — AFTER DARK</span>
+        </div>
+
+        <!-- giant title -->
+        <h1 class="hero-parallax leading-[0.82] tracking-[-0.04em] font-serif font-black uppercase">
+          <span class="block text-[13vw] md:text-[9.8vw] lg:text-[132px] reveal">ABOVE THE</span>
+          <span class="block text-[13vw] md:text-[9.8vw] lg:text-[132px] reveal reveal-del-1 font-light italic tracking-[-0.05em] lowercase ml-[-0.02em] -mt-[0.04em] ">
+            <span class="text-paper">n</span><span class="text-neon drop-shadow-[0_0_22px_rgba(255,0,110,.65)]">o</span><span class="text-paper">ise</span><span class="text-stroke-neon opacity-60">.</span>
+          </span>
+        </h1>
+
+        <div class="grid md:grid-cols-[1.1fr_.9fr] gap-10 md:gap-16 mt-8 md:mt-12 max-w-[1080px]">
+          <div class="reveal reveal-del-2 space-y-6">
+            <p class="font-sans text-[16px] md:text-[20px] leading-[1.5] text-white/80 max-w-[520px] font-light">
+              A listening bar above Shinjuku where cocktails move <em class="font-serif text-paper not-italic">slow & precise</em>. No signage. No elevator pitch. Just city glow, vinyl crackle, and ice that sings.
+            </p>
+            <div class="flex items-center gap-6 pt-2">
+              <a href="#menu" class="group inline-flex items-center gap-4">
+                <span class="w-14 h-14 rounded-full border border-white/20 grid place-items-center group-hover:border-neon group-hover:bg-neon/10 transition duration-500">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9H14M14 9L9 4M14 9L9 14" stroke="currentColor" stroke-width="1.2"/></svg>
+                </span>
+                <span class="font-mono text-[11px] tracking-[0.2em]">EXPLORE THE POUR</span>
+              </a>
+              <span class="font-mono text-[10px] text-white/30 hidden md:inline">38 SEATS • ANALOG SOUND</span>
+            </div>
+          </div>
+
+          <!-- right small info card -->
+          <div class="reveal reveal-del-3 hidden md:block relative">
+            <div class="absolute -top-8 -right-12 w-[240px]">
+              <div class="glass rounded-[12px] p-[1px]">
+                <div class="bg-dark rounded-[11px] overflow-hidden">
+                  <div class="relative h-[168px]">
+                    <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                    <div class="absolute bottom-3 left-4 right-4 flex justify-between items-end">
+                      <div>
+                        <div class="font-mono text-[9px] tracking-[0.2em] text-white/50">TONIGHT'S SELECTOR</div>
+                        <div class="font-serif text-[15px]">Y. Tanaka — Nujabes, 11pm</div>
+                      </div>
+                      <div class="w-6 h-6 rounded-full bg-paper text-dark grid place-items-center">
+                        <svg width="8" height="8" viewBox="0 0 8 8"><path d="M1 1.5L6.5 4L1 6.5V1.5Z" fill="currentColor"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="px-4 py-3 flex items-center justify-between">
+                    <div class="flex -space-x-2">
+                      <img src="https://i.pravatar.cc/32?img=32" class="w-6 h-6 rounded-full border border-dark">
+                      <img src="https://i.pravatar.cc/32?img=33" class="w-6 h-6 rounded-full border border-dark">
+                      <img src="https://i.pravatar.cc/32?img=34" class="w-6 h-6 rounded-full border border-dark">
+                    </div>
+                    <span class="font-mono text-[10px] tracking-widest text-white/50">12 CHECKED IN</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- bottom bar -->
+  <div class="absolute bottom-0 left-0 w-full z-20 border-t border-white/[0.08] backdrop-blur-md bg-dark/40">
+    <div class="flex items-center justify-between px-6 md:px-10 lg:px-[56px] h-[56px]">
+      <div class="flex items-center gap-8">
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-[10px] tracking-[0.2em] text-white/40">TEMP</span>
+          <span class="font-mono text-[12px]">23°C / HUM 71%</span>
+        </div>
+        <div class="hidden md:flex items-center gap-2">
+          <span class="font-mono text-[10px] tracking-[0.2em] text-white/40">WIND</span>
+          <span class="font-mono text-[12px]">NORTH 4KM/H — CLEAR</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-6">
+        <span class="font-mono text-[10px] tracking-[0.25em] text-white/40 hidden md:inline">SCROLL TO ENTER</span>
+        <div class="w-[96px] h-[2px] bg-white/10 overflow-hidden rounded-full hidden md:block">
+          <div class="h-full bg-paper w-[58%]"></div>
+        </div>
+        <span class="font-mono text-[10px] tracking-[0.3em]">© MMXXV KUMO</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<section class="relative z-10 border-y border-white/[0.08] bg-ink overflow-hidden">
+  <div class="py-[18px] md:py-[22px]">
+    <div class="marquee-track">
+      <!-- duplicate set -->
+      <div class="flex items-center gap-10 md:gap-16 pr-10 md:pr-16">
+        <span class="font-serif italic text-[18px] md:text-[24px] text-white/80 tracking-wide">Hidden rooftop</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon shadow-[0_0_10px_#ff006e]"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">NOIR NIGHTS</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+        <span class="font-serif text-[18px] md:text-[24px] stroke opacity-70">Slow pour</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">CITY LIGHTS ONLY</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon"></span>
+        <span class="font-serif italic text-[18px] md:text-[24px] text-amber">Analog sound</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">SHINJUKU 41F</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+      </div>
+      <div class="flex items-center gap-10 md:gap-16 pr-10 md:pr-16">
+        <span class="font-serif italic text-[18px] md:text-[24px] text-white/80 tracking-wide">Hidden rooftop</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon shadow-[0_0_10px_#ff006e]"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">NOIR NIGHTS</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+        <span class="font-serif text-[18px] md:text-[24px] stroke opacity-70">Slow pour</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">CITY LIGHTS ONLY</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon"></span>
+        <span class="font-serif italic text-[18px] md:text-[24px] text-amber">Analog sound</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">SHINJUKU 41F</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+      </div>
+      <div class="flex items-center gap-10 md:gap-16 pr-10 md:pr-16">
+        <span class="font-serif italic text-[18px] md:text-[24px] text-white/80 tracking-wide">Hidden rooftop</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon shadow-[0_0_10px_#ff006e]"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">NOIR NIGHTS</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+        <span class="font-serif text-[18px] md:text-[24px] stroke opacity-70">Slow pour</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">CITY LIGHTS ONLY</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon"></span>
+        <span class="font-serif italic text-[18px] md:text-[24px] text-amber">Analog sound</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">SHINJUKU 41F</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+      </div>
+      <div class="flex items-center gap-10 md:gap-16 pr-10 md:pr-16">
+        <span class="font-serif italic text-[18px] md:text-[24px] text-white/80 tracking-wide">Hidden rooftop</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon shadow-[0_0_10px_#ff006e]"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">NOIR NIGHTS</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+        <span class="font-serif text-[18px] md:text-[24px] stroke opacity-70">Slow pour</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">CITY LIGHTS ONLY</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-neon"></span>
+        <span class="font-serif italic text-[18px] md:text-[24px] text-amber">Analog sound</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+        <span class="font-mono text-[12px] md:text-[13px] tracking-[0.32em]">SHINJUKU 41F</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section id="story" class="relative py-24 md:py-36 lg:py-[160px] bg-dark overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-[680px] h-[680px] rounded-full bg-neon/10 blur-[120px]"></div>
+  </div>
+
+  <div class="relative px-6 md:px-10 lg:px-[56px] max-w-[1440px] mx-auto">
+    <div class="grid lg:grid-cols-[1.1fr_.9fr] gap-12 lg:gap-24 items-start">
+      <!-- left sticky image -->
+      <div class="relative lg:sticky lg:top-[132px]">
+        <div class="reveal">
+          <div class="relative rounded-[4px] overflow-hidden bg-ink">
+            <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1074&auto=format&fit=crop" alt="Rooftop bar interior dark moody" class="w-full aspect-[4/5] object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark/80 via-transparent to-transparent"></div>
+            <!-- floating label -->
+            <div class="absolute top-5 left-5 flex items-center gap-2">
+              <span class="px-3 h-[26px] rounded-full bg-paper text-dark font-mono text-[10px] tracking-[0.2em] grid place-items-center">41F — NO SIGNAGE</span>
+              <span class="w-[26px] h-[26px] rounded-full bg-dark/60 backdrop-blur border border-white/15 grid place-items-center"><span class="w-1.5 h-1.5 bg-neon rounded-full shadow-[0_0_8px_#ff006e]"></span></span>
+            </div>
+            <div class="absolute bottom-5 left-5 right-5 flex justify-between items-end">
+              <div>
+                <div class="font-mono text-[10px] tracking-[0.24em] text-white/50 mb-1">SHIBUYA VIEW — WEST FACING</div>
+                <div class="font-serif text-[18px] leading-none">Rain on glass,<br>city still moving.</div>
+              </div>
+              <div class="font-mono text-[10px] text-white/40">01 / ARCHIVE</div>
+            </div>
+          </div>
+          <!-- small accent images -->
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <div class="relative rounded-[4px] overflow-hidden aspect-[4/3] bg-ink">
+              <img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute inset-0 bg-dark/20"></div>
+            </div>
+            <div class="relative rounded-[4px] overflow-hidden aspect-[4/3] bg-ink flex items-center justify-center border border-white/10">
+              <div class="text-center p-6">
+                <div class="font-serif italic text-[28px] leading-none">38</div>
+                <div class="font-mono text-[10px] tracking-[0.2em] text-white/50 mt-2">SEATS ONLY.<br>NO STANDING.</div>
+              </div>
+              <div class="absolute bottom-0 right-0 w-10 h-10 border-t border-l border-white/10 rounded-tl-[12px]"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right content -->
+      <div class="lg:pt-8">
+        <div class="reveal">
+          <div class="flex items-center gap-3 mb-8">
+            <span class="font-mono text-[11px] tracking-[0.3em] text-neon">STORY — 01</span>
+            <span class="h-[1px] w-12 bg-neon/40"></span>
+          </div>
+          <h2 class="font-serif font-medium leading-[0.92] tracking-[-0.03em] text-[44px] md:text-[64px] lg:text-[76px]">
+            We kept the<br>
+            <span class="italic font-light text-white/70">lights off</span> on<br>
+            purpose.
+          </h2>
+        </div>
+
+        <div class="mt-12 md:mt-16 space-y-10">
+          <div class="reveal reveal-del-1">
+            <p class="font-sans text-[17px] md:text-[19px] leading-[1.65] text-white/75 max-w-[520px]">
+              KUMO isn't marked on the lobby directory. Take the service elevator that smells like rain. Floor 41. Knock twice. The door is heavy for a reason — outside is Shinjuku screaming, inside we play vinyl at conversation volume.
+            </p>
+          </div>
+
+          <div class="reveal reveal-del-2 grid md:grid-cols-2 gap-8 md:gap-12 pt-10 border-t border-white/10">
+            <div class="space-y-4">
+              <div class="flex items-center gap-2">
+                <span class="text-[12px] font-mono tracking-widest text-amber">01</span>
+                <span class="h-[1px] w-8 bg-amber/40"></span>
+                <span class="font-mono text-[11px] tracking-[0.2em] text-white/60">THE LIGHT</span>
+              </div>
+              <p class="font-sans text-[14px] leading-[1.7] text-white/55">
+                Only Tokyo provides the lighting design. No bulbs above 2700K. Everything we add is candle, neon spill from the streets below, and low amber under the bar. Your eyes adjust in seven minutes.
+              </p>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-center gap-2">
+                <span class="text-[12px] font-mono tracking-widest text-neon">02</span>
+                <span class="h-[1px] w-8 bg-neon/40"></span>
+                <span class="font-mono text-[11px] tracking-[0.2em] text-white/60">THE SOUND</span>
+              </div>
+              <p class="font-sans text-[14px] leading-[1.7] text-white/55">
+                Technics 1200s. A 1978 Sansui that runs hot. Jazz before 10, leftfield house after midnight, never above 82db. The hum of the building is part of the set.
+              </p>
+            </div>
+          </div>
+
+          <div class="reveal reveal-del-2 pt-2">
+            <div class="glass rounded-[12px] p-[20px] md:p-[28px] relative noise-card overflow-hidden">
+              <div class="flex gap-6">
+                <img src="https://images.unsplash.com/photo-1541533133576-a33bc2ddfa58?q=80&w=200&auto=format&fit=crop" alt="" class="w-14 h-14 rounded-full object-cover grayscale">
+                <div class="flex-1">
+                  <div class="font-serif italic text-[18px] md:text-[20px] leading-[1.35] text-paper">“We wanted a place that feels like 2am even at 9pm. When you look out, you see a thousand other lives. When you look in, you only hear your own table.”</div>
+                  <div class="mt-4 flex items-center gap-3">
+                    <span class="font-mono text-[11px] tracking-[0.2em]">MAYUMI S. — FOUNDER</span>
+                    <span class="w-4 h-[1px] bg-white/20"></span>
+                    <span class="font-mono text-[10px] text-white/40">PREV. BAR TRÉ</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reveal reveal-del-3 flex flex-wrap gap-3 pt-6">
+            <span class="px-4 h-[36px] rounded-full border border-white/10 font-mono text-[11px] tracking-[0.18em] grid place-items-center">NO PHOTOS AFTER 11PM</span>
+            <span class="px-4 h-[36px] rounded-full border border-white/10 font-mono text-[11px] tracking-[0.18em] grid place-items-center bg-amber/10 border-amber/20 text-amber">VINYL ONLY</span>
+            <span class="px-4 h-[36px] rounded-full border border-white/10 font-mono text-[11px] tracking-[0.18em] grid place-items-center">CASHLESS SINCE '22</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu" class="relative py-24 md:py-32 bg-[radial-gradient(900px_at_80%_-10%,rgba(255,0,110,.10),transparent),radial-gradient(700px_at_-10%_40%,rgba(255,176,25,.08),transparent)] border-t border-white/[0.06]">
+  <div class="px-6 md:px-10 lg:px-[56px] max-w-[1440px] mx-auto">
+    <div class="flex flex-col lg:flex-row justify-between items-start gap-10 mb-16 md:mb-24">
+      <div class="reveal max-w-[640px]">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="font-mono text-[11px] tracking-[0.3em] text-amber">POUR — 02</span>
+          <span class="h-[1px] w-12 bg-amber/40"></span>
+          <span class="font-mono text-[10px] tracking-[0.2em] text-white/40">WINTER '25</span>
+        </div>
+        <h2 class="font-serif font-medium text-[42px] md:text-[68px] leading-[0.9] tracking-[-0.03em]">
+          Cold hands.<br>
+          <span class="italic font-light text-white/60">Warm spirits.</span>
+        </h2>
+        <p class="mt-6 font-sans text-[15px] leading-[1.6] text-white/55 max-w-[420px]">Every drink measured by jigger and by feeling. Ice carved daily. Citrus expressed tableside. Hover to see the pour.</p>
+      </div>
+
+      <div class="reveal reveal-del-1 hidden lg:block">
+        <div class="flex items-center gap-8">
+          <div class="text-right">
+            <div class="font-mono text-[10px] tracking-[0.2em] text-white/40">AVG. TIME PER DRINK</div>
+            <div class="font-serif text-[28px] leading-none mt-1">4m 12s</div>
+          </div>
+          <div class="w-[1px] h-12 bg-white/10"></div>
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.2em] text-white/40">ICE BLOCK WEIGHT</div>
+            <div class="font-serif text-[28px] leading-none mt-1">28kg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- cocktail list -->
+    <div class="relative">
+      <!-- tab row -->
+      <div class="reveal flex items-center gap-2 md:gap-3 mb-10 overflow-x-auto scrollbar-none">
+        <button data-filter="signature" class="filter-btn active whitespace-nowrap px-5 h-[40px] rounded-full bg-paper text-dark font-mono text-[11px] tracking-[0.18em] transition">SIGNATURES</button>
+        <button data-filter="classic" class="filter-btn whitespace-nowrap px-5 h-[40px] rounded-full border border-white/15 text-white/60 hover:text-paper font-mono text-[11px] tracking-[0.18em] transition">CLASSICS REWORKED</button>
+        <button data-filter="zero" class="filter-btn whitespace-nowrap px-5 h-[40px] rounded-full border border-white/15 text-white/60 hover:text-paper font-mono text-[11px] tracking-[0.18em] transition">ZERO PROOF</button>
+        <span class="hidden md:flex items-center gap-2 ml-6 font-mono text-[10px] tracking-[0.2em] text-white/30"><span class="w-1.5 h-1.5 bg-neon rounded-full animate-pulse"></span> 8 POURS TONIGHT</span>
+      </div>
+
+      <div id="cocktail-list" class="border-t border-white/10">
+        <!-- Item 1 -->
+        <div class="cocktail group relative py-7 md:py-9 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-white/10 hover:bg-white/[0.02] md:px-6 md:-mx-6 transition duration-500 cursor-pointer reveal" data-category="signature" data-img="https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=800&auto=format&fit=crop">
+          <div class="flex gap-6 md:gap-10 flex-1">
+            <span class="font-mono text-[11px] tracking-[0.2em] text-white/30 mt-1 hidden md:block">01</span>
+            <div class="flex-1 max-w-[520px]">
+              <div class="flex items-baseline gap-3 flex-wrap">
+                <h3 class="font-serif text-[28px] md:text-[34px] leading-[0.95] tracking-[-0.02em] group-hover:text-amber transition duration-500">YUZU KUMO</h3>
+                <span class="font-mono text-[10px] tracking-[0.18em] px-2 h-[20px] rounded-full bg-amber/15 text-amber border border-amber/20 grid place-items-center">HOUSE FAV</span>
+              </div>
+              <div class="mt-2 font-mono text-[11px] tracking-[0.16em] text-white/40">ゆず雲 — YUZU / SHEEP'S MILK / SHISO / JAPANESE GIN</div>
+              <p class="mt-3 font-sans text-[14px] leading-[1.6] text-white/55">Our name in a glass. Bright yuzu, clarified sheep's milk for weight, shiso that arrives after. Served cold enough to hurt.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6 md:gap-10 md:min-w-[220px] justify-between md:justify-end pl-0 md:pl-6">
+            <div class="font-mono text-[11px] leading-[1.5] text-white/40">WASHI<br>SMOKE</div>
+            <div class="text-right">
+              <div class="font-serif text-[22px]">¥1,800</div>
+              <div class="font-mono text-[10px] tracking-[0.2em] text-white/30 mt-1 opacity-0 group-hover:opacity-100 transition">VIEW POUR →</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="cocktail group relative py-7 md:py-9 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-white/10 hover:bg-white/[0.02] md:px-6 md:-mx-6 transition duration-500 cursor-pointer reveal reveal-del-1" data-category="signature" data-img="https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=800&auto=format&fit=crop">
+          <div class="flex gap-6 md:gap-10 flex-1">
+            <span class="font-mono text-[11px] tracking-[0.2em] text-white/30 mt-1 hidden md:block">02</span>
+            <div class="flex-1 max-w-[520px]">
+              <h3 class="font-serif text-[28px] md:text-[34px] leading-[0.95] tracking-[-0.02em] group-hover:text-neon transition duration-500">NEON RAIN</h3>
+              <div class="mt-2 font-mono text-[11px] tracking-[0.16em] text-white/40">ネオン雨 — VODKA / SAKURA VERMOUTH / TONIC FERMENT / PINK PEPPER</div>
+              <p class="mt-3 font-sans text-[14px] leading-[1.6] text-white/55">Looks clear, hits like a Shibuya downpour. Tonic we ferment in-house for 6 days until it bites back.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6 md:gap-10 md:min-w-[220px] justify-between md:justify-end pl-0 md:pl-6">
+            <div class="font-mono text-[11px] leading-[1.5] text-white/40">BRUTALIST<br>GLASS</div>
+            <div class="text-right">
+              <div class="font-serif text-[22px]">¥1,700</div>
+              <div class="font-mono text-[10px] tracking-[0.2em] text-white/30 mt-1 opacity-0 group-hover:opacity-100 transition">VIEW POUR →</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="cocktail group relative py-7 md:py-9 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-white/10 hover:bg-white/[0.02] md:px-6 md:-mx-6 transition duration-500 cursor-pointer reveal" data-category="classic" data-img="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800&auto=format&fit=crop">
+          <div class="flex gap-6 md:gap-10 flex-1">
+            <span class="font-mono text-[11px] tracking-[0.2em] text-white/30 mt-1 hidden md:block">03</span>
+            <div class="flex-1 max-w-[520px]">
+              <h3 class="font-serif text-[28px] md:text-[34px] leading-[0.95] tracking-[-0.02em]">SHINJUKU MARTINEZ</h3>
+              <div class="mt-2 font-mono text-[11px] tracking-[0.16em] text-white/40">ROKU GIN / SWEET VERMOUTH WASHED W/KINAKO / MARASCHINO / ORANGE</div>
+              <p class="mt-3 font-sans text-[14px] leading-[1.6] text-white/55">1870s recipe, Shinjuku attitude. Roasted soybean fat-washed for nuttiness. Stirred 40 rotations.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6 md:gap-10 md:min-w-[220px] justify-between md:justify-end pl-0 md:pl-6">
+            <div class="font-mono text-[11px] leading-[1.5] text-white/40">STIRRED<br>40X</div>
+            <div class="text-right">
+              <div class="font-serif text-[22px]">¥1,900</div>
+              <div class="font-mono text-[10px] tracking-[0.2em] text-white/30 mt-1 opacity-0 group-hover:opacity-100 transition">VIEW POUR →</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="cocktail group relative py-7 md:py-9 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-white/10 hover:bg-white/[0.02] md:px-6 md:-mx-6 transition duration-500 cursor-pointer reveal" data-category="zero" data-img="https://images.unsplash.com/photo-1513407030348-c983a97b98d8?q=80&w=800&auto=format&fit=crop">
+          <div class="flex gap-6 md:gap-10 flex-1">
+            <span class="font-mono text-[11px] tracking-[0.2em] text-white/30 mt-1 hidden md:block">04</span>
+            <div class="flex-1 max-w-[520px]">
+              <div class="flex items-baseline gap-3">
+                <h3 class="font-serif text-[28px] md:text-[34px] leading-[0.95] tracking-[-0.02em]">AFTER HOURS TEA</h3>
+                <span class="font-mono text-[10px] tracking-[0.18em] px-2 h-[20px] rounded-full bg-white/10 text-white/70 border border-white/15 grid place-items-center">0%</span>
+              </div>
+              <div class="mt-2 font-mono text-[11px] tracking-[0.16em] text-white/40">HOJICHA / FERMENTED PLUM / SODA / CYPRESS SALT</div>
+              <p class="mt-3 font-sans text-[14px] leading-[1.6] text-white/55">For when you need to stay. Roasted tea, salty plum, fizz. Tastes like last train missed on purpose.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6 md:gap-10 md:min-w-[220px] justify-between md:justify-end pl-0 md:pl-6">
+            <div class="font-mono text-[11px] leading-[1.5] text-white/40">SERVED<br>TALL</div>
+            <div class="text-right">
+              <div class="font-serif text-[22px]">¥1,200</div>
+              <div class="font-mono text-[10px] tracking-[0.2em] text-white/30 mt-1 opacity-0 group-hover:opacity-100 transition">VIEW POUR →</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 5 -->
+        <div class="cocktail group relative py-7 md:py-9 flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-white/10 hover:bg-white/[0.02] md:px-6 md:-mx-6 transition duration-500 cursor-pointer reveal" data-category="signature" data-img="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop">
+          <div class="flex gap-6 md:gap-10 flex-1">
+            <span class="font-mono text-[11px] tracking-[0.2em] text-white/30 mt-1 hidden md:block">05</span>
+            <div class="flex-1 max-w-[520px]">
+              <h3 class="font-serif text-[28px] md:text-[34px] leading-[0.95] tracking-[-0.02em] group-hover:text-amber transition">MIDNIGHT MILK PUNCH</h3>
+              <div class="mt-2 font-mono text-[11px] tracking-[0.16em] text-white/40">BLACK SESAME / BOURBON / OOLONG / DATE / CLARIFIED</div>
+              <p class="mt-3 font-sans text-[14px] leading-[1.6] text-white/55">48 hour clarification. Black as Shinjuku after power cut, smooth as vinyl inner groove.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6 md:gap-10 md:min-w-[220px] justify-between md:justify-end pl-0 md:pl-6">
+            <div class="font-mono text-[11px] leading-[1.5] text-white/40">48H<br>CLARIFY</div>
+            <div class="text-right">
+              <div class="font-serif text-[22px]">¥2,000</div>
+              <div class="font-mono text-[10px] tracking-[0.2em] text-white/30 mt-1 opacity-0 group-hover:opacity-100 transition">VIEW POUR →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Omakase note -->
+      <div class="mt-14 grid lg:grid-cols-[1.4fr_.6fr] gap-4">
+        <div class="reveal glass rounded-[16px] p-[1px]">
+          <div class="bg-dark rounded-[15px] px-6 md:px-8 py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="flex gap-5">
+              <div class="w-12 h-12 rounded-full bg-amber text-dark grid place-items-center font-serif font-black text-[20px]">侘</div>
+              <div>
+                <div class="font-mono text-[11px] tracking-[0.22em] text-amber mb-1">OMAKASE POUR — ¥6,500</div>
+                <div class="font-serif text-[20px] md:text-[22px] leading-[1.15]">Leave it to the hands behind the bar.<br><span class="text-white/50">3 pours, seasonal, no substitutions.</span></div>
+              </div>
+            </div>
+            <button class="shrink-0 px-6 h-[44px] rounded-full bg-paper text-dark font-mono text-[11px] tracking-[0.2em] hover:bg-white transition">BOOK OMAKASE</button>
+          </div>
+        </div>
+        <div class="reveal reveal-del-1 rounded-[16px] border border-dashed border-white/15 p-6 flex flex-col justify-between min-h-[108px]">
+          <div class="font-mono text-[10px] tracking-[0.22em] text-white/40">SIDES</div>
+          <div class="font-sans text-[13px] leading-[1.5] text-white/60">Kombu-cured olives • Yuzu kosho nuts • Milk bread, cultured butter — ¥600 ea.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ATMOSPHERE GALLERY -->
+<section id="atmos" class="relative py-24 md:py-32 bg-dark border-t border-white/[0.06] overflow-hidden">
+  <div class="px-6 md:px-10 lg:px-[56px] max-w-[1440px] mx-auto">
+    <div class="flex flex-col md:flex-row justify-between gap-8 items-start md:items-end mb-14">
+      <div class="reveal">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="font-mono text-[11px] tracking-[0.3em] text-white/40">ATMOSPHERE — 03</span>
+          <span class="h-[1px] w-12 bg-white/20"></span>
+        </div>
+        <h2 class="font-serif text-[46px] md:text-[68px] leading-[0.88] tracking-[-0.03em]">The room at<br><span class="italic font-light text-white/50">1:17 AM</span></h2>
+      </div>
+      <div class="reveal reveal-del-1 max-w-[360px]">
+        <p class="font-sans text-[14px] leading-[1.7] text-white/50">Three zones: Bar (12 seats), Tatami nook (8), Terrace edge (18). All low. All designed to make the skyline feel like it belongs to you for two hours.</p>
+        <div class="mt-4 flex gap-2">
+          <span class="w-2 h-2 rounded-full bg-neon"></span>
+          <span class="w-2 h-2 rounded-full bg-white/15"></span>
+          <span class="w-2 h-2 rounded-full bg-white/15"></span>
+          <span class="font-mono text-[10px] tracking-[0.2em] text-white/40 ml-2">DRAG TO EXPLORE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- gallery grid -->
+    <div class="grid grid-cols-12 gap-3 md:gap-4 auto-rows-[220px] md:auto-rows-[280px]">
+      <!-- large -->
+      <div class="reveal col-span-12 md:col-span-7 relative rounded-[4px] overflow-hidden group bg-ink">
+        <img src="https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-[1.4s] cubic-bezier(.16,1,.3,1)" alt="">
+        <div class="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/10 to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-5 md:p-7 flex justify-between items-end">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.2em] text-white/60 mb-2">TERRACE EDGE • 22:47</div>
+            <div class="font-serif text-[20px] md:text-[26px] leading-[1.05]">Glass so clear<br>you forget it's there.</div>
+          </div>
+          <div class="hidden md:grid w-10 h-10 rounded-full border border-white/20 place-items-center group-hover:bg-paper group-hover:text-dark transition">↗</div>
+        </div>
+      </div>
+      <!-- small tall -->
+      <div class="reveal reveal-del-1 col-span-6 md:col-span-3 relative rounded-[4px] overflow-hidden group bg-ink">
+        <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.08] transition duration-[1.2s]" alt="">
+        <div class="absolute inset-0 bg-dark/30"></div>
+        <div class="absolute top-4 left-4 px-2.5 py-1 rounded-full bg-dark/60 backdrop-blur text-[10px] font-mono tracking-widest">STILL 02</div>
+        <div class="absolute bottom-4 left-4 right-4">
+          <div class="font-mono text-[10px] text-white/60">DETAIL — ICE CUT</div>
+          <div class="font-serif text-[16px] leading-tight mt-1">Hands remember<br>before mind does.</div>
+        </div>
+      </div>
+      <!-- square -->
+      <div class="reveal reveal-del-2 col-span-6 md:col-span-2 relative rounded-[4px] overflow-hidden bg-ink border border-white/10">
+        <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+        <div class="absolute inset-0 bg-gradient-to-t from-dark via-transparent to-transparent"></div>
+        <div class="absolute bottom-3 left-3 right-3">
+          <div class="font-serif italic text-[18px] leading-none">Analog</div>
+          <div class="font-mono text-[9px] tracking-widest text-white/50 mt-1">SANSUI AU-777</div>
+        </div>
+      </div>
+
+      <!-- wide lower -->
+      <div class="reveal col-span-12 md:col-span-5 relative rounded-[4px] overflow-hidden group bg-ink">
+        <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.05] transition duration-[1.2s]" alt="">
+        <div class="absolute inset-0 bg-gradient-to-t from-dark/70 to-transparent"></div>
+        <div class="absolute inset-0 p-6 flex flex-col justify-between">
+          <div class="flex justify-between">
+            <span class="px-3 h-6 rounded-full bg-amber text-dark font-mono text-[10px] tracking-widest grid place-items-center">TATAMI NOOK</span>
+            <span class="font-mono text-[10px] text-white/50">06 PEOPLE MAX</span>
+          </div>
+          <div class="font-serif text-[22px] leading-[1.1]">Shoes off. Voices low.<br>City still humming through tatami.</div>
+        </div>
+      </div>
+      <div class="reveal reveal-del-1 col-span-12 md:col-span-7 relative rounded-[4px] overflow-hidden group bg-ink">
+        <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-[1.2s]" alt="">
+        <div class="absolute inset-0 bg-dark/40"></div>
+        <div class="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
+          <div class="inline-flex">
+            <div class="glass rounded-full px-4 h-8 flex items-center gap-3">
+              <span class="w-2 h-2 rounded-full bg-neon animate-pulse"></span>
+              <span class="font-mono text-[11px] tracking-widest">VIEW FROM BAR — 270°</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS / PRESS -->
+<section class="relative py-20 md:py-28 bg-ink border-y border-white/[0.06]">
+  <div class="px-6 md:px-10 lg:px-[56px] max-w-[1440px] mx-auto">
+    <div class="grid md:grid-cols-12 gap-8">
+      <div class="md:col-span-4 reveal">
+        <div class="sticky top-28">
+          <div class="font-mono text-[11px] tracking-[0.3em] text-white/40 mb-6">PRESS & NOTES — 04</div>
+          <h3 class="font-serif text-[32px] md:text-[38px] leading-[0.95]">What they whisper<br><span class="italic font-light text-white/50">when we can't hear.</span></h3>
+          <div class="mt-8 flex items-center gap-3">
+            <div class="flex">
+              <span class="text-amber">★</span><span class="text-amber">★</span><span class="text-amber">★</span><span class="text-amber">★</span><span class="text-amber">★</span>
+            </div>
+            <span class="font-mono text-[11px] tracking-widest text-white/40">4.9 / 200 REVIEWS</span>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-8 space-y-[1px] bg-white/10">
+        <div class="reveal bg-dark p-7 md:p-9 flex flex-col gap-6">
+          <div class="flex justify-between items-start gap-6">
+            <div class="font-serif text-[20px] md:text-[24px] leading-[1.25]">“The only bar in Tokyo that made me put my phone away without being asked. You don't drink here, you <span class="text-neon">listen</span>.”</div>
+            <span class="hidden md:block font-mono text-[10px] tracking-widest text-white/30 shrink-0 mt-1">— MONOCLE, 2024</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-[10px] tracking-widest text-white/40 md:hidden">MONOCLE, 2024</span>
+            <span class="h-[1px] w-8 bg-white/10"></span>
+            <span class="font-mono text-[10px] tracking-[0.18em] text-white/40">BAR OF THE YEAR NOMINEE — JAPAN</span>
+          </div>
+        </div>
+        <div class="reveal reveal-del-1 bg-dark p-7 md:p-9 flex flex-col gap-6">
+          <div class="font-serif text-[20px] md:text-[24px] leading-[1.25]">“Came for a drink, stayed because the selector played Boards of Canada at 1am and the whole terrace went quiet. Felt like a film I wanted to live in.”</div>
+          <div class="flex items-center gap-4">
+            <img src="https://i.pravatar.cc/40?img=12" class="w-8 h-8 rounded-full">
+            <div>
+              <div class="font-mono text-[11px] tracking-widest">AYAKA M.</div>
+              <div class="font-mono text-[10px] text-white/40">VISITED DEC 2024 • 3RD TIME</div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal reveal-del-2 bg-dark p-7 md:p-9 flex flex-col gap-6">
+          <div class="font-serif text-[20px] md:text-[24px] leading-[1.25]">“Ice program alone is worth the trip upstairs. They apologize if it's not perfect. It always is. The Yuzu Kumo tastes like winter air in Kyoto.”</div>
+          <div class="flex items-center gap-4">
+            <img src="https://i.pravatar.cc/40?img=20" class="w-8 h-8 rounded-full">
+            <div>
+              <div class="font-mono text-[11px] tracking-widest">JAMES P. — NYC</div>
+              <div class="font-mono text-[10px] text-white/40">GOOGLE REVIEW • 2 WEEKS AGO</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT / RESERVE -->
+<section id="visit" class="relative py-24 md:py-36 bg-dark overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-radial from-neon/10 via-transparent to-transparent blur-[80px]"></div>
+  </div>
+  <div class="relative px-6 md:px-10 lg:px-[56px] max-w-[1440px] mx-auto">
+    <div class="grid lg:grid-cols-[.9fr_1.1fr] gap-12 lg:gap-20">
+      <!-- left info -->
+      <div class="reveal">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="font-mono text-[11px] tracking-[0.3em] text-neon">VISIT — 05</span>
+          <span class="h-[1px] w-12 bg-neon/30"></span>
+        </div>
+        <h2 class="font-serif text-[44px] md:text-[64px] leading-[0.9] tracking-[-0.03em]">Find us<br><span class="stroke text-[48px] md:text-[70px]">if you need</span> to.</h2>
+
+        <div class="mt-12 space-y-10">
+          <div class="grid grid-cols-2 gap-8">
+            <div>
+              <div class="font-mono text-[10px] tracking-[0.24em] text-white/40 mb-3">HOURS</div>
+              <div class="font-sans text-[14px] leading-[1.6] text-white/80">Mon—Thu 19:00—01:00<br>Fri—Sat 19:00—02:30<br>Sun 19:00—00:00<br><span class="text-white/40">Last seating 45m before close</span></div>
+            </div>
+            <div>
+              <div class="font-mono text-[10px] tracking-[0.24em] text-white/40 mb-3">LOCATION</div>
+              <div class="font-sans text-[14px] leading-[1.6] text-white/80">Shinjuku Sumitomo Bldg 41F<br>2-6-1 Nishi-Shinjuku<br>Shinjuku-ku, Tokyo<br><span class="text-white/40">No street sign. Service elevator B.</span></div>
+            </div>
+          </div>
+
+          <div class="glass rounded-[12px] p-5 flex items-center gap-5">
+            <div class="w-12 h-12 rounded-full bg-white/10 grid place-items-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="font-mono text-[11px] tracking-[0.2em]">SECRET ENTRY</div>
+              <div class="font-sans text-[13px] text-white/60 mt-1 leading-[1.4]">Lobby has no listing. Take elevator B to 41F, turn left past vending machines, look for warm light under door.</div>
+            </div>
+          </div>
+
+          <!-- skyline svg -->
+          <div class="relative mt-6 pt-6 border-t border-white/10">
+            <svg viewBox="0 0 400 80" class="w-full h-auto opacity-40">
+              <path d="M0 70 L0 55 L20 55 L20 40 L35 40 L35 60 L50 60 L50 30 L65 30 L65 65 L80 65 L80 20 L95 20 L95 70 L110 70 L110 45 L130 45 L130 35 L145 35 L145 60 L160 60 L160 15 L175 15 L175 70 L190 70 L190 50 L210 50 L210 25 L225 25 L225 70 L240 70 L240 38 L255 38 L255 70 L270 70 L270 55 L285 55 L285 70 L300 70 L300 42 L320 42 L320 70 L340 70 L340 28 L360 28 L360 70 L400 70" fill="none" stroke="rgba(245,243,239,.3)" stroke-width="1"/>
+              <circle cx="42" cy="18" r="2" fill="#ffb019" opacity=".8"/>
+              <circle cx="168" cy="8" r="1.5" fill="#ff006e" opacity=".9"/>
+              <circle cx="302" cy="22" r="1" fill="white" opacity=".6"/>
+            </svg>
+            <div class="flex justify-between mt-2 font-mono text-[9px] tracking-[0.2em] text-white/30"><span>SHIBUYA</span><span>SHINJUKU</span><span>IKebukuro</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right reserve form -->
+      <div class="reveal reveal-del-1">
+        <div class="glass rounded-[20px] p-[1px]">
+          <div class="bg-[radial-gradient(800px_at_0%_-20%,rgba(255,0,110,.12),transparent),linear-gradient(180deg,#1a1a1a,#121212)] rounded-[19px] p-6 md:p-10">
+            <div class="flex justify-between items-start mb-10">
+              <div>
+                <div class="font-serif text-[30px] md:text-[36px] leading-[0.9]">Reserve<br><span class="italic font-light text-white/50">a low light.</span></div>
+                <div class="mt-3 font-mono text-[11px] tracking-[0.2em] text-white/40">NO PHONE RESERVATIONS • ONLINE ONLY</div>
+              </div>
+              <div class="w-14 h-14 rounded-full bg-paper text-dark grid place-items-center font-serif font-black text-[14px] leading-none text-center">KUMO<br><span class="font-mono text-[8px] tracking-widest font-normal -mt-1">41F</span></div>
+            </div>
+
+            <form id="reserve-form" class="space-y-5">
+              <div class="grid grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="font-mono text-[10px] tracking-[0.2em] text-white/50 mb-2 block">DATE</span>
+                  <input type="date" class="w-full h-[48px] rounded-full bg-dark border border-white/10 px-5 font-sans text-[14px] focus:border-neon/50 focus:outline-none transition"/>
+                </label>
+                <label class="block">
+                  <span class="font-mono text-[10px] tracking-[0.2em] text-white/50 mb-2 block">GUESTS</span>
+                  <select class="w-full h-[48px] rounded-full bg-dark border border-white/10 px-5 font-sans text-[14px] focus:border-neon/50 focus:outline-none transition">
+                    <option>1 — Bar</option><option>2 — Tatami</option><option>3 — Terrace</option><option>4 — Tatami</option>
+                  </select>
+                </label>
+              </div>
+              <label class="block">
+                <span class="font-mono text-[10px] tracking-[0.2em] text-white/50 mb-2 block">NAME</span>
+                <input type="text" placeholder="As on ID" class="w-full h-[48px] rounded-full bg-dark border border-white/10 px-5 font-sans text-[14px] placeholder:text-white/20 focus:border-neon/50 focus:outline-none transition"/>
+              </label>
+              <label class="block">
+                <span class="font-mono text-[10px] tracking-[0.2em] text-white/50 mb-2 block">NOTE (OPTIONAL)</span>
+                <input type="text" placeholder="Allergies, occasion, vinyl request…" class="w-full h-[48px] rounded-full bg-dark border border-white/10 px-5 font-sans text-[14px] placeholder:text-white/20 focus:border-neon/50 focus:outline-none transition"/>
+              </label>
+
+              <div class="flex items-center gap-3 pt-2">
+                <input type="checkbox" id="house" class="w-4 h-4 rounded border-white/20 bg-dark accent-neon">
+                <label for="house" class="font-mono text-[11px] tracking-[0.12em] text-white/50 leading-[1.4]">I understand: no standing, indoor voices, photos end at 11pm. I will knock twice.</label>
+              </div>
+
+              <button type="submit" class="group mt-4 w-full h-[56px] rounded-full bg-paper text-dark font-mono text-[12px] tracking-[0.22em] flex items-center justify-between px-2 pl-7 hover:bg-white transition">
+                <span>CONFIRM RESERVATION</span>
+                <span class="w-[44px] h-[44px] rounded-full bg-dark text-paper grid place-items-center group-hover:bg-neon group-hover:text-white transition duration-500">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.2"/></svg>
+                </span>
+              </button>
+
+              <div class="flex items-center justify-center gap-2 pt-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-mono text-[10px] tracking-[0.18em] text-white/40">3 TABLES LEFT TONIGHT — UPDATES LIVE</span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-3 gap-3">
+          <div class="rounded-full border border-white/10 h-[36px] grid place-items-center font-mono text-[10px] tracking-widest text-white/40">INSTA @KUMO.41F</div>
+          <div class="rounded-full border border-white/10 h-[36px] grid place-items-center font-mono text-[10px] tracking-widest text-white/40">MAP — NO SIGNAL</div>
+          <div class="rounded-full bg-neon/15 border border-neon/20 h-[36px] grid place-items-center font-mono text-[10px] tracking-widest text-neon">PHONE — NONE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="relative bg-[#080808] border-t border-white/[0.06] pt-20 md:pt-28 pb-10 overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-neon/10 blur-[120px] rounded-full opacity-40"></div>
+  </div>
+  <div class="relative px-6 md:px-10 lg:px-[56px] max-w-[1440px] mx-auto">
+    <!-- big mark -->
+    <div class="overflow-hidden">
+      <div class="font-serif font-black text-[19vw] md:text-[17vw] leading-[0.76] tracking-[-0.06em] whitespace-nowrap select-none">
+        <span class="text-paper">KUMO</span><span class="stroke opacity-40 ml-[0.08em]">KUMO</span><span class="text-neon/0 stroke-neon opacity-25 ml-[0.08em]">KUMO</span>
+      </div>
+    </div>
+
+    <div class="mt-12 md:mt-20 grid md:grid-cols-12 gap-10 border-t border-white/10 pt-10">
+      <div class="md:col-span-5">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 rounded-full bg-paper text-dark grid place-items-center font-serif font-black text-[14px]">K</div>
+          <div class="font-serif font-bold tracking-[0.14em]">KUMO ROOFTOP</div>
+          <span class="font-mono text-[10px] tracking-widest text-white/40 ml-3">EST. 2021 — SHINJUKU 41F</span>
+        </div>
+        <p class="font-sans text-[14px] leading-[1.6] text-white/45 max-w-[380px]">A hidden listening bar above Shinjuku. Analog sound, slow pour, city lights. No signage. Knock twice. Capacity 38. Cashless.</p>
+        <div class="mt-8 flex gap-3">
+          <a href="#" class="w-10 h-10 rounded-full border border-white/10 grid place-items-center hover:border-white/30 hover:bg-white/5 transition">IG</a>
+          <a href="#" class="w-10 h-10 rounded-full border border-white/10 grid place-items-center hover:border-white/30 hover:bg-white/5 transition">SP</a>
+          <a href="#" class="w-10 h-10 rounded-full border border-white/10 grid place-items-center hover:border-white/30 hover:bg-white/5 transition">MAP</a>
+        </div>
+      </div>
+
+      <div class="md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-10">
+        <div>
+          <div class="font-mono text-[11px] tracking-[0.22em] text-white/40 mb-6">EXPLORE</div>
+          <div class="space-y-3 font-sans text-[14px] text-white/70">
+            <a href="#story" class="block hover:text-paper transition link-u">Our story</a>
+            <a href="#menu" class="block hover:text-paper transition link-u">The pour</a>
+            <a href="#atmos" class="block hover:text-paper transition link-u">Atmosphere</a>
+            <a href="#" class="block hover:text-paper transition link-u">Journal</a>
+            <a href="#" class="block hover:text-paper transition link-u">Shop — Washi coasters</a>
+          </div>
+        </div>
+        <div>
+          <div class="font-mono text-[11px] tracking-[0.22em] text-white/40 mb-6">INFO</div>
+          <div class="space-y-3 font-sans text-[14px] text-white/45">
+            <div>2-6-1 Nishi-Shinjuku<br>Shinjuku Sumitomo 41F<br>Tokyo 163-0290</div>
+            <div class="pt-2 text-white/70">No phone.<br>hello@kumo41.jp</div>
+            <div class="pt-2 font-mono text-[11px] tracking-widest">NO WALK-INS AFTER 10PM</div>
+          </div>
+        </div>
+        <div class="col-span-2 md:col-span-1">
+          <div class="font-mono text-[11px] tracking-[0.22em] text-white/40 mb-6">NEWSLETTER — ONLY WHEN BOTTLES CHANGE</div>
+          <form class="flex items-center gap-2">
+            <input placeholder="your@email" class="flex-1 h-[40px] rounded-full bg-white/[0.06] border border-white/10 px-4 font-mono text-[12px] placeholder:text-white/30 focus:outline-none focus:border-white/20">
+            <button class="w-10 h-10 rounded-full bg-paper text-dark grid place-items-center hover:bg-white transition">→</button>
+          </form>
+          <div class="mt-4 font-mono text-[10px] leading-[1.5] text-white/30">By entering you agree to receive one email per month. No spam, we dislike it too.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 pt-6 border-t border-white/[0.06] flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
+      <div class="font-mono text-[10px] tracking-[0.2em] text-white/30">© 2025 KUMO ROOFTOP — SHINJUKU 41F — TOKYO • BUILT FOR NIGHT OWLS — MADE WITH HUSH</div>
+      <div class="flex items-center gap-6 font-mono text-[10px] tracking-[0.2em] text-white/30">
+        <a href="#" class="hover:text-white/60 transition">PRIVACY</a>
+        <a href="#" class="hover:text-white/60 transition">CREDITS — NIGHT SHIFT CO.</a>
+        <span class="w-2 h-2 rounded-full bg-neon shadow-[0_0_8px_#ff006e]"></span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] glass rounded-full px-6 h-[44px] flex items-center gap-3 translate-y-24 opacity-0 pointer-events-none transition-all duration-700">
+  <span class="w-2 h-2 rounded-full bg-neon animate-pulse"></span>
+  <span class="font-mono text-[11px] tracking-[0.18em]" id="toast-text">Reservation request sent — we'll knock back soon.</span>
+</div>
+
+<script>
+// progress
+window.addEventListener('scroll', () => {
+  const p = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+  document.getElementById('progress').style.transform = `scaleX(${p})`;
+  // navbar bg
+  const nav = document.getElementById('navbar');
+  if(window.scrollY > 40) nav.classList.add('bg-dark/80'); else nav.classList.remove('bg-dark/80');
+  // hero parallax
+  const heroBg = document.getElementById('hero-bg');
+  if(heroBg) heroBg.style.transform = `translateY(${window.scrollY * 0.28}px)`;
+  const para = document.querySelectorAll('.hero-parallax');
+  para.forEach(el => el.style.transform = `translateY(${window.scrollY * 0.12}px)`);
+});
+
+// custom cursor
+const cursor = document.getElementById('cursor');
+const dot = document.getElementById('cursor-dot');
+let mx=0,my=0, cx=0,cy=0, dx=0,dy=0;
+window.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+});
+(function loop(){
+  cx += (mx - cx)*0.11;
+  cy += (my - cy)*0.11;
+  dx += (mx - dx)*0.28;
+  dy += (my - dy)*0.28;
+  cursor.style.transform = `translate3d(${cx-21}px, ${cy-21}px, 0)`;
+  dot.style.transform = `translate3d(${dx-2}px, ${dy-2}px, 0)`;
+  requestAnimationFrame(loop);
+})();
+
+// hover states
+const hoverEls = document.querySelectorAll('a, button, .cocktail, .shines, input, select');
+hoverEls.forEach(el=>{
+  el.addEventListener('mouseenter', ()=>{
+    cursor.classList.add('hover');
+    const label = el.getAttribute('data-cursor') || 'OPEN';
+    cursor.querySelector('.cursor-label').textContent = label;
+  });
+  el.addEventListener('mouseleave', ()=> cursor.classList.remove('hover'));
+});
+
+// reveal observer
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }
+  });
+},{ threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// menu preview follow
+const preview = document.getElementById('menu-preview');
+const previewImg = document.getElementById('menu-preview-img');
+let previewActive=false;
+document.querySelectorAll('.cocktail').forEach(el=>{
+  el.addEventListener('mouseenter', ()=>{
+    const src = el.dataset.img;
+    previewImg.src = src;
+    preview.classList.add('show');
+    previewActive=true;
+    cursor.querySelector('.cursor-label').textContent='TASTE';
+  });
+  el.addEventListener('mouseleave', ()=>{
+    preview.classList.remove('show');
+    previewActive=false;
+    cursor.querySelector('.cursor-label').textContent='OPEN';
+  });
+});
+window.addEventListener('mousemove', e=>{
+  if(!previewActive) return;
+  // lerp preview position slightly delayed
+  preview.style.left = e.clientX + 'px';
+  preview.style.top = e.clientY + 'px';
+});
+if(window.matchMedia('(pointer: coarse)').matches){
+  preview.style.display='none';
+}
+
+// filter
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>{b.classList.remove('active','bg-paper','text-dark'); b.classList.add('border','border-white/15','text-white/60')});
+    btn.classList.add('active','bg-paper','text-dark'); btn.classList.remove('border','border-white/15','text-white/60');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.cocktail').forEach(c=>{
+      if(f==='signature' || c.dataset.category===f || f==='signature' && c.dataset.category==='signature'){
+        // show logic: signatures tab shows only signature? Original plan shows signatures default; allow all for classic/zero filters
+        if(f==='signature'){ c.style.display = c.dataset.category==='signature' ? 'flex' : 'none'; }
+        else { c.style.display = c.dataset.category===f ? 'flex' : 'none'; }
+      } else if(f==='signature'){ /* handled */ }
+      // Actually classic should show only classic, zero only zero
+      if(f==='classic') c.style.display = c.dataset.category==='classic' ? 'flex' : 'none';
+      if(f==='zero') c.style.display = c.dataset.category==='zero' ? 'flex' : 'none';
+    });
+    // if signature tab, restore all signature only (5 includes 3 sig) — but spec says show sigs only
+    if(f==='signature'){
+      document.querySelectorAll('.cocktail').forEach(c=>{
+        c.style.display = c.dataset.category==='signature' ? 'flex' : 'none';
+      });
+    }
+  });
+});
+// init signature filter view? Show all by default then filter signature? We want all initially, but button active signature — we show signature only to match button. Actually better show all initially then when click signature restrict.
+document.querySelectorAll('.cocktail').forEach(c=>c.style.display='flex');
+
+// magnetic buttons
+document.querySelectorAll('.magnetic').forEach(btn=>{
+  btn.addEventListener('mousemove', e=>{
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+  });
+  btn.addEventListener('mouseleave', ()=> btn.style.transform='translate(0,0)');
+});
+
+// mobile toggle
+const toggle = document.getElementById('mobile-toggle');
+const mMenu = document.getElementById('mobile-menu');
+let mOpen=false;
+toggle.addEventListener('click', ()=>{
+  mOpen=!mOpen;
+  if(mOpen){ mMenu.classList.remove('translate-y-[-10px]','opacity-0','pointer-events-none'); mMenu.classList.add('translate-y-0','opacity-100'); }
+  else { mMenu.classList.add('translate-y-[-10px]','opacity-0','pointer-events-none'); mMenu.classList.remove('translate-y-0','opacity-100'); }
+});
+document.querySelectorAll('#mobile-menu a').forEach(a=>a.addEventListener('click', ()=>{ mOpen=false; mMenu.classList.add('translate-y-[-10px]','opacity-0','pointer-events-none'); }));
+
+// reserve buttons toast
+function showToast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.remove('translate-y-24','opacity-0','pointer-events-none');
+  t.classList.add('translate-y-0','opacity-100');
+  setTimeout(()=>{ t.classList.add('translate-y-24','opacity-0'); t.classList.remove('translate-y-0','opacity-100'); }, 3600);
+}
+document.getElementById('reserve-btn').addEventListener('click', ()=>{ document.getElementById('visit').scrollIntoView({behavior:'smooth'}); showToast('SCROLL TO RESERVE — TABLE WAITING BELOW'); });
+document.getElementById('reserve-form').addEventListener('submit', e=>{
+  e.preventDefault();
+  showToast('Request sent — we’ll confirm by email within 20 minutes.');
+  e.target.reset();
+});
+document.querySelectorAll('button').forEach(b=>{
+  if(b.textContent.includes('BOOK OMAKASE')) b.addEventListener('click', ()=> showToast('Omakase — 3 pours ¥6,500 — tell us date in form note.'));
+});
+</script>
+</body>
+</html>

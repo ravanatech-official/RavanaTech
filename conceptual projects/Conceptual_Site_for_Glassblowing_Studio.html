@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Glassblowing Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,100..900;9..144,1,100..900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        furnace: '#1a1a1a',
+        furnace2: '#121212',
+        molten: '#ff6a00',
+        amber: '#ffb86a',
+        parchment: '#ebe6df',
+        glass: 'rgba(255,255,255,0.06)',
+      },
+      fontFamily: {
+        display: ['Fraunces', 'serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      animation: {
+        'marquee': 'marquee 28s linear infinite',
+        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
+      },
+      keyframes: {
+        marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+        pulseGlow: { '0%,100%': { opacity: '0.6', transform: 'scale(1)' }, '50%': { opacity: '1', transform: 'scale(1.05)' } },
+        float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-12px)' } },
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  body { background:#101010; color:#ebe6df; overscroll-behavior:none; }
+  ::selection { background:#ff6a00; color:#1a1a1a; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:#ff6a00; border-radius:100px; }
+  ::-webkit-scrollbar-track { background:#1a1a1a; }
+  /* Grain */
+  .grain { pointer-events:none; position:fixed; inset:0; z-index:9999; opacity:0.045; mix-blend-mode:overlay; }
+  .grain:before {
+    content:""; position:absolute; inset:-50%; width:200%; height:200%;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    animation:grainShift 8s steps(10) infinite;
+  }
+  @keyframes grainShift {
+    0%,100%{ transform:translate(0,0) }
+    10%{ transform:translate(-5%,-10%) }
+    20%{ transform:translate(-15%,5%) }
+    30%{ transform:translate(7%,-25%) }
+    40%{ transform:translate(-5%,25%) }
+    50%{ transform:translate(-15%,10%) }
+    60%{ transform:translate(15%,0%) }
+    70%{ transform:translate(0%,15%) }
+    80%{ transform:translate(3%,35%) }
+    90%{ transform:translate(-10%,10%) }
+  }
+  /* Cursor */
+  .cursor-dot, .cursor-ring {
+    position:fixed; top:0; left:0; pointer-events:none; z-index:99999; mix-blend-mode:normal;
+    border-radius:50%; transform:translate(-50%,-50%); will-change:transform;
+  }
+  .cursor-dot { width:6px; height:6px; background:#ff6a00; box-shadow:0 0 12px #ff6a00; }
+  .cursor-ring { width:44px; height:44px; border:1px solid rgba(255,106,0,0.5); transition: width .25s, height .25s, background .25s, border-color .25s; }
+  .cursor-ring.hover { width:92px; height:92px; background:rgba(255,106,0,0.08); border-color:rgba(255,106,0,0.9); }
+  .cursor-ring.molten { width:120px; height:120px; background:radial-gradient(circle at 30% 30%, #ffb86a, #ff6a00); border-color:transparent; mix-blend-mode:screen; opacity:0.9; }
+  @media (max-width:768px){ .cursor-dot, .cursor-ring{ display:none; } }
+  /* Scroll reveal */
+  .reveal { opacity:0; transform:translateY(28px) scale(.98); transition:all .9s cubic-bezier(.16,1,.3,1); will-change:transform,opacity; }
+  .reveal.active { opacity:1; transform:translateY(0) scale(1); }
+  .reveal-delay-1{ transition-delay:.08s } .reveal-delay-2{ transition-delay:.16s } .reveal-delay-3{ transition-delay:.24s }
+  /* Glass */
+  .glass-panel { background:linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02)); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,0.12); }
+  .glass-bubble { border-radius:9999px; background:radial-gradient(120% 120% at 20% 20%, rgba(255,255,255,0.22), rgba(255,255,255,0.04) 60%), linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01)); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.18); box-shadow:inset 0 1px 1px rgba(255,255,255,0.4), 0 12px 40px rgba(0,0,0,0.4); }
+  /* Molten glow */
+  .molten-glow { box-shadow:0 0 0 1px rgba(255,106,0,0.3), 0 8px 40px rgba(255,106,0,0.35), 0 0 80px rgba(255,106,0,0.22); }
+  .text-glow { text-shadow:0 0 20px rgba(255,106,0,0.5); }
+  /* Marquee */
+  .marquee-track { width:max-content; }
+  /* Image reveal */
+  .img-reveal { clip-path:inset(0 100% 0 0); transition:clip-path 1.2s cubic-bezier(.77,0,.175,1); }
+  .img-reveal.active { clip-path:inset(0 0 0 0); }
+  /* Progress */
+  #progress { transform-origin:left; transform:scaleX(0); }
+  /* Magnetic */
+  .magnetic { transition:transform .25s cubic-bezier(.23,1,.32,1); }
+</style>
+</head>
+<body class="font-mono antialiased overflow-x-hidden selection:bg-molten">
+
+<div class="grain"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div id="progress" class="fixed top-0 left-0 h-[2px] w-full bg-molten z-[100]"></div>
+
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-40 mix-blend-normal">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10 h-[72px] flex items-center justify-between">
+    <div class="flex items-center gap-8">
+      <a href="#" class="flex items-center gap-3 group cursor-pointer" data-cursor="molten">
+        <div class="w-9 h-9 rounded-full bg-molten flex items-center justify-center molten-glow relative overflow-hidden">
+          <span class="font-display font-black text-[18px] text-furnace tracking-tighter leading-none">F</span>
+          <span class="absolute w-full h-full bg-gradient-to-tr from-transparent to-white/30"></span>
+        </div>
+        <div class="leading-none">
+          <div class="font-display font-bold text-[18px] tracking-[-0.02em]">FORNAX</div>
+          <div class="font-mono text-[9px] tracking-[0.3em] opacity-60 -mt-[1px]">GLASSWORKS — 2012</div>
+        </div>
+      </a>
+      <div class="hidden lg:flex items-center gap-2 pl-6 border-l border-white/10">
+        <div class="flex items-center gap-2 glass-bubble px-3 py-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-[10px] tracking-[0.2em]">FURNACE: 1,140°C LIVE</span>
+        </div>
+        <div class="text-[10px] opacity-40 tracking-widest ml-2">ATELIER OPEN • BERLIN - NEUKÖLLN</div>
+      </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-10">
+      <div class="flex items-center gap-8 text-[11px] tracking-[0.18em]">
+        <a href="#story" class="opacity-70 hover:opacity-100 hover:text-molten transition cursor-pointer" data-cursor="hover">STORY</a>
+        <a href="#atelier" class="opacity-70 hover:opacity-100 hover:text-molten transition cursor-pointer" data-cursor="hover">ATELIER</a>
+        <a href="#gallery" class="opacity-70 hover:opacity-100 hover:text-molten transition cursor-pointer" data-cursor="hover">OBJECTS</a>
+        <a href="#journal" class="opacity-70 hover:opacity-100 hover:text-molten transition cursor-pointer" data-cursor="hover">JOURNAL</a>
+      </div>
+      <a href="#book" class="magnetic group relative inline-flex items-center gap-3 px-6 h-11 rounded-full bg-parchment text-furnace text-[11px] tracking-[0.2em] font-medium overflow-hidden" data-cursor="molten">
+        <span class="relative z-10">BOOK HOT TIME</span>
+        <span class="relative z-10 w-5 h-5 rounded-full bg-molten flex items-center justify-center text-white">→</span>
+        <span class="absolute inset-0 bg-molten translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(.77,0,.175,1)]"></span>
+      </a>
+    </div>
+
+    <button id="menuBtn" class="md:hidden w-10 h-10 rounded-full glass-panel flex items-center justify-center">
+      <div class="w-4 flex flex-col gap-1">
+        <span class="h-[1px] bg-parchment w-full"></span>
+        <span class="h-[1px] bg-parchment w-3/4 ml-auto"></span>
+      </div>
+    </button>
+  </div>
+
+  <!-- mobile menu -->
+  <div id="mobileMenu" class="md:hidden absolute top-[72px] inset-x-0 bg-furnace2 border-t border-white/10 p-6 hidden">
+    <div class="flex flex-col gap-6 text-[12px] tracking-[0.2em]">
+      <a href="#story">STORY</a><a href="#atelier">ATELIER</a><a href="#gallery">OBJECTS</a><a href="#journal">JOURNAL</a>
+      <a href="#book" class="mt-4 h-12 rounded-full bg-molten flex items-center justify-center text-furnace font-medium">BOOK HOT TIME — €240 / 3H</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative min-h-[100svh] flex items-center overflow-hidden bg-furnace">
+  <!-- molten glow bg -->
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute -top-[30%] -left-[20%] w-[80vw] h-[80vw] bg-molten/20 rounded-full blur-[120px]"></div>
+    <div class="absolute top-[20%] right-[-10%] w-[60vw] h-[60vw] bg-amber/10 rounded-full blur-[130px]"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-[40vh] bg-gradient-to-t from-black/80 to-transparent"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-[1600px] w-full px-6 md:px-10 pt-28 pb-12 grid lg:grid-cols-12 gap-10 items-center">
+    <!-- left text -->
+    <div class="lg:col-span-7">
+      <div class="reveal flex items-center gap-3 mb-8">
+        <div class="h-px w-12 bg-molten"></div>
+        <span class="text-[10px] tracking-[0.3em] text-molten">EST. BERLIN — HOT SHOP SINCE 2012</span>
+      </div>
+
+      <h1 class="reveal reveal-delay-1 font-display font-[300] leading-[0.85] tracking-[-0.05em] text-[14vw] lg:text-[9.2vw] xl:text-[126px]">
+        <span class="block">BREATH</span>
+        <span class="block font-display italic font-light ml-[0.2em] text-molten text-glow">becomes</span>
+        <span class="block">FORM</span>
+      </h1>
+
+      <div class="reveal reveal-delay-2 mt-10 grid md:grid-cols-[150px_1fr] gap-6 border-t border-white/10 pt-8 max-w-[620px]">
+        <div class="text-[11px] leading-6 tracking-wide opacity-60">
+          WE WORK AT 1,100°C WHERE GLASS IS HONEY, LIGHT IS LIQUID, AND EVERY VESSEL STILL CARRIES THE MAKER'S BREATH INSIDE ITS SKIN.
+        </div>
+        <div class="font-display text-[22px] leading-[1.25] tracking-[-0.01em]">
+          Fornax is a furnace, a school and a slow factory. Three benches, one glory hole, cold shop silence.
+          <span class="text-white/40">We produce only 40 pieces a month.</span>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-3 mt-10 flex flex-wrap items-center gap-4">
+        <a href="#atelier" class="magnetic relative h-[52px] px-8 rounded-full bg-molten text-furnace text-[12px] tracking-[0.18em] font-bold inline-flex items-center gap-3 molten-glow" data-cursor="molten">
+          ENTER HOT SHOP
+          <span class="w-6 h-6 rounded-full bg-furnace text-parchment flex items-center justify-center text-[14px]">↗</span>
+        </a>
+        <div class="flex items-center gap-4">
+          <div class="flex -space-x-3">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop" class="w-10 h-10 rounded-full border-2 border-furnace object-cover" alt="">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop" class="w-10 h-10 rounded-full border-2 border-furnace object-cover" alt="">
+            <div class="w-10 h-10 rounded-full border-2 border-furnace bg-white/10 backdrop-blur flex items-center justify-center text-[10px]">+4</div>
+          </div>
+          <div class="text-[10px] leading-tight tracking-widest opacity-60">MASTER BLOWERS<br>ON BENCH TODAY</div>
+        </div>
+      </div>
+
+      <!-- specs -->
+      <div class="reveal mt-16 grid grid-cols-3 border border-white/10 rounded-2xl overflow-hidden max-w-[500px]">
+        <div class="p-4 border-r border-white/10">
+          <div class="text-[9px] tracking-[0.2em] opacity-50">GATHER WEIGHT</div>
+          <div class="font-display text-xl mt-1">1.2 kg</div>
+        </div>
+        <div class="p-4 border-r border-white/10">
+          <div class="text-[9px] tracking-[0.2em] opacity-50">COE</div>
+          <div class="font-display text-xl mt-1">33 BORO</div>
+        </div>
+        <div class="p-4">
+          <div class="text-[9px] tracking-[0.2em] opacity-50">ANNEAL</div>
+          <div class="font-display text-xl mt-1">14 HRS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- right visual -->
+    <div class="lg:col-span-5 relative">
+      <div class="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden glass-panel p-2 reveal">
+        <!-- bubble glass highlight -->
+        <div class="absolute z-10 top-6 left-6 glass-bubble px-4 py-2 flex items-center gap-2">
+          <span class="w-2 h-2 bg-molten rounded-full animate-pulse"></span>
+          <span class="text-[10px] tracking-[0.2em]">02 — SECOND GATHER — 1,140°C</span>
+        </div>
+
+        <div class="relative w-full h-full rounded-[2rem] overflow-hidden bg-furnace2">
+          <img id="heroImg" src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1200&auto=format&fit=crop&q=80" alt="molten glass" class="absolute inset-0 w-full h-full object-cover scale-105 transition-transform duration-[2s]">
+          <div class="absolute inset-0 bg-gradient-to-t from-furnace via-furnace/20 to-transparent"></div>
+          <div class="absolute inset-0 opacity-60 mix-blend-overlay" style="background:radial-gradient(600px at 70% 30%, #ff6a00, transparent 70%)"></div>
+
+          <!-- floating glass bubble interaction -->
+          <div id="bubble" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[38%] aspect-square glass-bubble animate-float flex items-center justify-center">
+            <div class="w-[78%] h-[78%] rounded-full bg-gradient-to-br from-white/40 to-molten/50 blur-[0.5px] relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-tr from-molten to-amber opacity-80"></div>
+              <div class="absolute top-[18%] left-[20%] w-[35%] h-[20%] bg-white/60 rounded-full blur-[2px] rotate-12"></div>
+            </div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-6 flex justify-between items-end">
+            <div>
+              <div class="text-[10px] tracking-[0.3em] opacity-60">NEXT PUBLIC BLOW</div>
+              <div class="font-display text-[22px] leading-none mt-1">Saturday 18:00 — Amber Cup Set</div>
+            </div>
+            <button class="w-12 h-12 rounded-full bg-parchment text-furnace flex items-center justify-center">→</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- side tag -->
+      <div class="hidden lg:flex absolute -right-10 top-24 rotate-90 origin-left items-center gap-3">
+        <span class="text-[10px] tracking-[0.4em] opacity-30">MATERIAL IS MEMORY</span>
+        <span class="w-16 h-px bg-white/20"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute bottom-0 left-6 md:left-10 flex items-center gap-6 pb-8">
+    <div class="text-[10px] tracking-[0.2em] opacity-40">SCROLL FOR HEAT ↓</div>
+    <div class="w-[1px] h-12 bg-gradient-to-b from-white/40 to-transparent"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="relative border-y border-white/10 bg-parchment text-furnace overflow-hidden">
+  <div class="flex marquee-track animate-marquee">
+    <div class="flex items-center gap-10 py-4 px-6 shrink-0">
+      <span class="font-display text-[28px] tracking-[-0.02em]">GATHER</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+      <span class="font-display italic text-[28px]">breathe</span><span class="w-1.5 h-1.5 rounded-full bg-furnace"></span>
+      <span class="font-display text-[28px] tracking-[-0.02em]">BLOW</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+      <span class="font-display italic text-[28px]">MARVER</span><span class="w-1.5 h-1.5 rounded-full bg-furnace"></span>
+      <span class="font-display text-[28px] tracking-[-0.02em]">SHAPE</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+      <span class="font-display italic text-[28px]">ANNEAL</span><span class="w-1.5 h-1.5 rounded-full bg-furnace"></span>
+      <span class="font-display text-[28px] tracking-[-0.02em]">COLD WORK</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+    </div>
+    <div class="flex items-center gap-10 py-4 px-6 shrink-0" aria-hidden="true">
+      <span class="font-display text-[28px] tracking-[-0.02em]">GATHER</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+      <span class="font-display italic text-[28px]">breathe</span><span class="w-1.5 h-1.5 rounded-full bg-furnace"></span>
+      <span class="font-display text-[28px] tracking-[-0.02em]">BLOW</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+      <span class="font-display italic text-[28px]">MARVER</span><span class="w-1.5 h-1.5 rounded-full bg-furnace"></span>
+      <span class="font-display text-[28px] tracking-[-0.02em]">SHAPE</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+      <span class="font-display italic text-[28px]">ANNEAL</span><span class="w-1.5 h-1.5 rounded-full bg-furnace"></span>
+      <span class="font-display text-[28px] tracking-[-0.02em]">COLD WORK</span><span class="w-1.5 h-1.5 rounded-full bg-molten"></span>
+    </div>
+  </div>
+</div>
+
+<!-- STORY -->
+<section id="story" class="relative py-24 md:py-36 bg-[#efebe3] text-furnace overflow-hidden">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10">
+    <div class="grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="sticky top-28">
+          <div class="reveal text-[10px] tracking-[0.35em] mb-6">[01] HOT SHOP MANIFESTO</div>
+          <h2 class="reveal font-display font-[340] leading-[0.9] tracking-[-0.04em] text-[12vw] lg:text-[84px]">
+            Fire<br><span class="italic font-extralight ml-8">doesn't</span><br>forgive<br>haste.
+          </h2>
+          <div class="reveal mt-10 relative aspect-[4/3] rounded-[1.5rem] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=1000&auto=format&fit=crop&q=80" alt="hot shop" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-molten mix-blend-multiply opacity-40"></div>
+            <div class="absolute bottom-0 inset-x-0 p-5 glass-panel m-2 rounded-xl text-parchment">
+              <div class="text-[10px] tracking-[0.2em]">BENCH #2 — 2019</div>
+              <div class="font-display text-[18px] leading-tight mt-1">Heat teaches humility. You move with it or you burn.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 lg:pl-16">
+        <div class="reveal text-[18px] md:text-[26px] leading-[1.35] font-display tracking-[-0.01em] max-w-[660px]">
+          We founded Fornax in an old transformer factory because the ceilings were high enough for the glory hole's breath. For twelve years we've kept one furnace lit, twenty-four hours, three hundred and sixty-five days. It has never gone cold.
+          <span class="opacity-40">Glass doesn't remember blueprints, it remembers rhythm.</span>
+        </div>
+
+        <div class="mt-16 grid md:grid-cols-2 gap-10 border-t border-furnace/10 pt-10">
+          <div class="reveal">
+            <div class="text-[10px] tracking-[0.3em] mb-6 opacity-60">PHYSICS</div>
+            <p class="text-[14px] leading-7 opacity-80">
+              At 1,100°C viscosity is honey. At 700°C it's skin. At 500°C it's stone waiting to crack. Our job is to stay between the first two numbers as long as possible, using only breath, gravity and a wet newspaper pad called a jack.
+              <br><br>
+              Every piece begins with a gather: iron pipe dipped into crucible, turned, lifted. The weight tells you what it wants to be. A cup wants 400g. A pitcher wants doubt.
+            </p>
+          </div>
+          <div class="reveal reveal-delay-1">
+            <div class="text-[10px] tracking-[0.3em] mb-6 opacity-60">PRACTICE</div>
+            <p class="text-[14px] leading-7 opacity-80">
+              We don't design silhouettes, we choreograph intervals. Inhale — rotate. Exhale — blow. Seven seconds, no more. Then reheat. Then decide. If you hesitate the glass remembers.
+              <br><br>
+              Students come thinking it's about control. After day three they understand it's about negotiation with a material that is always cooling, always falling.
+            </p>
+            <div class="mt-8 inline-flex items-center gap-3 border border-furnace/20 rounded-full px-5 h-10 text-[11px] tracking-[0.2em]">
+              WATCH FULL FILM — 4:33 <span>↗</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- large watermark number -->
+        <div class="reveal mt-24 relative border border-furnace/10 rounded-[1.5rem] p-8 md:p-12 overflow-hidden">
+          <div class="absolute -right-6 -top-10 font-display text-[160px] leading-none tracking-[-0.06em] opacity-[0.06]">1100°</div>
+          <div class="relative grid md:grid-cols-3 gap-8">
+            <div>
+              <div class="text-molten font-display text-[44px] leading-none">12</div>
+              <div class="text-[11px] tracking-[0.2em] mt-2 opacity-60">YEARS FURNACE LIT<br>WITHOUT SINGLE SHUTDOWN</div>
+            </div>
+            <div>
+              <div class="text-molten font-display text-[44px] leading-none">3,840</div>
+              <div class="text-[11px] tracking-[0.2em] mt-2 opacity-60">PIECES MADE<br>40 PER MONTH, NO MORE</div>
+            </div>
+            <div>
+              <div class="text-molten font-display text-[44px] leading-none">0.7mm</div>
+              <div class="text-[11px] tracking-[0.2em] mt-2 opacity-60">THINNEST WALL<br>WE DARE TO BLOW</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS STEPS -->
+<section class="bg-furnace text-parchment py-20 border-y border-white/10">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10">
+    <div class="flex flex-wrap items-center justify-between gap-6 mb-12">
+      <h3 class="reveal font-display text-[36px] md:text-[52px] tracking-[-0.02em] leading-none">The four heats</h3>
+      <div class="reveal text-[10px] tracking-[0.3em] opacity-50">EACH REHEAT IS A DECISION. WE ALLOW FOUR.</div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-[1px] bg-white/10 border border-white/10 rounded-[1.5rem] overflow-hidden">
+      <div class="reveal bg-furnace2 p-8 relative group" data-cursor="hover">
+        <div class="flex justify-between items-start mb-12">
+          <span class="text-molten font-display text-[14px]">01 / GATHER</span>
+          <span class="text-[10px] opacity-40">1140°C • 12 SEC</span>
+        </div>
+        <h4 class="font-display text-[24px] leading-none">Honey on iron</h4>
+        <p class="text-[13px] leading-6 opacity-60 mt-4">Crucible dip, even rotation, no bubbles unless wanted. The first mass sets everything.</p>
+        <div class="mt-8 w-full h-px bg-white/10 group-hover:bg-molten/50 transition"></div>
+      </div>
+      <div class="reveal reveal-delay-1 bg-furnace2 p-8 relative group" data-cursor="hover">
+        <div class="flex justify-between items-start mb-12">
+          <span class="text-molten font-display text-[14px]">02 / MARVER</span>
+          <span class="text-[10px] opacity-40">980°C • 20 SEC</span>
+        </div>
+        <h4 class="font-display text-[24px] leading-none">Cold table truth</h4>
+        <p class="text-[13px] leading-6 opacity-60 mt-4">Rolled on steel. Shape begins before breath. Chill sets skin, keeps it centered.</p>
+        <div class="mt-8 w-full h-px bg-white/10 group-hover:bg-molten/50 transition"></div>
+      </div>
+      <div class="reveal reveal-delay-2 bg-furnace2 p-8 relative group" data-cursor="hover">
+        <div class="flex justify-between items-start mb-12">
+          <span class="text-molten font-display text-[14px]">03 / BLOW</span>
+          <span class="text-[10px] opacity-40">820°C • 7 SEC</span>
+        </div>
+        <h4 class="font-display text-[24px] leading-none">Breath is form</h4>
+        <p class="text-[13px] leading-6 opacity-60 mt-4">Puff, not gust. You listen to resistance. Glass inflates where heat lives.</p>
+        <div class="mt-8 w-full h-px bg-white/10 group-hover:bg-molten/50 transition"></div>
+      </div>
+      <div class="reveal reveal-delay-3 bg-furnace2 p-8 relative group" data-cursor="hover">
+        <div class="flex justify-between items-start mb-12">
+          <span class="text-molten font-display text-[14px]">04 / ANNEAL</span>
+          <span class="text-[10px] opacity-40">520°C • 14 HRS</span>
+        </div>
+        <h4 class="font-display text-[24px] leading-none">Patience, not force</h4>
+        <p class="text-[13px] leading-6 opacity-60 mt-4">Kiln holds at 520°C, drifts down for fourteen hours. Skip it and it shatters months later.</p>
+        <div class="mt-8 w-full h-px bg-white/10 group-hover:bg-molten/50 transition"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ATELIER / SERVICES -->
+<section id="atelier" class="relative py-24 md:py-36 bg-[#101010] text-parchment overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[90vw] bg-molten/10 blur-[120px] rounded-full"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-[1600px] px-6 md:px-10">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-16">
+      <div>
+        <div class="reveal text-[10px] tracking-[0.35em] text-molten mb-4">[02] ATELIER OFFERS</div>
+        <h2 class="reveal font-display leading-[0.9] tracking-[-0.04em] text-[12vw] md:text-[88px]">
+          Works made<br><span class="italic font-light text-white/40">to hold light.</span>
+        </h2>
+      </div>
+      <div class="reveal max-w-[320px] text-[13px] leading-6 opacity-60">Classes are brutal on forearms, commissions take 8 weeks, vessels are released first Saturday every month. No restock.</div>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-6">
+      <!-- large featured -->
+      <div class="lg:col-span-7 reveal group relative rounded-[2rem] overflow-hidden glass-panel p-[1px]">
+        <div class="rounded-[2rem] overflow-hidden bg-furnace2 relative h-full min-h-[560px] flex flex-col">
+          <div class="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-molten/50 to-transparent"></div>
+          <div class="flex items-center justify-between p-8">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full border border-molten text-molten flex items-center justify-center text-[12px]">01</span>
+              <span class="text-[11px] tracking-[0.25em]">HOT SHOP INTRO — 3H</span>
+            </div>
+            <span class="text-[11px] bg-molten text-furnace px-3 py-1 rounded-full font-bold tracking-widest">MOST POPULAR</span>
+          </div>
+          <div class="px-8">
+            <h3 class="font-display text-[44px] md:text-[56px] leading-[0.9] tracking-[-0.03em]">First Breath</h3>
+            <p class="mt-4 text-[14px] leading-7 opacity-60 max-w-[460px]">You will burn your hand, slightly. You will make a tumbler, wobbly, utterly yours. We keep groups to 3 so you get 45 minutes on pipe. Bring cotton, not nylon.</p>
+            <div class="mt-8 flex gap-2">
+              <span class="glass-bubble px-3 py-1 text-[10px] tracking-widest">NO EXPERIENCE</span>
+              <span class="glass-bubble px-3 py-1 text-[10px] tracking-widest">EN/DE</span>
+              <span class="glass-bubble px-3 py-1 text-[10px] tracking-widest">AGE 16+</span>
+            </div>
+          </div>
+          <div class="mt-auto grid grid-cols-[1.2fr_0.8fr] gap-0 border-t border-white/10">
+            <div class="p-8 border-r border-white/10">
+              <div class="text-[10px] tracking-[0.2em] opacity-50">PRICE</div>
+              <div class="font-display text-[32px]">€240 <span class="text-[16px] opacity-40">/ person includes material</span></div>
+              <a href="#book" class="mt-6 inline-flex h-11 px-6 rounded-full bg-parchment text-furnace text-[11px] tracking-[0.2em] items-center gap-2">BOOK SESSION <span>→</span></a>
+            </div>
+            <div class="relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&auto=format&fit=crop&q=80" alt="tumblers" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700">
+              <div class="absolute inset-0 bg-molten/20 mix-blend-multiply"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- stack two -->
+      <div class="lg:col-span-5 grid gap-6">
+        <div class="reveal reveal-delay-1 group rounded-[2rem] glass-panel p-6 md:p-8 flex flex-col min-h-[272px] relative overflow-hidden" data-cursor="hover">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-molten/20 blur-[30px] rounded-full group-hover:bg-molten/30 transition"></div>
+          <div class="flex justify-between"><span class="text-[11px] tracking-[0.25em] text-molten">02 — PRIVATE BLOW</span><span class="text-[10px] opacity-40">90 MIN / 2 PERSONS</span></div>
+          <h4 class="font-display text-[28px] leading-none mt-6">Date Night Furnace</h4>
+          <p class="text-[13px] opacity-60 leading-6 mt-3 max-w-[320px]">You and one other human, one bench, one instructor, music low, furnace roaring. Make two pieces meant to live together.</p>
+          <div class="mt-auto flex items-center justify-between pt-8">
+            <span class="font-display text-[24px]">€420 pair</span>
+            <span class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-molten group-hover:border-molten transition">→</span>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-2 group rounded-[2rem] glass-panel p-6 md:p-8 flex flex-col min-h-[272px] relative overflow-hidden" data-cursor="hover">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-amber/20 blur-[30px] rounded-full"></div>
+          <div class="flex justify-between"><span class="text-[11px] tracking-[0.25em] text-molten">03 — COMMISSION</span><span class="text-[10px] opacity-40">LEAD 8 WEEKS</span></div>
+          <h4 class="font-display text-[28px] leading-none mt-6">Vessels & Light</h4>
+          <p class="text-[13px] opacity-60 leading-6 mt-3 max-w-[320px]">Pendant clusters, wall sconces, table vessels to spec. Borosilicate or soda lime. Drawings first, then sample in clear.</p>
+          <div class="mt-auto flex items-center justify-between pt-8">
+            <span class="font-display text-[24px]">from €850</span>
+            <span class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-molten group-hover:border-molten transition">→</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- bottom wide -->
+      <div class="lg:col-span-12 reveal grid md:grid-cols-12 gap-6 mt-2">
+        <div class="md:col-span-5 rounded-[2rem] overflow-hidden relative min-h-[380px] group">
+          <img src="https://images.unsplash.com/photo-1579783902615-a3fb3927b6a5?w=1000&auto=format&fit=crop&q=80" alt="glass studio" class="absolute inset-0 w-full h-full object-cover">
+          <div class="absolute inset-0 bg-furnace/40"></div>
+          <div class="relative h-full p-8 flex flex-col justify-between">
+            <div class="glass-bubble self-start px-4 py-2 text-[10px] tracking-[0.2em]">04 — MEMBERSHIP — 12H / MONTH</div>
+            <div>
+              <h4 class="font-display text-[34px] leading-[0.9]">Hot Shop Access</h4>
+              <p class="text-[13px] opacity-80 leading-6 mt-3 max-w-[300px]">For blowers who can gather without help. Night shifts, Tuesday to Thursday. You bring color, we keep heat.</p>
+              <div class="mt-6 font-display text-[26px]">€590 / month</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-7 rounded-[2rem] glass-panel p-[1px]">
+          <div class="rounded-[2rem] bg-furnace2 p-8 md:p-10 h-full flex flex-col">
+            <div class="flex items-start justify-between gap-6">
+              <h4 class="font-display text-[30px] md:text-[38px] leading-[0.9] tracking-[-0.02em]">We don't sell perfection.<br><span class="text-white/40 italic">We sell evidence of breath.</span></h4>
+              <div class="hidden md:block text-[10px] opacity-40 leading-5 text-right">BATCH #084<br>RELEASED<br>MAY 17 — SOLD IN 6M</div>
+            </div>
+
+            <div class="mt-10 grid grid-cols-3 gap-6">
+              <div class="group cursor-pointer" data-cursor="hover">
+                <div class="aspect-[3/4] rounded-xl overflow-hidden bg-furnace relative">
+                  <img src="https://images.unsplash.com/photo-1493612276216-ee3925520721?w=600&auto=format&fit=crop&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" alt="">
+                </div>
+                <div class="mt-3 flex justify-between text-[11px] tracking-widest"><span>Amber Rib Tumbler</span><span class="opacity-40">€65</span></div>
+              </div>
+              <div class="group cursor-pointer" data-cursor="hover">
+                <div class="aspect-[3/4] rounded-xl overflow-hidden bg-furnace relative">
+                  <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" alt="">
+                </div>
+                <div class="mt-3 flex justify-between text-[11px] tracking-widest"><span>Smoke Incalmo Vase</span><span class="opacity-40">€210</span></div>
+              </div>
+              <div class="group cursor-pointer" data-cursor="hover">
+                <div class="aspect-[3/4] rounded-xl overflow-hidden bg-furnace relative">
+                  <img src="https://images.unsplash.com/photo-1549490349-8643362247b5?w=600&auto=format&fit=crop&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" alt="">
+                </div>
+                <div class="mt-3 flex justify-between text-[11px] tracking-widest"><span>Breath Bubble Pendant</span><span class="opacity-40">€340</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="relative py-24 md:py-32 bg-parchment text-furnace">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10">
+    <div class="flex items-end justify-between gap-6 mb-12">
+      <div>
+        <div class="reveal text-[10px] tracking-[0.35em] mb-4">[03] OBJECT ARCHIVE — 2012 → 2025</div>
+        <h2 class="reveal font-display text-[48px] md:text-[84px] leading-[0.85] tracking-[-0.04em]">Selected<br><span class="italic font-light">blows.</span></h2>
+      </div>
+      <div class="reveal hidden md:flex items-center gap-2 text-[10px] tracking-[0.2em] border border-furnace/15 rounded-full px-4 h-9">FILTER: ALL / VESSEL / LIGHT / TABLE / COLOR STUDY</div>
+    </div>
+
+    <div class="grid md:grid-cols-12 gap-[1px] bg-furnace/10 border border-furnace/10 rounded-[1.5rem] overflow-hidden">
+      <!-- large -->
+      <div class="md:col-span-8 reveal relative bg-[#ddd8d0] aspect-[16/10] overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1518281361980-b26bfd556770?w=1400&auto=format&fit=crop&q=80" alt="gallery 1" class="w-full h-full object-cover img-reveal">
+        <div class="absolute inset-0 bg-gradient-to-t from-furnace/60 via-transparent to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between text-parchment">
+          <div><div class="font-display text-[28px] leading-none">FORNAX No.81 — Incalmo Pair</div><div class="text-[11px] tracking-[0.2em] mt-2 opacity-70">SODA LIME, AMBER FLASH, 2024 • 26CM</div></div>
+          <div class="glass-bubble px-3 py-1 text-[10px]">AVAILABLE — €420</div>
+        </div>
+      </div>
+      <div class="md:col-span-4 reveal reveal-delay-1 bg-[#e8e0d6] aspect-[4/5] md:aspect-auto relative overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1526312426976-593c0d0970ae?w=800&auto=format&fit=crop&q=80" alt="gallery fire" class="w-full h-full object-cover absolute inset-0">
+        <div class="absolute inset-0 bg-molten/30 mix-blend-multiply"></div>
+        <div class="relative h-full p-8 flex flex-col justify-between text-furnace">
+          <div class="font-display text-[64px] leading-none opacity-20">1140°</div>
+          <div class="glass-panel rounded-xl p-4 text-furnace bg-white/70 backdrop-blur">
+            <div class="text-[10px] tracking-[0.2em]">FIELD NOTE</div>
+            <div class="font-display text-[16px] leading-tight mt-2">Color is added at 980°C, otherwise it boils. Amber is sulfur + carbon. It smells like struck match.</div>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-4 reveal relative bg-[#d9d2c8] aspect-[4/3] overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1608111110622-9a1f7a05c1d0?w=800&auto=format&fit=crop&q=80" alt="glass object" class="w-full h-full object-cover">
+      </div>
+      <div class="md:col-span-4 reveal reveal-delay-1 relative bg-[#ddd8d0] aspect-[4/3] overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?w=800&auto=format&fit=crop&q=80" alt="glass workshop" class="w-full h-full object-cover">
+        <div class="absolute top-4 left-4 glass-bubble px-3 py-1 text-[10px] bg-white/80">COLD SHOP — DIAMOND GRIND</div>
+      </div>
+      <div class="md:col-span-4 reveal reveal-delay-2 relative bg-[#cbc5bc] aspect-[4/3] overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&auto=format&fit=crop&q=80" alt="amber glass" class="w-full h-full object-cover">
+      </div>
+    </div>
+
+    <div class="mt-8 flex justify-center">
+      <button class="h-12 px-8 rounded-full border border-furnace/20 text-[11px] tracking-[0.2em] hover:bg-furnace hover:text-parchment transition">VIEW FULL ARCHIVE — 384 PIECES</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / JOURNAL -->
+
+<!-- STUDIO LOG — added to meet premium length -->
+<section class="relative py-20 bg-parchment text-furnace border-y border-furnace/10">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10">
+    <div class="grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-4">
+        <div class="reveal text-[10px] tracking-[0.35em] mb-4">[03B] SHOP LOG — THIS WEEK</div>
+        <h3 class="reveal font-display text-[36px] leading-[0.9] tracking-[-0.03em]">What cooled<br>without cracking.</h3>
+        <div class="reveal mt-6 text-[12px] leading-6 opacity-60 max-w-[320px]">Every night we log failures. Failures teach faster than successes. Below, this week's casualties and survivors from bench #2 and #3.</div>
+        <div class="reveal mt-8 inline-flex items-center gap-2 glass-panel !bg-furnace !text-parchment rounded-full px-4 h-10 text-[10px] tracking-[0.2em]" style="background:#1a1a1a;">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span> KILN UNLOADED — 06:14 TODAY
+        </div>
+      </div>
+      <div class="lg:col-span-8">
+        <div class="reveal border border-furnace/10 rounded-[1.2rem] overflow-hidden">
+          <div class="grid grid-cols-12 gap-0 text-[10px] tracking-[0.2em] bg-furnace text-parchment px-6 h-10 items-center">
+            <div class="col-span-2">BATCH</div>
+            <div class="col-span-4">FORM</div>
+            <div class="col-span-2">GATHER</div>
+            <div class="col-span-2">RESULT</div>
+            <div class="col-span-2 text-right">NOTES</div>
+          </div>
+          <div class="divide-y divide-furnace/10 bg-white">
+            <div class="grid grid-cols-12 gap-0 px-6 py-4 items-center text-[12px] hover:bg-[#ff6a00]/5 transition">
+              <div class="col-span-2 font-mono opacity-60">#084-C</div>
+              <div class="col-span-4 font-display text-[16px]">Amber Cup — Ribbed</div>
+              <div class="col-span-2">410g</div>
+              <div class="col-span-2"><span class="px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-700 text-[10px] tracking-widest">SAFE</span></div>
+              <div class="col-span-2 text-right opacity-60">0.9mm wall</div>
+            </div>
+            <div class="grid grid-cols-12 gap-0 px-6 py-4 items-center text-[12px] hover:bg-[#ff6a00]/5 transition">
+              <div class="col-span-2 font-mono opacity-60">#084-D</div>
+              <div class="col-span-4 font-display text-[16px]">Smoke Incalmo</div>
+              <div class="col-span-2">620g</div>
+              <div class="col-span-2"><span class="px-2 py-1 rounded-full bg-red-500/15 text-red-700 text-[10px] tracking-widest">CRACK 03:00</span></div>
+              <div class="col-span-2 text-right opacity-60">Cold joint</div>
+            </div>
+            <div class="grid grid-cols-12 gap-0 px-6 py-4 items-center text-[12px] hover:bg-[#ff6a00]/5 transition">
+              <div class="col-span-2 font-mono opacity-60">#085-A</div>
+              <div class="col-span-4 font-display text-[16px]">Breath Bubble Pendant</div>
+              <div class="col-span-2">280g</div>
+              <div class="col-span-2"><span class="px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-700 text-[10px] tracking-widest">SAFE</span></div>
+              <div class="col-span-2 text-right opacity-60">12cm dia</div>
+            </div>
+            <div class="grid grid-cols-12 gap-0 px-6 py-4 items-center text-[12px] hover:bg-[#ff6a00]/5 transition">
+              <div class="col-span-2 font-mono opacity-60">#085-B</div>
+              <div class="col-span-4 font-display text-[16px]">Pitcher — Long Neck</div>
+              <div class="col-span-2">890g</div>
+              <div class="col-span-2"><span class="px-2 py-1 rounded-full bg-amber-500/20 text-amber-800 text-[10px] tracking-widest">WARP</span></div>
+              <div class="col-span-2 text-right opacity-60">Reheat late</div>
+            </div>
+            <div class="grid grid-cols-12 gap-0 px-6 py-4 items-center text-[12px] hover:bg-[#ff6a00]/5 transition">
+              <div class="col-span-2 font-mono opacity-60">#085-C</div>
+              <div class="col-span-4 font-display text-[16px]">Table Vase — Clear</div>
+              <div class="col-span-2">540g</div>
+              <div class="col-span-2"><span class="px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-700 text-[10px] tracking-widest">SAFE</span></div>
+              <div class="col-span-2 text-right opacity-60">Sold</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 grid grid-cols-3 gap-4">
+          <div class="rounded-xl border border-furnace/10 p-4 bg-white">
+            <div class="text-[9px] tracking-[0.2em] opacity-50">FURNACE FUEL TODAY</div>
+            <div class="font-display text-[20px] mt-1">68 m³ gas</div>
+            <div class="mt-2 h-1 w-full bg-furnace/10 rounded-full overflow-hidden"><div class="h-full w-[68%] bg-molten"></div></div>
+          </div>
+          <div class="rounded-xl border border-furnace/10 p-4 bg-white">
+            <div class="text-[9px] tracking-[0.2em] opacity-50">COLOR USED</div>
+            <div class="font-display text-[20px] mt-1">Amber #12, Smoke #3</div>
+            <div class="mt-2 flex gap-1"><span class="w-4 h-4 rounded-full bg-[#ffb86a] border border-black/10"></span><span class="w-4 h-4 rounded-full bg-[#7a6b5f] border border-black/10"></span></div>
+          </div>
+          <div class="rounded-xl border border-furnace/10 p-4 bg-white">
+            <div class="text-[9px] tracking-[0.2em] opacity-50">FAIL RATE</div>
+            <div class="font-display text-[20px] mt-1">18% — normal</div>
+            <div class="mt-2 text-[10px] opacity-60 leading-tight">Last week 22%. We are improving because we blew slower.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESIDENCY CALLOUT -->
+<section class="relative py-16 bg-furnace text-parchment border-t border-white/10 overflow-hidden">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10 flex flex-wrap items-center justify-between gap-8">
+    <div class="flex items-center gap-6">
+      <div class="w-12 h-12 rounded-full bg-molten flex items-center justify-center text-furnace font-display font-bold text-[20px]">R</div>
+      <div>
+        <div class="font-display text-[22px] leading-none">Winter Residency 2026 — Open Call</div>
+        <div class="text-[11px] tracking-[0.2em] opacity-60 mt-2">4 WEEKS / FREE FURNACE / YOU TEACH 1 PUBLIC BLOW / DEADLINE OCT 31</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="text-[11px] opacity-60 max-w-[300px] leading-5 text-right hidden md:block">We host 2 residents each winter. No production pressure. Cold shop 24h. You leave one piece for the archive.</div>
+      <a href="#book" class="h-11 px-6 rounded-full bg-parchment text-furnace text-[11px] tracking-[0.2em] flex items-center gap-2">APPLY — PDF ONLY <span>↗</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="journal" class="relative py-24 md:py-32 bg-furnace text-parchment border-t border-white/10">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10">
+    <div class="grid lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-5">
+        <div class="reveal text-[10px] tracking-[0.35em] text-molten mb-6">[04] BREATH NOTES</div>
+        <h2 class="reveal font-display text-[42px] md:text-[64px] leading-[0.9] tracking-[-0.03em]">People keep the bubble that shouldn't have survived.</h2>
+        <div class="reveal mt-8 text-[13px] leading-7 opacity-60 max-w-[380px]">We ask every student to keep their first tumbler, even if it's lopsided. It's a record of breath under panic. Later work is more controlled, less honest.</div>
+        <div class="reveal mt-10 flex gap-3">
+          <span class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">←</span>
+          <span class="w-8 h-8 rounded-full bg-parchment text-furnace flex items-center justify-center">→</span>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 grid md:grid-cols-3 gap-6">
+        <div class="reveal glass-panel rounded-[1.5rem] p-6 flex flex-col min-h-[300px]">
+          <div class="flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full object-cover" alt="">
+            <div class="text-[11px] leading-tight"><span class="font-bold tracking-widest">MARA K.</span><br><span class="opacity-50">ARCHITECT, BERLIN</span></div>
+          </div>
+          <div class="font-display text-[18px] leading-[1.3] mt-8">“I came to make a gift. I left obsessed with how air moves. You feel the furnace in your chest for days.”</div>
+          <div class="mt-auto pt-6 text-[10px] tracking-[0.2em] opacity-40">TOOK INTRO — FEB 2024</div>
+        </div>
+
+        <div class="reveal reveal-delay-1 rounded-[1.5rem] p-6 flex flex-col min-h-[300px] bg-molten text-furnace relative overflow-hidden">
+          <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/20 rounded-full blur-[20px]"></div>
+          <div class="flex items-center gap-3 relative">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full object-cover" alt="">
+            <div class="text-[11px] leading-tight"><span class="font-bold tracking-widest">JONAS L.</span><br><span class="opacity-70">MEMBERSHIP 2022→</span></div>
+          </div>
+          <div class="font-display text-[18px] leading-[1.3] mt-8">“Night shift is church. Just you, pipe, and that orange glow that paints everything same color. Time disappears.”</div>
+          <div class="mt-auto pt-6 text-[10px] tracking-[0.2em] opacity-60">112 HOURS ON BENCH</div>
+        </div>
+
+        <div class="reveal reveal-delay-2 glass-panel rounded-[1.5rem] p-6 flex flex-col min-h-[300px]">
+          <div class="flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688a1?w=100&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full object-cover" alt="">
+            <div class="text-[11px] leading-tight"><span class="font-bold tracking-widest">S. OKORO</span><br><span class="opacity-50">COMMISSION — LONDON</span></div>
+          </div>
+          <div class="font-display text-[18px] leading-[1.3] mt-8">“We asked for 14 pendants. They sent one test bubble first, imperfect. We kept the imperfect one on our table. It's better.”</div>
+          <div class="mt-auto pt-6 text-[10px] tracking-[0.2em] opacity-40">LIGHTING CLUSTER — MAY 2024</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / BOOK -->
+<section id="book" class="relative py-24 md:py-32 bg-[#0a0a0a] text-parchment overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1579783902615-a3fb3927b6a5?w=1600&auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover opacity-[0.08]">
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-[1600px] px-6 md:px-10 grid lg:grid-cols-12 gap-12">
+    <div class="lg:col-span-6">
+      <div class="reveal text-[10px] tracking-[0.35em] text-molten mb-6">[05] FURNACE BOOKING</div>
+      <h2 class="reveal font-display text-[48px] md:text-[72px] leading-[0.9] tracking-[-0.03em]">Come get<br><span class="italic text-molten">burnt a little.</span></h2>
+
+      <div class="reveal mt-10 glass-panel rounded-[1.5rem] p-8 max-w-[520px]">
+        <div class="grid grid-cols-2 gap-6 text-[11px]">
+          <div>
+            <div class="tracking-[0.2em] opacity-50">LOCATION</div>
+            <div class="font-display text-[16px] mt-2 leading-tight">Fornax Hot Shop<br>Uferstrasse 8-14<br>12435 Berlin — Treptow<br>O 52.4939° / 13.4467°</div>
+          </div>
+          <div>
+            <div class="tracking-[0.2em] opacity-50">HOT HOURS</div>
+            <div class="font-display text-[16px] mt-2 leading-tight">Tue—Sat: 10—22:00<br>Sun: Public blow<br>Mon: Cold shop silence</div>
+            <div class="mt-4 text-[10px] opacity-60 leading-4">WE ANSWER EMAIL ONLY<br>AFTER 18:00 WHEN FURNACE LOW</div>
+          </div>
+        </div>
+        <div class="mt-8 pt-8 border-t border-white/10 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-molten text-furnace flex items-center justify-center font-display font-bold">F</div>
+          <div class="text-[11px] tracking-[0.15em] leading-tight">REPLY TIME ≈ 18H<br><span class="opacity-50">HELLO@FORNAX.GLASS — NO PHONE</span></div>
+        </div>
+      </div>
+
+      <div class="reveal mt-10 max-w-[520px] rounded-[1rem] bg-molten text-furnace p-6 flex gap-4 items-start">
+        <span class="text-[20px]">⚑</span>
+        <div class="text-[12px] leading-6 font-medium">SAFETY: Closed cotton shoes mandatory, no synthetics. We provide didymium glasses, Kevlar sleeves, and water. You provide slow feet.</div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-6">
+      <form class="reveal glass-panel rounded-[2rem] p-8 md:p-10">
+        <div class="flex items-center justify-between mb-10">
+          <h3 class="font-display text-[26px]">Reserve bench time</h3>
+          <div class="text-[10px] tracking-[0.2em] opacity-50">TEMP: 1,140°C • OPEN</div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <label class="group">
+            <span class="text-[10px] tracking-[0.2em] opacity-60 group-focus-within:text-molten transition">FULL NAME</span>
+            <input type="text" placeholder="Your name as on jacket" class="mt-2 w-full bg-white/[0.04] border border-white/15 rounded-xl h-12 px-4 text-[13px] placeholder:text-white/30 focus:outline-none focus:border-molten/60 focus:bg-white/[0.07] transition">
+          </label>
+          <label class="group">
+            <span class="text-[10px] tracking-[0.2em] opacity-60 group-focus-within:text-molten transition">EMAIL</span>
+            <input type="email" placeholder="hello@..." class="mt-2 w-full bg-white/[0.04] border border-white/15 rounded-xl h-12 px-4 text-[13px] placeholder:text-white/30 focus:outline-none focus:border-molten/60 focus:bg-white/[0.07] transition">
+          </label>
+          <label class="group">
+            <span class="text-[10px] tracking-[0.2em] opacity-60 group-focus-within:text-molten transition">EXPERIENCE — HONESTLY</span>
+            <select class="mt-2 w-full bg-white/[0.04] border border-white/15 rounded-xl h-12 px-4 text-[13px] focus:outline-none focus:border-molten/60">
+              <option>Never touched glass</option>
+              <option>1-3 sessions elsewhere</option>
+              <option>Can gather, need bench</option>
+              <option>Working blower</option>
+            </select>
+          </label>
+          <label class="group">
+            <span class="text-[10px] tracking-[0.2em] opacity-60 group-focus-within:text-molten transition">TYPE</span>
+            <select class="mt-2 w-full bg-white/[0.04] border border-white/15 rounded-xl h-12 px-4 text-[13px] focus:outline-none focus:border-molten/60">
+              <option>First Breath — €240</option>
+              <option>Date Night Furnace — €420</option>
+              <option>Private lesson — €380</option>
+              <option>Commission talk</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="mt-6 block group">
+          <span class="text-[10px] tracking-[0.2em] opacity-60 group-focus-within:text-molten transition">WHAT DO YOU WANT TO HOLD LIGHT IN?</span>
+          <textarea placeholder="A carafe that pours without glugging. A light that makes my kitchen feel like sunset for 10 minutes a day..." rows="4" class="mt-2 w-full bg-white/[0.04] border border-white/15 rounded-xl p-4 text-[13px] placeholder:text-white/30 focus:outline-none focus:border-molten/60 focus:bg-white/[0.07] transition resize-none"></textarea>
+        </label>
+
+        <div class="mt-8 flex flex-wrap items-center gap-4">
+          <button type="submit" class="magnetic h-12 px-8 rounded-full bg-molten text-furnace text-[11px] tracking-[0.2em] font-bold inline-flex items-center gap-3 molten-glow" data-cursor="molten">
+            REQUEST BENCH — WE REPLY AFTER 18:00 <span class="w-6 h-6 rounded-full bg-furnace text-parchment flex items-center justify-center">→</span>
+          </button>
+          <span class="text-[10px] opacity-40 tracking-widest">NO DEPOSIT • PAY ON SITE • 48H CANCEL</span>
+        </div>
+
+        <div class="mt-10 pt-8 border-t border-white/10 flex flex-wrap gap-3">
+          <span class="text-[10px] tracking-[0.2em] opacity-40">ALSO BOOKABLE ON:</span>
+          <span class="glass-bubble px-3 py-1 text-[10px]">INSTAGRAM DM — @FORNAX.GLASS</span>
+          <span class="glass-bubble px-3 py-1 text-[10px]">RESIDENT ADVISOR × FORNAX SOUND BLOW — NOV 12</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="relative bg-furnace2 text-parchment border-t border-white/10 overflow-hidden">
+  <div class="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] bg-molten/15 blur-[120px] rounded-full translate-y-1/2"></div>
+
+  <div class="relative mx-auto max-w-[1600px] px-6 md:px-10 py-16">
+    <div class="flex flex-wrap justify-between gap-10 border-b border-white/10 pb-12">
+      <div>
+        <div class="font-display text-[64px] md:text-[96px] leading-[0.85] tracking-[-0.05em]">
+          FORNAX<br><span class="italic font-light text-molten">GLASSWORKS</span>
+        </div>
+        <div class="mt-6 max-w-[380px] text-[12px] leading-6 opacity-60">One furnace, lit since 2012. We make vessels that hold light a second longer than air. Berlin — Treptow. Bench by appointment.</div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-10 text-[11px] tracking-[0.15em]">
+        <div class="space-y-3">
+          <div class="opacity-40 text-[10px]">ATELIER</div>
+          <a href="#story" class="block hover:text-molten transition">Story</a>
+          <a href="#atelier" class="block hover:text-molten transition">Classes</a>
+          <a href="#gallery" class="block hover:text-molten transition">Objects</a>
+          <a href="#" class="block hover:text-molten transition">Archive</a>
+        </div>
+        <div class="space-y-3">
+          <div class="opacity-40 text-[10px]">INFO</div>
+          <a href="#" class="block hover:text-molten transition">Safety sheet (PDF)</a>
+          <a href="#" class="block hover:text-molten transition">Material — COE 33</a>
+          <a href="#" class="block hover:text-molten transition">Cold work pricing</a>
+          <a href="#" class="block hover:text-molten transition">Imprint / Privacy</a>
+        </div>
+        <div class="space-y-3">
+          <div class="opacity-40 text-[10px]">FOLLOW FIRE</div>
+          <a href="#" class="block hover:text-molten transition">Instagram — process</a>
+          <a href="#" class="block hover:text-molten transition">Vimeo — blows</a>
+          <a href="#" class="block hover:text-molten transition">Newsletter — releases</a>
+          <div class="mt-6 glass-bubble inline-flex px-3 py-1 text-[10px]">FURNACE CAM — LIVE 1,140°C</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-8 flex flex-wrap items-center justify-between gap-4 text-[10px] tracking-[0.2em] opacity-50">
+      <div>© 2025 FORNAX GLASSWORKS — MADE AT 1,140°C IN BERLIN — TYPE: FRAUNCES + JETBRAINS MONO</div>
+      <div class="flex items-center gap-4">
+        <span>COORDINATES: 52.4939° N, 13.4467° E</span>
+        <span class="w-2 h-2 rounded-full bg-molten animate-pulse"></span>
+        <span>FURNACE ON</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* progress */
+const progress = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const max = document.body.scrollHeight - window.innerHeight;
+  const p = window.scrollY / max;
+  progress.style.transform = `scaleX(${p})`;
+}, {passive:true});
+
+/* custom cursor */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+const lerp = (a,b,n) => (1-n)*a + n*b;
+window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`; });
+(function animateRing(){
+  rx = lerp(rx, mx, 0.12); ry = lerp(ry, my, 0.12);
+  ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(animateRing);
+})();
+document.querySelectorAll('[data-cursor="hover"]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));
+});
+document.querySelectorAll('[data-cursor="molten"]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ ring.classList.add('molten'); ring.classList.remove('hover'); });
+  el.addEventListener('mouseleave',()=>ring.classList.remove('molten'));
+});
+
+/* reveal */
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('active');
+      if(e.target.classList.contains('img-reveal')){ /* keep */ }
+    }
+  });
+},{threshold:0.12});
+document.querySelectorAll('.reveal, .img-reveal').forEach(el=>observer.observe(el));
+
+/* magnetic buttons */
+document.querySelectorAll('.magnetic').forEach(btn=>{
+  btn.addEventListener('mousemove', (e)=>{
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+  });
+  btn.addEventListener('mouseleave', ()=>{ btn.style.transform='translate(0,0)'; });
+});
+
+/* bubble follow slight */
+const bubble = document.getElementById('bubble');
+const heroImg = document.getElementById('heroImg');
+let bx=0, by=0;
+if(bubble && heroImg){
+  document.addEventListener('mousemove', (e)=>{
+    const cx = window.innerWidth/2, cy = window.innerHeight/2;
+    bx = (e.clientX - cx)/ 30; by = (e.clientY - cy)/ 30;
+    bubble.style.transform = `translate(-50%, -50%) translate(${bx}px, ${by}px)`;
+    heroImg.style.transform = `scale(1.05) translate(${ -bx*0.6 }px, ${ -by*0.6 }px)`;
+  });
+}
+
+/* mobile menu */
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+let open=false;
+menuBtn.addEventListener('click', ()=>{
+  open=!open; mobileMenu.classList.toggle('hidden', !open);
+});
+
+/* prevent form */
+document.querySelector('form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.innerHTML = 'REQUEST SENT — CHECK EMAIL AFTER 18:00 ✓';
+  btn.classList.add('bg-parchment');
+  setTimeout(()=>{ btn.innerHTML = 'REQUEST BENCH — WE REPLY AFTER 18:00 <span class="w-6 h-6 rounded-full bg-furnace text-parchment flex items-center justify-center">→</span>'; btn.classList.remove('bg-parchment'); }, 3000);
+});
+
+/* heat shimmer on scroll */
+let lastY = window.scrollY;
+window.addEventListener('scroll', ()=>{
+  const dy = window.scrollY - lastY; lastY = window.scrollY;
+  if(Math.abs(dy)>2 && heroImg){ heroImg.style.filter = `saturate(${1+Math.min(Math.abs(dy)/50,0.4)})`; clearTimeout(window._heatTO); window._heatTO=setTimeout(()=>heroImg.style.filter='saturate(1)',150); }
+},{passive:true});
+</script>
+</body>
+</html>

@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Luxury Spa & Sauna</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Instrument+Sans:wght@400;500;600&family=Fragment+Mono&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        stone: '#e8e2d9',
+        steam: '#fdfbf7',
+        basalt: '#1a1a1a',
+        sage: '#8B9A8E',
+        'sage-light': '#D6DDD6',
+        mist: '#f2efea',
+        clay: '#c4b8a8'
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'serif'],
+        sans: ['Instrument Sans', 'sans-serif'],
+        mono: ['Fragment Mono', 'monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  html { scroll-behavior: smooth; }
+  body { background: #fdfbf7; color: #1a1a1a; overscroll-behavior: none; }
+  
+  /* Grain */
+  .grain {
+    position: fixed;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    animation: grainMove 8s steps(10) infinite;
+  }
+  @keyframes grainMove {
+    0%,100% { transform: translate(0,0); }
+    10% { transform: translate(-5%,-10%); }
+    20% { transform: translate(-15%,5%); }
+    30% { transform: translate(7%,-25%); }
+    40% { transform: translate(-5%,25%); }
+    50% { transform: translate(-15%,10%); }
+    60% { transform: translate(15%,0%); }
+    70% { transform: translate(0%,15%); }
+    80% { transform: translate(3%,35%); }
+    90% { transform: translate(-10%,10%); }
+  }
+
+  /* Custom Cursor */
+  .cursor-dot {
+    position: fixed;
+    top: 0; left: 0;
+    width: 4px; height: 4px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    mix-blend-mode: difference;
+    transition: transform 0.15s ease;
+  }
+  .cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    width: 56px; height: 56px;
+    border: 1px solid rgba(26,26,26,0.18);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: width 0.4s cubic-bezier(0.23,1,0.32,1), height 0.4s cubic-bezier(0.23,1,0.32,1), border-color 0.4s, background 0.4s, transform 0.2s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cursor-ring.hover {
+    width: 92px; height: 92px;
+    border-color: #1a1a1a;
+    background: rgba(26,26,26,0.04);
+  }
+  .cursor-label {
+    font-family: 'Fragment Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .cursor-ring.hover .cursor-label { opacity: 1; }
+
+  @media (pointer: coarse) {
+    .cursor-dot, .cursor-ring { display: none; }
+  }
+
+  /* Scroll Reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 1.2s cubic-bezier(0.23,1,0.32,1), transform 1.2s cubic-bezier(0.23,1,0.32,1);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.12s; }
+  .reveal-delay-2 { transition-delay: 0.24s; }
+  .reveal-delay-3 { transition-delay: 0.36s; }
+
+  /* Marquee */
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    border-top: 1px solid rgba(26,26,26,0.08);
+    border-bottom: 1px solid rgba(26,26,26,0.08);
+  }
+  .marquee-track {
+    display: inline-flex;
+    animation: marquee 42s linear infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* Image Hover */
+  .img-zoom { overflow: hidden; }
+  .img-zoom img {
+    transition: transform 1.8s cubic-bezier(0.23,1,0.32,1), filter 0.8s;
+  }
+  .img-zoom:hover img {
+    transform: scale(1.06);
+  }
+
+  /* Magnetic */
+  .magnetic { transition: transform 0.4s cubic-bezier(0.23,1,0.32,1); }
+
+  /* Thin line */
+  .hairline { height: 1px; background: rgba(26,26,26,0.08); }
+
+  /* Vertical text */
+  .vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  /* Custom scrollbar hide */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Thermal progress */
+  .thermal-line {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(26,26,26,0.08);
+  }
+  .thermal-progress {
+    position: absolute;
+    left: 0; top: 0;
+    width: 1px;
+    background: #1a1a1a;
+    transition: height 0.2s ease-out;
+  }
+</style>
+</head>
+<body class="font-sans antialiased selection:bg-basalt selection:text-steam">
+
+<div class="grain"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"><span class="cursor-label" id="cursorLabel">View</span></div>
+
+<!-- Navigation -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-40 mix-blend-normal transition-all duration-700">
+  <div class="border-b border-basalt/[0.06] bg-steam/80 backdrop-blur-[22px]">
+    <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14 h-[72px] flex items-center justify-between">
+      <div class="flex items-center gap-12">
+        <button id="menuBtn" class="group flex items-center gap-3">
+          <span class="w-[22px] h-[14px] flex flex-col justify-between">
+            <span class="block h-[1px] w-full bg-basalt transition-all group-hover:w-3/4"></span>
+            <span class="block h-[1px] w-full bg-basalt"></span>
+          </span>
+          <span class="font-mono text-[10px] tracking-[0.2em] uppercase hidden md:block">Menu</span>
+        </button>
+        <div class="hidden lg:flex items-center gap-8 font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/60">
+          <a href="#rituals" class="hover:text-basalt transition">Rituals</a>
+          <a href="#journey" class="hover:text-basalt transition">Journey</a>
+          <a href="#gallery" class="hover:text-basalt transition">Space</a>
+        </div>
+      </div>
+
+      <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
+        <h1 class="font-serif text-[26px] tracking-[0.28em] font-light leading-none">HAVN</h1>
+        <span class="font-mono text-[8px] tracking-[0.32em] uppercase mt-1 opacity-60">Nordic Bathhouse — København</span>
+      </div>
+
+      <div class="flex items-center gap-8">
+        <div class="hidden md:flex items-center gap-6 font-mono text-[10px] tracking-[0.18em] uppercase">
+          <span class="text-basalt/40">Open today</span>
+          <span class="text-basalt">06:00 — 22:00</span>
+        </div>
+        <a href="#reserve" class="magnetic bg-basalt text-steam px-6 py-[14px] rounded-full font-mono text-[10px] tracking-[0.18em] uppercase hover:bg-basalt/90 transition-colors">
+          Reserve
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mega Menu (hidden) -->
+  <div id="megaMenu" class="absolute top-[72px] left-0 right-0 bg-steam border-b border-basalt/[0.06] translate-y-[-10px] opacity-0 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]">
+    <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14 py-14 md:py-20 grid md:grid-cols-12 gap-10">
+      <div class="md:col-span-5">
+        <p class="font-serif text-[42px] md:text-[56px] leading-[0.9] tracking-[-0.02em] font-light">
+          A quiet <br><em class="font-light italic">return</em> to<br>body.
+        </p>
+        <div class="mt-8 max-w-[320px] font-sans text-[15px] leading-[1.7] text-basalt/60">
+          Founded on the Nordic principle of <span class="text-basalt">lagom</span> — not too much, not too little. Just enough heat, just enough cold, just enough silence.
+        </div>
+      </div>
+      <div class="md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-10">
+        <div>
+          <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40 block mb-6">Rituals</span>
+          <ul class="font-serif text-[20px] leading-[1.4] space-y-3">
+            <li><a href="#rituals" class="hover:italic transition-all">Sauna & Löyly</a></li>
+            <li><a href="#rituals" class="hover:italic transition-all">Onsen Bath</a></li>
+            <li><a href="#rituals" class="hover:italic transition-all">Steam Temple</a></li>
+            <li><a href="#rituals" class="hover:italic transition-all">Cold Plunge</a></li>
+          </ul>
+        </div>
+        <div>
+          <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40 block mb-6">Information</span>
+          <ul class="font-mono text-[11px] tracking-[0.12em] uppercase leading-[2.2] text-basalt/60">
+            <li><a href="#" class="hover:text-basalt">Ethos & Materials</a></li>
+            <li><a href="#" class="hover:text-basalt">Private Rituals</a></li>
+            <li><a href="#" class="hover:text-basalt">Membership</a></li>
+            <li><a href="#" class="hover:text-basalt">Journal</a></li>
+          </ul>
+        </div>
+        <div class="col-span-2 md:col-span-1">
+          <div class="bg-stone p-6">
+            <p class="font-mono text-[9px] tracking-[0.2em] uppercase mb-3">Location</p>
+            <p class="font-serif text-[16px] leading-[1.4]">Refshalevej 199<br>1432 København K<br>Denmark</p>
+            <div class="mt-6 hairline"></div>
+            <p class="font-mono text-[10px] mt-4 tracking-wide">hello@havn.bath</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="relative pt-[72px] min-h-[100vh] flex flex-col">
+  <!-- Big faded brand -->
+  <div class="pointer-events-none select-none absolute top-[18%] left-0 right-0 overflow-hidden">
+    <div class="font-serif text-[28vw] leading-[0.75] tracking-[-0.06em] font-light text-basalt/[0.03] whitespace-nowrap pl-[2vw]">HAVN HAVN HAVN</div>
+  </div>
+
+  <div class="max-w-[1920px] mx-auto w-full px-6 md:px-10 lg:px-14 flex-1 flex flex-col lg:flex-row">
+    <!-- Left copy -->
+    <div class="lg:w-[46%] pt-12 md:pt-20 lg:pt-28 pb-10 lg:pr-10 flex flex-col justify-between relative z-10">
+      <div>
+        <div class="flex items-center gap-4 mb-8 reveal">
+          <span class="w-8 h-[1px] bg-basalt"></span>
+          <span class="font-mono text-[10px] tracking-[0.22em] uppercase">Est. 2023 — Nordic Bathing Ritual</span>
+        </div>
+        
+        <h2 class="font-serif font-light leading-[0.85] tracking-[-0.04em] reveal">
+          <span class="block text-[18vw] lg:text-[9.5vw]">Still-</span>
+          <span class="block text-[18vw] lg:text-[9.5vw] pl-[0.12em]"><em class="italic font-light">ness</em></span>
+          <span class="block text-[18vw] lg:text-[9.5vw] mt-1">is a</span>
+          <span class="block text-[18vw] lg:text-[9.5vw]"><em class="italic font-light">ritual.</em></span>
+        </h2>
+
+        <div class="mt-10 md:mt-14 flex gap-8 items-start reveal reveal-delay-1">
+          <div class="w-[68px] shrink-0 pt-2">
+            <div class="font-mono text-[10px] tracking-[0.2em] uppercase leading-[1.6] text-basalt/50">
+              64°<br>North<br>Silence
+            </div>
+          </div>
+          <p class="font-sans text-[17px] md:text-[19px] leading-[1.6] max-w-[36ch] text-basalt/70">
+            An onsen-inspired bathhouse built from basalt, cedar, and steam. No music. No phones. Only heat, water, and the quiet work of letting go.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-12 lg:mt-0 grid grid-cols-3 gap-6 border-t border-basalt/[0.08] pt-8 reveal reveal-delay-2">
+        <div>
+          <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-basalt/40 mb-2">Temperature</p>
+          <p class="font-serif text-[22px]">90° / 4°</p>
+          <p class="font-mono text-[10px] text-basalt/50 mt-1">Sauna / Plunge</p>
+        </div>
+        <div>
+          <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-basalt/40 mb-2">Materials</p>
+          <p class="font-serif text-[22px]">Stone + Cedar</p>
+          <p class="font-mono text-[10px] text-basalt/50 mt-1">Icelandic basalt</p>
+        </div>
+        <div>
+          <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-basalt/40 mb-2">Capacity</p>
+          <p class="font-serif text-[22px]">14 Guests</p>
+          <p class="font-mono text-[10px] text-basalt/50 mt-1">At any time</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right image -->
+    <div class="lg:w-[54%] relative lg:pl-14">
+      <div class="relative aspect-[4/5] lg:aspect-[4/5.3] lg:mt-10 overflow-hidden bg-stone img-zoom cursor-hover" data-cursor="Breathe">
+        <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070&auto=format&fit=crop" alt="Nordic sauna interior with stone" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-basalt/40 via-basalt/0 to-transparent"></div>
+        
+        <!-- floating label -->
+        <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+          <div class="bg-steam/90 backdrop-blur px-4 py-3">
+            <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-basalt/50">Live thermal view</p>
+            <p class="font-serif text-[14px] mt-1">Sauna — 88°C · Humidity 12% · Cedar smoke</p>
+          </div>
+          <div class="hidden md:flex w-12 h-12 bg-steam/90 backdrop-blur rounded-full items-center justify-center">
+            <span class="w-2 h-2 bg-sage rounded-full animate-pulse"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vertical side note -->
+      <div class="hidden lg:flex absolute -right-6 top-[18%] flex-col items-center gap-6">
+        <span class="vertical font-mono text-[10px] tracking-[0.28em] uppercase text-basalt/30">Thermal Sequence — Heat · Steam · Cold · Rest</span>
+        <span class="w-[1px] h-24 bg-basalt/10"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-[1920px] mx-auto w-full px-6 md:px-10 lg:px-14 mt-8">
+    <div class="hairline"></div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee py-4 bg-steam">
+  <div class="marquee-track font-mono text-[11px] tracking-[0.22em] uppercase text-basalt/60">
+    <span class="mx-8">Heat — Steam — Stillness — Breath — Stone — Water — Silence — Return —</span>
+    <span class="mx-8">Heat — Steam — Stillness — Breath — Stone — Water — Silence — Return —</span>
+    <span class="mx-8">Heat — Steam — Stillness — Breath — Stone — Water — Silence — Return —</span>
+    <span class="mx-8">Heat — Steam — Stillness — Breath — Stone — Water — Silence — Return —</span>
+    <span class="mx-8">Heat — Steam — Stillness — Breath — Stone — Water — Silence — Return —</span>
+    <span class="mx-8">Heat — Steam — Stillness — Breath — Stone — Water — Silence — Return —</span>
+  </div>
+</div>
+
+<!-- Story / Philosophy -->
+<section id="story" class="py-24 md:py-32 lg:py-44 bg-mist relative overflow-hidden">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="grid lg:grid-cols-12 gap-12 lg:gap-0">
+      <div class="lg:col-span-5 lg:sticky lg:top-32 self-start">
+        <span class="font-mono text-[10px] tracking-[0.24em] uppercase text-basalt/40 flex items-center gap-3">
+          <span class="w-6 h-[1px] bg-basalt/20"></span> 01 — Philosophy
+        </span>
+        <h3 class="font-serif text-[48px] md:text-[68px] leading-[0.9] tracking-[-0.03em] font-light mt-8 reveal">
+          The Nordic <br><em class="italic">way of</em><br>bathing.
+        </h3>
+
+        <div class="mt-12 space-y-8 max-w-[38ch] reveal reveal-delay-1">
+          <p class="font-sans text-[17px] leading-[1.7] text-basalt/70">
+            We did not build a spa. We carved a place for the ritual that northern cultures have practiced for centuries: deliberate exposure, followed by deliberate rest.
+          </p>
+          <p class="font-sans text-[15px] leading-[1.8] text-basalt/50">
+            Four stages. Ninety minutes. No hurry. You move from basalt sauna to eucalyptus steam, to onsen, to 4-degree plunge. Then you sit. The body remembers what the mind forgets.
+          </p>
+        </div>
+
+        <div class="mt-14 flex gap-10 reveal reveal-delay-2">
+          <div>
+            <p class="font-serif text-[42px] leading-none font-light">90</p>
+            <p class="font-mono text-[9px] tracking-[0.18em] uppercase mt-2 text-basalt/50">Minutes per ritual<br>Recommended</p>
+          </div>
+          <div class="w-[1px] bg-basalt/10"></div>
+          <div>
+            <p class="font-serif text-[42px] leading-none font-light">0</p>
+            <p class="font-mono text-[9px] tracking-[0.18em] uppercase mt-2 text-basalt/50">Phones, music,<br>Perfume allowed</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 lg:pl-20">
+        <div class="grid md:grid-cols-12 gap-6">
+          <!-- Large image -->
+          <div class="md:col-span-8">
+            <div class="aspect-[4/5] bg-stone img-zoom overflow-hidden cursor-hover" data-cursor="Tactile">
+              <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop" alt="Onsen bath ritual" class="w-full h-full object-cover">
+            </div>
+            <div class="mt-4 flex justify-between font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/40">
+              <span>Onsen — 40°C, mineral-rich, silent</span>
+              <span>Refshaleøen, DK</span>
+            </div>
+          </div>
+
+          <div class="md:col-span-4 flex flex-col gap-6">
+            <div class="bg-basalt text-steam p-8 aspect-[4/5] flex flex-col justify-between reveal">
+              <div>
+                <p class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-50">Material Study</p>
+                <h4 class="font-serif text-[28px] leading-[1.05] mt-4 font-light">Basalt. Cedar. Linen. Steam.</h4>
+              </div>
+              <div class="space-y-3 font-mono text-[10px] tracking-wide leading-[1.7] opacity-70">
+                <p>— Volcanic stone from Reykjanes<br>
+                — Hinoki & Alaskan cedar<br>
+                — Handwoven flax, undyed<br>
+                — Eucalyptus, birch, pine smoke</p>
+              </div>
+            </div>
+
+            <div class="aspect-square bg-stone img-zoom overflow-hidden cursor-hover" data-cursor="Stone">
+              <img src="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=1974&auto=format&fit=crop" alt="Stone texture spa" class="w-full h-full object-cover">
+            </div>
+          </div>
+
+          <!-- Quote -->
+          <div class="md:col-span-12 mt-10 md:mt-16 border border-basalt/[0.08] p-8 md:p-12 grid md:grid-cols-12 gap-8 reveal">
+            <div class="md:col-span-1">
+              <span class="font-serif text-[54px] leading-none">“</span>
+            </div>
+            <div class="md:col-span-11">
+              <p class="font-serif text-[28px] md:text-[34px] leading-[1.15] tracking-[-0.015em] font-light">
+                We designed the air before we designed the walls. How steam moves, how cedar smells at 84 degrees, how silence feels when 14 strangers agree not to fill it.
+              </p>
+              <div class="mt-8 flex items-center gap-4">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover grayscale" alt="Founder">
+                <div>
+                  <p class="font-mono text-[10px] tracking-[0.18em] uppercase">Elisa Korpela — Founder, Thermal Architect</p>
+                  <p class="font-serif text-[13px] italic text-basalt/60 mt-1">Previously: Hay, Frama, Kyoto Ryokan studies</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Rituals -->
+<section id="rituals" class="py-24 md:py-36 bg-steam relative">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 md:mb-24">
+      <div>
+        <span class="font-mono text-[10px] tracking-[0.24em] uppercase text-basalt/40 flex items-center gap-3">
+          <span class="w-6 h-[1px] bg-basalt/20"></span> 02 — Rituals
+        </span>
+        <h3 class="font-serif text-[48px] md:text-[84px] leading-[0.88] tracking-[-0.04em] font-light mt-6 reveal">
+          Four heats.<br><em class="italic font-light">One return.</em>
+        </h3>
+      </div>
+      <div class="max-w-[34ch] reveal reveal-delay-1">
+        <p class="font-sans text-[15px] leading-[1.7] text-basalt/60">Each ritual can be taken alone, but we recommend the full thermal sequence. 90 minutes, guided by temperature, not time.</p>
+      </div>
+    </div>
+
+    <!-- Ritual cards -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-[1px] bg-basalt/[0.08] border border-basalt/[0.08]">
+      <!-- I -->
+      <div class="bg-steam p-8 md:p-10 group cursor-hover" data-cursor="90°C">
+        <div class="flex justify-between items-start">
+          <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40">I — Heat</span>
+          <span class="font-mono text-[10px] bg-stone px-2 py-1">90°C · 15–20 min</span>
+        </div>
+        <div class="mt-10 aspect-[4/3] bg-stone overflow-hidden img-zoom">
+          <img src="https://images.unsplash.com/photo-1600334129128-685c5582fd35?q=80&w=2070&auto=format&fit=crop" alt="Sauna basalt" class="w-full h-full object-cover">
+        </div>
+        <h4 class="font-serif text-[30px] leading-[1] mt-8 font-light">Sauna — Löyly</h4>
+        <p class="font-sans text-[14px] leading-[1.6] text-basalt/60 mt-4">Icelandic basalt stove, Alaskan cedar. Water poured every 7 minutes. Cedar smoke, birch whisk available.</p>
+        <div class="mt-8 pt-6 border-t border-basalt/[0.06] flex justify-between font-mono text-[10px] tracking-[0.15em] uppercase">
+          <span class="text-basalt/40">From 320 DKK</span>
+          <span class="group-hover:underline decoration-1 underline-offset-4">Explore →</span>
+        </div>
+      </div>
+
+      <!-- II -->
+      <div class="bg-steam p-8 md:p-10 group cursor-hover" data-cursor="40°C">
+        <div class="flex justify-between items-start">
+          <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40">II — Water</span>
+          <span class="font-mono text-[10px] bg-stone px-2 py-1">40°C · 20 min</span>
+        </div>
+        <div class="mt-10 aspect-[4/3] bg-stone overflow-hidden img-zoom">
+          <img src="https://images.unsplash.com/photo-1570172619644-dfd03edfa0a6?q=80&w=2070&auto=format&fit=crop" alt="Onsen mineral water" class="w-full h-full object-cover">
+        </div>
+        <h4 class="font-serif text-[30px] leading-[1] mt-8 font-light">Onsen</h4>
+        <p class="font-sans text-[14px] leading-[1.6] text-basalt/60 mt-4">Mineral-rich, drawn from 800m. Silica, magnesium. Still, chest-deep, skin feels like paper.</p>
+        <div class="mt-8 pt-6 border-t border-basalt/[0.06] flex justify-between font-mono text-[10px] tracking-[0.15em] uppercase">
+          <span class="text-basalt/40">From 380 DKK</span>
+          <span class="group-hover:underline decoration-1 underline-offset-4">Explore →</span>
+        </div>
+      </div>
+
+      <!-- III -->
+      <div class="bg-steam p-8 md:p-10 group cursor-hover" data-cursor="44°C">
+        <div class="flex justify-between items-start">
+          <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40">III — Steam</span>
+          <span class="font-mono text-[10px] bg-stone px-2 py-1">44°C · 15 min</span>
+        </div>
+        <div class="mt-10 aspect-[4/3] bg-stone overflow-hidden img-zoom">
+          <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=2070&auto=format&fit=crop" alt="Steam room eucalyptus" class="w-full h-full object-cover">
+        </div>
+        <h4 class="font-serif text-[30px] leading-[1] mt-8 font-light">Steam Temple</h4>
+        <p class="font-sans text-[14px] leading-[1.6] text-basalt/60 mt-4">Eucalyptus, chamomile infusion. Tiled in zellige, low bench, breath slows without trying.</p>
+        <div class="mt-8 pt-6 border-t border-basalt/[0.06] flex justify-between font-mono text-[10px] tracking-[0.15em] uppercase">
+          <span class="text-basalt/40">From 300 DKK</span>
+          <span class="group-hover:underline decoration-1 underline-offset-4">Explore →</span>
+        </div>
+      </div>
+
+      <!-- IV -->
+      <div class="bg-basalt text-steam p-8 md:p-10 group cursor-hover" data-cursor="4°C">
+        <div class="flex justify-between items-start">
+          <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-steam/40">IV — Cold</span>
+          <span class="font-mono text-[10px] bg-steam/10 px-2 py-1">4°C · 2–4 min</span>
+        </div>
+        <div class="mt-10 aspect-[4/3] bg-white/5 overflow-hidden img-zoom">
+          <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2070&auto=format&fit=crop" alt="Cold plunge" class="w-full h-full object-cover opacity-80">
+        </div>
+        <h4 class="font-serif text-[30px] leading-[1] mt-8 font-light">Plunge & Rest</h4>
+        <p class="font-sans text-[14px] leading-[1.6] text-steam/60 mt-4">Glacial water, then wool blankets in the rest hall. The nervous system resets. Don't rush this part.</p>
+        <div class="mt-8 pt-6 border-t border-steam/10 flex justify-between font-mono text-[10px] tracking-[0.15em] uppercase">
+          <span class="text-steam/40">Included in sequence</span>
+          <span class="group-hover:underline decoration-1 underline-offset-4">Explore →</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex flex-col md:flex-row justify-between gap-4 font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/40">
+      <span>All rituals include linen robe, cedar slippers, mountain tea</span>
+      <span class="text-basalt">Duration: 90 min recommended — 120 min max in house</span>
+    </div>
+  </div>
+</section>
+
+<!-- Thermal Journey (sticky scroll) -->
+<section id="journey" class="py-24 md:py-32 bg-basalt text-steam relative overflow-hidden">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="grid lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-5">
+        <span class="font-mono text-[10px] tracking-[0.24em] uppercase text-steam/40 flex items-center gap-3">
+          <span class="w-6 h-[1px] bg-steam/20"></span> 03 — Thermal Journey
+        </span>
+        <h3 class="font-serif text-[42px] md:text-[64px] leading-[0.88] tracking-[-0.03em] font-light mt-8 text-steam">
+          You don't<br><em class="italic font-light text-stone">chase calm.</em><br>You pass through<br>heat to find it.
+        </h3>
+        
+        <div class="mt-16 relative pl-8">
+          <div class="thermal-line bg-steam/10"></div>
+          <div id="thermalProgress" class="thermal-progress bg-steam"></div>
+          
+          <div class="space-y-16">
+            <div class="journey-step" data-step="0">
+              <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40">Step 01</span>
+              <h4 class="font-serif text-[22px] mt-2">Arrive — Disrobe — Breathe</h4>
+              <p class="font-sans text-[13px] leading-[1.7] text-steam/50 mt-3 max-w-[30ch]">Leave phone at reception. Linen robe, no perfume. Tea room, 10 minutes of nothing.</p>
+            </div>
+            <div class="journey-step" data-step="1">
+              <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40">Step 02</span>
+              <h4 class="font-serif text-[22px] mt-2">Sauna — 15 min, löyly twice</h4>
+              <p class="font-sans text-[13px] leading-[1.7] text-steam/50 mt-3 max-w-[30ch]">Basalt holds heat differently. Sweat, then pour water. Birch branches if you like sting.</p>
+            </div>
+            <div class="journey-step" data-step="2">
+              <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40">Step 03</span>
+              <h4 class="font-serif text-[22px] mt-2">Onsen — 20 min, weightless</h4>
+              <p class="font-sans text-[13px] leading-[1.7] text-steam/50 mt-3 max-w-[30ch]">Silica water at 40°C. The body forgets gravity. Eyes open, but soft.</p>
+            </div>
+            <div class="journey-step" data-step="3">
+              <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40">Step 04</span>
+              <h4 class="font-serif text-[22px] mt-2">Cold — 90 seconds maximum</h4>
+              <p class="font-sans text-[13px] leading-[1.7] text-steam/50 mt-3 max-w-[30ch]">4°C. Enter slowly. Breath holds you, not willpower. Out before you feel brave.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 relative">
+        <div class="sticky top-24">
+          <div class="aspect-[4/3.2] overflow-hidden bg-stone/10 img-zoom">
+            <img id="journeyImage" src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2070&auto=format&fit=crop" alt="Thermal rest hall" class="w-full h-full object-cover transition-all duration-700">
+          </div>
+          <div class="mt-6 grid grid-cols-3 gap-[1px] bg-steam/10">
+            <div class="bg-basalt p-4">
+              <p class="font-mono text-[9px] tracking-[0.18em] uppercase text-steam/40">Heart Rate</p>
+              <p class="font-serif text-[20px] mt-1">62 → 112 → 68 bpm</p>
+            </div>
+            <div class="bg-basalt p-4">
+              <p class="font-mono text-[9px] tracking-[0.18em] uppercase text-steam/40">Core Temp</p>
+              <p class="font-serif text-[20px] mt-1">+1.4°C then reset</p>
+            </div>
+            <div class="bg-basalt p-4">
+              <p class="font-mono text-[9px] tracking-[0.18em] uppercase text-steam/40">Silence</p>
+              <p class="font-serif text-[20px] mt-1">100% — no music</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- faint big text -->
+  <div class="pointer-events-none absolute bottom-0 right-0 font-serif text-[24vw] leading-[0.8] tracking-[-0.05em] font-light text-steam/[0.04]">REST</div>
+</section>
+
+<!-- Gallery -->
+<section id="gallery" class="py-24 md:py-32 bg-steam">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="flex justify-between items-end mb-12">
+      <div>
+        <span class="font-mono text-[10px] tracking-[0.24em] uppercase text-basalt/40">04 — Space</span>
+        <h3 class="font-serif text-[36px] md:text-[52px] leading-[0.9] tracking-[-0.02em] font-light mt-4">Built to hold heat.<br><em class="italic">And quiet.</em></h3>
+      </div>
+      <div class="hidden md:block font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/40">
+        All materials untreated, local, repairable<br>Architecture: Studio Heima — Copenhagen
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-12 gap-[1px] bg-basalt/[0.08] border border-basalt/[0.08]">
+      <div class="md:col-span-7 bg-steam">
+        <div class="aspect-[16/10] img-zoom overflow-hidden cursor-hover" data-cursor="View">
+          <img src="https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?q=80&w=2070&auto=format&fit=crop" alt="Nordic bathhouse architecture" class="w-full h-full object-cover">
+        </div>
+        <div class="p-6 flex justify-between items-center">
+          <p class="font-serif text-[15px]">The rest hall — wool, cedar, afternoon light</p>
+          <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/40">01 / 06</span>
+        </div>
+      </div>
+      <div class="md:col-span-5 grid grid-rows-2 gap-[1px] bg-basalt/[0.08]">
+        <div class="bg-steam">
+          <div class="aspect-[4/2.6] img-zoom overflow-hidden cursor-hover" data-cursor="Stone">
+            <img src="https://images.unsplash.com/photo-1552699611-e2c208d5d9cf?q=80&w=2070&auto=format&fit=crop" alt="Sauna cedar detail" class="w-full h-full object-cover">
+          </div>
+        </div>
+        <div class="bg-steam grid grid-cols-2 gap-[1px]">
+          <div class="aspect-square img-zoom overflow-hidden cursor-hover" data-cursor="Linen">
+            <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2070&auto=format&fit=crop" alt="Towel detail" class="w-full h-full object-cover">
+          </div>
+          <div class="bg-stone p-8 flex flex-col justify-between">
+            <div>
+              <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-basalt/40">Details</p>
+              <p class="font-serif text-[18px] leading-[1.2] mt-3 font-light">No chrome. No gloss. Only surfaces that age.</p>
+            </div>
+            <div class="font-mono text-[10px] leading-[1.8] text-basalt/50">
+              — Hand-troweled clay<br>
+              — Cedar without varnish<br>
+              — Basalt cut in Iceland<br>
+              — Linen, not cotton
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-4 bg-steam">
+        <div class="aspect-[4/3] img-zoom overflow-hidden cursor-hover" data-cursor="Steam">
+          <img src="https://images.unsplash.com/photo-1591343395082-e120087004b4?q=80&w=2021&auto=format&fit=crop" alt="Steam detail" class="w-full h-full object-cover">
+        </div>
+        <div class="p-6">
+          <p class="font-serif text-[15px]">Steam Temple — zellige, eucalyptus</p>
+        </div>
+      </div>
+      <div class="md:col-span-4 bg-steam">
+        <div class="aspect-[4/3] img-zoom overflow-hidden cursor-hover" data-cursor="Water">
+          <img src="https://images.unsplash.com/photo-1520201163981-8cc95007dd2a?q=80&w=2070&auto=format&fit=crop" alt="Water texture" class="w-full h-full object-cover">
+        </div>
+        <div class="p-6">
+          <p class="font-serif text-[15px]">Onsen pool — 800m deep mineral water</p>
+        </div>
+      </div>
+      <div class="md:col-span-4 bg-basalt text-steam p-8 md:p-10 flex flex-col justify-between">
+        <p class="font-serif text-[28px] leading-[1.1] font-light">We left the walls unfinished<br>so humidity can <em class="italic text-stone">live</em> here.</p>
+        <div class="mt-12 font-mono text-[10px] tracking-[0.18em] uppercase text-steam/50">
+          Photography by Casper Sejersen<br>Film: daylight only, no flash
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-24 md:py-32 bg-mist border-y border-basalt/[0.06]">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="flex items-center gap-4 mb-16">
+      <span class="font-mono text-[10px] tracking-[0.24em] uppercase text-basalt/40">05 — Guests</span>
+      <span class="h-[1px] w-12 bg-basalt/10"></span>
+      <span class="font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/30">Silent feedback cards — transcribed</span>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-[1px] bg-basalt/[0.08] border border-basalt/[0.08]">
+      <div class="bg-mist p-8 md:p-10 reveal">
+        <div class="flex gap-1 mb-8">
+          <span class="w-8 h-[1px] bg-basalt mt-2"></span>
+          <span class="font-mono text-[9px] tracking-[0.18em] uppercase text-basalt/40">Card #014 — March</span>
+        </div>
+        <p class="font-serif text-[22px] leading-[1.3] font-light">“I came in with a headache I've had for months. It didn't go away. I just stopped needing it to.”</p>
+        <div class="mt-10 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-stone overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+          </div>
+          <div>
+            <p class="font-mono text-[10px] tracking-[0.14em] uppercase">S. — Architect, 38</p>
+            <p class="font-serif text-[12px] italic text-basalt/60">4th visit</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-mist p-8 md:p-10 reveal reveal-delay-1">
+        <div class="flex gap-1 mb-8">
+          <span class="w-8 h-[1px] bg-basalt mt-2"></span>
+          <span class="font-mono text-[9px] tracking-[0.18em] uppercase text-basalt/40">Card #089 — February</span>
+        </div>
+        <p class="font-serif text-[22px] leading-[1.3] font-light">“The cold plunge is impolite. That's why it works. No app, no coaching voice. Just water that doesn't care.”</p>
+        <div class="mt-10 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-stone overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+          </div>
+          <div>
+            <p class="font-mono text-[10px] tracking-[0.14em] uppercase">M. — Researcher, 41</p>
+            <p class="font-serif text-[12px] italic text-basalt/60">Weekly since Nov</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-mist p-8 md:p-10 reveal reveal-delay-2">
+        <div class="flex gap-1 mb-8">
+          <span class="w-8 h-[1px] bg-basalt mt-2"></span>
+          <span class="font-mono text-[9px] tracking-[0.18em] uppercase text-basalt/40">Card #112 — April</span>
+        </div>
+        <p class="font-serif text-[22px] leading-[1.3] font-light">“My partner and I didn't speak for 90 minutes. It was the first real conversation we've had in weeks.”</p>
+        <div class="mt-10 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-stone overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+          </div>
+          <div>
+            <p class="font-mono text-[10px] tracking-[0.14em] uppercase">J. & L. — Together 9 years</p>
+            <p class="font-serif text-[12px] italic text-basalt/60">Private ritual</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Membership / Reserve -->
+<section id="reserve" class="py-24 md:py-40 bg-steam relative">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="grid lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-6">
+        <span class="font-mono text-[10px] tracking-[0.24em] uppercase text-basalt/40">06 — Reserve</span>
+        <h3 class="font-serif text-[42px] md:text-[68px] leading-[0.9] tracking-[-0.03em] font-light mt-6">
+          14 guests at a time.<br>90 minutes<br><em class="italic">of unproductivity.</em>
+        </h3>
+
+        <div class="mt-10 p-8 bg-stone/60 border border-basalt/[0.06] grid md:grid-cols-2 gap-8 reveal">
+          <div>
+            <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-basalt/40 mb-3">Daily Ritual</p>
+            <p class="font-serif text-[18px] leading-[1.4]">Public access<br>06:00 — 22:00</p>
+            <p class="font-mono text-[10px] mt-3 text-basalt/60">Walk-ins allowed if under 14. Better to reserve.</p>
+          </div>
+          <div>
+            <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-basalt/40 mb-3">Private Ritual</p>
+            <p class="font-serif text-[18px] leading-[1.4]">House to yourself<br>22:30 — 00:30</p>
+            <p class="font-mono text-[10px] mt-3 text-basalt/60">Up to 8 guests, cedar tea service included.</p>
+          </div>
+        </div>
+
+        <div class="mt-12 grid grid-cols-3 gap-6 border-t border-basalt/[0.08] pt-8 font-mono text-[10px] tracking-[0.15em] uppercase">
+          <div>
+            <p class="text-basalt/40 mb-2">Price</p>
+            <p class="text-basalt text-[12px]">420 DKK / ritual<br><span class="text-basalt/50 normal-case tracking-normal">320 DKK member</span></p>
+          </div>
+          <div>
+            <p class="text-basalt/40 mb-2">Includes</p>
+            <p class="text-basalt text-[12px] leading-[1.6]">Linen robe<br>Slippers, tea,<br>Birch whisk</p>
+          </div>
+          <div>
+            <p class="text-basalt/40 mb-2">Not included</p>
+            <p class="text-basalt text-[12px] leading-[1.6]">Phones<br>Expectations<br>Small talk</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-6 lg:pl-12">
+        <div class="bg-basalt text-steam p-8 md:p-12">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-mono text-[10px] tracking-[0.2em] uppercase text-steam/40">Booking — May 2026</p>
+              <h4 class="font-serif text-[28px] leading-[1.1] mt-3 font-light">Choose a time to<br>arrive and do nothing.</h4>
+            </div>
+            <div class="w-10 h-10 rounded-full border border-steam/20 flex items-center justify-center font-mono text-[10px]">14</div>
+          </div>
+
+          <form id="bookingForm" class="mt-10 space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="border-b border-steam/15 pb-3">
+                <label class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40 block mb-2">Date</label>
+                <input type="date" class="w-full bg-transparent font-serif text-[16px] text-steam placeholder:text-steam/30 outline-none" value="2026-05-14">
+              </div>
+              <div class="border-b border-steam/15 pb-3">
+                <label class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40 block mb-2">Guests</label>
+                <select class="w-full bg-transparent font-serif text-[16px] text-steam outline-none">
+                  <option class="text-basalt">1 Guest</option>
+                  <option class="text-basalt">2 Guests</option>
+                  <option class="text-basalt">3 Guests</option>
+                  <option class="text-basalt">Private (up to 8)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="border-b border-steam/15 pb-3">
+              <label class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40 block mb-2">Ritual</label>
+              <div class="grid grid-cols-2 gap-2 mt-3">
+                <button type="button" class="ritual-opt border border-steam/20 px-4 py-3 text-left hover:bg-steam/10 transition text-[13px] font-serif bg-steam text-basalt">Full Sequence — 90 min</button>
+                <button type="button" class="ritual-opt border border-steam/20 px-4 py-3 text-left hover:bg-steam/10 transition text-[13px] font-serif">Sauna Only — 60 min</button>
+                <button type="button" class="ritual-opt border border-steam/20 px-4 py-3 text-left hover:bg-steam/10 transition text-[13px] font-serif">Onsen Only — 60 min</button>
+                <button type="button" class="ritual-opt border border-steam/20 px-4 py-3 text-left hover:bg-steam/10 transition text-[13px] font-serif">Private — 120 min</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="border-b border-steam/15 pb-3">
+                <label class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40 block mb-2">Name</label>
+                <input type="text" placeholder="Your name" class="w-full bg-transparent font-serif text-[16px] text-steam placeholder:text-steam/30 outline-none">
+              </div>
+              <div class="border-b border-steam/15 pb-3">
+                <label class="font-mono text-[9px] tracking-[0.2em] uppercase text-steam/40 block mb-2">Email</label>
+                <input type="email" placeholder="email@..." class="w-full bg-transparent font-serif text-[16px] text-steam placeholder:text-steam/30 outline-none">
+              </div>
+            </div>
+
+            <button type="submit" class="w-full mt-6 bg-steam text-basalt py-5 rounded-full font-mono text-[11px] tracking-[0.2em] uppercase hover:bg-stone transition flex items-center justify-center gap-3 group">
+              <span>Reserve Ritual — 420 DKK</span>
+              <span class="group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+
+            <p class="font-mono text-[9px] tracking-[0.12em] uppercase text-steam/30 text-center leading-[1.6]">By reserving, you agree to 90 min of silence, no phones, no perfume. Cancellations up to 12h.</p>
+          </form>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/40">
+          <span>Next available: Today 19:40 · 3 spots left</span>
+          <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-sage rounded-full"></span> Live occupancy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-mist border-t border-basalt/[0.06] pt-16 pb-8">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="grid md:grid-cols-12 gap-10 pb-16">
+      <div class="md:col-span-5">
+        <h4 class="font-serif text-[28px] tracking-[0.24em] font-light">HAVN</h4>
+        <p class="font-mono text-[10px] tracking-[0.22em] uppercase mt-2 text-basalt/50">Nordic Bathhouse — København</p>
+        <p class="font-sans text-[15px] leading-[1.7] text-basalt/60 mt-8 max-w-[32ch]">A bathhouse built for heat, water, and the quiet work of letting go. No membership tiers. No cold emails. Just stone that holds warmth.</p>
+        <div class="mt-10 flex gap-3">
+          <a href="#" class="w-9 h-9 rounded-full border border-basalt/10 flex items-center justify-center font-mono text-[10px] hover:border-basalt/30 transition">IG</a>
+          <a href="#" class="w-9 h-9 rounded-full border border-basalt/10 flex items-center justify-center font-mono text-[10px] hover:border-basalt/30 transition">JN</a>
+          <a href="#" class="w-9 h-9 rounded-full border border-basalt/10 flex items-center justify-center font-mono text-[10px] hover:border-basalt/30 transition">AR</a>
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <p class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40 mb-6">Visit</p>
+        <div class="font-serif text-[15px] leading-[1.8]">
+          <p>Refshalevej 199<br>1432 København K<br>Denmark</p>
+          <p class="mt-4 font-mono text-[11px] text-basalt/60">hello@havn.bath<br>+45 31 20 14 88</p>
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <p class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40 mb-6">Hours</p>
+        <div class="font-mono text-[11px] tracking-[0.12em] uppercase leading-[2.1] text-basalt/70">
+          <p>Mon–Fri 06:00–22:00</p>
+          <p>Sat–Sun 07:00–22:00</p>
+          <p class="mt-4 normal-case tracking-normal text-[12px] font-serif italic">Private 22:30–00:30<br>by reservation</p>
+        </div>
+      </div>
+
+      <div class="md:col-span-3">
+        <p class="font-mono text-[10px] tracking-[0.2em] uppercase text-basalt/40 mb-6">Note</p>
+        <p class="font-sans text-[13px] leading-[1.7] text-basalt/50">This is a conceptual site. HAVN is a fictional Nordic bathhouse inspired by Japanese onsen and Danish sauna culture. All rituals, prices, and availability are imagined for design purposes.</p>
+        <div class="mt-8 hairline"></div>
+        <div class="mt-4 flex justify-between font-mono text-[9px] tracking-[0.18em] uppercase text-basalt/40">
+          <span>© 2026 HAVN</span>
+          <span>Concept — Quiet Luxury</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-basalt/[0.06] pt-6 flex flex-col md:flex-row justify-between gap-4 font-mono text-[10px] tracking-[0.18em] uppercase text-basalt/30">
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-basalt/60">Privacy — No tracking</a>
+        <a href="#" class="hover:text-basalt/60">Imprint</a>
+        <a href="#" class="hover:text-basalt/60">Journal</a>
+      </div>
+      <span>Made slowly in Copenhagen — built from basalt, cedar, steam</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  const label = document.getElementById('cursorLabel');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+  let isHovering = false;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.transform = `translate(${mouseX - 2}px, ${mouseY - 2}px)`;
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    ring.style.transform = `translate(${ringX - 28}px, ${ringY - 28}px)`;
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('.cursor-hover').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      const text = el.getAttribute('data-cursor') || 'View';
+      label.textContent = text;
+      ring.classList.add('hover');
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.classList.remove('hover');
+    });
+  });
+
+  // Magnetic buttons
+  document.querySelectorAll('.magnetic').forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width/2;
+      const y = e.clientY - rect.top - rect.height/2;
+      btn.style.transform = `translate(${x*0.22}px, ${y*0.35}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = `translate(0,0)`;
+    });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) {
+        entry.target.classList.add('in');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Menu toggle
+  const menuBtn = document.getElementById('menuBtn');
+  const megaMenu = document.getElementById('megaMenu');
+  const nav = document.getElementById('nav');
+  let menuOpen = false;
+
+  menuBtn.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    if(menuOpen) {
+      megaMenu.classList.remove('translate-y-[-10px]', 'opacity-0', 'pointer-events-none');
+      megaMenu.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+      nav.classList.add('bg-steam');
+    } else {
+      megaMenu.classList.add('translate-y-[-10px]', 'opacity-0', 'pointer-events-none');
+      megaMenu.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+    }
+  });
+
+  // Nav bg on scroll
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const current = window.scrollY;
+    if(current > 80) {
+      nav.querySelector('div').classList.add('shadow-[0_1px_0_0_rgba(26,26,26,0.06)]');
+    } else {
+      nav.querySelector('div').classList.remove('shadow-[0_1px_0_0_rgba(26,26,26,0.06)]');
+    }
+    lastScroll = current;
+  });
+
+  // Thermal journey scroll progress
+  const journeySection = document.getElementById('journey');
+  const progress = document.getElementById('thermalProgress');
+  const journeyImage = document.getElementById('journeyImage');
+  const journeyImages = [
+    'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2070&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1600334129128-685c5582fd35?q=80&w=2070&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2070&auto=format&fit=crop'
+  ];
+
+  const stepObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting) {
+        const step = parseInt(entry.target.dataset.step);
+        if(journeyImages[step]) {
+          journeyImage.style.opacity = '0.6';
+          setTimeout(() => {
+            journeyImage.src = journeyImages[step];
+            journeyImage.style.opacity = '1';
+          }, 180);
+        }
+      }
+    });
+  }, { threshold: 0.6 });
+
+  document.querySelectorAll('.journey-step').forEach(el => stepObserver.observe(el));
+
+  window.addEventListener('scroll', () => {
+    if(!journeySection) return;
+    const rect = journeySection.getBoundingClientRect();
+    const winH = window.innerHeight;
+    const sectionH = journeySection.offsetHeight;
+    const start = rect.top;
+    const end = rect.bottom - winH;
+    let p = 0;
+    if(start < 0) {
+      p = Math.min(1, Math.max(0, (-start) / (sectionH - winH*0.4)));
+    }
+    if(progress) progress.style.height = `${p*100}%`;
+  });
+
+  // Ritual option toggle
+  document.querySelectorAll('.ritual-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ritual-opt').forEach(b => {
+        b.classList.remove('bg-steam','text-basalt');
+        b.classList.add('border-steam/20');
+      });
+      btn.classList.add('bg-steam','text-basalt');
+    });
+  });
+
+  // Booking form fake
+  const bookingForm = document.getElementById('bookingForm');
+  bookingForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const btn = bookingForm.querySelector('button[type="submit"]');
+    const original = btn.innerHTML;
+    btn.innerHTML = '<span>Reserving — checking occupancy…</span>';
+    setTimeout(() => {
+      btn.innerHTML = '<span>Reserved — see email for linen code ✓</span>';
+      btn.classList.add('bg-sage','text-steam');
+      btn.classList.remove('bg-steam','text-basalt');
+    }, 1400);
+    setTimeout(() => {
+      btn.innerHTML = original;
+      btn.classList.remove('bg-sage','text-steam');
+      btn.classList.add('bg-steam','text-basalt');
+    }, 4200);
+  });
+
+  // Close menu on outside click
+  document.addEventListener('click', (e) => {
+    if(!nav.contains(e.target) && menuOpen) {
+      menuOpen = false;
+      megaMenu.classList.add('translate-y-[-10px]', 'opacity-0', 'pointer-events-none');
+      megaMenu.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+    }
+  });
+
+  // Parallax for hero image subtle
+  window.addEventListener('scroll', () => {
+    const sc = window.scrollY * 0.15;
+    document.querySelectorAll('.img-zoom img').forEach((img, i) => {
+      if(i===0) img.style.transform = `translateY(${sc * 0.3}px) scale(1.06)`;
+    });
+  });
+</script>
+
+</body>
+</html>

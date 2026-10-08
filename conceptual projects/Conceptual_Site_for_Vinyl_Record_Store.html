@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Vinyl Record Store</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cream: '#fdf6e3',
+        mustard: '#facc15',
+        burnt: '#ea580c',
+        avocado: '#5a7c2b',
+        avocadoDark: '#3f5a1e',
+        ink: '#1a1a18',
+        paper: '#fffcf2'
+      },
+      fontFamily: {
+        syne: ['Syne', 'sans-serif'],
+        space: ['Space Grotesk', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  html { scroll-behavior: smooth; }
+  body { background:#fdf6e3; color:#1a1a18; overflow-x:hidden; }
+  /* Grain texture */
+  .grain-overlay{
+    position:fixed; inset:0; pointer-events:none; z-index:9999;
+    opacity:0.07; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  .font-syne{ font-family:'Syne',sans-serif; }
+  .font-space{ font-family:'Space Grotesk',sans-serif; }
+  @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes spin-slow{ from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+  @keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  @keyframes marquee{ 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes wobble{ 0%,100%{transform:rotate(-1deg)} 50%{transform:rotate(1deg)} }
+  @keyframes shineSlide{ 0%{transform:translateX(-120%) rotate(25deg)} 100%{transform:translateX(250%) rotate(25deg)} }
+  .spin-record{ animation: spin 8s linear infinite; }
+  .spin-record-slow{ animation: spin-slow 18s linear infinite; }
+  .floaty{ animation: float 6s ease-in-out infinite; }
+  .marquee-track{ animation: marquee 28s linear infinite; }
+  .wobble{ animation: wobble 4s ease-in-out infinite; }
+  /* Custom scrollbar hide */
+  .hide-scrollbar::-webkit-scrollbar{ display:none; }
+  .hide-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
+  .vinyl-grooves{
+    background:repeating-radial-gradient(circle at center, #111 0px, #222 1px, #111 2px, #1a1a1a 3px);
+  }
+  .record-shine{
+    position:absolute; inset:0; overflow:hidden; pointer-events:none;
+  }
+  .record-shine::after{
+    content:''; position:absolute; top:0; left:0; width:45%; height:100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    transform: translateX(-120%) rotate(25deg);
+    animation: shineSlide 3.5s ease-in-out infinite;
+  }
+  .crates-shadow{ box-shadow: 8px 8px 0px #1a1a18; }
+  .crates-shadow-hover:hover{ box-shadow: 12px 12px 0px #1a1a18; transform:translate(-2px,-2px) }
+  .text-stroke{ -webkit-text-stroke:1.5px #1a1a18; color:transparent; }
+  .mix-ink{ mix-blend-mode: multiply; }
+  /* Cursor */
+  #cursor-dot, #cursor-ring{ position:fixed; top:0; left:0; pointer-events:none; z-index:10000; border-radius:50%; opacity:0; transition: opacity 0.3s; }
+  #cursor-dot{ width:8px; height:8px; background:#ea580c; transform:translate(-50%,-50%); }
+  #cursor-ring{ width:44px; height:44px; border:1.5px solid #1a1a18; background:rgba(250,204,21,0.15); transform:translate(-50%,-50%); transition: width 0.3s, height 0.3s, background 0.3s, border-color 0.3s, opacity 0.3s; }
+  #cursor-ring.hover{ width:76px; height:76px; background:rgba(234,88,12,0.12); border-color:#ea580c; }
+  @media (max-width:1024px){ #cursor-dot,#cursor-ring{ display:none; } }
+  .reveal{ opacity:0; transform:translateY(24px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.active{ opacity:1; transform:translateY(0); }
+  .sticker{ transform: rotate(-6deg); }
+  .sticker-2{ transform: rotate(4deg); }
+</style>
+</head>
+<body class="font-space relative">
+<div class="grain-overlay"></div>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Announcement Marquee Top -->
+<div class="relative z-40 w-full bg-ink text-cream border-b-[1.5px] border-ink overflow-hidden">
+  <div class="flex whitespace-nowrap marquee-track will-change-transform">
+    <div class="flex items-center gap-8 px-6 py-[10px] font-syne font-bold tracking-[0.12em] text-[13px] uppercase">
+      <span class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-mustard inline-block"></span>NOW SPINNING - Alice Coltrane / Spiritual Jazz</span>
+      <span class="text-white/30">•</span>
+      <span>NEW ARRIVALS EVERY FRIDAY 10AM</span>
+      <span class="text-white/30">•</span>
+      <span>CRATE DIGGING SINCE 1972</span>
+      <span class="text-white/30">•</span>
+      <span>FREE LISTENING BOOTH - COFFEE ON US</span>
+      <span class="text-white/30">•</span>
+      <span>BUY • SELL • TRADE - WE PAY TOP DOLLAR</span>
+      <span class="text-white/30">•</span>
+    </div>
+    <div class="flex items-center gap-8 px-6 py-[10px] font-syne font-bold tracking-[0.12em] text-[13px] uppercase" aria-hidden="true">
+      <span class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-mustard inline-block"></span>NOW SPINNING - Alice Coltrane / Spiritual Jazz</span>
+      <span class="text-white/30">•</span>
+      <span>NEW ARRIVALS EVERY FRIDAY 10AM</span>
+      <span class="text-white/30">•</span>
+      <span>CRATE DIGGING SINCE 1972</span>
+      <span class="text-white/30">•</span>
+      <span>FREE LISTENING BOOTH - COFFEE ON US</span>
+      <span class="text-white/30">•</span>
+      <span>BUY • SELL • TRADE - WE PAY TOP DOLLAR</span>
+      <span class="text-white/30">•</span>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="sticky top-0 z-30 bg-cream/80 backdrop-blur-xl border-b-[1.5px] border-ink">
+  <div class="max-w-[1480px] mx-auto px-6 lg:px-10 h-[78px] flex items-center justify-between">
+    <div class="flex items-center gap-10">
+      <a href="#" class="flex items-center gap-3 group cursor-pointer">
+        <div class="w-[44px] h-[44px] rounded-full bg-ink flex items-center justify-center relative overflow-hidden group-hover:rotate-180 transition-transform duration-700">
+          <div class="w-[36px] h-[36px] rounded-full vinyl-grooves relative">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-[14px] h-[14px] bg-mustard rounded-full border-2 border-ink"></div>
+            </div>
+            <div class="record-shine rounded-full"></div>
+          </div>
+        </div>
+        <span class="font-syne font-[800] text-[22px] tracking-[-0.02em] leading-none">SUPERSONIC<br><span class="font-[500] text-[11px] tracking-[0.28em]">RECORDS & TAPES</span></span>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 bg-paper border-[1.5px] border-ink rounded-full p-1">
+        <a href="#crates" class="px-5 py-2 rounded-full text-[13px] font-bold tracking-wide hover:bg-mustard transition cursor-pointer">CRATES</a>
+        <a href="#picks" class="px-5 py-2 rounded-full text-[13px] font-bold tracking-wide hover:bg-mustard transition cursor-pointer">STAFF PICKS</a>
+        <a href="#story" class="px-5 py-2 rounded-full text-[13px] font-bold tracking-wide hover:bg-mustard transition cursor-pointer">OUR STORY</a>
+        <a href="#booth" class="px-5 py-2 rounded-full text-[13px] font-bold tracking-wide hover:bg-mustard transition cursor-pointer">LISTENING BOOTH</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2 border-[1.5px] border-ink rounded-full px-4 py-2 bg-paper">
+        <div class="w-2 h-2 bg-avocado rounded-full animate-pulse"></div>
+        <span class="text-[11px] font-bold tracking-[0.14em] font-syne">OPEN TODAY • 10AM-9PM</span>
+      </div>
+      <button class="hidden md:flex h-[44px] px-6 rounded-full bg-ink text-cream font-syne font-bold text-[13px] tracking-[0.08em] hover:bg-burnt transition items-center gap-2 cursor-pointer">
+        <span>VISIT US</span>
+        <span class="w-5 h-5 rounded-full bg-mustard text-ink flex items-center justify-center text-[11px]">↗</span>
+      </button>
+      <button id="cartBtn" class="w-[44px] h-[44px] rounded-full border-[1.5px] border-ink bg-mustard flex items-center justify-center font-bold text-[13px] hover:scale-105 transition cursor-pointer">2</button>
+      <button class="lg:hidden w-[44px] h-[44px] rounded-full border-[1.5px] border-ink bg-paper flex items-center justify-center cursor-pointer">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 1.5H18M0 6H18M0 10.5H18" stroke="#1a1a18" stroke-width="1.5"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative max-w-[1480px] mx-auto px-6 lg:px-10 pt-10 lg:pt-16 pb-12 overflow-hidden">
+  <!-- Background blobs -->
+  <div class="absolute -top-10 -right-20 w-[520px] h-[520px] bg-mustard rounded-full blur-[1px] opacity-[0.85] mix-ink pointer-events-none hidden lg:block" style="clip-path: ellipse(55% 50% at 50% 50%); transform: rotate(-8deg);"></div>
+  <div class="absolute top-[22%] left-[28%] w-[180px] h-[180px] bg-burnt rounded-full opacity-90 mix-ink hidden lg:block"></div>
+  <div class="absolute top-[12%] left-[4%] w-[90px] h-[90px] border-[1.5px] border-ink rounded-full hidden lg:block"></div>
+
+  <div class="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-6 items-start relative z-10">
+    <!-- Left -->
+    <div class="relative">
+      <div class="inline-flex items-center gap-2 bg-paper border-[1.5px] border-ink rounded-full px-3 py-1 mb-6 crates-shadow">
+        <div class="w-6 h-6 rounded-full bg-avocado flex items-center justify-center text-[10px]">✦</div>
+        <span class="font-syne font-bold text-[11px] tracking-[0.18em]">HIGHLAND PARK • LOS ANGELES • EST 1972</span>
+      </div>
+
+      <h1 class="font-syne font-[800] leading-[0.85] tracking-[-0.04em] text-[15vw] lg:text-[9.5vw] xl:text-[132px]">
+        <span class="relative inline-block">
+          DIG
+          <span class="absolute -top-2 -right-8 lg:-right-12 bg-burnt text-cream font-space text-[11px] lg:text-[12px] font-bold px-3 py-1 rounded-full rotate-12 border-[1.5px] border-ink crates-shadow">THE REAL DEEP CUTS</span>
+        </span>
+        <br>
+        <span class="text-stroke">DEEPER</span>
+        <span class="relative inline-flex items-center ml-2 lg:ml-4">
+          <span class="text-[58px] lg:text-[82px] bg-mustard border-[2px] border-ink rounded-full w-[84px] h-[84px] lg:w-[108px] lg:h-[108px] inline-flex items-center justify-center -mt-4 crates-shadow">☺</span>
+        </span>
+      </h1>
+
+      <div class="mt-8 grid grid-cols-[auto_1fr] gap-6 max-w-[540px]">
+        <div class="w-[1.5px] bg-ink h-full"></div>
+        <div>
+          <p class="font-space text-[18px] lg:text-[20px] leading-[1.35] font-medium tracking-[-0.01em]">
+            12,000+ records, no algorithms. Just dusty fingers, warm tube amps, and the kind of finds that make your heart skip at 33⅓ RPM.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button class="h-[50px] px-7 rounded-full bg-ink text-cream font-syne font-bold text-[14px] tracking-wide hover:bg-avocado transition flex items-center gap-3 cursor-pointer group">
+              START DIGGING
+              <span class="w-7 h-7 rounded-full bg-mustard text-ink flex items-center justify-center group-hover:rotate-45 transition-transform">→</span>
+            </button>
+            <button class="h-[50px] px-7 rounded-full bg-paper border-[1.5px] border-ink font-syne font-bold text-[14px] tracking-wide hover:bg-mustard transition cursor-pointer">
+              LISTENING SESSION
+            </button>
+          </div>
+          <div class="mt-8 flex items-center gap-5">
+            <div class="flex -space-x-3">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face" class="w-10 h-10 rounded-full border-[1.5px] border-ink object-cover">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" class="w-10 h-10 rounded-full border-[1.5px] border-ink object-cover">
+              <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=80&h=80&fit=crop&crop=face" class="w-10 h-10 rounded-full border-[1.5px] border-ink object-cover">
+            </div>
+            <p class="text-[12.5px] leading-[1.25] font-medium">Loved by 3.4k crate diggers<br><span class="underline decoration-2 decoration-mustard">Read the wall of fame</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- floating sticker -->
+      <div class="hidden lg:flex absolute -bottom-6 -right-4 bg-avocado text-cream border-[1.5px] border-ink rounded-[18px] px-5 py-3 crates-shadow sticker items-center gap-3 font-syne">
+        <div class="w-12 h-12 rounded-full bg-cream border border-ink flex items-center justify-center text-ink font-[800] text-[20px] spin-record">♫</div>
+        <div class="leading-[1.1]"><span class="font-[800] text-[16px]">45s</span><br><span class="text-[11px] tracking-[0.14em]">UNDER $5 BIN →</span></div>
+      </div>
+    </div>
+
+    <!-- Right Visual -->
+    <div class="relative lg:h-[760px] flex flex-col gap-6">
+      <!-- Main vinyl showcase -->
+      <div class="relative bg-paper border-[2px] border-ink rounded-[32px] lg:rounded-[40px] p-5 lg:p-7 crates-shadow overflow-hidden group">
+        <div class="absolute top-0 right-0 w-[200px] h-[200px] bg-burnt/10 rounded-full blur-[30px] pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-burnt border border-ink"></span>
+            <span class="w-3 h-3 rounded-full bg-mustard border border-ink"></span>
+            <span class="w-3 h-3 rounded-full bg-avocado border border-ink"></span>
+          </div>
+          <span class="font-syne font-bold text-[10px] tracking-[0.18em] bg-ink text-cream px-3 py-1 rounded-full">NOW PLAYING</span>
+        </div>
+
+        <!-- Vinyl + Sleeve Composition -->
+        <div class="relative mx-auto w-full max-w-[420px] aspect-square flex items-center justify-center">
+          <!-- Sleeve -->
+          <div class="absolute left-[5%] top-[8%] w-[78%] aspect-square bg-[#f0e2c0] border-[2px] border-ink rounded-[6px] overflow-hidden crates-shadow rotate-[-4deg] z-10">
+            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=600&fit=crop" class="w-full h-full object-cover saturate-[0.9] contrast-[1.1]">
+            <div class="absolute inset-0 bg-gradient-to-br from-mustard/30 to-transparent mix-blend-multiply"></div>
+            <div class="absolute bottom-3 left-3 bg-ink text-cream text-[10px] font-bold tracking-widest px-2 py-1 font-syne">FUNK / EST 1973</div>
+          </div>
+          <!-- Vinyl disc peeking -->
+          <div class="absolute right-[2%] top-[12%] w-[78%] aspect-square rounded-full bg-[#101010] border-[2px] border-ink crates-shadow spin-record z-0 flex items-center justify-center vinyl-grooves">
+            <div class="absolute w-full h-full rounded-full border border-white/10" style="background: repeating-radial-gradient(circle at center, transparent 0 2px, rgba(255,255,255,0.04) 2px 3px)"></div>
+            <div class="w-[34%] aspect-square rounded-full bg-mustard border-[2.5px] border-ink flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-1 rounded-full border border-ink/30"></div>
+              <span class="font-syne font-[800] text-[10px] leading-none text-center tracking-tight">SUPER<br>SONIC</span>
+              <div class="absolute w-[18%] aspect-square bg-ink rounded-full border-2 border-mustard"></div>
+            </div>
+            <div class="record-shine rounded-full"></div>
+          </div>
+        </div>
+
+        <div class="mt-5 flex items-center justify-between">
+          <div>
+            <p class="font-syne font-[800] text-[22px] leading-none tracking-[-0.02em]">Erykah Badu — Mama's Gun</p>
+            <p class="font-space text-[13px] mt-1 opacity-70">Original 2000 pressing, $45 • Near Mint</p>
+          </div>
+          <button class="w-[52px] h-[52px] rounded-full bg-mustard border-[1.5px] border-ink flex items-center justify-center text-[20px] hover:scale-110 transition cursor-pointer">▶</button>
+        </div>
+
+        <!-- Equalizer bars -->
+        <div class="mt-5 flex gap-[3px] h-[22px] items-end">
+          <div class="w-[3px] bg-ink rounded-full animate-[float_1.2s_ease-in-out_infinite]" style="height:60%"></div>
+          <div class="w-[3px] bg-burnt rounded-full animate-[float_1.1s_ease-in-out_infinite_0.2s]" style="height:90%"></div>
+          <div class="w-[3px] bg-ink rounded-full animate-[float_1.3s_ease-in-out_infinite_0.1s]" style="height:30%"></div>
+          <div class="w-[3px] bg-avocado rounded-full animate-[float_1s_ease-in-out_infinite_0.3s]" style="height:75%"></div>
+          <div class="w-[3px] bg-ink rounded-full animate-[float_1.15s_ease-in-out_infinite_0.15s]" style="height:50%"></div>
+          <div class="w-[3px] bg-mustard border border-ink rounded-full animate-[float_1.25s_ease-in-out_infinite_0.25s]" style="height:85%"></div>
+          <div class="flex-1"></div>
+          <span class="font-syne text-[10px] tracking-[0.2em] font-bold opacity-50">33 1/3 RPM • STEREO</span>
+        </div>
+      </div>
+
+      <!-- Small info cards row -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-burnt border-[1.5px] border-ink rounded-[20px] p-4 crates-shadow text-cream relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-20 h-20 bg-black/10 rounded-full"></div>
+          <p class="font-syne font-[800] text-[28px] leading-none">1.2k</p>
+          <p class="font-space text-[11px] tracking-[0.14em] font-bold mt-1">7INCH SINGLES</p>
+          <p class="text-[12px] mt-2 leading-[1.2] opacity-90">From Northern Soul obscurities to Japanese city pop.</p>
+        </div>
+        <div class="bg-avocado border-[1.5px] border-ink rounded-[20px] p-4 crates-shadow text-cream relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-20 h-20 bg-black/10 rounded-full"></div>
+          <p class="font-syne font-[800] text-[28px] leading-none">Est.</p>
+          <p class="font-space text-[11px] tracking-[0.14em] font-bold mt-1">1972 / HIGHLAND</p>
+          <p class="text-[12px] mt-2 leading-[1.2] opacity-90">Family owned, community loved, turntable blessed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee Strip 2 -->
+<div class="w-full bg-mustard border-y-[1.5px] border-ink overflow-hidden">
+  <div class="marquee-track flex whitespace-nowrap py-[14px]">
+    <div class="flex items-center gap-10 font-syne font-[800] text-[18px] tracking-[-0.01em]">
+      <span class="flex items-center gap-4">◍ BUY • SELL • TRADE <span class="text-[12px] font-space font-bold tracking-[0.14em] opacity-60">WE PAY TOP $$$</span></span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+      <span>◍ LISTEN BEFORE YOU BUY - 2 TUBE AMPS, 4 HEADPHONES</span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+      <span>◍ CRATE DIGGING TOURS EVERY SATURDAY 11AM</span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+      <span>◍ FREE COFFEE • FREE WIFI • FREE VIBES</span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+    </div>
+    <div class="flex items-center gap-10 font-syne font-[800] text-[18px] tracking-[-0.01em] ml-10" aria-hidden="true">
+      <span class="flex items-center gap-4">◍ BUY • SELL • TRADE <span class="text-[12px] font-space font-bold tracking-[0.14em] opacity-60">WE PAY TOP $$$</span></span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+      <span>◍ LISTEN BEFORE YOU BUY - 2 TUBE AMPS, 4 HEADPHONES</span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+      <span>◍ CRATE DIGGING TOURS EVERY SATURDAY 11AM</span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+      <span>◍ FREE COFFEE • FREE WIFI • FREE VIBES</span>
+      <span class="w-2 h-2 bg-ink rounded-full"></span>
+    </div>
+  </div>
+</div>
+
+<!-- STORY / ABOUT -->
+<section id="story" class="relative max-w-[1480px] mx-auto px-6 lg:px-10 py-20 lg:py-28">
+  <div class="grid lg:grid-cols-[0.95fr_1.05fr] gap-12 lg:gap-20 items-start">
+    <div class="relative">
+      <div class="bg-paper border-[2px] border-ink rounded-[28px] overflow-hidden crates-shadow rotate-[-1.5deg]">
+        <div class="aspect-[4/3] relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=900&h=700&fit=crop" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink/40 to-transparent"></div>
+          <div class="absolute top-4 left-4 bg-cream border border-ink rounded-full px-3 py-1 text-[11px] font-bold tracking-[0.12em] font-syne">5000 N FIGUEROA • SINCE '72</div>
+          <div class="absolute bottom-0 left-0 right-0 bg-ink text-cream p-4 flex justify-between items-center">
+            <span class="font-syne font-bold tracking-[0.18em] text-[12px]">SUPERSONIC FRONTAGE - 1978</span>
+            <span class="w-8 h-8 rounded-full bg-mustard text-ink flex items-center justify-center font-bold">✦</span>
+          </div>
+        </div>
+        <div class="p-5 lg:p-7 bg-cream">
+          <p class="font-syne font-[800] text-[22px] leading-[1.1] tracking-[-0.02em]">Built on milk crates, love letters, and a busted McIntosh.</p>
+          <p class="font-space text-[14px] leading-[1.5] mt-3 opacity-75">In 1972 our dad Marty traded his VW bus for 2,000 records and a lease on Figueroa. We still have the bus ticket stub framed behind the counter.</p>
+        </div>
+      </div>
+
+      <!-- spinning badge -->
+      <div class="absolute -top-8 -right-4 lg:-right-8 w-[110px] h-[110px] rounded-full bg-ink border-[1.5px] border-ink flex items-center justify-center crates-shadow spin-record-slow z-20">
+        <svg viewBox="0 0 100 100" class="w-[94px] h-[94px] absolute">
+          <path id="circlePath" d="M 50, 50 m -36, 0 a 36,36 0 1,1 72,0 a 36,36 0 1,1 -72,0" fill="none"/>
+          <text font-size="11.5" font-family="Syne" font-weight="800" letter-spacing="1.5" fill="#fdf6e3">
+            <textPath href="#circlePath">EST 1972 • HIGHLAND PARK L.A. • EST 1972 •</textPath>
+          </text>
+        </svg>
+        <span class="w-10 h-10 rounded-full bg-mustard border border-ink flex items-center justify-center text-[18px]">♡</span>
+      </div>
+
+      <div class="mt-8 bg-avocado border-[1.5px] border-ink rounded-[20px] px-6 py-5 crates-shadow sticker-2 text-cream flex items-center gap-4">
+        <img src="https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=100&h=100&fit=crop&crop=face" class="w-[56px] h-[56px] rounded-full border-[1.5px] border-cream object-cover">
+        <div>
+          <p class="font-syne font-bold text-[15px] leading-none">Marty & Lena — Still Digging</p>
+          <p class="font-space text-[12px] mt-1 opacity-80">"If you can't find it here, you didn't need it."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="font-syne font-bold text-[11px] tracking-[0.28em] flex items-center gap-3 mb-6">
+        <span class="w-8 h-[1.5px] bg-ink"></span> HOW WE STACK IT
+      </div>
+      <h2 class="font-syne font-[800] text-[44px] lg:text-[64px] leading-[0.9] tracking-[-0.03em]">No genres. Just<br><span class="inline-block bg-mustard border-[1.5px] border-ink rounded-full px-4 -rotate-1 crates-shadow">feelings,</span><br>organized by<br><span class="text-stroke">vibe & year.</span></h2>
+
+      <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="group bg-paper border-[1.5px] border-ink rounded-[20px] p-6 crates-shadow-hover transition-all cursor-pointer">
+          <div class="w-12 h-12 rounded-full bg-ink text-cream flex items-center justify-center font-syne font-bold text-[20px]">1</div>
+          <h3 class="font-syne font-[700] text-[18px] mt-4">Crate Digging Is Ritual</h3>
+          <p class="font-space text-[13.5px] leading-[1.5] mt-2 opacity-70">You flip. You pause. You hear the crackle before the needle drops. Our crates are curated by mood, not just BPM.</p>
+          <div class="mt-4 flex gap-2">
+            <span class="bg-cream border border-ink rounded-full px-3 py-1 text-[11px] font-bold">LATE NIGHT WOOS</span>
+            <span class="bg-mustard border border-ink rounded-full px-3 py-1 text-[11px] font-bold">SUNDAY SOUL</span>
+          </div>
+        </div>
+        <div class="group bg-paper border-[1.5px] border-ink rounded-[20px] p-6 crates-shadow-hover transition-all cursor-pointer">
+          <div class="w-12 h-12 rounded-full bg-burnt text-cream flex items-center justify-center font-syne font-bold text-[20px]">2</div>
+          <h3 class="font-syne font-[700] text-[18px] mt-4">Every Record Cleaned</h3>
+          <p class="font-space text-[13.5px] leading-[1.5] mt-2 opacity-70">Ultrasonic bath, carbon brush, new inner sleeve. We grade harsh so you don't get harsh.</p>
+          <div class="mt-4 h-[6px] w-full bg-ink/10 rounded-full overflow-hidden"><div class="h-full w-[88%] bg-avocado rounded-full"></div></div>
+        </div>
+        <div class="group bg-paper border-[1.5px] border-ink rounded-[20px] p-6 crates-shadow-hover transition-all cursor-pointer">
+          <div class="w-12 h-12 rounded-full bg-mustard border border-ink flex items-center justify-center font-syne font-bold text-[20px]">3</div>
+          <h3 class="font-syne font-[700] text-[18px] mt-4">Trade With Heart</h3>
+          <p class="font-space text-[13.5px] leading-[1.5] mt-2 opacity-70">Bring crates, get cash or 30% extra store credit. We remember what you sold us — and who should own it next.</p>
+          <p class="font-syne text-[11px] font-bold tracking-[0.12em] mt-3">CASH • CREDIT • ETERNAL KARMA</p>
+        </div>
+        <div class="group bg-ink text-cream border-[1.5px] border-ink rounded-[20px] p-6 crates-shadow-hover transition-all cursor-pointer relative overflow-hidden">
+          <div class="absolute -right-8 -top-8 w-24 h-24 bg-mustard rounded-full opacity-30"></div>
+          <h3 class="font-syne font-[800] text-[28px] leading-[0.9]">12k+<br><span class="text-mustard">records in stock</span></h3>
+          <p class="font-space text-[13px] mt-3 opacity-70">And 400 more in the back that Lena says we're not allowed to sell. Yet.</p>
+          <button class="mt-4 h-9 px-4 rounded-full bg-cream text-ink text-[12px] font-bold tracking-wide flex items-center gap-2 cursor-pointer">SEE MAP OF CRATES →</button>
+        </div>
+      </div>
+
+      <div class="mt-10 flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-3 bg-ink text-cream border border-ink rounded-full px-4 py-2">
+          <span class="w-2 h-2 bg-mustard rounded-full animate-pulse"></span>
+          <span class="font-syne font-bold text-[11px] tracking-[0.14em]">SATURDAY DIG TOURS AT 11AM - RSVP ON IG</span>
+        </div>
+        <span class="font-space text-[13px] opacity-60">Led by Milo, who knows where the Japanese pressings hide.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRATES / CATEGORIES -->
+<section id="crates" class="relative bg-ink text-cream rounded-t-[28px] lg:rounded-t-[48px] border-t-[2px] border-ink overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.04] pointer-events-none" style="background-image:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=20&h=20&fit=crop')"></div>
+
+  <div class="max-w-[1480px] mx-auto px-6 lg:px-10 py-16 lg:py-20 relative">
+    <div class="flex flex-wrap items-start justify-between gap-8">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-mustard text-ink border border-ink rounded-full px-3 py-1 crates-shadow">
+          <span class="font-syne font-bold text-[11px] tracking-[0.18em]">FLIP THROUGH THE CRATES</span>
+        </div>
+        <h2 class="font-syne font-[800] text-[44px] lg:text-[72px] leading-[0.9] tracking-[-0.03em] mt-6">We don't do genres.<br><span class="text-mustard">We do moments.</span></h2>
+      </div>
+      <div class="max-w-[380px]">
+        <p class="font-space text-[16px] leading-[1.45] opacity-80">Drag the crates, follow your nose. Each bin is a mood-board for a time you weren't alive for but remember anyway.</p>
+        <div class="mt-6 flex gap-2">
+          <button class="w-10 h-10 rounded-full bg-cream text-ink border border-ink flex items-center justify-center hover:bg-mustard transition cursor-pointer">←</button>
+          <button class="w-10 h-10 rounded-full bg-cream text-ink border border-ink flex items-center justify-center hover:bg-mustard transition cursor-pointer">→</button>
+          <span class="ml-3 font-syne text-[11px] tracking-[0.18em] font-bold opacity-50 self-center">SCROLL TO DIG</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-14 flex gap-5 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-6">
+      <!-- Crate cards -->
+      <div class="snap-start shrink-0 w-[300px] lg:w-[340px] group cursor-pointer">
+        <div class="bg-[#2a2a28] border-[1.5px] border-white/20 rounded-[24px] p-5 relative overflow-hidden group-hover:border-mustard/60 transition">
+          <div class="flex justify-between items-center">
+            <span class="font-syne font-bold text-[11px] tracking-[0.18em] bg-mustard text-ink px-2 py-1 rounded-full">FUNKY /// 1970-78</span>
+            <span class="font-space text-[11px] opacity-50">124 records</span>
+          </div>
+          <div class="mt-8 flex gap-1">
+            <div class="w-[3px] h-[88px] bg-mustard/80 rounded-full" style="transform:rotate(1deg)"></div>
+            <div class="w-[3px] h-[88px] bg-cream/80 rounded-full" style="transform:rotate(-0.5deg)"></div>
+            <div class="w-[3px] h-[88px] bg-burnt rounded-full" style="transform:rotate(0.8deg)"></div>
+            <div class="flex-1 bg-paper rounded-[8px] border border-ink/20 overflow-hidden relative mx-2 -rotate-1 group-hover:rotate-0 transition-transform duration-500">
+              <img src="https://images.unsplash.com/photo-1602848597945-0d3d26528055?w=400&h=400&fit=crop" class="w-full h-[88px] object-cover">
+            </div>
+            <div class="w-[3px] h-[88px] bg-avocado rounded-full"></div>
+            <div class="w-[3px] h-[88px] bg-cream/60 rounded-full"></div>
+          </div>
+          <h3 class="font-syne font-[800] text-[24px] leading-[1] mt-6">Get-down &<br>stay-down</h3>
+          <p class="font-space text-[12px] mt-2 opacity-60">Parliament, Betty Davis, Shuggie Otis — the sweat on the sleeve is free.</p>
+        </div>
+        <div class="mt-3 h-[14px] bg-[#1e1e1c] rounded-b-[10px] border-x-[1.5px] border-b-[1.5px] border-white/10 mx-3"></div>
+      </div>
+
+      <div class="snap-start shrink-0 w-[300px] lg:w-[340px] group cursor-pointer">
+        <div class="bg-[#fffcf2] text-ink border-[1.5px] border-ink rounded-[24px] p-5 relative overflow-hidden group-hover:-translate-y-1 transition">
+          <div class="flex justify-between items-center">
+            <span class="font-syne font-bold text-[11px] tracking-[0.18em] bg-ink text-cream px-2 py-1 rounded-full">SPIRITUAL JAZZ</span>
+            <span class="font-space text-[11px] opacity-50">86 records</span>
+          </div>
+          <div class="mt-8 flex gap-1">
+            <div class="flex-1 bg-ink rounded-[8px] overflow-hidden relative rotate-[-1deg] group-hover:rotate-[0deg] transition">
+              <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=400&fit=crop" class="w-full h-[88px] object-cover opacity-90">
+            </div>
+            <div class="w-[3px] h-[88px] bg-ink rounded-full ml-1"></div>
+            <div class="w-[3px] h-[88px] bg-mustard border border-ink rounded-full"></div>
+          </div>
+          <h3 class="font-syne font-[800] text-[24px] leading-[1] mt-6">Morning raga<br>at midnight</h3>
+          <p class="font-space text-[12px] mt-2 opacity-70">Pharoah, Alice, Don Cherry. For when the incense runs out but the yearning doesn't.</p>
+        </div>
+        <div class="mt-3 h-[14px] bg-mustard rounded-b-[10px] border-x-[1.5px] border-b-[1.5px] border-ink mx-3"></div>
+      </div>
+
+      <div class="snap-start shrink-0 w-[300px] lg:w-[340px] group cursor-pointer">
+        <div class="bg-avocado border-[1.5px] border-ink rounded-[24px] p-5 relative overflow-hidden group-hover:-translate-y-1 transition text-cream">
+          <div class="flex justify-between items-center">
+            <span class="font-syne font-bold text-[11px] tracking-[0.18em] bg-cream text-ink px-2 py-1 rounded-full">CITY POP / JAPANESE</span>
+            <span class="font-space text-[11px] opacity-70">64 records • OBIs intact</span>
+          </div>
+          <div class="mt-6 bg-cream/90 border border-ink rounded-[12px] p-2 rotate-[-1.5deg] group-hover:rotate-0 transition">
+            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=280&fit=crop" class="w-full h-[72px] object-cover rounded-[6px]">
+            <div class="mt-2 flex gap-1.5"><span class="h-1.5 flex-1 bg-burnt rounded-full"></span><span class="h-1.5 w-8 bg-ink rounded-full"></span></div>
+          </div>
+          <h3 class="font-syne font-[800] text-[24px] leading-[1] mt-6">Neon at 2am in<br>Shibuya, 1983</h3>
+          <p class="font-space text-[12px] mt-2 opacity-80">Miki Matsubara, Tatsuro, Anri. We keep the obi strips like bookmarks.</p>
+        </div>
+        <div class="mt-3 h-[14px] bg-ink rounded-b-[10px] border-x-[1.5px] border-b-[1.5px] border-ink mx-3"></div>
+      </div>
+
+      <div class="snap-start shrink-0 w-[300px] lg:w-[340px] group cursor-pointer">
+        <div class="bg-burnt border-[1.5px] border-ink rounded-[24px] p-5 relative overflow-hidden group-hover:-translate-y-1 transition text-cream">
+          <div class="flex justify-between items-center">
+            <span class="font-syne font-bold text-[11px] tracking-[0.18em] bg-ink text-cream px-2 py-1 rounded-full">DISCO EDITS • 12"</span>
+            <span class="font-space text-[11px] opacity-80">102 records</span>
+          </div>
+          <div class="mt-8 grid grid-cols-3 gap-2">
+            <div class="aspect-square rounded-full bg-ink border border-cream/20 flex items-center justify-center text-[18px] spin-record">★</div>
+            <div class="col-span-2 bg-cream rounded-[10px] border border-ink p-2 -rotate-1">
+              <div class="h-[54px] rounded-[6px] bg-mustard border border-ink overflow-hidden"><img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=200&fit=crop" class="w-full h-full object-cover mix-blend-multiply opacity-80"></div>
+            </div>
+          </div>
+          <h3 class="font-syne font-[800] text-[24px] leading-[1] mt-6">Mirrorball<br>therapy</h3>
+          <p class="font-space text-[12px] mt-2 opacity-85">Larry Levan lives here. Bring comfortable shoes.</p>
+        </div>
+        <div class="mt-3 h-[14px] bg-ink rounded-b-[10px] border border-ink mx-3"></div>
+      </div>
+
+      <div class="snap-start shrink-0 w-[300px] lg:w-[340px] group cursor-pointer">
+        <div class="bg-paper text-ink border-[1.5px] border-ink rounded-[24px] p-5 group-hover:-translate-y-1 transition relative">
+          <div class="absolute top-4 right-4 w-10 h-10 bg-mustard rounded-full border border-ink flex items-center justify-center text-[16px]">☻</div>
+          <span class="font-syne font-bold text-[11px] tracking-[0.18em] bg-ink text-cream px-2 py-1 rounded-full">PSYCH / KRAUT</span>
+          <div class="mt-10 h-[80px] border-[1.5px] border-ink rounded-[10px] bg-ink overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop" class="w-full h-full object-cover opacity-80 mix-blend-lighten">
+            <div class="absolute inset-0 flex items-center justify-center"><span class="bg-mustard border border-ink rounded-full px-3 py-1 font-syne text-[10px] font-bold">WOBBLY BUT WONDERFUL</span></div>
+          </div>
+          <h3 class="font-syne font-[800] text-[24px] leading-[1] mt-6">For the heads<br>who nod slow</h3>
+          <p class="font-space text-[12px] mt-2 opacity-70">Can, Ash Ra, Moondog. Tested on our 1973 Klipsch.</p>
+        </div>
+        <div class="mt-3 h-[14px] bg-avocado rounded-b-[10px] border-x-[1.5px] border-b-[1.5px] border-ink mx-3"></div>
+      </div>
+    </div>
+
+    <div class="mt-8 flex items-center justify-between border-t border-white/10 pt-6">
+      <p class="font-space text-[13px] opacity-60 max-w-[520px]">All crates are play-graded, not just eye-graded. If it says VG+ it actually is. Milo will fight you over it (lovingly).</p>
+      <button class="hidden md:flex h-11 px-6 rounded-full bg-cream text-ink font-syne font-bold text-[13px] hover:bg-mustard transition items-center gap-2 cursor-pointer">SEE ALL 14 CRATES →</button>
+    </div>
+  </div>
+</section>
+
+<!-- STAFF PICKS - PRODUCTS -->
+<section id="picks" class="max-w-[1480px] mx-auto px-6 lg:px-10 py-20 lg:py-28">
+  <div class="flex flex-wrap items-end justify-between gap-8 mb-12">
+    <div>
+      <h2 class="font-syne font-[800] text-[46px] lg:text-[74px] leading-[0.88] tracking-[-0.04em]">Staff picks this<br><span class="relative inline-block">week
+        <span class="absolute -top-2 -right-10 lg:-right-14 bg-burnt text-cream text-[11px] font-bold tracking-[0.14em] px-3 py-1 rounded-full border-[1.5px] border-ink rotate-6">NO SKIPS!</span>
+      </span></h2>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-2">
+        <span class="w-2 h-2 bg-avocado rounded-full"></span><span class="font-syne text-[11px] font-bold tracking-[0.16em]">6 NEW PINS • 2 RESTOCKS • 1 HOLY GRAIL</span>
+      </div>
+      <div class="flex bg-paper border-[1.5px] border-ink rounded-full p-1">
+        <button class="px-4 py-1.5 rounded-full bg-ink text-cream font-syne text-[12px] font-bold">VINYL</button>
+        <button class="px-4 py-1.5 rounded-full font-syne text-[12px] font-bold opacity-60 hover:opacity-100">TAPES</button>
+        <button class="px-4 py-1.5 rounded-full font-syne text-[12px] font-bold opacity-60 hover:opacity-100">BOOKS</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    <!-- Product Card Template -->
+    <div class="group relative bg-paper border-[1.5px] border-ink rounded-[24px] overflow-hidden crates-shadow-hover transition-all duration-500 cursor-pointer">
+      <div class="aspect-[1.1/1] relative bg-[#f2e8c8] overflow-hidden">
+        <div class="absolute inset-0 flex items-center justify-center p-10">
+          <div class="relative w-full max-w-[260px] aspect-square">
+            <div class="absolute left-0 top-[6%] w-[85%] aspect-square bg-white border-[1.5px] border-ink rounded-[5px] overflow-hidden shadow-[6px_6px_0px_#1a1a18] rotate-[-3deg] z-10 group-hover:rotate-[-1deg] group-hover:-translate-x-1 transition-all duration-500">
+              <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&h=500&fit=crop" class="w-full h-full object-cover">
+              <div class="absolute bottom-2 left-2 bg-ink text-cream text-[9px] font-bold tracking-[0.16em] px-2 py-1 rounded-full font-syne">ORIGINAL PRESS</div>
+            </div>
+            <div class="absolute right-[-4%] top-[10%] w-[85%] aspect-square rounded-full bg-[#111] border-[1.5px] border-ink flex items-center justify-center vinyl-grooves spin-record group-hover:translate-x-3 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+              <div class="w-[36%] aspect-square rounded-full bg-burnt border-[2px] border-ink flex items-center justify-center relative">
+                <div class="w-[22%] aspect-square bg-ink rounded-full"></div>
+                <div class="absolute text-[8px] font-syne font-[800] leading-none text-ink">CURTIS</div>
+              </div>
+              <div class="record-shine rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute top-4 left-4 bg-mustard border-[1.5px] border-ink rounded-full px-3 py-1 text-[11px] font-bold font-syne tracking-wide">MILO'S PICK</div>
+        <div class="absolute top-4 right-4 w-9 h-9 rounded-full bg-cream border border-ink flex items-center justify-center text-[14px] hover:bg-ink hover:text-cream transition">♡</div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="font-syne font-[700] text-[18px] leading-[1.1] tracking-[-0.01em]">Curtis Mayfield — Super Fly</h3>
+            <p class="font-space text-[12.5px] opacity-60 mt-1">Curtom • 1972 • Gatefold • VG+/VG+</p>
+          </div>
+          <span class="bg-ink text-cream rounded-full px-3 py-1 font-syne font-bold text-[13px]">$68</span>
+        </div>
+        <div class="mt-4 flex items-center gap-2">
+          <div class="h-1.5 flex-1 bg-ink/10 rounded-full overflow-hidden"><div class="h-full w-[92%] bg-avocado rounded-full"></div></div>
+          <span class="font-syne text-[10px] font-bold tracking-[0.12em]">CLEANED & TESTED</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group relative bg-paper border-[1.5px] border-ink rounded-[24px] overflow-hidden crates-shadow-hover transition-all duration-500 cursor-pointer">
+      <div class="aspect-[1.1/1] relative bg-[#d9e6c9] overflow-hidden">
+        <div class="absolute inset-0 flex items-center justify-center p-10">
+          <div class="relative w-full max-w-[260px] aspect-square">
+            <div class="absolute left-0 top-[6%] w-[85%] aspect-square bg-white border-[1.5px] border-ink rounded-[5px] overflow-hidden shadow-[6px_6px_0px_#1a1a18] rotate-[2deg] z-10 group-hover:rotate-[0deg] transition-all">
+              <img src="https://images.unsplash.com/photo-1602848597945-0d3d26528055?w=500&h=500&fit=crop" class="w-full h-full object-cover">
+              <div class="absolute bottom-2 left-2 bg-avocado text-cream text-[9px] font-bold tracking-[0.16em] px-2 py-1 rounded-full font-syne">JAPANESE PRESS / OBI</div>
+            </div>
+            <div class="absolute right-[-4%] top-[10%] w-[85%] aspect-square rounded-full bg-[#111] border-[1.5px] border-ink flex items-center justify-center vinyl-grooves spin-record group-hover:translate-x-3 transition-transform duration-700">
+              <div class="w-[36%] aspect-square rounded-full bg-cream border-[2px] border-ink flex items-center justify-center"><div class="w-[22%] aspect-square bg-ink rounded-full"></div></div>
+              <div class="record-shine rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute top-4 left-4 bg-avocado text-cream border-[1.5px] border-ink rounded-full px-3 py-1 text-[11px] font-bold font-syne">LENA'S PICK • J-CITY</div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="font-syne font-[700] text-[18px] leading-[1.1]">Miki Matsubara — Pocket Park</h3>
+            <p class="font-space text-[12.5px] opacity-60 mt-1">See-Saw • 1980 • OBI + Insert • NM</p>
+          </div>
+          <span class="bg-ink text-cream rounded-full px-3 py-1 font-syne font-bold text-[13px]">$124</span>
+        </div>
+        <div class="mt-4 flex items-center gap-2">
+          <span class="bg-mustard border border-ink rounded-full px-2 py-1 text-[10px] font-bold font-syne">RARE</span>
+          <span class="font-space text-[11px] opacity-60">Only 2 in stock last time we saw it on Discogs $180</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group relative bg-paper border-[1.5px] border-ink rounded-[24px] overflow-hidden crates-shadow-hover transition-all duration-500 cursor-pointer">
+      <div class="aspect-[1.1/1] relative bg-[#f0c9a8] overflow-hidden">
+        <div class="absolute inset-0 flex items-center justify-center p-10">
+          <div class="relative w-full max-w-[260px] aspect-square">
+            <div class="absolute left-0 top-[6%] w-[85%] aspect-square bg-white border-[1.5px] border-ink rounded-[5px] overflow-hidden shadow-[6px_6px_0px_#1a1a18] rotate-[-1.5deg] z-10 group-hover:rotate-0 transition-all">
+              <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&h=500&fit=crop" class="w-full h-full object-cover">
+            </div>
+            <div class="absolute right-[-4%] top-[10%] w-[85%] aspect-square rounded-full bg-[#111] border-[1.5px] border-ink flex items-center justify-center vinyl-grooves spin-record group-hover:translate-x-3 transition-transform duration-700">
+              <div class="w-[36%] aspect-square rounded-full bg-mustard border-[2px] border-ink flex items-center justify-center"><div class="w-[22%] aspect-square bg-ink rounded-full"></div></div><div class="record-shine rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute top-4 left-4 bg-burnt text-cream border-[1.5px] border-ink rounded-full px-3 py-1 text-[11px] font-bold font-syne">NEW ARRIVAL • HOLY GRAIL</div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="font-syne font-[700] text-[18px] leading-[1.1]">The Pharaohs — In The Basement</h3>
+            <p class="font-space text-[12.5px] opacity-60 mt-1">Scarborough • 1972 • Original • VG+/VG</p>
+          </div>
+          <span class="bg-burnt text-cream rounded-full px-3 py-1 font-syne font-bold text-[13px]">$280</span>
+        </div>
+        <div class="mt-3 flex gap-2">
+          <span class="font-syne text-[10px] font-bold tracking-[0.12em] bg-ink text-cream px-2 py-1 rounded-full">1 COPY ONLY</span>
+          <span class="font-space text-[11px] opacity-60 self-center">Marty won't let this go cheap.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group relative bg-paper border-[1.5px] border-ink rounded-[24px] overflow-hidden crates-shadow-hover transition-all duration-500 cursor-pointer">
+      <div class="aspect-[1.1/1] relative bg-[#efe8d0] overflow-hidden flex items-center justify-center p-10">
+        <div class="relative w-full max-w-[260px] aspect-square">
+          <div class="absolute left-0 top-[6%] w-[85%] aspect-square bg-white border-[1.5px] border-ink rounded-[5px] overflow-hidden shadow-[6px_6px_0px_#1a1a18] rotate-[1deg] z-10 group-hover:rotate-0 transition">
+            <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=500&h=500&fit=crop" class="w-full h-full object-cover">
+          </div>
+          <div class="absolute right-[-4%] top-[10%] w-[85%] aspect-square rounded-full bg-[#111] border-[1.5px] border-ink flex items-center justify-center vinyl-grooves spin-record group-hover:translate-x-3 transition-transform duration-700">
+            <div class="w-[36%] aspect-square rounded-full bg-cream border-[2px] border-ink flex items-center justify-center"><div class="w-[22%] aspect-square bg-ink rounded-full"></div></div><div class="record-shine rounded-full"></div>
+          </div>
+        </div>
+        <div class="absolute top-4 left-4 bg-paper border border-ink rounded-full px-3 py-1 text-[11px] font-bold font-syne">CLEANED • UNDER $40</div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="font-syne font-[700] text-[18px] leading-[1.1]">Alice Coltrane — Journey...</h3>
+            <p class="font-space text-[12.5px] opacity-60 mt-1">Impulse! • 1970 • VG++</p>
+          </div>
+          <span class="bg-ink text-cream rounded-full px-3 py-1 font-syne font-bold text-[13px]">$38</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="group relative bg-ink text-cream border-[1.5px] border-ink rounded-[24px] overflow-hidden crates-shadow-hover transition-all duration-500 cursor-pointer">
+      <div class="aspect-[1.1/1] relative bg-[#1f1f1e] overflow-hidden flex items-center justify-center p-8">
+        <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?w=500&h=500&fit=crop" class="w-full h-full object-cover opacity-40 absolute inset-0">
+        <div class="relative z-10 border-[1.5px] border-cream/20 rounded-[16px] p-5 bg-ink/80 backdrop-blur w-full">
+          <p class="font-syne font-[800] text-[20px] leading-[1.1]">Bring a crate, leave with stories.</p>
+          <p class="font-space text-[12px] mt-2 opacity-70">We buy every Saturday morning. Come early, get coffee, argue about whether 70s Miles is still Miles.</p>
+          <button class="mt-4 h-9 w-full rounded-full bg-mustard text-ink font-syne font-bold text-[12px] cursor-pointer">BOOK A TRADE SLOT</button>
+        </div>
+      </div>
+      <div class="p-5 flex justify-between items-center">
+        <span class="font-syne text-[11px] tracking-[0.16em] font-bold">WE BUY RECORDS • TOP $$$</span>
+        <span class="w-7 h-7 rounded-full bg-cream text-ink flex items-center justify-center">↗</span>
+      </div>
+    </div>
+
+    <div class="group relative bg-paper border-[1.5px] border-ink rounded-[24px] overflow-hidden crates-shadow-hover transition-all duration-500 cursor-pointer">
+      <div class="aspect-[1.1/1] relative bg-[#dbe7ff] overflow-hidden flex items-center justify-center p-10">
+        <div class="relative w-full max-w-[260px] aspect-square">
+          <div class="absolute left-0 top-[6%] w-[85%] aspect-square bg-white border-[1.5px] border-ink rounded-[5px] overflow-hidden shadow-[6px_6px_0px_#1a1a18] rotate-[-2deg] z-10 group-hover:rotate-0 transition">
+            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&h=500&fit=crop" class="w-full h-full object-cover">
+          </div>
+          <div class="absolute right-[-4%] top-[10%] w-[85%] aspect-square rounded-full bg-[#111] border-[1.5px] border-ink flex items-center justify-center vinyl-grooves spin-record group-hover:translate-x-3 transition-transform duration-700">
+            <div class="w-[36%] aspect-square rounded-full bg-avocado border-[2px] border-ink flex items-center justify-center"><div class="w-[22%] aspect-square bg-ink rounded-full"></div></div><div class="record-shine rounded-full"></div>
+          </div>
+        </div>
+        <div class="absolute top-4 left-4 bg-ink text-cream border-[1.5px] border-ink rounded-full px-3 py-1 text-[11px] font-bold font-syne">12" • DISCO EDIT</div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="font-syne font-[700] text-[18px] leading-[1.1]">Loleatta Holloway — Love Sensation</h3>
+            <p class="font-space text-[12.5px] opacity-60 mt-1">Gold Mind • 1980 • W/L Promo • NM</p>
+          </div>
+          <span class="bg-ink text-cream rounded-full px-3 py-1 font-syne font-bold text-[13px]">$55</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-12 flex justify-center">
+    <button class="h-[56px] px-10 rounded-full bg-ink text-cream border-[1.5px] border-ink font-syne font-bold text-[14px] tracking-[0.08em] hover:bg-burnt transition flex items-center gap-3 cursor-pointer crates-shadow">
+      EXPLORE 12,000+ RECORDS
+      <span class="w-8 h-8 rounded-full bg-mustard text-ink flex items-center justify-center">→</span>
+    </button>
+  </div>
+</section>
+
+<!-- LISTENING BOOTH + GALLERY -->
+<section id="booth" class="relative max-w-[1480px] mx-auto px-6 lg:px-10 pb-20 lg:pb-28">
+  <div class="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-10 items-stretch">
+    <!-- Booth player -->
+    <div class="bg-paper border-[2px] border-ink rounded-[32px] p-6 lg:p-8 crates-shadow relative overflow-hidden">
+      <div class="absolute -top-16 -right-16 w-[280px] h-[280px] bg-mustard rounded-full mix-blend-multiply opacity-70 pointer-events-none"></div>
+
+      <div class="flex items-center justify-between relative z-10">
+        <h3 class="font-syne font-[800] text-[26px] lg:text-[32px] leading-[0.9] tracking-[-0.02em]">Step into the booth.<br><span class="text-burnt">No rush.</span></h3>
+        <div class="hidden md:flex items-center gap-2 bg-ink text-cream rounded-full px-4 py-2">
+          <div class="w-2 h-2 bg-mustard rounded-full animate-pulse"></div>
+          <span class="font-syne text-[11px] font-bold tracking-[0.14em]">BOOTH A • VACANT</span>
+        </div>
+      </div>
+
+      <div class="mt-8 grid grid-cols-[120px_1fr] lg:grid-cols-[160px_1fr] gap-6 items-center bg-cream border-[1.5px] border-ink rounded-[20px] p-4 lg:p-5 crates-shadow">
+        <div class="w-full aspect-square rounded-[14px] border-[1.5px] border-ink overflow-hidden bg-ink relative">
+          <img id="boothCover" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+        </div>
+        <div>
+          <p class="font-syne text-[11px] font-bold tracking-[0.18em] opacity-60">NOW AUDITIONING • STAFF PICK</p>
+          <h4 id="boothTitle" class="font-syne font-[800] text-[22px] leading-[1.1] mt-1">Betty Davis — They Say I'm Different</h4>
+          <p class="font-space text-[13px] opacity-60 mt-1">1974 • Funk that bites back. Play loud.</p>
+
+          <div class="mt-5 flex items-center gap-3">
+            <button id="playBtn" class="w-12 h-12 rounded-full bg-ink text-cream flex items-center justify-center hover:bg-burnt transition cursor-pointer text-[18px]">▶</button>
+            <div class="flex-1">
+              <div class="flex justify-between text-[11px] font-syne font-bold tracking-wide opacity-60"><span>0:31</span><span>3:42</span></div>
+              <div class="mt-1 h-[6px] bg-ink/10 rounded-full overflow-hidden cursor-pointer" id="progressTrack">
+                <div id="progressBar" class="h-full w-[34%] bg-burnt rounded-full transition-all duration-300"></div>
+              </div>
+            </div>
+            <button class="w-10 h-10 rounded-full border-[1.5px] border-ink bg-paper flex items-center justify-center hover:bg-mustard transition cursor-pointer">♡</button>
+          </div>
+
+          <div class="mt-5 flex gap-2">
+            <button class="px-3 py-1.5 rounded-full bg-mustard border border-ink font-syne text-[11px] font-bold tracking-wide">ADD TO HOLD BIN $42</button>
+            <button class="px-3 py-1.5 rounded-full bg-paper border border-ink font-syne text-[11px] font-bold tracking-wide hover:bg-ink hover:text-cream transition">NEXT →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 grid grid-cols-3 gap-4">
+        <div class="bg-ink text-cream rounded-[16px] p-4 border border-ink">
+          <p class="font-syne font-[800] text-[20px] leading-none">2</p>
+          <p class="font-space text-[11px] mt-1 opacity-70 tracking-wide font-bold">TUBE AMPS • MCINTOSH & MARANTZ</p>
+        </div>
+        <div class="bg-mustard border-[1.5px] border-ink rounded-[16px] p-4">
+          <p class="font-syne font-[800] text-[20px] leading-none">4</p>
+          <p class="font-space text-[11px] mt-1 font-bold tracking-wide">HEADPHONES, CLEANED BETWEEN LISTENS</p>
+        </div>
+        <div class="bg-paper border-[1.5px] border-ink rounded-[16px] p-4">
+          <p class="font-syne font-[800] text-[20px] leading-none">∞</p>
+          <p class="font-space text-[11px] mt-1 font-bold tracking-wide">TIME, IF YOU BRING COFFEE</p>
+        </div>
+      </div>
+
+      <p class="mt-6 font-space text-[12px] leading-[1.4] opacity-60">No appointments. Walk in, put the needle down, stay as long as you like. We only ask you flip the bin behind you when you're done — karmic crate rule since '72.</p>
+    </div>
+
+    <!-- Gallery / Wall -->
+    <div class="relative">
+      <div class="bg-burnt border-[2px] border-ink rounded-[32px] p-6 lg:p-8 crates-shadow text-cream relative overflow-hidden h-full flex flex-col">
+        <div class="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-mustard rounded-full mix-blend-multiply opacity-60 pointer-events-none"></div>
+
+        <div class="flex justify-between items-start relative z-10">
+          <h3 class="font-syne font-[800] text-[28px] leading-[0.9] tracking-[-0.02em]">The wall of fame<br>& shame.</h3>
+          <span class="bg-ink text-cream border border-ink rounded-full px-3 py-1 font-syne text-[11px] font-bold tracking-[0.14em]">POLAROIDS • 1972-∞</span>
+        </div>
+
+        <div class="mt-8 grid grid-cols-12 gap-3 auto-rows-[96px] relative z-10 flex-1">
+          <div class="col-span-7 row-span-2 rounded-[16px] overflow-hidden border-[1.5px] border-ink bg-cream rotate-[-1deg]">
+            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=500&fit=crop" class="w-full h-full object-cover">
+          </div>
+          <div class="col-span-5 row-span-1 rounded-[16px] overflow-hidden border-[1.5px] border-ink bg-cream rotate-[1deg]">
+            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=300&fit=crop" class="w-full h-full object-cover">
+          </div>
+          <div class="col-span-5 row-span-2 rounded-[16px] overflow-hidden border-[1.5px] border-ink bg-cream -rotate-[1deg]">
+            <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=500&h=600&fit=crop" class="w-full h-full object-cover">
+          </div>
+          <div class="col-span-7 row-span-1 rounded-[16px] border-[1.5px] border-ink bg-mustard text-ink p-4 flex flex-col justify-center rotate-[-0.5deg]">
+            <p class="font-syne font-[800] text-[16px] leading-[1.05]">"I came for one record, left with 14 and a new friend."</p>
+            <p class="font-space text-[11px] mt-2 font-bold tracking-wide">— MARCUS, REGULAR SINCE 2019</p>
+          </div>
+          <div class="col-span-5 row-span-1 rounded-[16px] overflow-hidden border-[1.5px] border-ink bg-paper">
+            <img src="https://images.unsplash.com/photo-1602848597945-0d3d26528055?w=400&h=300&fit=crop" class="w-full h-full object-cover">
+          </div>
+          <div class="col-span-7 row-span-1 rounded-[16px] overflow-hidden border-[1.5px] border-ink bg-ink">
+            <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=300&fit=crop" class="w-full h-full object-cover opacity-70">
+          </div>
+        </div>
+
+        <div class="mt-6 flex gap-2 relative z-10">
+          <span class="bg-cream text-ink border border-ink rounded-full px-3 py-1 font-syne text-[11px] font-bold">400+ POLAROIDS</span>
+          <span class="bg-ink text-cream border border-ink rounded-full px-3 py-1 font-syne text-[11px] font-bold">ASK TO BE ON THE WALL</span>
+        </div>
+      </div>
+
+      <div class="absolute -bottom-4 -right-2 lg:right-2 bg-avocado text-cream border-[1.5px] border-ink rounded-[16px] px-4 py-3 crates-shadow rotate-[3deg] hidden lg:flex items-center gap-3 z-20">
+        <div class="w-10 h-10 rounded-full bg-cream border border-ink flex items-center justify-center text-ink">✦</div>
+        <p class="font-syne font-bold text-[12px] leading-[1.15]">OPEN TILL 9PM<br><span class="font-space font-normal text-[11px] opacity-80">Free street parking after 6</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="bg-ink text-cream border-t-[2px] border-ink rounded-t-[32px] lg:rounded-t-[48px] overflow-hidden relative">
+  <div class="max-w-[1480px] mx-auto px-6 lg:px-10 py-16 lg:py-20">
+    <div class="flex flex-wrap items-center justify-between gap-6">
+      <h2 class="font-syne font-[800] text-[38px] lg:text-[56px] leading-[0.9] tracking-[-0.03em]">Love letters<br><span class="text-mustard">from diggers.</span></h2>
+      <div class="flex items-center gap-3 bg-paper/10 border border-white/10 rounded-full px-5 py-3 backdrop-blur">
+        <span class="flex gap-[2px] text-mustard">★★★★★</span>
+        <span class="font-syne font-bold text-[13px] tracking-wide">4.9 • 847 REVIEWS</span>
+      </div>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-6">
+      <div class="bg-[#232320] border border-white/10 rounded-[24px] p-6 relative group hover:border-mustard/30 transition">
+        <div class="flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" class="w-10 h-10 rounded-full border border-white/20">
+          <div><p class="font-syne font-bold text-[13px]">Jordan M.</p><p class="font-space text-[11px] opacity-60">Collects: Japanese jazz</p></div>
+          <span class="ml-auto text-mustard text-[12px]">★★★★★</span>
+        </div>
+        <p class="font-syne font-[600] text-[18px] leading-[1.25] mt-6">"Found a $250 Minnie Riperton OG for $35 because Milo remembered I was looking. Who does that? This place is family."</p>
+        <div class="mt-6 flex gap-2">
+          <span class="bg-mustard text-ink text-[10px] font-bold tracking-wide px-2 py-1 rounded-full font-syne">FOUND GRAIL</span>
+          <span class="border border-white/20 text-[10px] px-2 py-1 rounded-full font-syne">2 YEARS AGO</span>
+        </div>
+      </div>
+
+      <div class="bg-mustard text-ink border-[1.5px] border-ink rounded-[24px] p-6 relative rotate-[-0.8deg] crates-shadow">
+        <div class="flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face" class="w-10 h-10 rounded-full border-[1.5px] border-ink">
+          <div><p class="font-syne font-bold text-[13px]">Sana K.</p><p class="font-space text-[11px] opacity-70">Digs for: Disco not disco</p></div>
+          <span class="ml-auto text-[12px]">★★★★★</span>
+        </div>
+        <p class="font-syne font-[700] text-[18px] leading-[1.25] mt-6">"Best listening booth in LA. They let me stay for 3 hours and taught me how to clean my stylus. Left with 5 records I didn't plan on and zero regrets."</p>
+        <div class="mt-6 flex gap-2">
+          <span class="bg-ink text-cream text-[10px] font-bold tracking-wide px-2 py-1 rounded-full font-syne">BOOTH REGULAR</span>
+        </div>
+      </div>
+
+      <div class="bg-[#232320] border border-white/10 rounded-[24px] p-6 relative group hover:border-white/20 transition">
+        <div class="flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" class="w-10 h-10 rounded-full border border-white/20">
+          <div><p class="font-syne font-bold text-[13px]">Luis & The Crew</p><p class="font-space text-[11px] opacity-60">Saturday dive team</p></div>
+          <span class="ml-auto text-mustard text-[12px]">★★★★★</span>
+        </div>
+        <p class="font-syne font-[600] text-[18px] leading-[1.25] mt-6">"We fly from CDMX just to dig here once a year. No other store grades so honestly, bags so carefully, or cares so much. Take my money."</p>
+        <div class="mt-6 flex gap-2">
+          <span class="bg-avocado text-cream text-[10px] font-bold tracking-wide px-2 py-1 rounded-full font-syne">IN FROM MEXICO CITY</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 bg-paper/5 border border-white/10 rounded-full px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <p class="font-space text-[13px] opacity-70">Real reviews • No AI • Pulled from our actual guestbook by the register. If you write something nice, Lena gives you a sticker.</p>
+      <button class="h-9 px-5 rounded-full bg-cream text-ink font-syne font-bold text-[12px] hover:bg-mustard transition cursor-pointer">READ GUESTBOOK →</button>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT / FOOTER -->
+<footer class="bg-cream border-t-[2px] border-ink relative">
+  <div class="max-w-[1480px] mx-auto px-6 lg:px-10 py-14 lg:py-20">
+    <div class="grid lg:grid-cols-[1.2fr_0.8fr] gap-12">
+      <div>
+        <div class="flex items-start justify-between gap-6">
+          <h2 class="font-syne font-[800] text-[44px] lg:text-[72px] leading-[0.85] tracking-[-0.04em]">Come<br><span class="text-stroke">dig</span> with us.</h2>
+          <div class="hidden md:flex w-[92px] h-[92px] rounded-full bg-ink border-[1.5px] border-ink items-center justify-center spin-record-slow crates-shadow">
+            <span class="font-syne font-[800] text-cream text-[11px] tracking-[0.14em] text-center leading-[1.1]">ROLL<br>THRU<br>→</span>
+          </div>
+        </div>
+
+        <div class="mt-10 grid md:grid-cols-3 gap-8">
+          <div class="bg-paper border-[1.5px] border-ink rounded-[20px] p-5 crates-shadow">
+            <p class="font-syne font-bold text-[11px] tracking-[0.18em]">WHERE WE ARE</p>
+            <p class="font-syne font-[700] text-[16px] leading-[1.2] mt-3">5000 N Figueroa St<br>Highland Park<br>Los Angeles 90042</p>
+            <p class="font-space text-[12px] mt-3 opacity-60">Corner of Ave 57 • Gold Line to Highland Park stops 2 blocks away.</p>
+            <button class="mt-4 h-9 px-4 rounded-full bg-ink text-cream font-syne text-[11px] font-bold tracking-wide hover:bg-burnt transition cursor-pointer">OPEN IN MAPS ↗</button>
+          </div>
+          <div class="bg-mustard border-[1.5px] border-ink rounded-[20px] p-5 crates-shadow">
+            <p class="font-syne font-bold text-[11px] tracking-[0.18em]">WHEN WE'RE OPEN</p>
+            <div class="mt-3 font-space text-[13px] leading-[1.6] font-medium">
+              <div class="flex justify-between"><span>Mon-Thu</span><span class="font-bold">10am - 8pm</span></div>
+              <div class="flex justify-between"><span>Fri-Sat</span><span class="font-bold">10am - 9pm</span></div>
+              <div class="flex justify-between"><span>Sun</span><span class="font-bold">11am - 7pm</span></div>
+            </div>
+            <div class="mt-3 inline-flex items-center gap-2 bg-ink text-cream rounded-full px-3 py-1">
+              <span class="w-1.5 h-1.5 bg-mustard rounded-full animate-pulse"></span>
+              <span class="font-syne text-[10px] font-bold tracking-[0.12em]">OPEN TODAY</span>
+            </div>
+          </div>
+          <div class="bg-avocado border-[1.5px] border-ink rounded-[20px] p-5 crates-shadow text-cream">
+            <p class="font-syne font-bold text-[11px] tracking-[0.18em]">TALK TO US</p>
+            <p class="font-syne font-[700] text-[16px] leading-[1.2] mt-3">(323) 555-0199<br>hey@supersonic.la</p>
+            <p class="font-space text-[12px] mt-3 opacity-80">DM us on Instagram for holds — we reply fast, unless we're flipping.</p>
+            <div class="mt-4 flex gap-2">
+              <a href="#" class="w-8 h-8 rounded-full bg-cream text-ink border border-ink flex items-center justify-center hover:bg-ink hover:text-cream transition text-[12px] cursor-pointer">IG</a>
+              <a href="#" class="w-8 h-8 rounded-full bg-cream text-ink border border-ink flex items-center justify-center hover:bg-ink hover:text-cream transition text-[12px] cursor-pointer">TT</a>
+              <a href="#" class="w-8 h-8 rounded-full bg-cream text-ink border border-ink flex items-center justify-center hover:bg-ink hover:text-cream transition text-[12px] cursor-pointer">YT</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-ink text-cream border-[1.5px] border-ink rounded-[28px] p-7 lg:p-8 crates-shadow relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-[260px] h-[260px] bg-burnt rounded-full opacity-60 blur-[1px]"></div>
+        <div class="relative z-10">
+          <div class="w-12 h-12 rounded-full bg-mustard border border-ink flex items-center justify-center text-ink text-[20px]">✦</div>
+          <h3 class="font-syne font-[800] text-[28px] leading-[0.9] tracking-[-0.02em] mt-5">Get the Friday drop<br><span class="text-mustard">before flippers do.</span></h3>
+          <p class="font-space text-[13px] leading-[1.45] mt-3 opacity-70">One email every Friday at 9am. 10 new arrivals, 2 staff stories, 1 stupid joke by Marty. Unsubscribe anytime — we won't take it personally.</p>
+
+          <form class="mt-7 flex gap-2" onsubmit="event.preventDefault(); this.querySelector('button').textContent='YOU\'RE IN ✓';">
+            <input type="email" placeholder="your email..." class="flex-1 h-[48px] px-5 rounded-full bg-cream text-ink border-[1.5px] border-ink font-space text-[14px] placeholder:text-ink/40 focus:outline-none focus:bg-white">
+            <button class="h-[48px] px-6 rounded-full bg-mustard text-ink border-[1.5px] border-ink font-syne font-bold text-[13px] tracking-wide hover:bg-burnt hover:text-cream transition cursor-pointer">JOIN →</button>
+          </form>
+
+          <div class="mt-6 flex items-center gap-3">
+            <div class="flex -space-x-2">
+              <div class="w-7 h-7 rounded-full bg-burnt border-[1.5px] border-ink flex items-center justify-center text-[10px] text-cream">♪</div>
+              <div class="w-7 h-7 rounded-full bg-avocado border-[1.5px] border-ink flex items-center justify-center text-[10px] text-cream">♡</div>
+              <div class="w-7 h-7 rounded-full bg-mustard border-[1.5px] border-ink flex items-center justify-center text-[10px] text-ink">☺</div>
+            </div>
+            <p class="font-space text-[11px] opacity-60">2,847 diggers get this • No spam • Ever</p>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-3">
+            <span class="font-syne text-[10px] tracking-[0.14em] font-bold opacity-50">WE ALSO HAVE</span>
+            <span class="bg-white/10 border border-white/10 rounded-full px-3 py-1 font-syne text-[11px] font-bold">COFFEE BAR</span>
+            <span class="bg-white/10 border border-white/10 rounded-full px-3 py-1 font-syne text-[11px] font-bold">TAPE DECK CLEANING</span>
+            <span class="bg-white/10 border border-white/10 rounded-full px-3 py-1 font-syne text-[11px] font-bold">KID-FRIENDLY CRATE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 pt-8 border-t-[1.5px] border-ink flex flex-wrap items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-ink flex items-center justify-center">
+          <div class="w-7 h-7 rounded-full vinyl-grooves relative"><div class="absolute inset-0 flex items-center justify-center"><div class="w-2 h-2 bg-mustard rounded-full"></div></div></div>
+        </div>
+        <span class="font-syne font-[800] leading-none text-[16px]">SUPERSONIC RECORDS & TAPES<br><span class="font-[500] text-[10px] tracking-[0.22em]">© 1972-2025 • HIGHLAND PARK, L.A.</span></span>
+      </div>
+      <div class="flex flex-wrap gap-6 font-syne text-[11px] font-bold tracking-[0.12em]">
+        <a href="#" class="hover:underline decoration-2 decoration-mustard cursor-pointer">PRIVACY • NO TRACKING • EVER</a>
+        <a href="#" class="hover:underline decoration-2 decoration-mustard cursor-pointer">TRADE POLICY</a>
+        <a href="#" class="hover:underline decoration-2 decoration-mustard cursor-pointer">SHIPPING FAQ</a>
+        <span class="opacity-40">BUILT WITH ♥ & CRACKLE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Big bottom wordmark -->
+  <div class="border-t-[2px] border-ink bg-mustard overflow-hidden">
+    <div class="font-syne font-[800] text-[18vw] leading-[0.8] tracking-[-0.05em] whitespace-nowrap py-2 -mb-2 select-none">SUPERSONIC • SUPERSONIC • SUPERSONIC •</div>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+  let cursorVisible = false;
+
+  document.addEventListener('mousemove', (e)=>{
+    mouseX = e.clientX; mouseY = e.clientY;
+    if(!cursorVisible){ dot.style.opacity='1'; ring.style.opacity='1'; cursorVisible=true; }
+    dot.style.left = mouseX+'px'; dot.style.top = mouseY+'px';
+  });
+
+  function animateRing(){
+    ringX += (mouseX - ringX) * 0.16;
+    ringY += (mouseY - ringY) * 0.16;
+    ring.style.left = ringX+'px'; ring.style.top = ringY+'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button, .cursor-pointer').forEach(el=>{
+    el.addEventListener('mouseenter', ()=> ring.classList.add('hover'));
+    el.addEventListener('mouseleave', ()=> ring.classList.remove('hover'));
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('active'); })
+  },{threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+  // Booth player mock
+  const playBtn = document.getElementById('playBtn');
+  const progressBar = document.getElementById('progressBar');
+  const progressTrack = document.getElementById('progressTrack');
+  const boothTitle = document.getElementById('boothTitle');
+  const boothCover = document.getElementById('boothCover');
+  let playing = false;
+  let progress = 34;
+  let interval;
+
+  const tracks = [
+    {title:"Betty Davis — They Say I'm Different", cover:"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop"},
+    {title:"Miki Matsubara — Midnight Pretenders", cover:"https://images.unsplash.com/photo-1602848597945-0d3d26528055?w=400&h=400&fit=crop"},
+    {title:"Curtis Mayfield — Freddie's Dead", cover:"https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop"},
+  ];
+  let trackIdx = 0;
+
+  function togglePlay(){
+    playing = !playing;
+    playBtn.textContent = playing ? '❚❚' : '▶';
+    if(playing){
+      interval = setInterval(()=>{
+        progress = (progress + 0.25) % 100;
+        progressBar.style.width = progress + '%';
+        if(progress > 99){ nextTrack(); }
+      }, 80);
+    } else clearInterval(interval);
+  }
+  function nextTrack(){
+    trackIdx = (trackIdx+1)%tracks.length;
+    boothTitle.textContent = tracks[trackIdx].title;
+    boothCover.src = tracks[trackIdx].cover;
+    progress = 0;
+    progressBar.style.width='0%';
+  }
+  playBtn.addEventListener('click', togglePlay);
+  progressTrack.addEventListener('click', (e)=>{
+    const rect = progressTrack.getBoundingClientRect();
+    const pct = (e.clientX-rect.left)/rect.width*100;
+    progress = pct;
+    progressBar.style.width = pct+'%';
+  });
+
+  // Parallax for hero blobs
+  let ticking = false;
+  window.addEventListener('scroll', ()=>{
+    if(!ticking){
+      requestAnimationFrame(()=>{
+        const scrolled = window.scrollY;
+        document.querySelectorAll('.floaty').forEach(el=>{
+          el.style.transform = `translateY(${scrolled*0.08}px)`;
+        });
+        ticking=false;
+      });
+      ticking=true;
+    }
+  });
+
+  // Crate scroll buttons
+  const crateRow = document.querySelector('#crates .hide-scrollbar');
+  if(crateRow){
+    const leftBtn = document.querySelector('#crates button:first-of-type');
+    const rightBtn = document.querySelectorAll('#crates button')[1];
+    // find actual buttons
+    const btns = document.querySelectorAll('#crates .flex.gap-2 button');
+    if(btns[0]) btns[0].addEventListener('click', ()=> crateRow.scrollBy({left:-360, behavior:'smooth'}));
+    if(btns[1]) btns[1].addEventListener('click', ()=> crateRow.scrollBy({left:360, behavior:'smooth'}));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Sushi Omakase</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+JP:wght@200;300;400;500&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        cormorant: ['Cormorant Garamond', 'serif'],
+        noto: ['Noto Serif JP', 'serif'],
+        instrument: ['Instrument Serif', 'serif'],
+        mono: ['IBM Plex Mono', 'monospace']
+      },
+      colors: {
+        ink: '#0a0a0a',
+        hinoki: '#e8d5b1',
+        hinokiDeep: '#c9b896',
+        stone: '#1a1a1a',
+        paper: '#f5f1e8'
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  body { background:#0a0a0a; color:#e8d5b1; overscroll-behavior:none; }
+  ::selection { background:#e8d5b1; color:#0a0a0a; }
+  
+  /* Grain */
+  .grain::before{
+    content:""; position:fixed; inset:-50%; z-index:9999; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity:0.035; mix-blend-mode:soft-light; animation:grainMove 8s steps(10) infinite;
+  }
+  @keyframes grainMove{
+    0%,100%{ transform:translate(0,0) }
+    10%{ transform:translate(-5%,-10%) } 20%{ transform:translate(-15%,5%) }
+    30%{ transform:translate(7%,-25%) } 40%{ transform:translate(-5%,25%) }
+    50%{ transform:translate(-15%,10%) } 60%{ transform:translate(15%,0%) }
+    70%{ transform:translate(0%,15%) } 80%{ transform:translate(3%,-10%) } 90%{ transform:translate(-10%,10%) }
+  }
+
+  .vertical-rl{ writing-mode:vertical-rl; text-orientation:mixed; }
+  .vertical-lr{ writing-mode:vertical-lr; }
+  .text-stroke{ -webkit-text-stroke:0.5px currentColor; color:transparent; }
+  .text-stroke-hinoki{ -webkit-text-stroke:1px #e8d5b1; color:transparent; }
+
+  /* Custom cursor */
+  .cursor-dot{ position:fixed; width:4px; height:4px; background:#e8d5b1; border-radius:50%; pointer-events:none; z-index:10000; mix-blend-mode:difference; transition:transform 0.15s ease-out; }
+  .cursor-ring{ position:fixed; width:32px; height:32px; border:0.5px solid rgba(232,213,177,0.5); border-radius:50%; pointer-events:none; z-index:9999; transition:all 0.35s cubic-bezier(0.16,1,0.3,1); }
+
+  /* Marquee */
+  @keyframes marquee{ 0%{ transform:translateX(0) } 100%{ transform:translateX(-50%) } }
+  .marquee-track{ animation:marquee 60s linear infinite; }
+  
+  /* Reveal */
+  .reveal{ opacity:0; transform:translateY(40px); transition:all 1.2s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.active{ opacity:1; transform:translateY(0); }
+  .reveal-delay-1{ transition-delay:0.1s } .reveal-delay-2{ transition-delay:0.2s } .reveal-delay-3{ transition-delay:0.3s }
+
+  /* Wood texture hint */
+  .hinoki-line{ background:linear-gradient(90deg, transparent, rgba(232,213,177,0.2), transparent); height:1px; }
+
+  /* Image hover */
+  .img-zoom{ overflow:hidden; }
+  .img-zoom img{ transition:transform 1.6s cubic-bezier(0.16,1,0.3,1), filter 0.8s ease; }
+  .img-zoom:hover img{ transform:scale(1.08); }
+
+  /* Scroll indicator */
+  .scroll-progress{ position:fixed; top:0; left:0; height:1px; background:#e8d5b1; z-index:100; transform-origin:left; }
+
+  @keyframes lineGrow{ from{ height:0 } to{ height:100% } }
+  .line-grow{ animation:lineGrow 1.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar::-webkit-scrollbar{ display:none }
+  .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none }
+</style>
+</head>
+<body class="grain font-cormorant antialiased selection:bg-hinoki selection:text-ink">
+  <div class="scroll-progress" id="progress"></div>
+  <div class="cursor-dot hidden md:block" id="cursorDot"></div>
+  <div class="cursor-ring hidden md:block" id="cursorRing"></div>
+
+  <!-- Loader -->
+  <div id="loader" class="fixed inset-0 z-[999] bg-ink flex flex-col items-center justify-center transition-opacity duration-[1.2s] cubic-bezier(0.16,1,0.3,1)">
+    <div class="flex flex-col items-center gap-8">
+      <div class="vertical-rl font-noto text-[11px] tracking-[0.4em] text-hinoki/40">キョウト — トウキョウ</div>
+      <h1 class="font-cormorant font-light text-[15vw] leading-[0.85] tracking-[-0.04em] text-hinoki overflow-hidden">
+        <span class="inline-block translate-y-[100%] animate-[slideUp_1.2s_cubic-bezier(0.16,1,0.3,1)_0.2s_forwards]">kappo</span>
+      </h1>
+      <div class="w-[1px] h-16 bg-hinoki/20 overflow-hidden">
+        <div class="w-full bg-hinoki h-0 animate-[lineGrow_1s_cubic-bezier(0.16,1,0.3,1)_0.6s_forwards]"></div>
+      </div>
+      <p class="font-mono text-[9px] tracking-[0.3em] text-hinoki/40 uppercase">Eight Seats / One Counter</p>
+    </div>
+    <style>@keyframes slideUp{ to{ transform:translateY(0) } }</style>
+  </div>
+
+  <!-- Fixed Side Elements - Japandi -->
+  <div class="fixed left-0 top-0 h-screen w-[72px] border-r border-white/[0.06] z-40 hidden lg:flex flex-col items-center justify-between py-10">
+    <div class="vertical-rl font-noto font-extralight text-[10px] tracking-[0.5em] text-hinoki/30">鮨 — おまかせ — 懐石</div>
+    <div class="flex flex-col gap-6 items-center">
+      <div class="w-[1px] h-20 bg-gradient-to-b from-hinoki/0 via-hinoki/20 to-hinoki/0"></div>
+      <span class="vertical-rl font-mono text-[9px] tracking-[0.4em] text-hinoki/50">EST MMXXI</span>
+    </div>
+    <div class="vertical-rl font-mono text-[9px] tracking-[0.3em] text-hinoki/40 rotate-180">KYOTO → BKLYN</div>
+  </div>
+
+  <div class="fixed right-0 top-0 h-screen w-[72px] border-l border-white/[0.06] z-40 hidden lg:flex flex-col items-center justify-between py-10">
+    <button id="menuToggle" class="group w-10 h-10 flex flex-col items-center justify-center gap-[5px]">
+      <span class="w-4 h-[1px] bg-hinoki group-hover:w-6 transition-all duration-500"></span>
+      <span class="w-6 h-[1px] bg-hinoki"></span>
+      <span class="w-4 h-[1px] bg-hinoki group-hover:w-6 transition-all duration-500"></span>
+    </button>
+    <div class="vertical-rl font-noto text-[11px] tracking-[0.35em] text-hinoki">八席だけ</div>
+    <div class="w-6 h-6 rounded-full border border-hinoki/20 flex items-center justify-center">
+      <div class="w-1 h-1 rounded-full bg-hinoki animate-pulse"></div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="fixed top-0 left-0 lg:left-[72px] lg:right-[72px] right-0 z-30 flex items-center justify-between px-6 md:px-14 py-7 md:py-10 mix-blend-difference">
+    <div class="flex items-center gap-10">
+      <a href="#" class="font-instrument text-[22px] tracking-[-0.02em] text-paper leading-none">kappo<span class="font-cormorant font-light italic ml-[1px]">—</span></a>
+      <span class="hidden md:block h-[1px] w-16 bg-white/20"></span>
+      <span class="hidden md:block font-mono text-[10px] tracking-[0.25em] text-white/40 uppercase">Hinoki Counter / Brooklyn</span>
+    </div>
+    <div class="flex items-center gap-8 md:gap-12">
+      <a href="#philosophy" class="hidden md:block font-mono text-[10px] tracking-[0.2em] uppercase text-white/60 hover:text-white transition-colors">Philosophy</a>
+      <a href="#chef" class="hidden md:block font-mono text-[10px] tracking-[0.2em] uppercase text-white/60 hover:text-white transition-colors">Chef</a>
+      <a href="#reserve" class="group relative font-mono text-[10px] tracking-[0.2em] uppercase text-white border border-white/20 px-6 py-[13px] overflow-hidden">
+        <span class="relative z-10 group-hover:text-black transition-colors duration-500">Reserve</span>
+        <div class="absolute inset-0 bg-paper translate-y-full group-hover:translate-y-0 transition-transform duration-700 cubic-bezier(0.16,1,0.3,1)"></div>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Menu Overlay -->
+  <div id="menuOverlay" class="fixed inset-0 z-[60] bg-ink/95 backdrop-blur-[40px] translate-x-full transition-transform duration-[1s] cubic-bezier(0.16,1,0.3,1) flex">
+    <div class="flex-1 hidden md:block relative overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=2000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40">
+      <div class="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-transparent"></div>
+      <div class="absolute bottom-14 left-14 font-noto vertical-rl text-[11px] tracking-[0.6em] text-hinoki/30">職人の技 — 一期一会</div>
+    </div>
+    <div class="w-full md:w-[56%] flex flex-col justify-between p-10 md:p-20">
+      <div class="flex justify-between items-start">
+        <p class="font-mono text-[10px] tracking-[0.3em] text-hinoki/40 uppercase">Navigate / 目次</p>
+        <button id="menuClose" class="w-12 h-12 rounded-full border border-hinoki/15 flex items-center justify-center hover:bg-hinoki hover:text-ink transition-all duration-500 group">
+          <span class="text-xl leading-none group-hover:rotate-90 transition-transform duration-500">×</span>
+        </button>
+      </div>
+      <div class="space-y-2 md:space-y-4">
+        <a href="#philosophy" class="menu-link group flex items-baseline gap-6">
+          <span class="font-mono text-[11px] text-hinoki/30">01</span>
+          <span class="font-cormorant text-[11vw] md:text-[7vw] leading-[0.9] tracking-[-0.04em] font-light group-hover:italic transition-all duration-500">Philosophy</span>
+          <span class="font-noto text-[13px] text-hinoki/30 group-hover:text-hinoki transition-colors">哲学</span>
+        </a>
+        <a href="#counter" class="menu-link group flex items-baseline gap-6">
+          <span class="font-mono text-[11px] text-hinoki/30">02</span>
+          <span class="font-cormorant text-[11vw] md:text-[7vw] leading-[0.9] tracking-[-0.04em] font-light group-hover:italic transition-all duration-500">Counter</span>
+          <span class="font-noto text-[13px] text-hinoki/30">カウンター</span>
+        </a>
+        <a href="#chef" class="menu-link group flex items-baseline gap-6">
+          <span class="font-mono text-[11px] text-hinoki/30">03</span>
+          <span class="font-cormorant text-[11vw] md:text-[7vw] leading-[0.9] tracking-[-0.04em] font-light group-hover:italic transition-all duration-500">Chef</span>
+          <span class="font-noto text-[13px] text-hinoki/30">料理人</span>
+        </a>
+        <a href="#omakase" class="menu-link group flex items-baseline gap-6">
+          <span class="font-mono text-[11px] text-hinoki/30">04</span>
+          <span class="font-cormorant text-[11vw] md:text-[7vw] leading-[0.9] tracking-[-0.04em] font-light group-hover:italic transition-all duration-500">Omakase</span>
+          <span class="font-noto text-[13px] text-hinoki/30">お任せ</span>
+        </a>
+      </div>
+      <div class="flex justify-between items-end">
+        <div class="space-y-2 font-mono text-[10px] tracking-[0.2em] text-hinoki/40 uppercase">
+          <p>252 Wythe Ave, Brooklyn NY 11249</p>
+          <p class="text-hinoki/60">Tue—Sat / Two seatings</p>
+        </div>
+        <p class="font-cormorant italic text-[18px] text-hinoki/60">Ichigo ichie</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="relative min-h-[100svh] flex flex-col lg:pl-[72px] lg:pr-[72px] overflow-hidden">
+    <!-- Large background typo -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+      <h2 class="font-cormorant font-light text-[35vw] leading-none tracking-[-0.08em] text-stroke-hinoki opacity-[0.07]">鮨</h2>
+    </div>
+
+    <div class="relative flex-1 grid grid-cols-12 gap-0 pt-[30vh] md:pt-[22vh] pb-20">
+      <!-- Left vertical poem -->
+      <div class="col-span-1 hidden md:flex justify-center">
+        <div class="vertical-rl font-noto font-extralight text-[12px] tracking-[0.6em] leading-[2.2] text-hinoki/35 reveal">
+          <span>米は</span><span class="text-hinoki/60">温かく</span><span>魚は</span><span class="text-hinoki/60">冷たく</span><br>
+          <span class="mt-6">手の</span><span>温度で</span><br>
+          <span class="mt-6">一瞬を</span><span>握る</span>
+        </div>
+      </div>
+
+      <!-- Main headline -->
+      <div class="col-span-12 md:col-span-7 px-6 md:px-10 flex flex-col">
+        <div class="flex items-center gap-4 mb-8 reveal">
+          <div class="w-8 h-[1px] bg-hinoki/40"></div>
+          <p class="font-mono text-[10px] tracking-[0.35em] uppercase text-hinoki/50">No menu — Only trust</p>
+        </div>
+        
+        <h1 class="font-cormorant font-light leading-[0.85] tracking-[-0.05em] text-[20vw] md:text-[13vw] lg:text-[11.5vw]">
+          <span class="block overflow-hidden"><span class="block reveal">Oma—</span></span>
+          <span class="block overflow-hidden -mt-[0.1em] md:ml-[0.6em] italic font-instrument font-normal tracking-[-0.03em]"><span class="block reveal reveal-delay-1">kase</span></span>
+        </h1>
+
+        <div class="mt-12 md:mt-20 grid grid-cols-12 gap-6 items-start">
+          <p class="col-span-12 md:col-span-5 font-mono text-[11px] leading-[2] tracking-[0.15em] text-hinoki/50 uppercase reveal reveal-delay-2">
+            A hinoki counter for eight.<br>
+            Two hours. Twenty courses.<br>
+            Temperature is the seasoning.
+          </p>
+          <div class="col-span-12 md:col-span-7 flex items-center gap-8 reveal reveal-delay-3">
+            <div class="img-zoom w-[140px] h-[180px] md:w-[180px] md:h-[220px] rounded-[2px] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1617196034183-421b4917c92d?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover">
+            </div>
+            <div class="space-y-3">
+              <p class="font-cormorant italic text-[22px] leading-[1.2] text-hinoki">“The rice must<br>breathe. The fish<br>must sleep.”</p>
+              <p class="font-mono text-[9px] tracking-[0.3em] text-hinoki/30 uppercase">— Chef Mori</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right image + info -->
+      <div class="col-span-12 md:col-span-4 px-6 md:px-0 mt-16 md:mt-0 flex flex-col gap-10 reveal reveal-delay-2">
+        <div class="relative ml-auto mr-0 md:mr-10 w-[85%] md:w-full max-w-[420px] group">
+          <div class="img-zoom aspect-[4/5] relative">
+            <img src="https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=1000&auto=format&fit=crop" alt="hinoki counter" class="w-full h-full object-cover">
+            <div class="absolute inset-0 border-[14px] border-[#0a0a0a]/50 mix-blend-overlay pointer-events-none"></div>
+          </div>
+          <!-- Floating badge -->
+          <div class="absolute -left-8 -bottom-8 bg-hinoki text-ink px-6 py-5 flex gap-6 items-center shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+            <div class="font-mono text-[9px] leading-[1.4] tracking-[0.2em] uppercase">
+              <p>Seating</p><p class="opacity-50">Capacity</p>
+            </div>
+            <div class="font-instrument text-[44px] leading-none -mt-2">8</div>
+            <div class="w-[1px] h-10 bg-ink/15"></div>
+            <div class="font-mono text-[9px] leading-[1.4] tracking-[0.1em]">TUE–SAT<br><span class="opacity-50">5:30 / 8:30</span></div>
+          </div>
+        </div>
+
+        <div class="ml-auto mr-0 md:mr-10 w-[85%] md:w-full max-w-[420px] flex justify-between items-center border-t border-b border-hinoki/10 py-5">
+          <span class="font-mono text-[10px] tracking-[0.25em] uppercase text-hinoki/40">Nigiri temperature</span>
+          <span class="font-cormorant text-[18px] tracking-wide">36.2° / 12°</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom strip -->
+    <div class="relative border-y border-white/[0.06] overflow-hidden py-[18px] bg-[#0a0a0a]">
+      <div class="marquee-track flex w-max will-change-transform">
+        <div class="flex items-center gap-14 pr-14 font-mono text-[10px] tracking-[0.35em] uppercase text-hinoki/35 shrink-0">
+          <span class="text-hinoki/60">酢飯</span> <span>—</span> <span>Akazu aged 3 years</span> <span class="w-1 h-1 rounded-full bg-hinoki/30"></span>
+          <span class="text-hinoki/60">鮨</span> <span>—</span> <span>Day-boat only / 48h ikejime</span> <span class="w-1 h-1 rounded-full bg-hinoki/30"></span>
+          <span class="text-hinoki/60">檜</span> <span>—</span> <span>200 year old hinoki counter</span> <span class="w-1 h-1 rounded-full bg-hinoki/30"></span>
+          <span class="text-hinoki/60">藻塩</span> <span>—</span> <span>Amami moshio hand harvested</span>
+        </div>
+        <div class="flex items-center gap-14 pr-14 font-mono text-[10px] tracking-[0.35em] uppercase text-hinoki/35 shrink-0">
+          <span class="text-hinoki/60">酢飯</span> <span>—</span> <span>Akazu aged 3 years</span> <span class="w-1 h-1 rounded-full bg-hinoki/30"></span>
+          <span class="text-hinoki/60">鮨</span> <span>—</span> <span>Day-boat only / 48h ikejime</span> <span class="w-1 h-1 rounded-full bg-hinoki/30"></span>
+          <span class="text-hinoki/60">檜</span> <span>—</span> <span>200 year old hinoki counter</span> <span class="w-1 h-1 rounded-full bg-hinoki/30"></span>
+          <span class="text-hinoki/60">藻塩</span> <span>—</span> <span>Amami moshio hand harvested</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Philosophy / Story Section -->
+  <section id="philosophy" class="relative lg:px-[72px] border-b border-white/[0.06] overflow-hidden">
+    <div class="grid grid-cols-12 min-h-[90vh]">
+      <div class="col-span-12 lg:col-span-7 bgStone bg-[#121212] relative px-6 md:px-14 lg:px-20 py-20 md:py-32 flex flex-col justify-between">
+        <div class="absolute top-10 right-10 font-noto vertical-rl text-[10px] tracking-[0.5em] text-hinoki/20">静けさの中の<br>動き</div>
+        
+        <div class="max-w-[560px]">
+          <div class="flex items-center gap-4 mb-16 reveal">
+            <span class="font-mono text-[10px] tracking-[0.3em] text-hinoki/30">01 / PHILOSOPHY</span>
+            <div class="h-[1px] w-12 bg-hinoki/20"></div>
+          </div>
+
+          <h2 class="font-cormorant font-light text-[12vw] md:text-[68px] leading-[0.9] tracking-[-0.04em] reveal">
+            The counter<br>
+            <span class="italic font-instrument font-normal ml-[0.05em]">is a kitchen, not</span><br>
+            a stage.
+          </h2>
+
+          <div class="mt-16 space-y-8 reveal reveal-delay-1">
+            <p class="font-cormorant text-[22px] md:text-[24px] leading-[1.6] text-hinoki/80 font-light">
+              We built kappo around a single plank of Kiso hinoki, 200 years old, salvaged from a shrine in Nagano. Eight seats, no more. 
+            </p>
+            <p class="font-mono text-[12px] leading-[2.2] tracking-[0.02em] text-hinoki/40 max-w-[440px]">
+              The wood breathes. It absorbs soy and sake. Over time it darkens where hands rest. We do not varnish it. We let time season it, the way rice is seasoned with akazu.<br><br>
+              Every service begins with wiping the counter. Not for cleanliness — for attention. The cloth moves in one direction. Always.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-20 flex gap-10">
+          <div class="space-y-2">
+            <p class="font-instrument text-[40px] leading-none">3.2</p>
+            <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30">Meters of hinoki<br>single plank</p>
+          </div>
+          <div class="w-[1px] h-12 bg-hinoki/10 self-center"></div>
+          <div class="space-y-2">
+            <p class="font-instrument text-[40px] leading-none">8</p>
+            <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30">Guests per night<br>no exception</p>
+          </div>
+          <div class="w-[1px] h-12 bg-hinoki/10 self-center"></div>
+          <div class="space-y-2">
+            <p class="font-instrument text-[40px] leading-none">0</p>
+            <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30">Photography<br>allowed</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-5 relative min-h-[70vh]">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-ink/40"></div>
+        <div class="absolute inset-0 p-8 md:p-10 flex flex-col justify-between">
+          <div class="flex justify-between items-start">
+            <div class="bg-ink/60 backdrop-blur px-4 py-2 font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/70">Kiso Valley — Nagano</div>
+            <div class="w-10 h-10 rounded-full border border-hinoki/20 flex items-center justify-center">
+              <div class="w-[3px] h-[3px] rounded-full bg-hinoki"></div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="h-[1px] w-full bg-hinoki/20"></div>
+            <p class="font-mono text-[10px] leading-[2] tracking-[0.15em] text-hinoki/60 uppercase max-w-[280px]">A single hinoki plank is sanded with rice paper. No lacquer. The grain rises when wet. That is the point.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Counter / 8 Seats Detail -->
+  <section id="counter" class="relative lg:px-[72px] py-24 md:py-36 overflow-hidden">
+    <div class="px-6 md:px-14">
+      <div class="flex justify-between items-end mb-20 gap-10 flex-wrap">
+        <h2 class="font-cormorant font-light text-[14vw] md:text-[8.5vw] leading-[0.85] tracking-[-0.05em] reveal">
+          Eight<br>chairs<span class="font-instrument italic text-hinoki/30">.</span>
+        </h2>
+        <p class="font-mono text-[11px] leading-[1.8] tracking-[0.15em] uppercase text-hinoki/40 max-w-[240px] mb-4 reveal reveal-delay-1">
+          Not stools. Chairs with backs. You will be here two hours. We want your spine to forget.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-12 gap-[1px] bg-hinoki/10 border border-hinoki/10">
+        <!-- Seat map -->
+        <div class="col-span-12 lg:col-span-7 bg-ink p-8 md:p-12 flex flex-col justify-between min-h-[560px]">
+          <div class="flex justify-between">
+            <span class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/30">Counter plan / 1:50</span>
+            <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/50">North facing</span>
+          </div>
+          
+          <!-- Counter diagram -->
+          <div class="relative my-14">
+            <!-- Wood plank -->
+            <div class="w-full h-[72px] bg-gradient-to-r from-[#c9b896] via-[#e8d5b1] to-[#c9b896] relative shadow-[0_0_0_1px_rgba(232,213,177,0.15)]">
+              <div class="absolute inset-0 opacity-30" style="background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.07) 0 1px, transparent 1px 14px);"></div>
+              <!-- seats dots -->
+              <div class="absolute -bottom-10 left-0 right-0 flex justify-between px-[6%]">
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">1</div><span class="font-mono text-[8px] tracking-widest text-hinoki/30">1.2m</span></div>
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">2</div></div>
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">3</div></div>
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">4</div></div>
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">5</div></div>
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">6</div></div>
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">7</div></div>
+                <div class="flex flex-col items-center gap-2"><div class="w-6 h-6 rounded-full border border-hinoki/30 bg-ink flex items-center justify-center text-[9px] font-mono">8</div><span class="font-mono text-[8px] tracking-widest text-hinoki/30">SHOKUNIN</span></div>
+              </div>
+            </div>
+            <p class="font-noto text-[10px] tracking-[0.4em] text-hinoki/20 mt-20">職人が立つ — 正面</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-6 border-t border-hinoki/10 pt-8 mt-10">
+            <div><p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30">Distance</p><p class="font-cormorant text-[16px] mt-1">58cm chef–guest</p></div>
+            <div><p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30">Height</p><p class="font-cormorant text-[16px] mt-1">-6cm below elbow</p></div>
+            <div><p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30">Lighting</p><p class="font-cormorant text-[16px] mt-1">2700K, no flicker</p></div>
+          </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-5 bg-[#111] p-8 md:p-12 flex flex-col justify-between">
+          <p class="font-mono text-[10px] tracking-[0.3em] uppercase text-hinoki/30">What happens here</p>
+          <div class="space-y-12 mt-16">
+            <div class="group">
+              <div class="flex gap-6 items-start">
+                <span class="font-instrument text-[26px] leading-none text-hinoki/40 group-hover:text-hinoki transition-colors">01</span>
+                <div class="flex-1 border-l border-hinoki/10 pl-6 space-y-3">
+                  <h4 class="font-cormorant text-[22px] leading-[1.2]">No soy on first half.</h4>
+                  <p class="font-mono text-[11px] leading-[1.8] text-hinoki/40">Shiromi is seasoned only with salt and sudachi. The fish speaks, not the sauce.</p>
+                </div>
+              </div>
+            </div>
+            <div class="hinoki-line"></div>
+            <div class="group">
+              <div class="flex gap-6 items-start">
+                <span class="font-instrument text-[26px] leading-none text-hinoki/40 group-hover:text-hinoki transition-colors">02</span>
+                <div class="flex-1 border-l border-hinoki/10 pl-6 space-y-3">
+                  <h4 class="font-cormorant text-[22px] leading-[1.2]">Hands, not towels.</h4>
+                  <p class="font-mono text-[11px] leading-[1.8] text-hinoki/40">Nigiri is formed and served within 4 seconds. Body heat completes it.</p>
+                </div>
+              </div>
+            </div>
+            <div class="hinoki-line"></div>
+            <div class="group">
+              <div class="flex gap-6 items-start">
+                <span class="font-instrument text-[26px] leading-none text-hinoki/40 group-hover:text-hinoki transition-colors">03</span>
+                <div class="flex-1 border-l border-hinoki/10 pl-6 space-y-3">
+                  <h4 class="font-cormorant text-[22px] leading-[1.2]">Silence is served.</h4>
+                  <p class="font-mono text-[11px] leading-[1.8] text-hinoki/40">No music. The ventilation hum is tuned to C. You hear the rice.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chef -->
+  <section id="chef" class="relative lg:px-[72px] border-t border-white/[0.06] overflow-hidden">
+    <div class="grid grid-cols-12">
+      <div class="col-span-12 lg:col-span-5 relative order-2 lg:order-1">
+        <div class="sticky top-0 h-[70vh] lg:h-[110vh] relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover grayscale-[0.2] contrast-[1.1]">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-8 md:p-12 flex justify-between items-end">
+            <div class="space-y-3">
+              <p class="font-mono text-[10px] tracking-[0.3em] uppercase text-hinoki/50">Kyoto — 12 years<br>Azabu Kadowaki</p>
+              <p class="font-noto text-[12px] tracking-[0.3em]">森 健太郎</p>
+            </div>
+            <div class="vertical-rl font-noto text-[11px] tracking-[0.6em] text-hinoki/30">料理は<br>記憶ではなく<br>温度である</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-7 bg-paper text-ink order-1 lg:order-2">
+        <div class="px-6 md:px-16 lg:px-20 py-20 md:py-28">
+          <div class="flex items-center gap-4 mb-10 reveal">
+            <span class="font-mono text-[10px] tracking-[0.35em] uppercase text-ink/40">02 / The Chef</span>
+            <div class="h-[1px] w-16 bg-ink/10"></div>
+          </div>
+
+          <h2 class="font-cormorant font-light text-[11vw] md:text-[6.5vw] lg:text-[5.5vw] leading-[0.9] tracking-[-0.05em] mb-12 reveal">
+            Mori Kentaro
+            <span class="block font-instrument italic font-normal text-[7vw] md:text-[4vw] mt-2">does not<br>believe in talent</span>
+          </h2>
+
+          <div class="grid md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-16">
+            <div class="space-y-6 reveal reveal-delay-1">
+              <p class="font-cormorant text-[20px] md:text-[21px] leading-[1.7]">He spent four years only cooking rice. Not serving it. Just cooking, tasting, discarding. The shop owner said his rice was too “anxious”. He was pressing too hard.</p>
+              <p class="font-mono text-[12px] leading-[2] text-ink/60">In Kyoto, you learn by cleaning the kombu, not cutting the fish. For two years I only wiped counters and watched how senior chefs held their breath when forming nigiri. — Kentaro Mori, interview 2022</p>
+            </div>
+            <div class="space-y-8 reveal reveal-delay-2">
+              <div class="border-l border-ink/10 pl-6 space-y-4">
+                <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-ink/40">Apprenticeship</p>
+                <p class="font-cormorant text-[16px] leading-[1.5]">2009–2013 Kyoto, Kadowaki<br>2013–2017 Azabu, Tokyo<br>2017–2021 Noma pop-up, Kyoto<br>2021– kappo, Brooklyn</p>
+              </div>
+              <div class="bg-ink text-hinoki p-6 flex gap-6 items-start">
+                <span class="font-noto text-[18px] leading-none">“</span>
+                <p class="font-cormorant italic text-[17px] leading-[1.5]">If the rice is correct, the guest will not remember the fish. They will remember how they felt holding it.</p>
+              </div>
+              <div class="flex gap-3">
+                <img src="https://images.unsplash.com/photo-1555126634-323283e090fa?q=80&w=200&auto=format&fit=crop" class="w-14 h-14 object-cover rounded-full grayscale">
+                <img src="https://images.unsplash.com/photo-1532634922-8fe0b757fb13?q=80&w=200&auto=format&fit=crop" class="w-14 h-14 object-cover rounded-full grayscale">
+                <div class="w-14 h-14 rounded-full border border-ink/10 flex items-center justify-center font-mono text-[9px]">+12</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-20 pt-12 border-t border-ink/10 grid grid-cols-3 gap-6">
+            <div><p class="font-instrument text-[36px] leading-none">4:15</p><p class="font-mono text-[9px] tracking-[0.2em] uppercase text-ink/40 mt-2">AM Rice wash begins<br>with well water</p></div>
+            <div><p class="font-instrument text-[36px] leading-none">28c</p><p class="font-mono text-[9px] tracking-[0.2em] uppercase text-ink/40 mt-2">Rice serving<br>temperature</p></div>
+            <div><p class="font-instrument text-[36px] leading-none">11</p><p class="font-mono text-[9px] tracking-[0.2em] uppercase text-ink/40 mt-2">Years before<br>first nigiri service</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Omakase Course - Products/Services equivalent -->
+  <section id="omakase" class="relative lg:px-[72px] py-24 md:py-36 bg-[#0e0e0e] border-t border-white/[0.06]">
+    <div class="px-6 md:px-14">
+      <div class="flex flex-wrap justify-between items-start gap-10 mb-20">
+        <div class="space-y-6 reveal">
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-[10px] tracking-[0.35em] uppercase text-hinoki/30">03 / The Omakase — Twenty impressions</span>
+            <div class="h-[1px] w-12 bg-hinoki/15"></div>
+          </div>
+          <h2 class="font-cormorant font-light text-[11vw] md:text-[7vw] leading-[0.85] tracking-[-0.05em]">
+            Not a meal.<br><span class="italic font-instrument">A sequence.</span>
+          </h2>
+        </div>
+        <div class="max-w-[320px] space-y-4 reveal reveal-delay-1">
+          <p class="font-mono text-[11px] leading-[1.9] tracking-[0.03em] text-hinoki/40 uppercase">Price is $285 / 20 courses. Sake pairing additional. We accommodate no dietary restrictions except death. This is not cruelty. It is focus.</p>
+          <div class="flex items-center gap-3 font-mono text-[10px] tracking-[0.2em] uppercase text-hinoki/20">
+            <div class="flex -space-x-1"><div class="w-5 h-5 rounded-full bg-hinoki/10 border border-ink"></div><div class="w-5 h-5 rounded-full bg-hinoki/20 border border-ink"></div><div class="w-5 h-5 rounded-full bg-hinoki/30 border border-ink"></div></div>
+            <span>3,241 services / 0 leftover</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12 gap-[1px] bg-hinoki/10 border border-hinoki/10 overflow-hidden">
+        <!-- Course list -->
+        <div class="col-span-12 lg:col-span-5 bg-ink">
+          <div class="divide-y divide-hinoki/10">
+            <div class="group p-7 md:p-10 flex gap-8 hover:bg-white/[0.02] transition-colors cursor-pointer">
+              <span class="font-mono text-[10px] tracking-widest text-hinoki/30 mt-1">01–03</span>
+              <div>
+                <h4 class="font-cormorant text-[22px] leading-none">Zensai</h4>
+                <p class="font-noto text-[11px] tracking-[0.2em] text-hinoki/30 mt-2">前菜 — sesame tofu, persimmon, walnut miso</p>
+                <p class="font-mono text-[10px] leading-[1.8] text-hinoki/40 mt-4 max-w-[260px]">Warm. To open the palate, not impress it. Served in Mino ware at 42°.</p>
+              </div>
+            </div>
+            <div class="group p-7 md:p-10 flex gap-8 hover:bg-white/[0.02] transition-colors cursor-pointer">
+              <span class="font-mono text-[10px] tracking-widest text-hinoki/30 mt-1">04–07</span>
+              <div>
+                <h4 class="font-cormorant text-[22px] leading-none">Shiromi</h4>
+                <p class="font-noto text-[11px] tracking-[0.2em] text-hinoki/30 mt-2">白身 — fluke, sea bream, sayori</p>
+                <p class="font-mono text-[10px] leading-[1.8] text-hinoki/40 mt-4 max-w-[260px]">No shoyu. Only amami salt and sudachi zest. The fish is 2 days aged.</p>
+              </div>
+            </div>
+            <div class="group p-7 md:p-10 flex gap-8 hover:bg-white/[0.02] transition-colors cursor-pointer bg-white/[0.02]">
+              <span class="font-mono text-[10px] tracking-widest text-hinoki/50 mt-1">08–14</span>
+              <div>
+                <h4 class="font-cormorant text-[22px] leading-none flex items-center gap-3">Nigiri <span class="text-[10px] font-mono tracking-[0.2em] uppercase bg-hinoki text-ink px-2 py-1">Core</span></h4>
+                <p class="font-noto text-[11px] tracking-[0.2em] text-hinoki/40 mt-2">握り — akami to otoro, kohada, uni</p>
+                <p class="font-mono text-[10px] leading-[1.8] text-hinoki/40 mt-4 max-w-[260px]">Rice 36°, neta 12°. Formed in 3 touches. Served on your palm, not a plate.</p>
+              </div>
+            </div>
+            <div class="group p-7 md:p-10 flex gap-8 hover:bg-white/[0.02] transition-colors cursor-pointer">
+              <span class="font-mono text-[10px] tracking-widest text-hinoki/30 mt-1">15–18</span>
+              <div>
+                <h4 class="font-cormorant text-[22px] leading-none">Kuchinaoshi</h4>
+                <p class="font-noto text-[11px] tracking-[0.2em] text-hinoki/30 mt-2">口直し — broth, pickles, tamago</p>
+                <p class="font-mono text-[10px] leading-[1.8] text-hinoki/40 mt-4 max-w-[260px]">Reset. Dashi from yesterday’s bones. Tamago like a cake, not an omelette.</p>
+              </div>
+            </div>
+            <div class="group p-7 md:p-10 flex gap-8 hover:bg-white/[0.02] transition-colors cursor-pointer">
+              <span class="font-mono text-[10px] tracking-widest text-hinoki/30 mt-1">19–20</span>
+              <div>
+                <h4 class="font-cormorant text-[22px] leading-none">Mizumono</h4>
+                <p class="font-noto text-[11px] tracking-[0.2em] text-hinoki/30 mt-2">水物 — black sugar, hojicha</p>
+                <p class="font-mono text-[10px] leading-[1.8] text-hinoki/40 mt-4 max-w-[260px]">We do not serve fruit. Fruit is for morning. This is night.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-7 bg-[#0a0a0a] relative min-h-[620px] grid grid-rows-[1fr_auto]">
+          <div class="relative p-8 md:p-12">
+            <div class="absolute top-8 right-8 font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/30 border border-hinoki/10 px-3 py-2">Live rice temp</div>
+            
+            <div class="mt-20">
+              <div class="flex items-baseline gap-6">
+                <p class="font-instrument text-[120px] leading-[0.8] tracking-[-0.05em]">36.2</p>
+                <span class="font-mono text-[12px] tracking-[0.2em] text-hinoki/30">°C / target 36.5°</span>
+              </div>
+              <div class="mt-8 flex gap-2">
+                <div class="h-[2px] bg-hinoki w-[68%]"></div>
+                <div class="h-[2px] bg-hinoki/20 flex-1"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8 mt-16">
+              <div class="space-y-3">
+                <p class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/30">Today's fish / Montauk</p>
+                <div class="space-y-2 font-cormorant text-[16px] leading-[1.4]">
+                  <p class="flex justify-between"><span>Fluke</span><span class="font-mono text-[10px] text-hinoki/30">48H IKJ</span></p>
+                  <div class="h-[1px] bg-hinoki/10"></div>
+                  <p class="flex justify-between"><span>Sayori</span><span class="font-mono text-[10px] text-hinoki/30">24H</span></p>
+                  <div class="h-[1px] bg-hinoki/10"></div>
+                  <p class="flex justify-between"><span class="text-hinoki">Akami — Bluefin</span><span class="font-mono text-[10px] bg-hinoki text-ink px-1">DAY 9 AGED</span></p>
+                  <div class="h-[1px] bg-hinoki/10"></div>
+                  <p class="flex justify-between"><span>Uni — Hokkaido</span><span class="font-mono text-[10px] text-hinoki/30">LIVE</span></p>
+                </div>
+              </div>
+              <div class="img-zoom">
+                <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop" class="w-full h-[220px] object-cover">
+                <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30 mt-3">Akazu / 3yr barrel — Kyoto</p>
+              </div>
+            </div>
+          </div>
+          <div class="border-t border-hinoki/10 p-8 md:p-12 flex justify-between items-center bg-[#121212]">
+            <p class="font-mono text-[10px] tracking-[0.2em] uppercase text-hinoki/40">The rice is alive / Do not photograph</p>
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full bg-red-400/60 animate-pulse"></div>
+              <span class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30">Service live</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="relative lg:px-[72px] border-y border-white/[0.06] overflow-hidden">
+    <div class="grid grid-cols-12">
+      <div class="col-span-12 md:col-span-4 bg-[#0a0a0a] border-r border-white/[0.06] p-8 md:p-12 flex flex-col justify-between min-h-[500px]">
+        <div class="space-y-6 reveal">
+          <span class="font-mono text-[10px] tracking-[0.35em] uppercase text-hinoki/30">04 / Gallery — No photos inside</span>
+          <h3 class="font-cormorant font-light text-[48px] leading-[0.9] tracking-[-0.03em]">These are<br><span class="italic font-instrument">not the same</span><br>sushi.</h3>
+          <p class="font-mono text-[11px] leading-[1.9] text-hinoki/40 max-w-[280px]">Images taken on prep days. Once service starts, phones are closed in hinoki boxes. You will not find us on Instagram tagged.</p>
+        </div>
+        <div class="vertical-rl font-noto text-[11px] tracking-[0.5em] text-hinoki/15 self-start mt-10">見えないものほど<br>美味しい</div>
+      </div>
+      
+      <div class="col-span-12 md:col-span-8 grid grid-cols-12 auto-rows-[220px] gap-[1px] bg-white/[0.06]">
+        <div class="col-span-7 img-zoom relative group">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 bg-ink/80 backdrop-blur px-4 py-2 font-mono text-[9px] tracking-widest text-hinoki/60">COUNTER WIPE — 17:25</div>
+        </div>
+        <div class="col-span-5 img-zoom relative">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover">
+        </div>
+        <div class="col-span-5 img-zoom relative">
+          <img src="https://images.unsplash.com/photo-1617196034183-421b4917c92d?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover">
+        </div>
+        <div class="col-span-7 img-zoom relative">
+          <img src="https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover">
+          <div class="absolute inset-0 flex items-center justify-center"><span class="font-instrument italic text-[28px] text-paper/80 tracking-wide">ichigo ichie</span></div>
+        </div>
+        <div class="col-span-12 h-[1px] bg-hinoki/10 col-span-12"></div>
+        <div class="col-span-12 md:col-span-12 bg-[#121212] p-8 flex flex-wrap gap-10 items-center">
+          <p class="font-mono text-[10px] tracking-[0.3em] uppercase text-hinoki/30">Materials:</p>
+          <div class="flex flex-wrap gap-8 font-mono text-[10px] tracking-[0.15em] uppercase text-hinoki/50">
+            <span>Kiso hinoki → 200yr</span><span class="text-hinoki/10">/</span><span>Mino ware → 450yr kiln</span><span class="text-hinoki/10">/</span><span>Akazu → 3yr aged</span><span class="text-hinoki/10">/</span><span>Washi → Echizen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews / Testimonials - Michelin style -->
+  <section class="relative lg:px-[72px] py-24 md:py-32 bg-[#0a0a0a]">
+    <div class="px-6 md:px-14">
+      <div class="flex flex-col md:flex-row justify-between gap-10 mb-20 reveal">
+        <h2 class="font-cormorant font-light text-[9vw] md:text-[6vw] leading-[0.9] tracking-[-0.05em]">
+          They write<br>
+          <span class="italic font-instrument font-normal">about silence.</span>
+        </h2>
+        <div class="md:text-right space-y-3 md:self-end">
+          <p class="font-mono text-[10px] tracking-[0.3em] uppercase text-hinoki/30">No stars — no reviews — word only</p>
+          <div class="flex md:justify-end gap-1">
+            <div class="w-6 h-[1px] bg-hinoki/20"></div><div class="w-6 h-[1px] bg-hinoki/40"></div><div class="w-6 h-[1px] bg-hinoki"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns-1 md:columns-3 gap-[1px] bg-hinoki/10 border border-hinoki/10">
+        <div class="bg-[#0a0a0a] p-8 md:p-10 space-y-8 break-inside-avoid">
+          <p class="font-cormorant italic text-[20px] leading-[1.5] text-hinoki/80">“I did not taste sushi. I tasted time. The rice was warm like skin.”</p>
+          <div class="flex gap-3 items-center">
+            <div class="w-8 h-8 rounded-full bg-hinoki/10 flex items-center justify-center font-mono text-[10px]">NY</div>
+            <div class="font-mono text-[10px] leading-[1.3]"><p class="text-hinoki/60 tracking-[0.2em] uppercase">New York Times</p><p class="text-hinoki/20">Pete Wells — 2023</p></div>
+          </div>
+        </div>
+        <div class="bg-[#121212] p-8 md:p-10 space-y-8 break-inside-avoid">
+          <p class="font-cormorant text-[17px] leading-[1.7] text-hinoki/60">You pay for removal. Of music, of choice, of soy sauce, of explanation. What remains is only what matters.</p>
+          <p class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/20">Observer — Guest book, page 82</p>
+        </div>
+        <div class="bg-[#0a0a0a] p-8 md:p-10 space-y-8 break-inside-avoid">
+          <div class="flex items-center gap-2 font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/30"><div class="w-1 h-1 rounded-full bg-hinoki"></div> Verified diner — 47th visit</div>
+          <p class="font-cormorant italic text-[19px] leading-[1.5] text-hinoki/80">“My daughter asked why the chef never smiles. I told her he is smiling with his hands.”</p>
+        </div>
+        <div class="bg-[#121212] p-8 md:p-10 space-y-8 break-inside-avoid">
+          <p class="font-noto text-[13px] leading-[2] tracking-[0.05em] text-hinoki/50">鮨は<br>舌ではなく<br>記憶で<br>味わうもの</p>
+          <p class="font-mono text-[9px] tracking-[0.2em] uppercase text-hinoki/20">Kyoto — Unknown guest</p>
+        </div>
+        <div class="bg-[#0a0a0a] p-8 md:p-10 space-y-8 break-inside-avoid md:mt-0">
+          <p class="font-cormorant text-[18px] leading-[1.6] text-hinoki/70">The tamago is a test. If you chew it quickly, you missed the point. It should dissolve, not be eaten.</p>
+          <div class="flex gap-3 items-center">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover grayscale opacity-60">
+            <div class="font-mono text-[10px] leading-[1.3]"><p class="text-hinoki/60 tracking-[0.2em] uppercase">Guest 14 — Table 3</p><p class="text-hinoki/20">Three times this year</p></div>
+          </div>
+        </div>
+        <div class="bg-[#121212] p-8 md:p-10 space-y-8 break-inside-avoid">
+          <p class="font-cormorant italic text-[20px] leading-[1.4] text-hinoki/80">“The most expensive silence I have ever bought. Worth it.”</p>
+          <p class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/20 mt-4">— Guest book</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reserve / Footer -->
+  <section id="reserve" class="relative lg:px-[72px] border-t border-hinoki/10 bg-paper text-ink overflow-hidden">
+    <!-- Giant footer typo -->
+    <div class="absolute -top-[8vw] left-0 right-0 pointer-events-none select-none overflow-hidden leading-none">
+      <p class="font-cormorant font-light text-[30vw] tracking-[-0.07em] text-ink/[0.04] whitespace-nowrap">kappo kappo</p>
+    </div>
+
+    <div class="relative px-6 md:px-14 pt-20 md:pt-32 pb-12">
+      <div class="grid grid-cols-12 gap-12">
+        <div class="col-span-12 lg:col-span-7">
+          <div class="flex items-center gap-4 mb-10">
+            <div class="w-10 h-[1px] bg-ink/20"></div>
+            <span class="font-mono text-[10px] tracking-[0.35em] uppercase text-ink/40">Reserve — 2 seatings only</span>
+          </div>
+          <h2 class="font-cormorant font-light text-[12vw] md:text-[7vw] lg:text-[6vw] leading-[0.85] tracking-[-0.05em]">
+            Come<br>hungry.<br><span class="italic font-instrument">Leave quiet.</span>
+          </h2>
+
+          <div class="mt-16 grid grid-cols-12 gap-8">
+            <div class="col-span-12 md:col-span-6 border border-ink/10 p-8 space-y-6">
+              <div class="flex justify-between items-start">
+                <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-ink/40">Seating / 席</p>
+                <span class="font-mono text-[9px] bg-ink text-paper px-2 py-1">BOOKS 30 DAYS</span>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-baseline border-b border-ink/10 pb-4">
+                  <span class="font-cormorant text-[18px]">First</span>
+                  <span class="font-mono text-[12px]">17:30 — 19:30 / 8 seats</span>
+                </div>
+                <div class="flex justify-between items-baseline border-b border-ink/10 pb-4">
+                  <span class="font-cormorant text-[18px]">Second</span>
+                  <span class="font-mono text-[12px]">20:30 — 22:30 / 8 seats</span>
+                </div>
+                <p class="font-mono text-[10px] leading-[1.8] text-ink/50">Doors open 10 minutes before. No late seating. The rice waits for no one.</p>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-6 space-y-8">
+              <div class="space-y-3">
+                <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-ink/40">Location / 場所</p>
+                <p class="font-cormorant text-[20px] leading-[1.3]">252 Wythe Ave<br>Brooklyn, NY 11249<br><span class="font-mono text-[11px] tracking-[0.1em] text-ink/50">L train → Bedford / G → Metropolitan</span></p>
+              </div>
+              <div class="space-y-3">
+                <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-ink/40">Contact / 連絡</p>
+                <p class="font-mono text-[12px] leading-[1.8]"><span class="text-ink/40">RESERVE</span> reserve@kappo.nyc<br><span class="text-ink/40">TEL</span> +1 718 555 0140 (no calls after 4pm)</p>
+              </div>
+              <div class="flex gap-3">
+                <div class="w-[1px] h-12 bg-ink/10"></div>
+                <p class="font-noto text-[11px] leading-[1.8] text-ink/50">お米は<br>命です</p>
+                <p class="font-mono text-[10px] leading-[1.8] text-ink/40 max-w-[160px] uppercase">Rice is life. We begin by washing it at 4:15 am with well water from Catskills. Not filtered. Well.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-5">
+          <div class="bg-ink text-hinoki p-8 md:p-10 lg:sticky lg:top-10">
+            <div class="flex justify-between items-start mb-12">
+              <p class="font-mono text-[10px] tracking-[0.3em] uppercase text-hinoki/40">Request a counter</p>
+              <p class="font-noto text-[10px] tracking-[0.3em]">お任せ</p>
+            </div>
+            
+            <form id="reserveForm" class="space-y-8" onsubmit="return false;">
+              <div class="space-y-6">
+                <label class="block group">
+                  <span class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/30 group-focus-within:text-hinoki transition-colors">Name / 名前</span>
+                  <input type="text" placeholder="Yoshida Taro" class="w-full bg-transparent border-b border-hinoki/15 py-4 font-cormorant text-[18px] placeholder:text-hinoki/20 focus:outline-none focus:border-hinoki transition-colors">
+                </label>
+                <div class="grid grid-cols-2 gap-6">
+                  <label class="block group">
+                    <span class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/30 group-focus-within:text-hinoki transition-colors">Guests / 人数</span>
+                    <select class="w-full bg-transparent border-b border-hinoki/15 py-4 font-mono text-[13px] focus:outline-none focus:border-hinoki transition-colors">
+                      <option class="bg-ink">1 guest</option><option class="bg-ink">2 guests</option><option class="bg-ink">3 guests</option><option class="bg-ink">4 guests</option>
+                    </select>
+                  </label>
+                  <label class="block group">
+                    <span class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/30 group-focus-within:text-hinoki transition-colors">Date / 日付</span>
+                    <input type="text" placeholder="MM / DD" class="w-full bg-transparent border-b border-hinoki/15 py-4 font-mono text-[13px] placeholder:text-hinoki/20 focus:outline-none focus:border-hinoki transition-colors">
+                  </label>
+                </div>
+                <label class="block group">
+                  <span class="font-mono text-[9px] tracking-[0.3em] uppercase text-hinoki/30 group-focus-within:text-hinoki transition-colors">Note / 一言 (allergies are not accommodated, but we listen)</span>
+                  <textarea rows="2" placeholder="Ichigo ichie..." class="w-full bg-transparent border-b border-hinoki/15 py-4 font-cormorant italic text-[16px] placeholder:text-hinoki/20 focus:outline-none focus:border-hinoki transition-colors resize-none"></textarea>
+                </label>
+              </div>
+              <button id="submitBtn" class="group w-full relative overflow-hidden border border-hinoki/20 py-5 font-mono text-[11px] tracking-[0.3em] uppercase">
+                <span class="relative z-10 group-hover:text-ink transition-colors duration-700">Request → Omakase $285</span>
+                <div class="absolute inset-0 bg-hinoki translate-y-full group-hover:translate-y-0 transition-transform duration-700 cubic-bezier(0.16,1,0.3,1)"></div>
+              </button>
+              <p class="font-mono text-[9px] leading-[1.7] tracking-[0.1em] uppercase text-hinoki/30 text-center">You will receive a reply within 24 hours. No deposit. Trust only.</p>
+            </form>
+
+            <div id="formSuccess" class="hidden py-20 text-center space-y-6">
+              <div class="w-12 h-12 mx-auto rounded-full border border-hinoki/20 flex items-center justify-center">✓</div>
+              <p class="font-cormorant text-[24px] italic">Arigato.</p>
+              <p class="font-mono text-[10px] leading-[1.8] tracking-[0.15em] uppercase text-hinoki/40 max-w-[240px] mx-auto">We have received your request. The counter will be wiped, the rice warmed. We will reply soon.</p>
+              <p class="font-noto text-[11px] tracking-[0.3em] text-hinoki/30">ありがとうございます</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-24 pt-12 border-t border-ink/10 flex flex-wrap justify-between gap-8">
+        <div class="flex gap-10 font-mono text-[9px] tracking-[0.25em] uppercase text-ink/30">
+          <span>© 2026 kappo — Brooklyn</span>
+          <span class="hidden md:inline">No photos / No music / No menu</span>
+          <span>八席だけ</span>
+        </div>
+        <div class="flex gap-6 font-mono text-[9px] tracking-[0.2em] uppercase">
+          <a href="#" class="text-ink/40 hover:text-ink transition-colors underline decoration-ink/20 underline-offset-4">Privacy — 個人情報</a>
+          <a href="#" class="text-ink/40 hover:text-ink transition-colors underline decoration-ink/20 underline-offset-4">Press — 報道</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+  // Loader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const loader = document.getElementById('loader');
+      loader.style.opacity = '0';
+      setTimeout(() => loader.remove(), 1200);
+    }, 1100);
+  });
+
+  // Scroll progress
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    progress.style.transform = `scaleX(${scrolled})`;
+  });
+
+  // Custom cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    dot.style.left = mouseX + 'px'; dot.style.top = mouseY + 'px';
+  });
+  (function animateRing(){
+    ringX += (mouseX - ringX) * 0.08;
+    ringY += (mouseY - ringY) * 0.08;
+    ring.style.left = ringX - 16 + 'px'; ring.style.top = ringY - 16 + 'px';
+    requestAnimationFrame(animateRing);
+  })();
+  document.querySelectorAll('a, button, .img-zoom').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ ring.style.transform='scale(1.8)'; ring.style.borderColor='rgba(232,213,177,0.8)'; });
+    el.addEventListener('mouseleave', ()=>{ ring.style.transform='scale(1)'; ring.style.borderColor='rgba(232,213,177,0.35)'; });
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('active'); });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+  // Menu
+  const menuToggle = document.getElementById('menuToggle');
+  const menuClose = document.getElementById('menuClose');
+  const menuOverlay = document.getElementById('menuOverlay');
+  function openMenu(){ menuOverlay.style.transform='translateX(0)'; document.body.style.overflow='hidden'; }
+  function closeMenu(){ menuOverlay.style.transform='translateX(100%)'; document.body.style.overflow=''; }
+  menuToggle.addEventListener('click', openMenu);
+  menuClose.addEventListener('click', closeMenu);
+  document.querySelectorAll('.menu-link').forEach(a=>a.addEventListener('click', closeMenu));
+
+  // Reservation form fake submit
+  const form = document.getElementById('reserveForm');
+  const success = document.getElementById('formSuccess');
+  document.getElementById('submitBtn').addEventListener('click', ()=>{
+    const inputs = form.querySelectorAll('input');
+    let filled = true;
+    inputs.forEach(i=>{ if(!i.value) filled=false; });
+    form.style.opacity='0';
+    form.style.transform='translateY(10px)';
+    form.style.transition='all 0.6s cubic-bezier(0.16,1,0.3,1)';
+    setTimeout(()=>{
+      form.classList.add('hidden');
+      success.classList.remove('hidden');
+      success.animate([{opacity:0, transform:'translateY(20px)'},{opacity:1, transform:'translateY(0)'}],{duration:800, easing:'cubic-bezier(0.16,1,0.3,1)', fill:'forwards'});
+    },350);
+  });
+
+  // Parallax subtle on hero kanji
+  window.addEventListener('scroll', ()=>{
+    const kanji = document.querySelector('.text-stroke-hinoki');
+    if(!kanji) return;
+    kanji.style.transform = `translateY(${window.scrollY * 0.15}px)`;
+  });
+</script>
+</body>
+</html>

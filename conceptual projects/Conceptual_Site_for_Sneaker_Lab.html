@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Sneaker Lab</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        lab: { black: '#111111', ink: '#0a0a0a', lime: '#c6ff00', bone: '#f2f2f0', gray: '#232323', line: '#2e2e2e' }
+      },
+      fontFamily: {
+        anton: ['Anton','sans-serif'],
+        mono: ['JetBrains Mono','monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{ -webkit-font-smoothing:antialiased; }
+  html{ scroll-behavior:smooth; }
+  body{ background:#111111; color:#f2f2f0; font-family:'JetBrains Mono', monospace; cursor:none; overflow-x:hidden; }
+  ::selection{ background:#c6ff00; color:#111; }
+  ::-webkit-scrollbar{ width:4px; height:4px; } ::-webkit-scrollbar-track{ background:#111; } ::-webkit-scrollbar-thumb{ background:#c6ff00; }
+
+  .font-anton{ font-family:'Anton', sans-serif; letter-spacing:0.01em; }
+  .stroke-text{ -webkit-text-stroke:1.5px #f2f2f0; color:transparent; }
+  .stroke-lime{ -webkit-text-stroke:1.5px #c6ff00; color:transparent; }
+  .grid-line{ background-image: linear-gradient(to right, #2e2e2e 1px, transparent 1px), linear-gradient(to bottom, #2e2e2e 1px, transparent 1px); background-size:80px 80px; }
+  .grain::before{ content:''; position:absolute; inset:0; pointer-events:none; opacity:.035; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  /* marquee */
+  @keyframes marquee{ 0%{ transform:translateX(0) } 100%{ transform:translateX(-50%) } }
+  .marquee-track{ animation:marquee 28s linear infinite; will-change:transform; }
+  .marquee-track.slow{ animation-duration:60s; }
+  .marquee-track.fast{ animation-duration:14s; }
+  @keyframes marqueeR{ 0%{ transform:translateX(-50%) } 100%{ transform:translateX(0) } }
+  .marquee-rev{ animation:marqueeR 28s linear infinite; }
+
+  /* custom cursor */
+  .cursor-dot{ position:fixed; width:6px; height:6px; background:#c6ff00; border-radius:50%; pointer-events:none; z-index:99999; mix-blend-mode:normal; transform:translate(-50%,-50%); transition:width .2s,height .2s,background .2s; }
+  .cursor-ring{ position:fixed; width:36px; height:36px; border:1px solid #c6ff00; border-radius:50%; pointer-events:none; z-index:99998; transform:translate(-50%,-50%); transition:width .25s,height .25s,border-color .25s; }
+  .cursor-dot.hover{ width:10px; height:10px; }
+  .cursor-ring.hover{ width:64px; height:64px; background:rgba(198,255,0,.08); }
+
+  /* glitch on hover */
+  @keyframes glitch{ 0%{ transform:translate(0) } 20%{ transform:translate(-1px,1px) } 40%{ transform:translate(-1px,-1px) } 60%{ transform:translate(1px,1px) } 80%{ transform:translate(1px,-1px) } 100%{ transform:translate(0) } }
+  .glitch-hover:hover{ animation:glitch .2s steps(2) infinite; }
+
+  /* 3d tilt */
+  .tilt-card{ transform-style:preserve-3d; transition:transform .6s cubic-bezier(.16,1,.3,1); }
+  .tilt-card:hover{ }
+
+  /* reveal */
+  .reveal{ opacity:0; transform:translateY(28px); transition:all .8s cubic-bezier(.16,1,.3,1); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* progress */
+  #progress{ position:fixed; top:0; left:0; height:2px; background:#c6ff00; z-index:100; width:0%; }
+
+  /* destroyed grid */
+  
+  /* extra premium details */
+  @keyframes flicker{ 0%,19%,21%,23%,25%,54%,56%,100%{ opacity:1 } 20%,24%,55%{ opacity:.6 } }
+  .flicker{ animation:flicker 3s linear infinite; }
+  @keyframes scanline{ 0%{ transform:translateY(-100%) } 100%{ transform:translateY(100vh) } }
+  .scanline::after{ content:''; position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, #c6ff00, transparent); animation:scanline 4s linear infinite; opacity:.4; }
+  .brutal-btn{ position:relative; overflow:hidden; isolation:isolate; }
+  .brutal-btn::before{ content:''; position:absolute; inset:0; background:#c6ff00; transform:translateX(-101%); transition:transform .5s cubic-bezier(.16,1,.3,1); z-index:-1; }
+  .brutal-btn:hover::before{ transform:translateX(0); }
+  .brutal-btn:hover{ color:#111; }
+  .noise-text{ position:relative; }
+  .noise-text::after{ content:attr(data-text); position:absolute; left:1px; top:1px; color:#c6ff00; mix-blend-mode:screen; opacity:0; }
+  .noise-text:hover::after{ opacity:.5; }
+  /* scrollbar marquee pause on hover */
+  .marquee:hover .marquee-track{ animation-play-state:paused; }
+  /* sticker */
+  .sticker{ transform:rotate(-8deg); box-shadow:4px 4px 0 #111, 5px 5px 0 #c6ff00; }
+
+  .dest-grid{ display:grid; grid-template-columns: repeat(12, minmax(0,1fr)); }
+</style>
+</head>
+<body class="relative">
+
+<div id="progress"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="fixed inset-0 pointer-events-none z-[1] grain"></div>
+<div class="fixed inset-0 pointer-events-none z-0 grid-line opacity-[0.15]"></div>
+
+<!-- TOP SYSTEM BAR -->
+<div class="relative z-50 w-full border-b border-lab-line bg-lab-black">
+  <div class="marquee overflow-hidden whitespace-nowrap border-b border-lab-line bg-lab-lime text-lab-black">
+    <div class="marquee-track fast flex items-center py-[6px] font-mono text-[11px] font-800 tracking-[0.2em] uppercase">
+      <span class="flex items-center gap-6">
+        <span>DROP 006 — “NEON PROTOCOL” — MAY 17 / 09:00 EST</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>AUTHENTICATED • LAB CERTIFIED • DOUBLE VERIFIED</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>WORLDWIDE SHIPPING • NEXT DAY NY/LA</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>NO FAKE SHIT • EVER • LAB ONLY</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>DROP 006 — “NEON PROTOCOL” — MAY 17 / 09:00 EST</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>AUTHENTICATED • LAB CERTIFIED • DOUBLE VERIFIED</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>WORLDWIDE SHIPPING • NEXT DAY NY/LA</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>NO FAKE SHIT • EVER • LAB ONLY</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+      </span>
+      <span class="flex items-center gap-6 ml-6">
+        <span>DROP 006 — “NEON PROTOCOL” — MAY 17 / 09:00 EST</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>AUTHENTICATED • LAB CERTIFIED • DOUBLE VERIFIED</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>WORLDWIDE SHIPPING • NEXT DAY NY/LA</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>NO FAKE SHIT • EVER • LAB ONLY</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>DROP 006 — “NEON PROTOCOL” — MAY 17 / 09:00 EST</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>AUTHENTICATED • LAB CERTIFIED • DOUBLE VERIFIED</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>WORLDWIDE SHIPPING • NEXT DAY NY/LA</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+        <span>NO FAKE SHIT • EVER • LAB ONLY</span><span class="w-[4px] h-[4px] bg-lab-black rounded-full inline-block"></span>
+      </span>
+    </div>
+  </div>
+  <nav class="mx-auto max-w-[1600px] flex items-center justify-between px-6 md:px-10 py-5">
+    <div class="flex items-center gap-8">
+      <div class="font-anton text-[28px] leading-none tracking-tight">SNEAKER<span class="text-lab-lime">LAB</span> <sup class="font-mono text-[10px] tracking-[0.2em] ml-1 align-super">EST_2021</sup></div>
+      <div class="hidden lg:flex items-center gap-[2px] text-[11px]">
+        <span class="px-3 py-1 border border-lab-line bg-lab-gray">BROOKLYN / TOKYO / BERLIN</span>
+        <span class="px-3 py-1 border border-lab-line bg-lab-lime text-lab-black font-bold">SYSTEM ONLINE</span>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-10 font-mono text-[11px] tracking-[0.15em] uppercase">
+      <a href="#inventory" class="hover:text-lab-lime transition relative group">Inventory <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-lab-lime group-hover:w-full transition-all"></span></a>
+      <a href="#lab" class="hover:text-lab-lime transition relative group">The Lab <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-lab-lime group-hover:w-full transition-all"></span></a>
+      <a href="#vault" class="hover:text-lab-lime transition relative group">Vault <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-lab-lime group-hover:w-full transition-all"></span></a>
+      <a href="#auth" class="hover:text-lab-lime transition relative group">Auth Protocol <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-lab-lime group-hover:w-full transition-all"></span></a>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="hidden md:flex items-center gap-3 border border-lab-line px-4 py-2 text-[11px] hover:bg-lab-bone hover:text-lab-black transition font-mono uppercase">
+        <span class="w-2 h-2 bg-lab-lime rounded-full animate-pulse"></span> Bag (03)
+      </button>
+      <button id="menuBtn" class="w-[44px] h-[44px] border border-lab-line grid place-items-center hover:bg-lab-lime hover:text-lab-black transition group">
+        <div class="space-y-1.5">
+          <div class="w-5 h-[2px] bg-current transition"></div>
+          <div class="w-5 h-[2px] bg-current transition"></div>
+          <div class="w-3 h-[2px] bg-current transition group-hover:w-5"></div>
+        </div>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- MOBILE MENU (hidden) -->
+<div id="mobileMenu" class="fixed inset-0 z-[60] bg-lab-black translate-x-full transition-transform duration-700 cubic-bezier(.16,1,.3,1) flex flex-col">
+  <div class="flex justify-between items-center px-6 md:px-10 py-5 border-b border-lab-line">
+    <div class="font-anton text-[28px]">SNEAKER<span class="text-lab-lime">LAB</span></div>
+    <button id="closeMenu" class="w-[44px] h-[44px] border border-lab-line grid place-items-center text-xl">✕</button>
+  </div>
+  <div class="flex-1 grid place-items-center">
+    <div class="space-y-2 text-center">
+      <a class="block font-anton text-[12vw] leading-[0.9] hover:text-lab-lime transition" href="#inventory">INVENTORY</a>
+      <a class="block font-anton text-[12vw] leading-[0.9] stroke-text hover:stroke-lime transition" href="#lab">THE LAB</a>
+      <a class="block font-anton text-[12vw] leading-[0.9] hover:text-lab-lime transition" href="#vault">VAULT_</a>
+      <a class="block font-anton text-[12vw] leading-[0.9] stroke-text" href="#auth">AUTH</a>
+    </div>
+  </div>
+  <div class="p-6 border-t border-lab-line flex justify-between font-mono text-[10px] tracking-[0.2em] uppercase">
+    <span>BK / TK / BLN</span><span class="text-lab-lime">©2026 LAB INDUSTRIES</span><span>contact@snkr-lab.xyz</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="relative max-w-[1600px] mx-auto px-6 md:px-10 pt-8 md:pt-14 pb-10">
+  <div class="dest-grid gap-0 relative">
+    <!-- BIG TYPE BACKGROUND -->
+    <div class="col-span-12 relative z-0 overflow-hidden select-none pointer-events-none">
+      <h1 class="font-anton text-[18vw] md:text-[17vw] lg:text-[14vw] leading-[0.85] tracking-tight">
+        <span class="block">SNEAKER</span>
+        <span class="block stroke-text -mt-2 md:-mt-6">LAB__01</span>
+      </h1>
+      <div class="absolute top-[18%] right-[2%] font-mono text-[10px] leading-[1.4] max-w-[180px] hidden lg:block border border-lab-line p-3 bg-lab-black/80 backdrop-blur">
+        <div class="text-lab-lime mb-2">[ MANIFESTO_001 ]</div>
+        We don't resell sneakers. We archive culture. Every pair x-rayed, black-lit, sniff-tested by techs who care more than you do. No affiliate fluff. No fake shit. Just Lab.
+      </div>
+    </div>
+
+    <!-- LEFT META -->
+    <div class="col-span-12 md:col-span-4 lg:col-span-3 mt-6 md:mt-0 relative z-10">
+      <div class="border-t border-lab-lime pt-6">
+        <div class="font-mono text-[10px] tracking-[0.25em] uppercase text-lab-lime mb-4">/ Drop Alert</div>
+        <h2 class="font-anton text-[44px] md:text-[56px] leading-[0.9] uppercase">Neon<br>Protocol<br><span class="text-lab-lime">006</span></h2>
+        <p class="font-mono text-[13px] leading-[1.6] mt-5 text-[#aaa]">
+          40 pairs. Deadstock only. 1 per customer. Sourced from sealed cases in Osaka & Portland. No restock. Lab members get 30min early.
+        </p>
+        <div class="mt-8 flex gap-2">
+          <button class="flex-1 bg-lab-lime text-lab-black font-mono text-[12px] font-bold tracking-[0.15em] uppercase py-4 hover:bg-white transition glitch-hover">Secure Access — $0</button>
+          <button class="w-[54px] grid place-items-center border border-lab-line hover:bg-lab-bone hover:text-lab-black transition text-lg">↗</button>
+        </div>
+
+        <div class="mt-10 grid grid-cols-3 border border-lab-line">
+          <div class="p-4 border-r border-lab-line">
+            <div class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">Pairs left</div>
+            <div class="font-anton text-[28px] leading-none mt-1">07<sub class="font-mono text-[11px]">/40</sub></div>
+          </div>
+          <div class="p-4 border-r border-lab-line">
+            <div class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">Avg. condition</div>
+            <div class="font-anton text-[28px] leading-none mt-1">9.8</div>
+          </div>
+          <div class="p-4">
+            <div class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">Verified</div>
+            <div class="font-anton text-[28px] leading-none mt-1 text-lab-lime">100%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER 3D SNEAKER -->
+    <div class="col-span-12 md:col-span-8 lg:col-span-6 mt-10 md:mt-0 relative z-20">
+      <div id="heroTilt" class="tilt-card relative mx-auto w-full max-w-[680px] aspect-[4/3] bg-[#151515] border border-lab-line overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 z-10"></div>
+        <div class="absolute top-4 left-4 z-20 flex gap-2">
+          <span class="px-2 py-1 bg-lab-lime text-lab-black text-[9px] font-mono font-bold tracking-[0.2em] uppercase">Live 3D • Drag to rotate</span>
+          <span class="px-2 py-1 bg-lab-black border border-lab-line text-[9px] font-mono tracking-[0.2em] uppercase">SKU: SL-006-NEON-01</span>
+        </div>
+        <img id="heroSneaker" src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=1000&auto=format&fit=crop" alt="Sneaker Hero" class="w-full h-full object-cover scale-[1.12] group-hover:scale-[1.18] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)]">
+        <div class="absolute bottom-0 left-0 right-0 z-20 p-4 flex justify-between items-end">
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase">
+            <div class="text-lab-lime">↳ ROTATION ENABLED</div>
+            <div class="opacity-50 mt-1">UV: OFF • X-RAY: READY • MICRO-SCAN: 48MP</div>
+          </div>
+          <div class="w-10 h-10 rounded-full border border-lab-lime grid place-items-center text-lab-lime">◐</div>
+        </div>
+        <!-- hotspots -->
+        <button class="absolute top-[42%] left-[28%] z-30 w-6 h-6 bg-lab-lime text-lab-black grid place-items-center text-[10px] font-bold rounded-full hover:scale-125 transition">+</button>
+        <button class="absolute top-[58%] right-[34%] z-30 w-6 h-6 bg-lab-bone text-lab-black grid place-items-center text-[10px] font-bold rounded-full hover:scale-125 transition">+</button>
+      </div>
+      <div class="mt-3 flex gap-2 font-mono text-[10px] tracking-[0.2em] uppercase overflow-x-auto">
+        <span class="px-3 py-2 border border-lab-line bg-lab-black whitespace-nowrap">View: Lateral • Medial • Sole • Box</span>
+        <span class="px-3 py-2 border border-lab-line bg-lab-lime text-lab-black font-bold whitespace-nowrap">AR Quick Look</span>
+        <span class="px-3 py-2 border border-lab-line bg-lab-black whitespace-nowrap opacity-50">Lab Scan Report PDF ↗</span>
+      </div>
+    </div>
+
+    <!-- RIGHT COUNTDOWN / BID -->
+    <div class="col-span-12 lg:col-span-3 mt-10 lg:mt-0 relative z-10 lg:pl-8">
+      <div class="border border-lab-lime bg-lab-black p-[1px]">
+        <div class="bg-[#171717] p-6">
+          <div class="flex justify-between items-start">
+            <div class="font-mono text-[10px] tracking-[0.3em] uppercase">Drop timer — EST</div>
+            <div class="w-2 h-2 bg-lab-lime rounded-full animate-pulse"></div>
+          </div>
+          <div id="countdown" class="mt-6 grid grid-cols-4 gap-2">
+            <div class="border border-lab-line bg-lab-black p-3 text-center"><div id="cdD" class="font-anton text-[32px] leading-none">02</div><div class="font-mono text-[8px] tracking-[0.2em] opacity-60 mt-1">DAYS</div></div>
+            <div class="border border-lab-line bg-lab-black p-3 text-center"><div id="cdH" class="font-anton text-[32px] leading-none">14</div><div class="font-mono text-[8px] tracking-[0.2em] opacity-60 mt-1">HRS</div></div>
+            <div class="border border-lab-line bg-lab-black p-3 text-center"><div id="cdM" class="font-anton text-[32px] leading-none text-lab-lime">08</div><div class="font-mono text-[8px] tracking-[0.2em] opacity-60 mt-1">MIN</div></div>
+            <div class="border border-lab-line bg-lab-black p-3 text-center"><div id="cdS" class="font-anton text-[32px] leading-none">22</div><div class="font-mono text-[8px] tracking-[0.2em] opacity-60 mt-1">SEC</div></div>
+          </div>
+          <div class="mt-6 border-t border-lab-line pt-6">
+            <div class="font-mono text-[10px] tracking-[0.2em] uppercase flex justify-between"><span>Highest Bid</span><span class="text-lab-lime">$1,240</span></div>
+            <div class="font-mono text-[10px] tracking-[0.2em] uppercase flex justify-between mt-2 opacity-60"><span>Lowest Ask</span><span>$1,480</span></div>
+            <div class="mt-4 h-[44px] relative overflow-hidden border border-lab-line">
+              <div class="absolute inset-0 flex">
+                <div class="flex-1 bg-lab-line/50"></div>
+                <div class="flex-1 bg-lab-lime"></div>
+              </div>
+              <div class="absolute inset-0 grid place-items-center font-mono text-[11px] tracking-[0.2em] uppercase font-bold mix-blend-difference text-white">Place Bid → Join Lab Queue</div>
+            </div>
+            <div class="mt-3 font-mono text-[9px] leading-[1.4] opacity-40">By bidding you agree to Lab Terms • No returns on deadstock • Authentication fee included in price.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 border border-lab-line bg-lab-black p-4 font-mono text-[10px]">
+        <div class="flex justify-between"><span class="opacity-60">LAST SALE</span><span class="font-bold">$1,390 — 3h ago</span></div>
+        <div class="mt-2 w-full h-[2px] bg-lab-line relative overflow-hidden"><div class="absolute left-0 top-0 bottom-0 w-[68%] bg-lab-lime"></div></div>
+        <div class="flex justify-between mt-2 opacity-60"><span>VOL (7D)</span><span>24 PAIRS</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECOND MARQUEE - PRODUCT NAMES TICKER -->
+<div class="border-y border-lab-line bg-lab-black sticky top-0 z-40">
+  <div class="overflow-hidden">
+    <div class="marquee-track flex items-center py-3 gap-10 font-anton text-[22px] tracking-wide uppercase whitespace-nowrap">
+      <span class="flex items-center gap-10">
+        <span>AIR MAX 1 'NEON' 1987</span><span class="stroke-text text-[18px]">× JORDAN 1 HIGH OBSIDIAN</span><span>NMD_R1 OG</span><span class="stroke-text">YEEZY 350 V2 ZEBRA</span><span>DUNK LOW PANDA</span><span class="stroke-text">NEW BALANCE 550</span><span>AF1 LOW '07</span><span class="stroke-text">TRAVIS SCOTT X JORDAN</span>
+      </span>
+      <span class="flex items-center gap-10 ml-10">
+        <span>AIR MAX 1 'NEON' 1987</span><span class="stroke-text text-[18px]">× JORDAN 1 HIGH OBSIDIAN</span><span>NMD_R1 OG</span><span class="stroke-text">YEEZY 350 V2 ZEBRA</span><span>DUNK LOW PANDA</span><span class="stroke-text">NEW BALANCE 550</span><span>AF1 LOW '07</span><span class="stroke-text">TRAVIS SCOTT X JORDAN</span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- INVENTORY / MARKETPLACE - GOAT / STOCKX STYLE BUT COOLER -->
+<section id="inventory" class="max-w-[1600px] mx-auto px-6 md:px-10 py-16 md:py-24">
+  <div class="flex flex-wrap justify-between items-end gap-6 border-b border-lab-line pb-8">
+    <div>
+      <div class="font-mono text-[11px] tracking-[0.3em] uppercase text-lab-lime">/ Live Inventory — Lab Exchange</div>
+      <h2 class="font-anton text-[48px] md:text-[84px] leading-[0.85] uppercase mt-3">MARKET_<span class="stroke-text">FEED</span></h2>
+    </div>
+    <div class="flex gap-2 font-mono text-[10px] uppercase tracking-[0.2em]">
+      <button class="px-4 py-2 bg-lab-lime text-lab-black font-bold">All</button>
+      <button class="px-4 py-2 border border-lab-line hover:bg-lab-bone hover:text-lab-black transition">Deadstock</button>
+      <button class="px-4 py-2 border border-lab-line hover:bg-lab-bone hover:text-lab-black transition">VNDS</button>
+      <button class="px-4 py-2 border border-lab-line hidden md:block">Size 8–13 ↕</button>
+    </div>
+  </div>
+
+  <!-- destroyed grid products -->
+  <div class="mt-10 dest-grid gap-[1px] bg-lab-line border border-lab-line">
+    <!-- large featured -->
+    <div class="col-span-12 md:col-span-7 bg-lab-black group relative overflow-hidden reveal">
+      <div class="absolute top-0 left-0 z-10 flex">
+        <span class="bg-lab-lime text-lab-black font-mono text-[10px] font-bold tracking-[0.2em] uppercase px-3 py-1">Feature Drop</span>
+        <span class="bg-lab-black border-y border-r border-lab-line font-mono text-[10px] tracking-[0.2em] uppercase px-3 py-1">9.6/10 DS</span>
+      </div>
+      <div class="absolute top-0 right-0 z-10 bg-lab-black border-b border-l border-lab-line px-3 py-2 font-mono text-[10px]">BID $2,100 / ASK $2,450</div>
+      <div class="aspect-[16/10] overflow-hidden bg-[#181818]">
+        <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+      </div>
+      <div class="p-6 flex justify-between items-end">
+        <div>
+          <h3 class="font-anton text-[28px] leading-none uppercase">Jordan 1 Retro High<br>Obsidian UNC 2022</h3>
+          <div class="font-mono text-[11px] opacity-60 mt-2">SKU: 555088-140 • SIZE: 10.5 • BOX: OG ALL + RECEIPT</div>
+        </div>
+        <div class="text-right">
+          <div class="font-anton text-[32px] leading-none">$2,380</div>
+          <div class="font-mono text-[10px] text-lab-lime tracking-[0.2em] uppercase mt-1">+12.4% (7D)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- side stack -->
+    <div class="col-span-12 md:col-span-5 grid grid-rows-2 gap-[1px] bg-lab-line">
+      <div class="bg-lab-black group relative overflow-hidden reveal">
+        <div class="absolute top-3 left-3 z-10 bg-lab-black border border-lab-line px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em]">VNDS</div>
+        <div class="grid grid-cols-[1.1fr_0.9fr]">
+          <div class="aspect-square bg-[#1a1a1a] overflow-hidden"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"></div>
+          <div class="p-5 flex flex-col justify-between">
+            <div><h4 class="font-anton text-[18px] leading-[0.95] uppercase">Nike Air Max 95<br>Neon OG 2020</h4><div class="font-mono text-[10px] opacity-50 mt-2">SZ 11 • OG BOX</div></div>
+            <div><div class="font-anton text-[22px]">$340</div><div class="font-mono text-[9px] tracking-[0.2em] uppercase flex gap-2 mt-1"><span class="px-2 py-1 bg-lab-line">BID $310</span><span class="px-2 py-1 bg-lab-lime text-lab-black font-bold">BUY $340</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-lab-black group relative overflow-hidden reveal">
+        <div class="absolute top-3 left-3 z-10 bg-lab-lime text-lab-black px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] font-bold">Deadstock</div>
+        <div class="grid grid-cols-[1.1fr_0.9fr]">
+          <div class="aspect-square bg-[#1a1a1a] overflow-hidden"><img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"></div>
+          <div class="p-5 flex flex-col justify-between">
+            <div><h4 class="font-anton text-[18px] leading-[0.95] uppercase">New Balance<br>550 Aime Leon</h4><div class="font-mono text-[10px] opacity-50 mt-2">SZ 9.5 • SEALED</div></div>
+            <div><div class="font-anton text-[22px]">$215</div><div class="font-mono text-[9px] tracking-[0.2em] uppercase flex gap-2 mt-1"><span class="px-2 py-1 bg-lab-line">BID $198</span><span class="px-2 py-1 bg-lab-lime text-lab-black font-bold">BUY $215</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- row 2 six small -->
+    <div class="col-span-6 md:col-span-3 bg-lab-black p-0 group reveal border-t border-lab-line md:border-t-0">
+      <div class="aspect-[4/3] bg-[#1a1a1a] overflow-hidden relative"><img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+        <div class="absolute bottom-2 left-2 px-2 py-1 bg-lab-black text-[8px] font-mono uppercase tracking-[0.2em] border border-lab-line">Lab Score 9.9</div>
+      </div>
+      <div class="p-4"><div class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">DUNK LOW • SZ 10</div><div class="font-anton text-[16px] leading-tight mt-1 uppercase">Panda Black/White 2024</div><div class="flex justify-between items-center mt-3"><span class="font-anton text-[18px]">$142</span><span class="text-[9px] font-mono text-lab-lime">↑ 3.2%</span></div></div>
+    </div>
+    <div class="col-span-6 md:col-span-3 bg-lab-black p-0 group reveal">
+      <div class="aspect-[4/3] bg-[#1a1a1a] overflow-hidden relative"><img src="https://images.unsplash.com/photo-1603808033176-082500d52ea0?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><div class="absolute inset-0 bg-lab-lime/10 mix-blend-multiply"></div>
+        <div class="absolute bottom-2 left-2 px-2 py-1 bg-lab-lime text-lab-black text-[8px] font-mono uppercase tracking-[0.2em] font-bold">Neon Pack</div>
+      </div>
+      <div class="p-4"><div class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">AF1 LOW • SZ 12</div><div class="font-anton text-[16px] leading-tight mt-1 uppercase">Neon Lab Edition</div><div class="flex justify-between items-center mt-3"><span class="font-anton text-[18px]">$590</span><span class="text-[9px] font-mono text-lab-lime">RARE</span></div></div>
+    </div>
+    <div class="col-span-6 md:col-span-3 bg-lab-black p-0 group reveal">
+      <div class="aspect-[4/3] bg-[#1a1a1a] overflow-hidden relative"><img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"></div>
+      <div class="p-4"><div class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">YEEZY • SZ 9</div><div class="font-anton text-[16px] leading-tight mt-1 uppercase">Boost 350 Zebra</div><div class="flex justify-between items-center mt-3"><span class="font-anton text-[18px]">$410</span><span class="text-[9px] font-mono opacity-60">BID $395</span></div></div>
+    </div>
+    <div class="col-span-6 md:col-span-3 bg-lab-black p-0 group reveal">
+      <div class="aspect-[4/3] bg-[#1a1a1a] overflow-hidden relative"><img src="https://images.unsplash.com/photo-1605408499391-6368c628ef42?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"></div>
+      <div class="p-4"><div class="font-mono text-[9px] tracking-[0.2em] uppercase opacity-60">JORDAN 4 • SZ 10.5</div><div class="font-anton text-[16px] leading-tight mt-1 uppercase">SB Pine Green</div><div class="flex justify-between items-center mt-3"><span class="font-anton text-[18px]">$685</span><span class="text-[9px] font-mono text-lab-lime">↑ 8.1%</span></div></div>
+    </div>
+  </div>
+
+  <div class="mt-6 flex justify-between items-center font-mono text-[10px] tracking-[0.2em] uppercase">
+    <div class="flex gap-2"><span class="w-2 h-2 bg-lab-lime rounded-full"></span> 2,847 pairs live • updated 3 min ago</div>
+    <button class="px-4 py-2 border border-lab-line hover:bg-lab-bone hover:text-lab-black transition">View Full Exchange →</button>
+  </div>
+</section>
+
+<!-- LAB MANIFESTO / STORY -->
+<section id="lab" class="border-y border-lab-line bg-[#0e0e0e] relative overflow-hidden">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-16 md:py-28 dest-grid gap-10">
+    <div class="col-span-12 md:col-span-5">
+      <div class="sticky top-24">
+        <div class="inline-flex items-center gap-2 px-3 py-1 border border-lab-lime text-lab-lime font-mono text-[10px] tracking-[0.3em] uppercase"><span>Lab Notes</span><span class="w-1 h-1 bg-lab-lime rounded-full"></span><span>004</span></div>
+        <h2 class="font-anton text-[56px] md:text-[92px] leading-[0.85] uppercase mt-6">WE ARE<br><span class="stroke-text">NOT A</span><br>STORE_</h2>
+        <div class="mt-8 font-mono text-[13px] leading-[1.8] text-[#bbb] max-w-[42ch]">
+          Most resell platforms are vending machines. Insert cash, pray it's real. Sneaker Lab is a pathology lab. We cut every pair open (figuratively) and tell you what's actually inside.
+          <br><br>
+          Started 2021 in a Bushwick basement with a black light and a debt to pay. Now 11 technicians, 2 x-ray machines, one archive of 6,400+ reference pairs.
+        </div>
+        <div class="mt-10 grid grid-cols-3 border border-lab-line text-center">
+          <div class="p-5 border-r border-lab-line"><div class="font-anton text-[32px] leading-none">11</div><div class="font-mono text-[8px] tracking-[0.2em] uppercase mt-2 opacity-60">Techs on<br>payroll</div></div>
+          <div class="p-5 border-r border-lab-line"><div class="font-anton text-[32px] leading-none">6,412</div><div class="font-mono text-[8px] tracking-[0.2em] uppercase mt-2 opacity-60">Pairs<br>archived</div></div>
+          <div class="p-5"><div class="font-anton text-[32px] leading-none text-lab-lime">0</div><div class="font-mono text-[8px] tracking-[0.2em] uppercase mt-2 opacity-60">Fakes<br>passed</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-7">
+      <div class="border border-lab-line bg-lab-black p-[1px]">
+        <div class="bg-lab-black p-6 md:p-10">
+          <div class="flex gap-6 font-mono text-[10px] tracking-[0.2em] uppercase mb-10">
+            <span class="opacity-30">01 / INTRODUCTION</span><span class="text-lab-lime">02 / METHOD</span><span class="opacity-30">03 / PROOF</span>
+          </div>
+
+          <div class="space-y-12">
+            <div class="flex gap-6 reveal">
+              <div class="font-anton text-[48px] leading-none text-lab-line">01</div>
+              <div class="flex-1 border-l border-lab-line pl-6">
+                <h4 class="font-anton text-[22px] uppercase leading-none">Light Test</h4>
+                <p class="font-mono text-[12px] leading-[1.7] opacity-70 mt-3">Every stitch hit with 365nm UV. Glue inconsistencies glow like crime scenes. We photograph it and include 8-12 UV images per listing. No other platform does this because it's annoying work.</p>
+                <img src="https://images.unsplash.com/photo-1511556532299-8f662fc26c06?q=80&w=800&auto=format&fit=crop" class="mt-4 w-full h-[220px] object-cover border border-lab-line">
+              </div>
+            </div>
+            <div class="flex gap-6 reveal">
+              <div class="font-anton text-[48px] leading-none text-lab-line">02</div>
+              <div class="flex-1 border-l border-lab-line pl-6">
+                <h4 class="font-anton text-[22px] uppercase leading-none">Weigh + Smell + Sound</h4>
+                <p class="font-mono text-[12px] leading-[1.7] opacity-70 mt-3">Real pairs have a weight memory. 2-3g variance = flag. Midsole squeak profile captured on mic. Yes, we smell them. Factory glue has a tell.</p>
+                <div class="mt-4 grid grid-cols-3 gap-[1px] bg-lab-line border border-lab-line">
+                  <div class="bg-[#1a1a1a] p-3 font-mono text-[10px]">WEIGHT<br><span class="font-anton text-[18px] text-lab-lime">412g</span></div>
+                  <div class="bg-[#1a1a1a] p-3 font-mono text-[10px]">FREQUENCY<br><span class="font-anton text-[18px]">2.4kHz</span></div>
+                  <div class="bg-[#1a1a1a] p-3 font-mono text-[10px]">VOC<br><span class="font-anton text-[18px] text-lab-lime">PASS</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-6 reveal">
+              <div class="font-anton text-[48px] leading-none text-lab-line">03</div>
+              <div class="flex-1 border-l border-lab-lime pl-6">
+                <h4 class="font-anton text-[22px] uppercase leading-none text-lab-lime">Double Blind Auth</h4>
+                <p class="font-mono text-[12px] leading-[1.7] opacity-70 mt-3">Two techs, no communication, separate reports. If they disagree, third tech + x-ray. Pair ships only on unanimous pass. Our reject pile is public in the Vault.</p>
+                <button class="mt-4 w-full py-3 bg-lab-lime text-lab-black font-mono text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-white transition">See Rejected Fakes → 47 items in vault</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-[1px] grid grid-cols-2 gap-[1px] bg-lab-line border-x border-b border-lab-line">
+        <div class="bg-lab-black p-6 font-mono text-[11px] leading-[1.6]"><span class="text-lab-lime">[ LAB HOURS ]</span><br>Mon–Sat 10-19 EST<br>Brooklyn Lab: appointment only<br><span class="opacity-40">Walk-ins = we will judge your shoes</span></div>
+        <div class="bg-lab-black p-6 font-mono text-[11px] leading-[1.6]"><span class="text-lab-lime">[ CERTIFICATE ]</span><br>Every purchase includes NFC tag + printed lab report + UV photos on IPFS<br><span class="opacity-40">Scan tag to verify. Can't fake chain.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTH PROTOCOL (steps) -->
+<section id="auth" class="max-w-[1600px] mx-auto px-6 md:px-10 py-16 md:py-20">
+  <div class="dest-grid gap-0 items-start">
+    <div class="col-span-12 md:col-span-4 border border-lab-line bg-lab-black p-8 md:sticky top-[80px]">
+      <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-lab-lime">/ Authentication Protocol</div>
+      <h2 class="font-anton text-[42px] leading-[0.9] uppercase mt-4">AUTH<br>IN<br><span class="text-lab-lime">5 STEPS</span></h2>
+      <p class="font-mono text-[12px] leading-[1.6] opacity-60 mt-4">Most platforms check 3 points. We check 47. Here's the short version.</p>
+      <div class="mt-8 space-y-2 font-mono text-[10px] uppercase tracking-[0.15em]">
+        <div class="flex justify-between py-2 border-b border-lab-line"><span>Average Auth Time</span><span class="font-bold">18 min</span></div>
+        <div class="flex justify-between py-2 border-b border-lab-line"><span>Photos per Pair</span><span class="font-bold text-lab-lime">38</span></div>
+        <div class="flex justify-between py-2"><span>Pass Rate</span><span class="font-bold">62% of submissions</span></div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-8 md:pl-[1px]">
+      <div class="grid">
+        <div class="border border-lab-line bg-lab-black p-8 md:p-10 hover:bg-[#181818] transition group reveal flex gap-8">
+          <div class="font-anton text-[64px] leading-none stroke-text group-hover:text-lab-lime group-hover:[-webkit-text-stroke-color:#c6ff00] transition">01</div>
+          <div><h4 class="font-anton text-[24px] uppercase">Intake Scan</h4><p class="font-mono text-[12px] opacity-60 mt-2 leading-[1.6]">Sellers submit 12-angle video. AI flags inconsistencies before human touches pair. Weight, box code, factory stitch density checked against archive.</p></div>
+        </div>
+        <div class="border-x border-b border-lab-line bg-lab-black p-8 md:p-10 hover:bg-[#181818] transition group reveal flex gap-8">
+          <div class="font-anton text-[64px] leading-none stroke-text group-hover:text-lab-lime transition">02</div>
+          <div><h4 class="font-anton text-[24px] uppercase">Blacklight Autopsy</h4><p class="font-mono text-[12px] opacity-60 mt-2 leading-[1.6]">365nm + 395nm UV sweep. Aftermarket glue fluoresces green. Retouched paint hits different. We keep UV gallery public for each listing.</p></div>
+        </div>
+        <div class="border-x border-b border-lab-line bg-lab-black p-8 md:p-10 hover:bg-[#181818] transition group reveal flex gap-8">
+          <div class="font-anton text-[64px] leading-none stroke-text group-hover:text-lab-lime transition">03</div>
+          <div><h4 class="font-anton text-[24px] uppercase">Double Blind</h4><p class="font-mono text-[12px] opacity-60 mt-2 leading-[1.6]">Two senior techs auth separately. No chat. If mismatch, CT/x-ray. We publish disagreement rate quarterly. Last quarter: 4.2%.</p></div>
+        </div>
+        <div class="border-x border-b border-lab-line bg-lab-black p-8 md:p-10 hover:bg-[#181818] transition group reveal flex gap-8">
+          <div class="font-anton text-[64px] leading-none stroke-text group-hover:text-lab-lime transition">04</div>
+          <div><h4 class="font-anton text-[24px] uppercase">NFC Seal</h4><p class="font-mono text-[12px] opacity-60 mt-2 leading-[1.6]">Lab tag injected into laces, linked to IPFS report. Tap with phone → full photo set + tech initials. Can't be cloned without private key.</p></div>
+        </div>
+        <div class="border-x border-b border-lab-line bg-lab-lime text-lab-black p-8 md:p-10 group reveal flex gap-8">
+          <div class="font-anton text-[64px] leading-none">05</div>
+          <div><h4 class="font-anton text-[24px] uppercase">Ship + Archive</h4><p class="font-mono text-[12px] mt-2 leading-[1.6] font-medium">We pack in Lab Vault box, include printed UV report, and archive pair into reference dataset. Next fake gets easier to catch. You get history.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VAULT GALLERY - destroyed masonry -->
+<section id="vault" class="bg-lab-bone text-lab-black border-y border-lab-line">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-16 md:py-20">
+    <div class="flex flex-wrap justify-between items-end gap-6">
+      <h2 class="font-anton text-[56px] md:text-[96px] leading-[0.85] uppercase">VAULT_<br><span class="stroke-text" style="-webkit-text-stroke-color:#111">LOOKBOOK</span></h2>
+      <div class="font-mono text-[11px] tracking-[0.2em] uppercase max-w-[28ch] leading-[1.6]">Lab archive — not for sale. Reference pairs, failed fakes, factory samples, prototypes. Shot on Contax T2 + Portra 400 scan.</div>
+    </div>
+
+    <div class="mt-12 dest-grid gap-[8px]">
+      <div class="col-span-6 md:col-span-3 relative overflow-hidden group aspect-[3/4] bg-[#ddd]">
+        <img src="https://images.unsplash.com/photo-1520256862857-312d6b0d6d4e?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white"><div class="font-mono text-[9px] tracking-[0.2em] uppercase">ARCHIVE_092 • DS 1998</div><div class="font-anton text-[18px] uppercase leading-none mt-1">Air Jordan 3 Black Cement • Deadstock</div></div>
+      </div>
+      <div class="col-span-6 md:col-span-5 relative overflow-hidden group aspect-[4/3] md:aspect-[16/10] bg-[#ddd]">
+        <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+        <div class="absolute top-4 left-4 bg-lab-lime text-lab-black font-mono text-[9px] px-2 py-1 font-bold uppercase tracking-[0.2em]">Reject Pile • Fake Glue Detected</div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white md:flex justify-between items-end"><div><div class="font-mono text-[9px] tracking-[0.2em] uppercase">CASE STUDY • UV FAIL</div></div><div class="font-mono text-[9px] hidden md:block">See full UV gallery ↗</div></div>
+      </div>
+      <div class="col-span-12 md:col-span-4 grid grid-rows-2 gap-[8px]">
+        <div class="relative overflow-hidden group aspect-[16/9] bg-[#ddd]"><img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition duration-700"><div class="absolute inset-0 bg-[#c6ff00]/20 mix-blend-multiply"></div></div>
+        <div class="relative overflow-hidden group aspect-[16/9] bg-[#111] p-6 flex flex-col justify-between text-white">
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase text-lab-lime">[ VAULT STATS ]</div>
+          <div class="font-anton text-[36px] leading-[0.9] uppercase">1,203 REJECTS<br>LOGGED &<br>TAGGED_</div>
+          <div class="font-mono text-[9px] opacity-60">Public database → vault.snkr-lab.xyz/rejects</div>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-8 relative overflow-hidden group aspect-[16/8] bg-[#ddd] mt-[8px]">
+        <img src="https://images.unsplash.com/photo-1512374382149-233c42b6a83b?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.02] transition duration-700">
+        <div class="absolute left-6 bottom-6 bg-lab-black text-lab-bone border border-lab-line p-4 max-w-[320px]"><div class="font-mono text-[9px] tracking-[0.2em] uppercase mb-2">Lab Shoot • Brooklyn Navy Yard</div><div class="font-anton text-[22px] uppercase leading-[0.9]">We shoot every pair like it's a crime scene. Because sometimes it is.</div></div>
+      </div>
+      <div class="col-span-12 md:col-span-4 relative overflow-hidden group aspect-[4/3] bg-lab-black text-lab-bone p-8 flex flex-col justify-between mt-[8px]">
+        <div class="font-mono text-[10px] tracking-[0.3em] uppercase opacity-60">Quote / Tech_03_Mira</div>
+        <div class="font-anton text-[28px] leading-[0.95] uppercase">“If you need a loupe to tell it's fake, it's not fake enough for us to miss.”</div>
+        <div class="font-mono text-[10px] tracking-[0.2em] uppercase">Senior Tech • 4y Lab • 9,214 pairs authed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- MEMBERSHIP / PRICING - destroyed brutal -->
+<section class="max-w-[1600px] mx-auto px-6 md:px-10 py-10 md:py-16 relative">
+  <div class="border border-lab-line bg-lab-black dest-grid">
+    <div class="col-span-12 md:col-span-4 p-8 md:p-10 border-b md:border-b-0 md:border-r border-lab-line">
+      <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-lab-lime">/ Lab Membership</div>
+      <h3 class="font-anton text-[42px] md:text-[56px] leading-[0.85] uppercase mt-4">CUT THE<br>LINE_<br><span class="text-lab-lime">ALWAYS</span></h3>
+      <p class="font-mono text-[12px] leading-[1.7] opacity-60 mt-6 max-w-[32ch]">Membership isn't a discount club. It's early intel, free auth reports, and a physical keycard that gets you into Brooklyn lab after hours.</p>
+      <div class="mt-8 flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-lab-lime text-lab-black grid place-items-center font-anton text-[20px]">45</div>
+        <div class="font-mono text-[10px] leading-[1.3] uppercase"><span class="font-bold tracking-[0.2em]">$/YR • NO AUTO RENEW</span><br><span class="opacity-50">Cancel anytime • Keycard shipped in Vault Box</span></div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-8 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-lab-line">
+      <div class="p-8 hover:bg-[#1a1a1a] transition group">
+        <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-50">Tier 01 — Free</div>
+        <div class="font-anton text-[24px] uppercase mt-3 leading-[0.9]">Lurker<br>Access</div>
+        <ul class="mt-6 space-y-3 font-mono text-[11px] leading-[1.5]">
+          <li class="flex gap-2"><span class="text-lab-lime">✓</span> Live inventory feed</li>
+          <li class="flex gap-2"><span class="text-lab-lime">✓</span> Drop alerts (email)</li>
+          <li class="flex gap-2 opacity-40"><span>✕</span> Early queue</li>
+          <li class="flex gap-2 opacity-40"><span>✕</span> Free auth reports</li>
+        </ul>
+        <button class="mt-8 w-full brutal-btn border border-lab-line py-3 font-mono text-[10px] tracking-[0.2em] uppercase">Current Plan</button>
+      </div>
+      <div class="p-8 bg-lab-lime text-lab-black relative overflow-hidden group scanline">
+        <div class="absolute top-0 right-0 bg-lab-black text-lab-lime font-mono text-[9px] px-2 py-1 tracking-[0.2em] uppercase">Most Chosen</div>
+        <div class="font-mono text-[10px] tracking-[0.2em] uppercase font-bold">Tier 02 — $45/yr</div>
+        <div class="font-anton text-[24px] uppercase mt-3 leading-[0.9]">Lab<br>Member</div>
+        <ul class="mt-6 space-y-3 font-mono text-[11px] leading-[1.5] font-medium">
+          <li class="flex gap-2"><span>✓</span> 30min early drop access</li>
+          <li class="flex gap-2"><span>✓</span> 2 free auth reports / yr ($100 value)</li>
+          <li class="flex gap-2"><span>✓</span> NFC keycard + Vault Box</li>
+          <li class="flex gap-2"><span>✓</span> Discord #lab-talk access</li>
+        </ul>
+        <button class="mt-8 w-full bg-lab-black text-lab-lime py-3 font-mono text-[10px] tracking-[0.2em] uppercase font-bold hover:bg-white hover:text-lab-black transition">Join Lab →</button>
+        <div class="mt-4 font-mono text-[9px] uppercase tracking-[0.1em] leading-[1.4] opacity-70">847 members • 12 spots before price bump to $65</div>
+      </div>
+      <div class="p-8 hover:bg-[#1a1a1a] transition group">
+        <div class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-50">Tier 03 — $250/yr</div>
+        <div class="font-anton text-[24px] uppercase mt-3 leading-[0.9]">Lab<br>Black Card</div>
+        <ul class="mt-6 space-y-3 font-mono text-[11px] leading-[1.5]">
+          <li class="flex gap-2"><span class="text-lab-lime">✓</span> Everything in Member</li>
+          <li class="flex gap-2"><span class="text-lab-lime">✓</span> After-hours lab visits</li>
+          <li class="flex gap-2"><span class="text-lab-lime">✓</span> Consign 0% fee (vs 20%)</li>
+          <li class="flex gap-2"><span class="text-lab-lime">✓</span> 1/1 sample sale invites</li>
+        </ul>
+        <button class="mt-8 w-full brutal-btn border border-lab-line py-3 font-mono text-[10px] tracking-[0.2em] uppercase group-hover:border-lab-lime">Apply → Waitlist</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- micro trust badges -->
+  <div class="mt-[1px] grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-lab-line border-x border-b border-lab-line">
+    <div class="bg-lab-black p-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em]"><span class="w-6 h-6 border border-lab-line grid place-items-center">✓</span> PayPal + Apple Pay + ETH</div>
+    <div class="bg-lab-black p-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em]"><span class="w-6 h-6 border border-lab-line grid place-items-center">✓</span> 2-Day US • DHL Express WW</div>
+    <div class="bg-lab-black p-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em]"><span class="w-6 h-6 border border-lab-line grid place-items-center">✓</span> No Import Fees (We Cover)</div>
+    <div class="bg-lab-black p-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em]"><span class="w-6 h-6 border border-lab-line grid place-items-center text-lab-lime">!</span> Tag not NFC = Return Free</div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / REVIEWS - brutalist -->
+<section class="max-w-[1600px] mx-auto px-6 md:px-10 py-16 md:py-24 border-b border-lab-line">
+  <div class="flex justify-between items-center border-b border-lab-line pb-6">
+    <h3 class="font-anton text-[32px] md:text-[48px] leading-none uppercase">Lab Notes_<span class="text-lab-lime">Verified</span></h3>
+    <div class="font-mono text-[10px] tracking-[0.2em] uppercase hidden md:block">Avg rating 4.9 • 1,847 reviews • last 90 days</div>
+  </div>
+
+  <div class="mt-[1px] grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-lab-line border border-lab-line">
+    <div class="bg-lab-black p-8 reveal">
+      <div class="flex justify-between items-start"><div class="font-mono text-[10px] tracking-[0.2em] uppercase">★ ★ ★ ★ ★ • @kicks_bk</div><div class="font-mono text-[9px] opacity-40">2d ago</div></div>
+      <div class="font-anton text-[22px] leading-[0.95] uppercase mt-6">“First time I didn’t have to second-guess after unboxing.”</div>
+      <p class="font-mono text-[12px] leading-[1.7] opacity-60 mt-4">Bought Travis 1 High on Lab. Came with UV prints and NFC I could scan. Even the box smell checked. These guys are sick (in good way).</p>
+      <div class="mt-6 inline-flex gap-2 font-mono text-[9px] tracking-[0.2em] uppercase"><span class="px-2 py-1 border border-lab-line">Size 10.5</span><span class="px-2 py-1 bg-lab-lime text-lab-black font-bold">Verified Buy</span></div>
+    </div>
+    <div class="bg-[#1a1a1a] p-8 reveal">
+      <div class="flex justify-between items-start"><div class="font-mono text-[10px] tracking-[0.2em] uppercase">★ ★ ★ ★ ★ • @yuki_tyo</div><div class="font-mono text-[9px] opacity-40">5d ago</div></div>
+      <div class="font-anton text-[22px] leading-[0.95] uppercase mt-6">“X-ray sheet included is wild. You don’t get that on StockX.”</div>
+      <p class="font-mono text-[12px] leading-[1.7] opacity-60 mt-4">The Lab Report shows midsole void pattern vs retail. My pair is legit 100%, but now I know what to look for next time. Educational.</p>
+      <div class="mt-6 inline-flex gap-2 font-mono text-[9px] tracking-[0.2em] uppercase"><span class="px-2 py-1 border border-lab-line">Air Max 1</span><span class="px-2 py-1 bg-lab-bone text-lab-black font-bold">Lab Member</span></div>
+    </div>
+    <div class="bg-lab-black p-8 reveal">
+      <div class="flex justify-between items-start"><div class="font-mono text-[10px] tracking-[0.2em] uppercase">★ ★ ★ ★ ★ • @momo.berlin</div><div class="font-mono text-[9px] opacity-40">1w ago</div></div>
+      <div class="font-anton text-[22px] leading-[0.95] uppercase mt-6">“Rejected my own pair. Respect.”</div>
+      <p class="font-mono text-[12px] leading-[1.7] opacity-60 mt-4">Tried to sell my 1985 Chicago. Lab found rep box, declined. They sent comparison photos free. Lost sale but kept integrity. Will consign again.</p>
+      <div class="mt-6 inline-flex gap-2 font-mono text-[9px] tracking-[0.2em] uppercase"><span class="px-2 py-1 border border-lab-line">Consignor</span><span class="px-2 py-1 border border-lab-lime text-lab-lime">Rejected • Paid $50 for report</span></div>
+    </div>
+  </div>
+
+  <div class="mt-6 overflow-hidden border border-lab-line bg-lab-black">
+    <div class="marquee-rev flex py-2 font-mono text-[10px] tracking-[0.2em] uppercase whitespace-nowrap">
+      <span class="flex gap-8">
+        <span>★ “Better than GOAT authentication” — Complex</span><span class="opacity-30">/</span><span>★ “The most paranoid sneaker shop in America” — Highsnobiety</span><span class="opacity-30">/</span><span>★ Lab Membership $45/yr → early access + free auth reports</span><span class="opacity-30">/</span>
+        <span>★ “Better than GOAT authentication” — Complex</span><span class="opacity-30">/</span><span>★ “The most paranoid sneaker shop in America” — Highsnobiety</span><span class="opacity-30">/</span><span>★ Lab Membership $45/yr → early access + free auth reports</span><span class="opacity-30">/</span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER / CONTACT -->
+<footer class="bg-lab-black relative overflow-hidden border-t border-lab-line">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-12 md:py-16 dest-grid gap-10">
+    <div class="col-span-12 md:col-span-5">
+      <h2 class="font-anton text-[16vw] md:text-[9vw] leading-[0.85] uppercase">JOIN<br><span class="text-lab-lime">LAB_</span></h2>
+      <div class="mt-8 border border-lab-line p-1 max-w-[520px] flex">
+        <input placeholder="EMAIL FOR DROP ALERTS + VAULT ACCESS" class="flex-1 bg-transparent px-4 py-3 font-mono text-[11px] tracking-[0.15em] uppercase placeholder:opacity-40 outline-none">
+        <button class="px-6 bg-lab-lime text-lab-black font-mono text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-white transition">→</button>
+      </div>
+      <div class="mt-4 font-mono text-[9px] opacity-40 tracking-[0.15em] uppercase max-w-[520px]">No spam. 1 email/week max. Early queue for Lab drops. Unsubscribe in footer. We respect your inbox like we respect deadstock.</div>
+    </div>
+    <div class="col-span-12 md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-8 md:pl-10">
+      <div>
+        <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-lab-lime mb-6">Visit — Appointment</div>
+        <div class="font-mono text-[12px] leading-[1.8]">Brooklyn Lab<br>63 Flushing Ave, Bldg 3<br>Brooklyn, NY 11205<br><br><a href="#" class="underline decoration-lab-lime underline-offset-4 hover:text-lab-lime">Book 30min slot →</a></div>
+        <div class="mt-8 font-mono text-[10px] tracking-[0.3em] uppercase opacity-40">Social</div>
+        <div class="mt-3 flex flex-col gap-1 font-mono text-[11px] uppercase"><a class="hover:text-lab-lime" href="#">Instagram ↗</a><a class="hover:text-lab-lime" href="#">Are.na / Archive ↗</a><a class="hover:text-lab-lime" href="#">X / Lab Notes ↗</a></div>
+      </div>
+      <div>
+        <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-lab-lime mb-6">Shop / Exchange</div>
+        <div class="flex flex-col gap-2 font-anton text-[20px] leading-none uppercase">
+          <a class="hover:text-lab-lime hover:pl-2 transition-all" href="#">New Arrivals</a>
+          <a class="hover:text-lab-lime hover:pl-2 transition-all" href="#">Deadstock Vault</a>
+          <a class="hover:text-lab-lime hover:pl-2 transition-all" href="#">Under $200</a>
+          <a class="hover:text-lab-lime hover:pl-2 transition-all" href="#">Reject Archive (Learn)</a>
+          <a class="hover:text-lab-lime hover:pl-2 transition-all" href="#">Consign → 80% payout</a>
+        </div>
+        <div class="mt-8 font-mono text-[10px] tracking-[0.3em] uppercase opacity-40">Support</div>
+        <div class="mt-3 font-mono text-[11px] leading-[1.8] uppercase opacity-60"><a href="#" class="hover:text-lab-bone">Auth Report Help</a><br><a href="#" class="hover:text-lab-bone">Shipping & Returns</a><br><a href="#" class="hover:text-lab-bone">Lab Membership FAQ</a></div>
+      </div>
+      <div class="col-span-2 md:col-span-1">
+        <div class="border border-lab-lime bg-[#181818] p-4">
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase flex justify-between"><span>System</span><span class="text-lab-lime">● LIVE</span></div>
+          <div class="mt-4 font-anton text-[14px] uppercase leading-tight">Current Queue:<br>12 pairs in auth<br>3hrs avg wait</div>
+          <div class="mt-4 w-full h-[2px] bg-lab-line"><div class="h-full bg-lab-lime w-[73%]"></div></div>
+          <div class="mt-2 font-mono text-[9px] uppercase opacity-60">Next intake window: Tomorrow 09:00 EST (27 slots)</div>
+        </div>
+        <div class="mt-4 border border-lab-line p-4 font-mono text-[10px] leading-[1.6] uppercase"><span class="text-lab-lime">Lab Guarantee:</span><br>If our auth fails, we buy it back + 2x price + publish our mistake. We've paid $0 to date.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-lab-line">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-6 flex flex-wrap justify-between gap-4 font-mono text-[10px] tracking-[0.2em] uppercase opacity-60">
+      <span>©2026 SNEAKER LAB INDUSTRIES LLC • BK / TOKYO / BERLIN • BUILT IN BUSHWICK</span>
+      <span class="flex gap-6"><a href="#" class="hover:text-lab-bone">Privacy</a><a href="#" class="hover:text-lab-bone">Terms / No Fake Shit Policy</a><a href="#" class="hover:text-lab-bone">Contact: LAB@SNKR-LAB.XYZ</a></span>
+    </div>
+    <div class="overflow-hidden select-none pointer-events-none border-t border-lab-line">
+      <div class="font-anton text-[20vw] leading-[0.8] tracking-tight whitespace-nowrap opacity-[0.03]">SNEAKER LAB SNEAKER LAB SNEAKER LAB</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* custom cursor */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0, rx=0, ry=0;
+window.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px'; });
+(function animateRing(){
+  rx += (mx - rx)*0.13; ry += (my - ry)*0.13;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animateRing);
+})();
+document.querySelectorAll('a, button, .tilt-card, [class*="hover:"]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ dot.classList.add('hover'); ring.classList.add('hover'); });
+  el.addEventListener('mouseleave',()=>{ dot.classList.remove('hover'); ring.classList.remove('hover'); });
+});
+
+/* progress */
+window.addEventListener('scroll', ()=>{
+  const sc = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('progress').style.width = sc+'%';
+});
+
+/* reveal */
+const rev = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{ threshold:0.15 });
+rev.forEach(r=>io.observe(r));
+
+/* 3d tilt hero */
+const tilt = document.getElementById('heroTilt');
+const sneaker = document.getElementById('heroSneaker');
+if(tilt){
+  tilt.addEventListener('mousemove', (e)=>{
+    const rect = tilt.getBoundingClientRect();
+    const x = (e.clientX - rect.left)/rect.width - 0.5;
+    const y = (e.clientY - rect.top)/rect.height - 0.5;
+    tilt.style.transform = `perspective(1000px) rotateY(${x*14}deg) rotateX(${-y*14}deg)`;
+    sneaker.style.transform = `scale(1.18) translate(${x*24}px, ${y*18}px)`;
+  });
+  tilt.addEventListener('mouseleave', ()=>{
+    tilt.style.transform = 'perspective(1000px) rotateY(0) rotateX(0)';
+    sneaker.style.transform = 'scale(1.12) translate(0,0)';
+  });
+  // drag to rotate fake
+  let dragging=false, startX=0, rot=0;
+  tilt.addEventListener('mousedown', e=>{ dragging=true; startX=e.clientX; tilt.style.cursor='grabbing'; });
+  window.addEventListener('mouseup',()=>{ dragging=false; tilt.style.cursor=''; });
+  window.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    rot += (e.clientX - startX)*0.2;
+    sneaker.style.transform = `scale(1.18) rotate(${rot*0.05}deg)`;
+    startX=e.clientX;
+  });
+}
+
+/* countdown - set to 8 days from now */
+(function(){
+  const target = new Date();
+  target.setDate(target.getDate()+2);
+  target.setHours(target.getHours()+14);
+  target.setMinutes(target.getMinutes()+8);
+  target.setSeconds(target.getSeconds()+22);
+  function upd(){
+    const now = new Date();
+    let diff = target - now;
+    if(diff<0) diff=0;
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor(diff%86400000/3600000);
+    const m = Math.floor(diff%3600000/60000);
+    const s = Math.floor(diff%60000/1000);
+    document.getElementById('cdD').textContent = String(d).padStart(2,'0');
+    document.getElementById('cdH').textContent = String(h).padStart(2,'0');
+    document.getElementById('cdM').textContent = String(m).padStart(2,'0');
+    document.getElementById('cdS').textContent = String(s).padStart(2,'0');
+  }
+  upd(); setInterval(upd,1000);
+})();
+
+/* menu */
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const closeMenu = document.getElementById('closeMenu');
+menuBtn.addEventListener('click',()=>{ mobileMenu.classList.remove('translate-x-full'); });
+closeMenu.addEventListener('click',()=>{ mobileMenu.classList.add('translate-x-full'); });
+mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileMenu.classList.add('translate-x-full')));
+
+/* quick cart toast */
+document.querySelectorAll('button').forEach(b=>{
+  if(b.textContent.includes('Bag')){
+    b.addEventListener('click',()=>{
+      b.textContent = 'Bag (03) ✓';
+      setTimeout(()=>b.innerHTML='<span class="w-2 h-2 bg-lab-lime rounded-full animate-pulse"></span> Bag (03)',1500);
+    });
+  }
+});
+
+
+/* size toggle interaction - extra micro */
+document.querySelectorAll('[class*="border"][class*="lab-line"]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ el.style.borderColor='#c6ff00'; });
+  el.addEventListener('mouseleave',()=>{ el.style.borderColor=''; });
+});
+
+/* random flicker on lime elements */
+setInterval(()=>{ const els=document.querySelectorAll('.text-lab-lime'); const r=els[Math.floor(Math.random()*els.length)]; if(r){ r.classList.add('flicker'); setTimeout(()=>r.classList.remove('flicker'),200); } }, 1800);
+
+/* keyboard shortcut easter egg: press L A B */
+let seq=[]; window.addEventListener('keydown', e=>{ seq.push(e.key.toLowerCase()); seq=seq.slice(-3); if(seq.join('')==='lab'){ document.body.style.filter='invert(1)'; setTimeout(()=>document.body.style.filter='',400); /* flash */ } });
+
+/* parallax for grain */
+window.addEventListener('scroll',()=>{ const g=document.querySelector('.grain'); if(g) g.style.transform=`translateY(${window.scrollY*0.02}px)`; });
+
+/* inventory hover preview */
+const previews = [
+  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600",
+  "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=600"
+];
+
+/* hide cursor on mobile */
+if(window.matchMedia('(max-width: 768px)').matches){
+  dot.style.display='none'; ring.style.display='none'; document.body.style.cursor='auto';
+}
+</script>
+</body>
+</html>

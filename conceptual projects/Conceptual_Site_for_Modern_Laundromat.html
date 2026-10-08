@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Modern Laundromat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        paper: '#fdfbf7',
+        paperDark: '#f5f1e8',
+        ink: '#0a0a0a',
+        blue: '#0047ff',
+        stainless: '#8a8d93',
+        stainlessLight: '#d0d3d9',
+        mortar: '#e8e5dd'
+      },
+      fontFamily: {
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html { scroll-behavior: smooth; }
+  body { background: #fdfbf7; color: #0a0a0a; font-family: 'Inter', sans-serif; overflow-x: hidden; cursor: none; }
+  @media (max-width: 768px){ body { cursor: auto; } .cursor-dot, .cursor-ring { display:none !important; } }
+
+  /* Grain Overlay */
+  .grain {
+    position: fixed; inset: -50%; width: 200%; height: 200%;
+    pointer-events: none; z-index: 9999; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    animation: grainMove 8s steps(10) infinite;
+  }
+  @keyframes grainMove {
+    0%,100%{ transform:translate(0,0); }
+    10%{ transform:translate(-5%,-10%); }
+    20%{ transform:translate(-15%,5%); }
+    30%{ transform:translate(7%,-25%); }
+    40%{ transform:translate(-5%,25%); }
+    50%{ transform:translate(-15%,10%); }
+    60%{ transform:translate(15%,0%); }
+    70%{ transform:translate(0%,15%); }
+    80%{ transform:translate(3%,-15%); }
+    90%{ transform:translate(-10%,10%); }
+  }
+
+  /* Custom Cursor */
+  .cursor-dot {
+    position: fixed; top:0; left:0; width:6px; height:6px; background:#0047ff;
+    border-radius:50%; pointer-events:none; z-index:10000; transform:translate(-50%,-50%);
+    transition: transform 0.15s ease, opacity 0.2s;
+  }
+  .cursor-ring {
+    position: fixed; top:0; left:0; width:40px; height:40px; border:1px solid rgba(0,71,255,0.4);
+    border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%);
+    transition: width 0.3s cubic-bezier(0.16,1,0.3,1), height 0.3s cubic-bezier(0.16,1,0.3,1), background 0.3s, border-color 0.3s;
+  }
+  .cursor-ring.hover { width:80px; height:80px; background:rgba(0,71,255,0.08); border-color:#0047ff; }
+  .cursor-ring.drum { width:120px; height:120px; border-style:dashed; border-color:#0047ff; animation: spin 8s linear infinite; }
+
+  @keyframes spin { to { transform:translate(-50%,-50%) rotate(360deg); } }
+
+  /* Scroll Reveal */
+  .reveal { opacity:0; transform: translateY(36px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.is-visible { opacity:1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay:0.1s; }
+  .reveal-delay-2 { transition-delay:0.2s; }
+  .reveal-delay-3 { transition-delay:0.3s; }
+
+  /* Marquee */
+  .marquee { overflow:hidden; white-space:nowrap; }
+  .marquee-inner { display:inline-flex; animation: marquee 28s linear infinite; }
+  @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  /* Drum mask */
+  .drum-mask {
+    clip-path: circle(50% at 50% 50%);
+    position: relative;
+  }
+  .drum-inner { animation: drumSpin 20s linear infinite; }
+  @keyframes drumSpin { from{transform:rotate(0deg) scale(1.05)} to{transform:rotate(360deg) scale(1.05)} }
+
+  /* Stainless shine */
+  .stainless {
+    background: linear-gradient(105deg, #d0d3d9 0%, #f5f5f7 12%, #a9adb5 24%, #e8eaed 36%, #8a8d93 52%, #d0d3d9 68%, #f0f1f3 84%, #8a8d93 100%);
+  }
+  .stainless-border {
+    border: 1px solid transparent;
+    background: linear-gradient(#fdfbf7,#fdfbf7) padding-box, linear-gradient(135deg,#d0d3d9,#8a8d93,#f5f5f7) border-box;
+  }
+
+  /* Washer dial */
+  .dial-tick { position:absolute; width:1px; height:10px; background:#0a0a0a; left:50%; top:6px; transform-origin:50% 84px; }
+
+  /* Magnetic button */
+  .mag-btn { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+
+  /* Text selection blue */
+  ::selection { background:#0047ff; color:white; }
+
+  /* Industrial grid lines */
+  .grid-line { position:absolute; background: rgba(10,10,10,0.06); }
+</style>
+</head>
+<body class="relative">
+
+<div class="grain"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav class="fixed top-0 left-0 w-full z-50 mix-blend-difference text-white md:text-black md:mix-blend-normal md:border-b md:border-black/10 md:bg-[#fdfbf7]/80 md:backdrop-blur-xl">
+  <div class="flex items-center justify-between px-6 md:px-10 h-[72px]">
+    <div class="flex items-center gap-10">
+      <a href="#" class="font-display font-bold text-[18px] tracking-[-0.02em] leading-none">CYCLE<span class="font-light">®</span></a>
+      <div class="hidden lg:flex items-center gap-8 font-body text-[10px] uppercase tracking-[0.18em] opacity-70">
+        <span>[N 40°45' / W 73°58']</span>
+        <span class="w-px h-3 bg-black/20"></span>
+        <span>Manhattan — Open 05:00—23:00</span>
+      </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-12">
+      <div class="flex gap-8 font-display text-[13px] uppercase tracking-[0.08em]">
+        <a href="#story" class="hover:text-blue transition-colors magnetic" data-cursor="hover">System</a>
+        <a href="#services" class="hover:text-blue transition-colors magnetic" data-cursor="hover">Services</a>
+        <a href="#gallery" class="hover:text-blue transition-colors magnetic" data-cursor="hover">Lab</a>
+        <a href="#contact" class="hover:text-blue transition-colors magnetic" data-cursor="hover">Reserve</a>
+      </div>
+      <a href="#contact" class="mag-btn group flex items-center gap-3 px-6 h-10 rounded-full bg-ink text-paper text-[11px] tracking-[0.14em] uppercase font-medium" data-cursor="hover">
+        <span class="w-2 h-2 rounded-full bg-blue animate-pulse"></span>
+        Book a Drum
+        <span class="ml-2 group-hover:translate-x-1 transition-transform">↗</span>
+      </a>
+    </div>
+
+    <button id="menuToggle" class="md:hidden w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-display text-[11px]">MENU</button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="hidden md:hidden absolute top-[72px] left-0 w-full bg-[#fdfbf7] border-b border-black/10 px-6 py-8 flex flex-col gap-6">
+    <a href="#story" class="font-display text-3xl tracking-tight">System</a>
+    <a href="#services" class="font-display text-3xl tracking-tight">Services</a>
+    <a href="#gallery" class="font-display text-3xl tracking-tight">Lab</a>
+    <a href="#contact" class="font-display text-3xl tracking-tight">Reserve</a>
+    <div class="pt-6 border-t border-black/10 flex justify-between items-center text-[11px] uppercase tracking-widest opacity-60">
+      <span>40.7128° N — EST</span><span>©2024</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative pt-[72px] min-h-[100vh] flex flex-col bg-paper overflow-hidden">
+  <!-- grid lines -->
+  <div class="hidden lg:block grid-line w-px h-full left-[42%] top-0"></div>
+  <div class="hidden lg:block grid-line h-px w-full left-0 top-[42%]"></div>
+
+  <div class="flex-1 grid lg:grid-cols-[42%_58%]">
+    <!-- Left Stack -->
+    <div class="relative px-6 md:px-10 py-12 lg:py-16 flex flex-col justify-between border-r border-black/10">
+      <div>
+        <div class="inline-flex items-center gap-3 mb-10 reveal">
+          <div class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center">
+            <div class="w-2 h-2 rounded-full bg-blue"></div>
+          </div>
+          <p class="font-body text-[10px] uppercase tracking-[0.2em] leading-[1.4]">
+            Industrial White 01 / Detergent Blue #0047FF<br>
+            <span class="opacity-50">Stainless System — Built 2024</span>
+          </p>
+        </div>
+
+        <h1 class="font-display font-[700] leading-[0.85] tracking-[-0.04em] text-[62px] md:text-[88px] lg:text-[102px] reveal reveal-delay-1">
+          CLEAN<br>
+          IS<br>
+          A<br>
+          <span class="text-blue inline-flex items-center gap-4">
+            SYSTEM
+            <span class="text-[14px] font-body font-medium tracking-[0.2em] uppercase leading-none translate-y-1">®</span>
+          </span>
+        </h1>
+
+        <div class="mt-10 max-w-[320px] reveal reveal-delay-2">
+          <p class="font-body text-[15px] leading-[1.6] opacity-70">
+            We rebuilt the laundromat as a luxury utility. No pastel. No kitsch. Just precision wash cycles, Swiss-calibrated drums, and folded cotton that feels like paper.
+          </p>
+          <div class="mt-8 flex gap-3">
+            <div class="h-px w-12 bg-black/20 mt-3"></div>
+            <p class="font-body text-[11px] uppercase tracking-[0.16em] leading-[1.5] opacity-50">28 industrial Miele drums<br>4°C filtered water / pH 6.8</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 lg:mt-0 grid grid-cols-3 border-t border-black/10 reveal reveal-delay-3">
+        <div class="py-6 border-r border-black/10">
+          <div class="font-display text-[36px] leading-none tracking-tight">28</div>
+          <div class="mt-2 font-body text-[10px] uppercase tracking-[0.14em] opacity-50">Washer Units<br>Miele Pro</div>
+        </div>
+        <div class="py-6 px-6 border-r border-black/10">
+          <div class="font-display text-[36px] leading-none tracking-tight">0.9</div>
+          <div class="mt-2 font-body text-[10px] uppercase tracking-[0.14em] opacity-50">kWh Cycle<br>Efficiency</div>
+        </div>
+        <div class="py-6 pl-6">
+          <div class="font-display text-[36px] leading-none tracking-tight">90°</div>
+          <div class="mt-2 font-body text-[10px] uppercase tracking-[0.14em] opacity-50">Drum Angle<br>Visibility</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Visual -->
+    <div class="relative bg-paperDark overflow-hidden min-h-[560px] lg:min-h-0 flex items-center justify-center">
+      <!-- Big drum portal -->
+      <div class="relative w-[86vw] h-[86vw] md:w-[560px] md:h-[560px] lg:w-[720px] lg:h-[720px] rounded-full stainless p-[1px] shadow-[0_40px_120px_rgba(0,0,0,0.12)] reveal">
+        <div class="w-full h-full rounded-full bg-paper p-3">
+          <div class="w-full h-full rounded-full overflow-hidden relative drum-mask bg-black">
+            <!-- Washer drum image -->
+            <img src="https://images.unsplash.com/photo-1521656694725-90ef46da131e?q=80&w=2000" alt="Industrial washers" class="absolute inset-0 w-full h-full object-cover opacity-90 scale-[1.1]">
+            <div class="absolute inset-0 bg-blue mix-blend-multiply opacity-20"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+
+            <!-- Drum perforation overlay -->
+            <div class="absolute inset-0 opacity-[0.18]" style="background-image: radial-gradient(rgba(255,255,255,0.8) 1.2px, transparent 1.3px); background-size: 22px 22px;"></div>
+
+            <!-- Center folded laundry reveal -->
+            <div class="absolute inset-[18%] rounded-full overflow-hidden border border-white/20 backdrop-blur-sm">
+              <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1200" alt="Folded laundry" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Rotating type on edge -->
+            <svg class="absolute inset-0 w-full h-full animate-[spin_30s_linear_infinite]" viewBox="0 0 100 100">
+              <defs><path id="circlePath" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"/></defs>
+              <text font-family="Space Grotesk" font-size="4.2" letter-spacing="0.28em" fill="white" opacity="0.9">
+                <textPath href="#circlePath">WASH • SPIN • FOLD • REPEAT • WASH • SPIN • FOLD • REPEAT •</textPath>
+              </text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Control dial -->
+        <div class="absolute top-[12%] right-[14%] w-[96px] h-[96px] rounded-full bg-paper shadow-xl border border-black/10 flex items-center justify-center" data-cursor="drum">
+          <div class="relative w-[84px] h-[84px] rounded-full border border-black/10">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-10 h-10 rounded-full bg-ink text-white flex items-center justify-center font-display text-[10px]">40°C</div>
+            </div>
+            <div id="dialTicks"></div>
+            <div class="absolute left-1/2 top-1/2 w-px h-8 bg-blue origin-bottom -translate-x-1/2 -translate-y-full rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Coin slot badge -->
+        <div class="absolute bottom-[18%] left-[6%] bg-ink text-paper px-5 py-3 rounded-full flex items-center gap-4 shadow-2xl">
+          <div class="w-8 h-4 rounded-[2px] bg-gradient-to-b from-stainlessLight to-stainless border border-white/20"></div>
+          <div class="font-display text-[12px] uppercase tracking-[0.14em]">$5.50 / DRUM</div>
+          <div class="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse shadow-[0_0_10px_#00ff88]"></div>
+        </div>
+      </div>
+
+      <!-- Stainless detail strip -->
+      <div class="absolute bottom-0 left-0 w-full h-[3px] stainless"></div>
+
+      <!-- Floating spec tags -->
+      <div class="hidden lg:flex absolute top-[14%] left-[8%] flex-col gap-2">
+        <div class="px-3 py-1.5 rounded-full bg-white border border-black/10 text-[9px] font-body uppercase tracking-[0.14em] shadow-sm">PH 6.8 CONTROL</div>
+        <div class="px-3 py-1.5 rounded-full bg-white border border-black/10 text-[9px] font-body uppercase tracking-[0.14em] shadow-sm flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue"></span>STAINLESS 316L</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="grid grid-cols-2 lg:grid-cols-[42%_1fr_1fr] border-t border-black/10 font-body text-[10px] uppercase tracking-[0.16em]">
+    <div class="px-6 md:px-10 py-4 flex items-center justify-between lg:border-r border-black/10">
+      <span class="opacity-50">[ LINT FILTER REMOVED 02:40 AM ]</span><span class="hidden md:inline">SCENT: NONE / CLEAN</span>
+    </div>
+    <div class="hidden lg:flex px-10 py-4 items-center gap-3">
+      <div class="w-4 h-4 rounded-full border border-black/20 flex items-center justify-center text-[7px]">→</div>
+      <span class="opacity-70">Next availability — 06:15, Drum 14</span>
+    </div>
+    <div class="px-6 py-4 border-l border-black/10 flex items-center justify-end lg:justify-between">
+      <span class="opacity-50 hidden lg:inline">SYSTEM STATUS: OPERATIONAL</span>
+      <span class="text-blue font-medium">● LIVE FEED</span>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<section class="bg-blue text-white overflow-hidden border-y border-black/10">
+  <div class="marquee py-3 md:py-4">
+    <div class="marquee-inner font-display font-bold text-[18px] md:text-[20px] uppercase tracking-[0.12em] flex items-center">
+      <span class="flex items-center gap-8 pr-8"><span class="opacity-70">COTTON / 40° / 1200 RPM / FOLDED / PRESSED /</span><span>WASH • SPIN • FOLD • REPEAT •</span><span class="w-2 h-2 rounded-full bg-white"></span><span>INDUSTRIAL WHITE #FDFBF7 / DETERGENT BLUE #0047FF /</span><span class="opacity-70">STAINLESS 316L / pH 6.8 / ZERO SCENT /</span><span>WASH • SPIN • FOLD • REPEAT •</span><span class="w-2 h-2 rounded-full bg-white"></span></span>
+      <span class="flex items-center gap-8 pr-8"><span class="opacity-70">COTTON / 40° / 1200 RPM / FOLDED / PRESSED /</span><span>WASH • SPIN • FOLD • REPEAT •</span><span class="w-2 h-2 rounded-full bg-white"></span><span>INDUSTRIAL WHITE #FDFBF7 / DETERGENT BLUE #0047FF /</span><span class="opacity-70">STAINLESS 316L / pH 6.8 / ZERO SCENT /</span><span>WASH • SPIN • FOLD • REPEAT •</span><span class="w-2 h-2 rounded-full bg-white"></span></span>
+    </div>
+  </div>
+</section>
+
+<!-- STORY / MANIFESTO -->
+<section id="story" class="relative bg-paper border-b border-black/10">
+  <div class="grid lg:grid-cols-[42%_58%]">
+    <div class="px-6 md:px-10 py-20 lg:py-32 lg:sticky lg:top-[72px] h-fit">
+      <div class="reveal">
+        <div class="font-body text-[10px] uppercase tracking-[0.2em] opacity-40 mb-6">[01] — MANIFESTO</div>
+        <h2 class="font-display font-medium text-[42px] md:text-[56px] leading-[0.9] tracking-[-0.03em]">
+          Why does<br>laundry<br>look<br><span class="text-stainless">cheap?</span>
+        </h2>
+        <div class="mt-10 w-[200px] h-px bg-black/10"></div>
+        <div class="mt-8 relative w-full aspect-[4/3] overflow-hidden rounded-[12px] border border-black/10 bg-paperDark">
+          <img src="https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=1200" alt="Stainless steel interior" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-end text-[10px] uppercase tracking-widest text-white">
+            <span class="px-2 py-1 rounded bg-black/40 backdrop-blur">Site / S 02-24</span>
+            <span class="px-2 py-1 rounded bg-black/40 backdrop-blur">316L Grain #4</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 md:px-10 lg:px-16 py-10 lg:py-32 border-t lg:border-t-0 lg:border-l border-black/10">
+      <div class="max-w-[620px]">
+        <div class="reveal">
+          <p class="font-display text-[22px] md:text-[28px] leading-[1.15] tracking-[-0.02em]">
+            Most laundromats are an afterthought — fluorescent, sticky floors, detergent from a vending machine that hasn't been refilled since 2018.
+          </p>
+          <p class="mt-8 font-body text-[15px] leading-[1.7] opacity-60">
+            We thought the act of cleaning clothes deserved the same respect as any other daily ritual. So we built CYCLE as a machine for thinking: white oak benches, Miele drums aligned like an Apple Store, filtered water at exactly 6.8pH, and a folding table made from a single slab of honed travertine.
+          </p>
+        </div>
+
+        <div class="mt-16 grid md:grid-cols-2 gap-10 reveal">
+          <div class="stainless-border rounded-[16px] p-[1px]">
+            <div class="bg-paper rounded-[15px] p-6">
+              <div class="w-10 h-10 rounded-full bg-ink text-white flex items-center justify-center font-display text-[11px]">A</div>
+              <h4 class="mt-6 font-display font-medium text-[18px] tracking-tight">Material First</h4>
+              <p class="mt-3 font-body text-[13px] leading-[1.6] opacity-60">Everything you touch is either #316L stainless, white American oak, or 40mm travertine. No plastic. No laminate. No compromise.</p>
+              <div class="mt-6 pt-6 border-t border-black/10 flex items-center justify-between">
+                <span class="font-body text-[10px] uppercase tracking-widest opacity-40">Tactile Index 9.4/10</span>
+                <div class="flex gap-1"><div class="w-1 h-1 rounded-full bg-ink"></div><div class="w-1 h-1 rounded-full bg-ink"></div><div class="w-1 h-1 rounded-full bg-ink/20"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stainless-border rounded-[16px] p-[1px]">
+            <div class="bg-paper rounded-[15px] p-6">
+              <div class="w-10 h-10 rounded-full bg-blue text-white flex items-center justify-center font-display text-[11px]">B</div>
+              <h4 class="mt-6 font-display font-medium text-[18px] tracking-tight">Detergent Lab</h4>
+              <p class="mt-3 font-body text-[13px] leading-[1.6] opacity-60">We compound our own low-sud, enzyme-based wash. No fragrance. No colorant. Just surfactants derived from coconut that rinse clean at 30°C.</p>
+              <div class="mt-6 pt-6 border-t border-black/10 flex items-center justify-between">
+                <span class="font-body text-[10px] uppercase tracking-widest opacity-40">0% Perfume — Verified</span>
+                <span class="font-display text-[10px] tracking-widest">pH 6.8</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-16 reveal">
+          <div class="relative overflow-hidden rounded-[16px] border border-black/10 bg-ink text-paper">
+            <div class="grid md:grid-cols-[1.1fr_0.9fr]">
+              <div class="p-8 md:p-10">
+                <div class="font-body text-[10px] uppercase tracking-[0.2em] opacity-40 mb-8">Cycle Diagram</div>
+                <div class="space-y-6 font-display text-[14px] uppercase tracking-[0.08em]">
+                  <div class="flex items-center justify-between"><span class="opacity-50">01 — Load Cell</span><span class="flex items-center gap-3"><span class="opacity-40">0.1kg resolution</span><span class="w-20 h-px bg-white/20"></span></span></div>
+                  <div class="flex items-center justify-between"><span>Wash / 14 Min</span><span class="flex items-center gap-3"><span class="text-blue">● 40°C</span><span class="w-20 h-1 bg-blue"></span></span></div>
+                  <div class="flex items-center justify-between opacity-50"><span>02 — Rinse</span><span>Filtered / 6.8pH</span></div>
+                  <div class="flex items-center justify-between"><span>Spin / 1200RPM</span><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full border border-white"></span><span class="w-2 h-2 rounded-full bg-white"></span></span></div>
+                  <div class="flex items-center justify-between opacity-30"><span>03 — Extract / Fold</span><span>Travertine Table</span></div>
+                </div>
+              </div>
+              <div class="relative min-h-[260px] bg-white/5 border-t md:border-t-0 md:border-l border-white/10 flex items-center justify-center">
+                <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=800" alt="Folded" class="absolute inset-0 w-full h-full object-cover opacity-40">
+                <div class="relative w-[140px] h-[140px] rounded-full border border-dashed border-white/30 flex items-center justify-center animate-[spin_12s_linear_infinite]">
+                  <div class="w-2 h-2 rounded-full bg-blue"></div>
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 flex justify-between text-[9px] uppercase tracking-widest opacity-60">
+                  <span>Drum 14 — 42 min</span><span>[REC]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES — Coin-op Luxury -->
+<section id="services" class="bg-paperDark border-b border-black/10 relative overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-[1px] stainless"></div>
+  <div class="px-6 md:px-10 py-16 md:py-24">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 reveal">
+      <div>
+        <div class="font-body text-[10px] uppercase tracking-[0.2em] opacity-40 mb-6">[02] — WASH SYSTEMS / PRICING</div>
+        <h2 class="font-display text-[48px] md:text-[72px] leading-[0.88] tracking-[-0.04em]">Self-service,<br>but make it<br><span class="italic font-light text-blue">couture</span>.</h2>
+      </div>
+      <div class="max-w-[360px]">
+        <p class="font-body text-[14px] leading-[1.6] opacity-60">Each drum is a rented precision instrument. Book 90 minutes. Bring clothes. We handle water chemistry, temperature, and fold geometry.</p>
+        <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/10 bg-paper text-[11px] uppercase tracking-widest">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 8 drums free now
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 grid grid-cols-1 md:grid-cols-12 gap-[1px] bg-black/10 border border-black/10 rounded-[24px] overflow-hidden reveal">
+      <!-- Service 01 — Wash -->
+      <div class="md:col-span-5 bg-paper p-8 md:p-10 flex flex-col">
+        <div class="flex justify-between items-start">
+          <div class="w-12 h-12 rounded-full bg-ink text-paper flex items-center justify-center font-display text-[12px] font-bold">01</div>
+          <div class="px-3 py-1 rounded-full bg-paperDark border border-black/10 font-body text-[10px] uppercase tracking-[0.14em]">Most Booked</div>
+        </div>
+        <div class="mt-10">
+          <h3 class="font-display text-[28px] leading-[0.95] tracking-[-0.02em]">System Wash</h3>
+          <div class="mt-4 flex items-baseline gap-3">
+            <span class="font-display text-[44px] leading-none tracking-tight">$5.50</span>
+            <span class="font-body text-[12px] uppercase tracking-widest opacity-40">/ per drum / 90min slot</span>
+          </div>
+        </div>
+        <div class="mt-8 space-y-4">
+          <div class="flex gap-4 font-body text-[13px] leading-[1.5]"><span class="text-blue mt-1">—</span><span>Miele Pro Washer, 14kg capacity, load-cell weighing, auto-detergent dosing (8ml / kg) — no over-soap.</span></div>
+          <div class="flex gap-4 font-body text-[13px] leading-[1.5]"><span class="text-blue mt-1">—</span><span>Filtered reverse-osmosis water, heated via heat-pump, 3x rinse, 1200 RPM extract.</span></div>
+          <div class="flex gap-4 font-body text-[13px] leading-[1.5]"><span class="text-blue mt-1">—</span><span>Folding table access + travertine board, stainless basket, biodegradable bag.</span></div>
+        </div>
+        <div class="mt-auto pt-10">
+          <div class="relative h-[120px] rounded-[14px] overflow-hidden bg-ink border border-black/10">
+            <img src="https://images.unsplash.com/photo-1521656694725-90ef46da131e?q=80&w=800" alt="Wash" class="w-full h-full object-cover opacity-50">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="flex items-center gap-4 bg-paper px-5 py-3 rounded-full shadow-xl">
+                <div class="w-9 h-6 rounded-[3px] stainless-border flex items-center justify-center"><div class="w-4 h-1 bg-black/20 rounded-full"></div></div>
+                <span class="font-display text-[11px] uppercase tracking-[0.18em]">Insert basket to start</span>
+              </div>
+            </div>
+          </div>
+          <button class="mag-btn mt-4 w-full h-[52px] rounded-full bg-blue text-white font-display text-[12px] uppercase tracking-[0.14em] flex items-center justify-center gap-2 hover:bg-black transition-colors" data-cursor="hover">
+            Reserve Drum 01-28 <span>↗</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Service 02 & 03 stacked -->
+      <div class="md:col-span-4 flex flex-col gap-[1px] bg-black/10">
+        <div class="bg-paper p-8 flex-1">
+          <div class="flex justify-between">
+            <div class="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center font-display text-[11px]">02</div>
+            <span class="font-body text-[10px] uppercase tracking-widest opacity-40">Service</span>
+          </div>
+          <h3 class="mt-8 font-display text-[22px] leading-[0.95] tracking-tight">Press & Fold</h3>
+          <div class="mt-3 font-display text-[28px] leading-none">$1.80<span class="text-[12px] font-body uppercase tracking-widest opacity-40"> / lb</span></div>
+          <p class="mt-4 font-body text-[12px] leading-[1.6] opacity-60">Drop at 08:00, pickup after 18:00. Washed at 40°, pressed on Hoffman, folded to 210×150mm rectangles, stacked by garment type. No plastic wrap.</p>
+          <div class="mt-8 grid grid-cols-3 gap-2">
+            <div class="aspect-square rounded-lg bg-paperDark border border-black/5 overflow-hidden"><img src="https://images.unsplash.com/photo-1489278353716-1c6f3396e5d3?q=80&w=400" class="w-full h-full object-cover mix-blend-multiply opacity-80"></div>
+            <div class="aspect-square rounded-lg bg-paperDark border border-black/5 overflow-hidden"><img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=400" class="w-full h-full object-cover mix-blend-multiply opacity-80"></div>
+            <div class="aspect-square rounded-lg border border-dashed border-black/10 flex flex-col items-center justify-center gap-1"><span class="font-display text-[10px]">+12</span><span class="font-body text-[8px] uppercase tracking-widest opacity-40">Stacks</span></div>
+          </div>
+        </div>
+        <div class="bg-ink text-paper p-8 flex-1 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-[140px] h-[140px] rounded-full bg-blue blur-[40px] opacity-40"></div>
+          <div class="flex justify-between">
+            <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center font-display text-[11px]">03</div>
+            <span class="font-body text-[10px] uppercase tracking-widest opacity-40">Lab Compound</span>
+          </div>
+          <h3 class="mt-8 font-display text-[22px] leading-[0.95] tracking-tight">Detergent Lab<br>No.01</h3>
+          <p class="mt-3 font-body text-[12px] leading-[1.6] opacity-60">Take home. 40 washes. Coconut surfactant, subtilisin, no optical brighteners.</p>
+          <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-6">
+            <div class="font-display text-[24px]">$42</div>
+            <button class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center" data-cursor="hover">＋</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Membership / Spec -->
+      <div class="md:col-span-3 bg-paper p-8 flex flex-col">
+        <div class="w-full aspect-[3/4] rounded-[16px] overflow-hidden border border-black/10 relative bg-paperDark">
+          <img src="https://images.unsplash.com/photo-1545173168-9f1947aebb7f?q=80&w=800" alt="Member" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          <div class="absolute top-4 left-4 px-2.5 py-1 rounded-full bg-blue text-white font-body text-[9px] uppercase tracking-widest">Member Access</div>
+          <div class="absolute bottom-4 left-4 right-4">
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="font-display text-white text-[18px] leading-none">Monthly System</div>
+                <div class="font-body text-white/60 text-[10px] uppercase tracking-widest mt-2">Unlimited W / F — 1 Lab / mo</div>
+              </div>
+              <div class="font-display text-white text-[20px]">$120</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 p-4 rounded-[12px] bg-paperDark border border-black/10">
+          <div class="font-body text-[10px] uppercase tracking-[0.14em] opacity-40 mb-3">Spec Sheet — Miele PW 6163</div>
+          <div class="space-y-2 font-body text-[11px]">
+            <div class="flex justify-between"><span class="opacity-50">Drum Vol</span><span>160L / perforated</span></div>
+            <div class="flex justify-between"><span class="opacity-50">G-Force</span><span>400G extraction</span></div>
+            <div class="flex justify-between"><span class="opacity-50">Material</span><span>316L / brushed #4</span></div>
+            <div class="flex justify-between"><span class="opacity-50">Water</span><span>RO + remineralized</span></div>
+          </div>
+        </div>
+        <button class="mt-4 w-full h-11 rounded-full border border-black/10 bg-paper font-display text-[11px] uppercase tracking-[0.14em] hover:bg-ink hover:text-white transition-colors" data-cursor="hover">Check Memberships</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY / LAB -->
+<section id="gallery" class="bg-paper relative">
+  <div class="px-6 md:px-10 py-16 border-b border-black/10 flex flex-col lg:flex-row justify-between gap-8 reveal">
+    <h2 class="font-display text-[44px] md:text-[56px] leading-[0.9] tracking-[-0.04em]">Wash<br>Lab<br>Archive</h2>
+    <div class="flex lg:max-w-[560px] gap-6 items-end">
+      <p class="font-body text-[14px] leading-[1.6] opacity-60">We document everything. Each machine has a visible lint log. Each fold is photographed. This is not nostalgia — it's quality control made visible.</p>
+      <div class="hidden md:flex w-10 h-10 rounded-full border border-black/10 items-center justify-center shrink-0">—</div>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-12 gap-0">
+    <div class="md:col-span-7 border-r border-black/10">
+      <div class="aspect-[4/3] relative overflow-hidden group" data-cursor="hover">
+        <img src="https://images.unsplash.com/photo-1604331211651-2a042ebc8722?q=80&w=1600" alt="Laundry facility" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div class="absolute inset-0 bg-blue/0 group-hover:bg-blue/10 transition-colors mix-blend-multiply"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 flex items-end justify-between text-white">
+          <div>
+            <div class="font-body text-[10px] uppercase tracking-[0.18em] mb-2">[PHOTO 042 / DRUMS]</div>
+            <div class="font-display text-[24px] md:text-[30px] leading-[0.95]">Row A — 08 units, 5.5° tilt for ergonomic load.</div>
+          </div>
+          <div class="hidden md:flex w-12 h-12 rounded-full bg-white text-black items-center justify-center">↗</div>
+        </div>
+        <div class="absolute top-6 left-6 px-3 py-1.5 rounded-full bg-white text-[10px] font-body uppercase tracking-widest">Miele Pro — Stainless</div>
+      </div>
+      <div class="grid grid-cols-2 gap-0 border-t border-black/10">
+        <div class="aspect-square relative overflow-hidden group border-r border-black/10" data-cursor="hover">
+          <img src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=800" alt="Folded towels" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+            <div class="font-body text-[10px] uppercase tracking-widest text-white">FOLD 01 — Towel / 600gsm / 40°</div>
+          </div>
+        </div>
+        <div class="aspect-square relative overflow-hidden group bg-paperDark p-8 flex flex-col justify-between" data-cursor="hover">
+          <div>
+            <div class="font-body text-[10px] uppercase tracking-widest opacity-40 mb-6">[SWATCH]</div>
+            <div class="flex gap-2">
+              <div class="w-10 h-10 rounded-full bg-[#fdfbf7] border border-black/10 shadow-sm"></div>
+              <div class="w-10 h-10 rounded-full bg-[#0047ff] shadow-sm"></div>
+              <div class="w-10 h-10 rounded-full bg-[#d0d3d9] shadow-sm"></div>
+              <div class="w-10 h-10 rounded-full bg-[#0a0a0a] shadow-sm"></div>
+            </div>
+          </div>
+          <div>
+            <div class="font-display text-[18px] leading-tight tracking-tight">Industrial palette, softened by sun.</div>
+            <div class="mt-3 font-body text-[11px] uppercase tracking-widest opacity-40">No cream, only paper white.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="md:col-span-5 flex flex-col">
+      <div class="flex-1 p-8 md:p-10 flex flex-col justify-between bg-ink text-paper min-h-[420px] relative overflow-hidden">
+        <div class="absolute -top-[40%] -right-[30%] w-[80%] aspect-square rounded-full border border-white/10"></div>
+        <div class="absolute -top-[20%] -right-[10%] w-[60%] aspect-square rounded-full border border-white/10"></div>
+        <div>
+          <div class="font-body text-[10px] uppercase tracking-[0.2em] opacity-40">[03] — PROCESS FILM</div>
+          <h3 class="mt-10 font-display text-[32px] leading-[0.95] tracking-tight">90 minutes<br>of absolute<br>quiet.</h3>
+        </div>
+        <div class="relative z-10">
+          <div class="w-full h-[1px] bg-white/10 mb-6"></div>
+          <p class="font-body text-[13px] leading-[1.6] opacity-60 max-w-[320px]">We damp sound to 42dB. You hear water, not bass. Bring a book. We provide Aesop hand cream by the folding tables.</p>
+          <div class="mt-8 flex items-center gap-3">
+            <button class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center" data-cursor="hover">▶</button>
+            <div class="font-body text-[11px] uppercase tracking-widest">Watch 1:22 process loop</div>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-[4/3] relative overflow-hidden group border-t border-black/10" data-cursor="drum">
+        <img src="https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?q=80&w=1000" alt="Washer drum close" class="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1.2s]">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div class="w-20 h-20 rounded-full bg-white/90 backdrop-blur text-black flex items-center justify-center font-display text-[10px] uppercase tracking-widest">Spin</div>
+        </div>
+        <div class="absolute top-6 right-6 w-8 h-8 rounded-full bg-paper border border-black/10 flex items-center justify-center">
+          <div class="w-2 h-2 rounded-full bg-blue animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS — Industrial tags -->
+<section class="bg-paper border-b border-black/10 py-16 md:py-24 overflow-hidden">
+  <div class="px-6 md:px-10">
+    <div class="flex justify-between items-start reveal">
+      <div class="font-body text-[10px] uppercase tracking-[0.2em] opacity-40">[04] — USER LOGS / 2,847 CYCLES</div>
+      <div class="hidden md:flex items-center gap-2 font-body text-[10px] uppercase tracking-widest opacity-40">
+        <span>Sort:</span>
+        <span class="px-2 py-1 rounded-full bg-ink text-paper">Recent</span>
+        <span class="px-2 py-1 rounded-full border border-black/10">Verified</span>
+      </div>
+    </div>
+
+    <div class="mt-12 grid lg:grid-cols-3 gap-[1px] bg-black/10 border border-black/10 rounded-[20px] overflow-hidden reveal">
+      <div class="bg-paper p-8 md:p-10 flex flex-col justify-between min-h-[320px]">
+        <div>
+          <div class="flex justify-between">
+            <div class="flex gap-1">
+              <div class="w-6 h-6 rounded-full overflow-hidden border border-black/10"><img src="https://images.unsplash.com/photo-1534008897995-27a23e859048?q=80&w=100" class="w-full h-full object-cover"></div>
+              <div class="font-body text-[11px] leading-tight"><span class="font-medium">Maya S.</span><br><span class="opacity-40 text-[10px]">Member 14mo — Drum 07</span></div>
+            </div>
+            <div class="font-body text-[10px] uppercase tracking-widest opacity-30">05:42 PM</div>
+          </div>
+          <p class="mt-10 font-display text-[20px] leading-[1.15] tracking-[-0.01em]">"I come here to fold. It's the only hour my phone is in a locker and my hands are doing something precise. The blue light on the drum is the same blue as a swimming pool."</p>
+        </div>
+        <div class="mt-10 flex gap-2">
+          <span class="px-2.5 py-1 rounded-full bg-paperDark border border-black/10 text-[9px] uppercase tracking-widest">Fold Ritual</span>
+          <span class="px-2.5 py-1 rounded-full bg-blue text-white text-[9px] uppercase tracking-widest">Verified</span>
+        </div>
+      </div>
+
+      <div class="bg-paper p-8 md:p-10 flex flex-col justify-between min-h-[320px] relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[120px] h-[120px] bg-blue/5 rounded-full blur-2xl"></div>
+        <div>
+          <div class="flex justify-between">
+            <div class="flex gap-1">
+              <div class="w-6 h-6 rounded-full overflow-hidden border border-black/10"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100" class="w-full h-full object-cover"></div>
+              <div class="font-body text-[11px] leading-tight"><span class="font-medium">David K.</span><br><span class="opacity-40 text-[10px]">Architect — Weekly</span></div>
+            </div>
+            <div class="font-body text-[10px] uppercase tracking-widest opacity-30">09:14 AM</div>
+          </div>
+          <p class="mt-10 font-display text-[20px] leading-[1.15] tracking-[-0.01em]">"First laundromat I've seen where I didn't want to leave my clothes. You can see the water — it's clear, not grey. The machines don't shake. It's civilized."</p>
+        </div>
+        <div class="mt-10 flex items-center gap-3">
+          <div class="w-8 h-[1px] bg-black/10"></div>
+          <span class="font-body text-[10px] uppercase tracking-widest opacity-40">Log #2,847 • 40kg total</span>
+        </div>
+      </div>
+
+      <div class="bg-ink text-paper p-8 md:p-10 flex flex-col justify-between min-h-[320px]">
+        <div>
+          <div class="flex justify-between">
+            <div class="font-body text-[11px] uppercase tracking-[0.14em] opacity-60">Staff Note — 02:40 AM</div>
+            <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px]">✓</div>
+          </div>
+          <p class="mt-10 font-display text-[20px] leading-[1.15]">"We clean the drums more than the floor. Every night at 02:30 we run empty hot cycles at 90°C, open all doors, wipe seals. People notice."</p>
+          <div class="mt-6 font-body text-[11px] opacity-50">— Lena, Closing Lead, 3 years</div>
+        </div>
+        <div class="mt-10 border-t border-white/10 pt-6 flex justify-between items-center">
+          <span class="font-body text-[10px] uppercase tracking-widest opacity-40">SOP-09 — Night Reset</span>
+          <span class="text-[10px] uppercase tracking-widest text-blue">● Protocol Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ticker of garment counts -->
+    <div class="mt-8 flex gap-3 overflow-x-auto scrollbar-hide pb-2 reveal">
+      <div class="shrink-0 px-5 py-3 rounded-full border border-black/10 bg-paper flex items-center gap-3 text-[11px]"><span class="opacity-40">Today / Towels</span><span class="font-display font-bold">84</span></div>
+      <div class="shrink-0 px-5 py-3 rounded-full border border-black/10 bg-paper flex items-center gap-3 text-[11px]"><span class="opacity-40">Today / Shirts</span><span class="font-display font-bold">126</span></div>
+      <div class="shrink-0 px-5 py-3 rounded-full bg-blue text-white flex items-center gap-3 text-[11px]"><span class="opacity-70">Water Used</span><span class="font-display font-bold">2,840 L — Filtered</span></div>
+      <div class="shrink-0 px-5 py-3 rounded-full border border-black/10 bg-paper flex items-center gap-3 text-[11px]"><span class="opacity-40">Fold Avg</span><span class="font-display font-bold">4m 22s / stack</span></div>
+      <div class="shrink-0 px-5 py-3 rounded-full border border-black/10 bg-paper flex items-center gap-3 text-[11px]"><span class="opacity-40">Lost Socks</span><span class="font-display font-bold">0 today :)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / RESERVE -->
+<section id="contact" class="bg-paperDark relative">
+  <div class="grid lg:grid-cols-[46%_54%] min-h-[780px]">
+    <div class="px-6 md:px-10 py-16 lg:py-24 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-black/10">
+      <div>
+        <div class="font-body text-[10px] uppercase tracking-[0.2em] opacity-40 mb-8">[05] — RESERVE A DRUM</div>
+        <h2 class="font-display text-[48px] md:text-[64px] leading-[0.88] tracking-[-0.04em]">Bring<br>clothes.<br>We have<br><span class="text-blue">time.</span></h2>
+        <div class="mt-12 grid grid-cols-2 gap-6 max-w-[380px]">
+          <div class="border-t border-black/10 pt-4">
+            <div class="font-body text-[10px] uppercase tracking-widest opacity-40 mb-2">Location</div>
+            <div class="font-display text-[14px] leading-[1.3]">421 W Broadway<br>New York, NY 10012<br>SOHO / NOLITA EDGE</div>
+          </div>
+          <div class="border-t border-black/10 pt-4">
+            <div class="font-body text-[10px] uppercase tracking-widest opacity-40 mb-2">Hours / Access</div>
+            <div class="font-display text-[14px] leading-[1.3]">05:00—23:00 daily<br>Member key 04:00—01:00<br>No quarters, card only</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-16 space-y-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-ink text-paper flex items-center justify-center font-display text-[12px]">↘</div>
+          <div class="font-body text-[12px] leading-[1.4]"><span class="font-medium">Need same-day Fold?</span> <br><span class="opacity-50">Drop by 9am, pick up after 6pm. Text notification.</span></div>
+        </div>
+        <div class="w-full h-[1px] stainless opacity-60"></div>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-display text-[12px] hover:bg-ink hover:text-white transition-colors" data-cursor="hover">IG</a>
+          <a href="#" class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-display text-[12px] hover:bg-ink hover:text-white transition-colors" data-cursor="hover">AR</a>
+          <a href="#" class="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center font-display text-[12px] hover:bg-ink hover:text-white transition-colors" data-cursor="hover">MP</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 md:px-10 py-10 lg:py-12 bg-paper">
+      <div class="max-w-[520px] mx-auto">
+        <div class="stainless-border rounded-[20px] p-[1px]">
+          <div class="bg-paper rounded-[19px] p-6 md:p-8">
+            <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue flex items-center justify-center"><div class="w-2 h-2 rounded-full bg-white animate-pulse"></div></div>
+                <div>
+                  <div class="font-display text-[13px] font-medium tracking-tight">CYCLE Reservation System v2.4</div>
+                  <div class="font-body text-[10px] uppercase tracking-widest opacity-40">Live — 8/28 drums available</div>
+                </div>
+              </div>
+              <div class="font-body text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full bg-paperDark border border-black/10">No account needed</div>
+            </div>
+
+            <form class="space-y-5" onsubmit="event.preventDefault(); alert('Drum reserved — Check your text. Bring clothes.');">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="font-body text-[10px] uppercase tracking-[0.16em] opacity-50 mb-2 block">Date</label>
+                  <div class="relative">
+                    <input type="date" class="w-full h-12 rounded-full border border-black/10 bg-paperDark px-5 font-display text-[13px] focus:outline-none focus:border-blue transition-colors" value="2024-12-12">
+                  </div>
+                </div>
+                <div>
+                  <label class="font-body text-[10px] uppercase tracking-[0.16em] opacity-50 mb-2 block">Slot</label>
+                  <select class="w-full h-12 rounded-full border border-black/10 bg-paperDark px-5 font-display text-[13px] focus:outline-none focus:border-blue">
+                    <option>06:15 — 07:45 (90m)</option>
+                    <option>08:00 — 09:30</option>
+                    <option>18:00 — 19:30 — Most popular</option>
+                    <option>21:00 — 22:30 — Quietest</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-[1.2fr_0.8fr] gap-4">
+                <div>
+                  <label class="font-body text-[10px] uppercase tracking-[0.16em] opacity-50 mb-2 block">Drum Preference</label>
+                  <div class="flex gap-2">
+                    <button type="button" class="flex-1 h-12 rounded-full bg-ink text-paper font-display text-[12px]">Any Free</button>
+                    <button type="button" class="flex-1 h-12 rounded-full border border-black/10 font-display text-[12px] hover:bg-paperDark transition-colors">Window Row</button>
+                  </div>
+                </div>
+                <div>
+                  <label class="font-body text-[10px] uppercase tracking-[0.16em] opacity-50 mb-2 block">Load Size</label>
+                  <div class="h-12 rounded-full border border-black/10 bg-paperDark flex items-center px-2">
+                    <div class="flex-1 flex justify-between px-3 font-display text-[12px]">
+                      <span class="opacity-30">S</span><span class="font-medium">M</span><span class="opacity-30">L</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="font-body text-[10px] uppercase tracking-[0.16em] opacity-50 mb-2 block">Fold Add-on — $1.80/lb weighed after</label>
+                <div class="rounded-[14px] border border-black/10 bg-paperDark p-4 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white border border-black/10 flex items-center justify-center">✦</div>
+                    <div>
+                      <div class="font-display text-[13px] font-medium">Include Press & Fold</div>
+                      <div class="font-body text-[10px] opacity-50">Hoffman press, 210×150mm stack</div>
+                    </div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer">
+                    <div class="w-11 h-6 bg-black/10 rounded-full peer peer-checked:bg-blue transition-colors"></div>
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 shadow"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <input type="text" placeholder="Name" required class="h-12 rounded-full border border-black/10 bg-paperDark px-5 font-body text-[13px] focus:outline-none focus:border-blue">
+                <input type="tel" placeholder="Phone for texts" required class="h-12 rounded-full border border-black/10 bg-paperDark px-5 font-body text-[13px] focus:outline-none focus:border-blue">
+              </div>
+
+              <button type="submit" class="mag-btn w-full h-[56px] rounded-full bg-blue text-white font-display text-[12px] uppercase tracking-[0.16em] font-medium flex items-center justify-center gap-3 hover:bg-ink transition-colors" data-cursor="hover">
+                <span class="w-5 h-5 rounded-full bg-white text-blue flex items-center justify-center text-[10px]">$</span>
+                Reserve Drum — $5.50 Hold
+                <span>→</span>
+              </button>
+
+              <div class="flex items-start gap-2 pt-2">
+                <div class="w-4 h-4 rounded-full border border-black/20 flex items-center justify-center mt-0.5 text-[8px]">✓</div>
+                <p class="font-body text-[10px] leading-[1.5] opacity-40">Card hold only. Charged after cycle start. Cancel free until 2h before. We overbook by 0% — if a drum is free, it's yours.</p>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-3 gap-3">
+          <div class="rounded-full border border-black/10 bg-paper h-10 flex items-center justify-center gap-2 font-body text-[10px] uppercase tracking-widest"><div class="w-2 h-2 rounded-full bg-green-500"></div>8 Free</div>
+          <div class="rounded-full border border-black/10 bg-paper h-10 flex items-center justify-center gap-2 font-body text-[10px] uppercase tracking-widest opacity-60">Avg: 42 min cycle</div>
+          <div class="rounded-full border border-black/10 bg-paper h-10 flex items-center justify-center gap-2 font-body text-[10px] uppercase tracking-widest opacity-60">No coins needed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER — Spec sheet -->
+<footer class="bg-ink text-paper relative overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-[2px] stainless"></div>
+  <div class="px-6 md:px-10 py-16 md:py-20">
+    <div class="grid lg:grid-cols-[1.2fr_0.8fr_1fr] gap-12 lg:gap-10">
+      <div>
+        <div class="font-display font-bold text-[28px] tracking-[-0.02em] leading-none">CYCLE<span class="font-light">®</span></div>
+        <div class="mt-4 font-body text-[11px] uppercase tracking-[0.18em] opacity-50 leading-[1.6]">Modern Laundry System<br>Industrial White #fdfbf7<br>Detergent Blue #0047ff / 316L</div>
+        <div class="mt-10 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 font-body text-[10px] uppercase tracking-widest"><span class="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-pulse"></span>All drums operational — Last night reset 02:34 AM</div>
+        <div class="mt-12 grid grid-cols-2 gap-6 max-w-[360px] border-t border-white/10 pt-8">
+          <div>
+            <div class="font-body text-[10px] uppercase tracking-widest opacity-40 mb-3">Care</div>
+            <div class="space-y-2 font-body text-[12px] leading-[1.4] opacity-70">
+              <div>40°C cotton / 30°C color</div>
+              <div>No softener needed</div>
+              <div>RO water 6.8pH</div>
+            </div>
+          </div>
+          <div>
+            <div class="font-body text-[10px] uppercase tracking-widest opacity-40 mb-3">Founders Note</div>
+            <div class="font-body text-[12px] leading-[1.5] opacity-70">Built because we wanted somewhere nice to do a boring thing. — J & M</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="font-body text-[11px]">
+        <div class="uppercase tracking-[0.16em] opacity-40 mb-6">Technical Spec — Facility</div>
+        <div class="space-y-3 opacity-70">
+          <div class="flex justify-between border-b border-white/10 pb-3"><span>Washer Units</span><span class="font-display">28 × Miele PW 6163</span></div>
+          <div class="flex justify-between border-b border-white/10 pb-3"><span>Water System</span><span>RO + remin + heat pump</span></div>
+          <div class="flex justify-between border-b border-white/10 pb-3"><span>Folding Table</span><span>Travertine 2400×900×40</span></div>
+          <div class="flex justify-between border-b border-white/10 pb-3"><span>Lighting</span><span>3000K / CRI 95 / 42dB</span></div>
+          <div class="flex justify-between border-b border-white/10 pb-3"><span>Detergent</span><span>Lab No.01 — 0% scent</span></div>
+          <div class="flex justify-between"><span>Scent Policy</span><span>No perfume on site</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="w-full rounded-[16px] overflow-hidden border border-white/10 bg-white/5 p-[1px]">
+          <div class="rounded-[15px] overflow-hidden bg-[#0f0f0f] p-6">
+            <div class="flex justify-between items-center mb-6">
+              <div class="font-display text-[14px]">Join System Letter</div>
+              <div class="font-body text-[9px] uppercase tracking-widest opacity-40">1× / month, no spam</div>
+            </div>
+            <p class="font-body text-[12px] leading-[1.5] opacity-60 mb-6">One email per month: lint logs, water pH reports, fold geometry updates, and one essay about why we still fold by hand.</p>
+            <div class="flex gap-2">
+              <input type="email" placeholder="email@paper.white" class="flex-1 h-11 rounded-full bg-white/5 border border-white/10 px-5 font-body text-[12px] focus:outline-none focus:border-blue">
+              <button class="h-11 w-11 rounded-full bg-white text-black flex items-center justify-center" data-cursor="hover">→</button>
+            </div>
+            <div class="mt-6 flex gap-2">
+              <span class="px-2.5 py-1 rounded-full bg-white/10 text-[9px] uppercase tracking-widest">Water Report</span>
+              <span class="px-2.5 py-1 rounded-full bg-white/10 text-[9px] uppercase tracking-widest">Fold Tips</span>
+              <span class="px-2.5 py-1 rounded-full bg-blue text-white text-[9px] uppercase tracking-widest">No Ads</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-between font-body text-[10px] uppercase tracking-widest opacity-30">
+          <span>©2024 CYCLE® — SOHO NYC</span><span>Made for clean</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 md:mt-24 border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between gap-4">
+      <div class="flex gap-6 font-display text-[11px] uppercase tracking-[0.14em] opacity-50">
+        <a href="#" class="hover:text-white transition-colors">Privacy / Water Data</a>
+        <a href="#" class="hover:text-white transition-colors">Terms / Drum Use</a>
+        <a href="#" class="hover:text-white transition-colors">Careers / Fold Team</a>
+      </div>
+      <div class="font-body text-[10px] uppercase tracking-[0.18em] opacity-30 flex items-center gap-3">
+        <span>Designed as machine, not store</span><span class="w-px h-3 bg-white/20"></span><span>Build 2.4 — Lint Filter OK</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Dial ticks
+  const dial = document.getElementById('dialTicks');
+  if(dial){
+    for(let i=0;i<24;i++){
+      const tick=document.createElement('div');
+      tick.className='dial-tick';
+      if(i%6===0) tick.style.height='14px';
+      tick.style.transform=`translateX(-50%) rotate(${i*15}deg)`;
+      dial.appendChild(tick);
+    }
+  }
+
+  // Custom cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mouseX=0, mouseY=0, ringX=0, ringY=0;
+  document.addEventListener('mousemove', e=>{
+    mouseX=e.clientX; mouseY=e.clientY;
+    dot.style.left=mouseX+'px'; dot.style.top=mouseY+'px';
+  });
+  function animateRing(){
+    ringX += (mouseX-ringX)*0.15;
+    ringY += (mouseY-ringY)*0.15;
+    ring.style.left=ringX+'px'; ring.style.top=ringY+'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('[data-cursor="hover"]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>ring.classList.add('hover'));
+    el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));
+  });
+  document.querySelectorAll('[data-cursor="drum"]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>ring.classList.add('drum'));
+    el.addEventListener('mouseleave',()=>ring.classList.remove('drum'));
+  });
+
+  // Magnetic buttons
+  document.querySelectorAll('.mag-btn').forEach(btn=>{
+    btn.addEventListener('mousemove', e=>{
+      const rect=btn.getBoundingClientRect();
+      const x=e.clientX-rect.left-rect.width/2;
+      const y=e.clientY-rect.top-rect.height/2;
+      btn.style.transform=`translate(${x*0.18}px, ${y*0.28}px)`;
+    });
+    btn.addEventListener('mouseleave',()=>{ btn.style.transform='translate(0,0)'; });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){ entry.target.classList.add('is-visible'); }
+    });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+  // Mobile menu
+  const menuToggle=document.getElementById('menuToggle');
+  const mobileMenu=document.getElementById('mobileMenu');
+  if(menuToggle){
+    menuToggle.addEventListener('click',()=>{
+      mobileMenu.classList.toggle('hidden');
+      menuToggle.textContent = mobileMenu.classList.contains('hidden') ? 'MENU' : 'CLOSE';
+    });
+    mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+      mobileMenu.classList.add('hidden'); menuToggle.textContent='MENU';
+    }));
+  }
+
+  // Drum rotation on scroll
+  let lastScroll=0;
+  window.addEventListener('scroll',()=>{
+    const sc=window.scrollY;
+    const diff=sc-lastScroll;
+    document.querySelectorAll('.drum-inner').forEach(el=>{
+      el.style.animationPlayState='paused';
+      el.style.transform=`rotate(${sc*0.1+diff}deg) scale(1.05)`;
+    });
+    lastScroll=sc;
+  }, {passive:true});
+
+  // Grain subtle parallax
+  window.addEventListener('mousemove', e=>{
+    const gx=(e.clientX/window.innerWidth-0.5)*10;
+    const gy=(e.clientY/window.innerHeight-0.5)*10;
+    document.querySelector('.grain').style.transform=`translate(${gx}%, ${gy}%)`;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Skate Park</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        anton: ['Anton', 'sans-serif'],
+        marker: ['Permanent Marker', 'cursive'],
+        space: ['Space Grotesk', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        concrete: '#a8a8a8',
+        concreteDark: '#7e7e7e',
+        concreteLight: '#e8e6e1',
+        offwhite: '#f5f3f0',
+        blackout: '#0a0a0a',
+        neonLime: '#D6FF00',
+        neonPink: '#FF1E8E',
+        neonCyan: '#00FFC2',
+      },
+      animation: {
+        marquee: 'marquee 22s linear infinite',
+        marqueeR: 'marqueeR 22s linear infinite',
+        jitter: 'jitter 0.2s infinite',
+        spray: 'sprayReveal 0.8s cubic-bezier(0.77,0,0.175,1) forwards',
+      }
+    }
+  }
+}
+</script>
+<style>
+*{ -webkit-font-smoothing: antialiased; }
+html{ scroll-behavior: smooth; }
+body{ background:#0a0a0a; color:#f5f3f0; overflow-x:hidden; cursor:none; }
+::selection{ background:#D6FF00; color:#0a0a0a; }
+
+/* Grain Texture */
+.grain::before{
+  content:"";
+  position:fixed; inset:-50%;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999; opacity:0.6; mix-blend-mode:soft-light;
+  animation: grainMove 8s steps(10) infinite;
+}
+@keyframes grainMove{
+  0%{ transform:translate(0,0) }
+  10%{ transform:translate(-5%,-10%) }
+  20%{ transform:translate(-15%,5%) }
+  30%{ transform:translate(7%,-25%) }
+  40%{ transform:translate(-5%,25%) }
+  50%{ transform:translate(-15%,10%) }
+  60%{ transform:translate(15%,0%) }
+  70%{ transform:translate(0%,15%) }
+  80%{ transform:translate(3%,35%) }
+  90%{ transform:translate(-10%,10%) }
+  100%{ transform:translate(0,0) }
+}
+
+/* Concrete Texture */
+.concrete-texture{
+  background-color:#a8a8a8;
+  background-image:
+    radial-gradient(at 20% 30%, rgba(0,0,0,0.12) 0%, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(255,255,255,0.2) 0%, transparent 40%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+}
+
+/* Custom Cursor */
+.cursor-dot{
+  width:8px; height:8px; background:#D6FF00; border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:10000; mix-blend-mode:difference; transition:transform 0.15s;
+}
+.cursor-ring{
+  width:44px; height:44px; border:1.5px solid rgba(245,243,240,0.4); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transition: all 0.18s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Stencil Effect */
+.stencil{ -webkit-text-stroke:1.5px #f5f3f0; color:transparent; }
+.stencil-lime{ -webkit-text-stroke:1.5px #D6FF00; color:transparent; }
+
+/* Marquee */
+@keyframes marquee{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+@keyframes marqueeR{ from{ transform:translateX(-50%) } to{ transform:translateX(0) } }
+
+/* Spray underline */
+.spray-underline{ position:relative; }
+.spray-underline::after{
+  content:""; position:absolute; left:-4%; bottom:-6px; width:108%; height:12px;
+  background: url("data:image/svg+xml,%3Csvg width='200' height='12' viewBox='0 0 200 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 7 Q20 2 40 6 T80 5 T120 7 T160 4 T198 6' stroke='%23D6FF00' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.9'/%3E%3C/svg%3E") no-repeat center/cover;
+  opacity:0; transform:scaleX(0); transform-origin:left; transition:0.4s cubic-bezier(0.77,0,0.175,1);
+}
+.spray-underline:hover::after{ opacity:1; transform:scaleX(1); }
+
+/* Reveal */
+.reveal{ opacity:0; transform:translateY(40px) rotate(0.5deg); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+.reveal.in{ opacity:1; transform:translateY(0) rotate(0deg); }
+.reveal-delay-1{ transition-delay:0.1s }
+.reveal-delay-2{ transition-delay:0.22s }
+.reveal-delay-3{ transition-delay:0.35s }
+
+/* Deck hover */
+.deck-card:hover .deck-img{ transform:translateY(-12px) rotate(-2deg) scale(1.05); }
+.deck-card:hover .deck-shadow{ transform:scaleX(0.8); opacity:0.2; }
+
+/* Tilt */
+.tilt{ transform-style:preserve-3d; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+
+/* Tape */
+.tape{
+  position:absolute; width:110px; height:28px; background:rgba(214,255,0,0.85); opacity:0.9;
+  transform:rotate(-8deg); box-shadow:0 2px 10px rgba(0,0,0,0.2);
+}
+.tape::after{ content:""; position:absolute; inset:0; background: repeating-linear-gradient(90deg, transparent 0 8px, rgba(0,0,0,0.06) 8px 9px); }
+
+/* Concrete edge */
+.concrete-edge{
+  position:relative;
+}
+.concrete-edge::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:8px;
+  background:repeating-linear-gradient(180deg, #0a0a0a 0 12px, transparent 12px 24px);
+  opacity:0.15;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{ width:6px; height:6px; }
+::-webkit-scrollbar-thumb{ background:#D6FF00; }
+::-webkit-scrollbar-track{ background:#0a0a0a; }
+
+/* Hide cursor on touch */
+@media (pointer: coarse){
+  body{ cursor:auto; }
+  .cursor-dot,.cursor-ring{ display:none; }
+}
+
+/* Magnetic btn */
+.mag-btn{ position:relative; overflow:hidden; isolation:isolate; }
+.mag-btn::before{
+  content:""; position:absolute; inset:0; background:#D6FF00; transform:translateY(101%); transition:transform 0.55s cubic-bezier(0.77,0,0.175,1); z-index:-1;
+}
+.mag-btn:hover::before{ transform:translateY(0); }
+.mag-btn:hover{ color:#0a0a0a; }
+
+@keyframes jitter{
+  0%{ transform:translate(0,0) }
+  25%{ transform:translate(0.5px,-0.5px) }
+  50%{ transform:translate(-0.5px,0.5px) }
+  75%{ transform:translate(0.5px,0.5px) }
+  100%{ transform:translate(0,0) }
+}
+</style>
+</head>
+<body class="grain font-space antialiased selection:bg-neonLime selection:text-blackout">
+
+<div class="cursor-dot" id="cDot"></div>
+<div class="cursor-ring" id="cRing"></div>
+
+<!-- NAV -->
+<nav class="fixed top-0 w-full z-50 mix-blend-difference">
+  <div class="flex items-center justify-between px-6 md:px-10 py-6 border-b border-white/10 backdrop-blur-[12px] bg-black/20">
+    <div class="flex items-center gap-8">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-neonLime text-blackout flex items-center justify-center font-anton text-xl leading-none">CØ</div>
+        <div class="leading-[0.85]">
+          <div class="font-anton text-[22px] tracking-[0.02em] leading-none text-white">CØNCRETE</div>
+          <div class="font-mono text-[10px] tracking-[0.2em] text-white/70 -mt-1">FACTORY • DTLA</div>
+        </div>
+      </div>
+      <div class="hidden lg:flex items-center gap-1 ml-10 font-mono text-[11px] tracking-[0.15em]">
+        <span class="w-2 h-2 bg-neonCyan rounded-full animate-pulse"></span>
+        <span class="text-white/60">PARK STATUS:</span>
+        <span class="text-neonLime ml-1">OPEN — 6AM TO MIDNIGHT</span>
+      </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-10">
+      <a href="#park" class="font-mono text-[12px] tracking-[0.2em] text-white hover:text-neonLime spray-underline transition-colors">PARK</a>
+      <a href="#decks" class="font-mono text-[12px] tracking-[0.2em] text-white hover:text-neonLime spray-underline transition-colors">DECKS</a>
+      <a href="#sessions" class="font-mono text-[12px] tracking-[0.2em] text-white hover:text-neonLime spray-underline transition-colors">SESSIONS</a>
+      <a href="#contact" class="px-6 py-[10px] bg-white text-blackout font-anton text-[14px] tracking-[0.08em] hover:bg-neonLime transition-colors">BOOK SPOT →</a>
+    </div>
+
+    <button id="menuBtn" class="md:hidden w-10 h-10 border border-white/20 flex flex-col items-center justify-center gap-[5px]">
+      <span class="w-5 h-[2px] bg-white block"></span>
+      <span class="w-5 h-[2px] bg-white block"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden md:hidden absolute top-full left-0 w-full bg-blackout border-b border-white/10 p-6 flex flex-col gap-5">
+    <a href="#park" class="font-anton text-3xl">PARK</a>
+    <a href="#decks" class="font-anton text-3xl">DECKS</a>
+    <a href="#sessions" class="font-anton text-3xl">SESSIONS</a>
+    <a href="#contact" class="mt-4 bg-neonLime text-blackout font-anton text-center py-4">BOOK SPOT</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative min-h-[100vh] w-full bg-offwhite text-blackout overflow-hidden pt-[72px]">
+  <!-- Concrete Grid BG -->
+  <div class="absolute inset-0 concrete-texture opacity-[0.35]"></div>
+  <div class="absolute inset-0" style="background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 64px 64px;"></div>
+
+  <!-- Spray Splatter SVG -->
+  <svg class="absolute top-[18%] right-[8%] w-[320px] md:w-[520px] opacity-[0.18] pointer-events-none" viewBox="0 0 400 400" fill="none">
+    <path d="M120 80 C180 20 280 40 300 120 C320 200 250 280 160 300 C80 320 20 220 40 140 C60 80 100 100 120 80Z" fill="#0a0a0a"/>
+    <circle cx="200" cy="160" r="6" fill="#0a0a0a"/><circle cx="230" cy="90" r="3" fill="#0a0a0a"/><circle cx="280" cy="180" r="4" fill="#0a0a0a"/>
+  </svg>
+
+  <div class="relative z-10 max-w-[1600px] mx-auto px-6 md:px-10 grid grid-cols-12 gap-6 h-full min-h-[88vh] items-end md:items-center pb-10 md:pb-0">
+    
+    <!-- Left Vertical -->
+    <div class="col-span-12 md:col-span-1 flex md:flex-col gap-6 md:gap-10 md:h-[70vh] items-start md:items-center justify-between border-b md:border-b-0 md:border-r border-black/10 pb-6 md:pb-0">
+      <div class="font-mono text-[10px] tracking-[0.3em] rotate-0 md:-rotate-90 whitespace-nowrap origin-left md:translate-y-20 opacity-60">EST. 1998 — LOS ANGELES — 34°03'N 118°14'W</div>
+      <div class="flex md:flex-col gap-3">
+        <div class="w-8 h-8 rounded-full border border-black/20 flex items-center justify-center font-mono text-[10px]">01</div>
+        <div class="hidden md:block w-[1px] h-20 bg-black/10 mx-auto"></div>
+        <div class="w-8 h-8 rounded-full bg-blackout text-white flex items-center justify-center font-mono text-[10px]">●</div>
+      </div>
+    </div>
+
+    <!-- Center Huge Type -->
+    <div class="col-span-12 md:col-span-7 lg:col-span-8 relative mt-2 md:mt-0">
+      <div class="relative">
+        <h1 class="font-anton leading-[0.85] tracking-[-0.03em] text-[19vw] md:text-[13vw] lg:text-[11.5vw]">
+          <span class="block reveal">CØNCRETE</span>
+          <span class="block reveal reveal-delay-1 stencil ml-[0.04em]">FACTORY</span>
+        </h1>
+
+        <!-- Image inside O? floating skater card -->
+        <div class="absolute top-[18%] left-[22%] md:left-[28%] w-[58%] md:w-[42%] aspect-[4/3] bg-blackout -rotate-2 p-[10px] shadow-[18px_18px_0_#D6FF00] reveal reveal-delay-2 hidden md:block tilt" id="heroCard">
+          <div class="tape -top-3 -left-6"></div>
+          <div class="tape -bottom-2 -right-5 rotate-[12deg] bg-white"></div>
+          <img src="https://images.unsplash.com/photo-1564982752979-3f7bc974d247?q=80&w=1200&auto=format&fit=crop" alt="Skate Park Concrete Bowl" class="w-full h-full object-cover grayscale contrast-[1.1]">
+          <div class="absolute bottom-3 left-3 bg-neonLime px-2 py-1 font-mono text-[10px] font-bold tracking-widest">BOWL 03 - 12FT DEEP</div>
+        </div>
+
+        <!-- Graffiti Tag -->
+        <div class="absolute -right-6 md:right-[8%] top-[54%] md:top-[42%] rotate-[-8deg] z-20 reveal reveal-delay-3">
+          <div class="font-marker text-[42px] md:text-[68px] leading-none text-neonPink" style="text-shadow: 2px 2px 0 #0a0a0a;">KICK IT!</div>
+          <div class="font-mono text-[10px] bg-blackout text-white inline-block px-2 py-1 -mt-2 tracking-[0.2em]">SPRAYED 03.14.24</div>
+        </div>
+      </div>
+
+      <!-- Sub Hero Copy -->
+      <div class="grid grid-cols-12 gap-6 mt-10 md:mt-20 items-start">
+        <div class="col-span-12 md:col-span-5 font-space text-[15px] leading-[1.6] opacity-80">
+          <span class="font-bold bg-blackout text-white px-1">Raw poured concrete since '98.</span> No coping caps, no plastic, no bullshit. Just rebar, gravity, and 22,000 sq ft of transition built by skaters who didn't know when to stop.
+          <div class="mt-6 flex gap-3 font-mono text-[11px]">
+            <span class="px-3 py-1 border border-black/20">22K SQFT</span>
+            <span class="px-3 py-1 border border-black/20">12FT BOWL</span>
+            <span class="px-3 py-1 bg-blackout text-white">ALL LEVELS</span>
+          </div>
+        </div>
+        <div class="col-span-12 md:col-span-7 flex gap-4">
+          <a href="#contact" class="mag-btn flex-1 md:flex-none px-8 py-4 bg-blackout text-white font-anton text-[15px] tracking-[0.08em] flex items-center justify-center gap-3 group">
+            BOOK SESSION
+            <span class="w-7 h-7 rounded-full bg-white text-blackout flex items-center justify-center group-hover:rotate-45 transition-transform">→</span>
+          </a>
+          <button class="px-6 py-4 border-[1.5px] border-blackout font-mono text-[12px] tracking-[0.15em] flex items-center gap-2 hover:bg-blackout hover:text-white transition-colors">
+            <span class="w-2 h-2 bg-neonPink rounded-full animate-pulse"></span> LIVE CAM
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Data Rail -->
+    <div class="col-span-12 md:col-span-4 lg:col-span-3 md:pl-10 mt-8 md:mt-0">
+      <div class="bg-blackout text-offwhite p-6 md:p-8 relative">
+        <div class="absolute -top-3 -right-3 w-12 h-12 bg-neonLime flex items-center justify-center font-anton text-blackout text-xl">!</div>
+        <div class="font-mono text-[10px] tracking-[0.25em] opacity-50 mb-6">TODAY AT FACTORY / 05.14</div>
+        
+        <div class="space-y-5">
+          <div class="flex justify-between border-b border-white/10 pb-3">
+            <span class="font-mono text-[11px] opacity-60">AIR TEMP</span>
+            <span class="font-anton text-xl">81°F <span class="text-neonLime">• DRY</span></span>
+          </div>
+          <div class="flex justify-between border-b border-white/10 pb-3">
+            <span class="font-mono text-[11px] opacity-60">CONCRETE</span>
+            <span class="font-anton text-xl">124°F HOT</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-mono text-[11px] opacity-60">SESSIONS</span>
+            <span class="font-anton text-xl">47 RIDERS IN</span>
+          </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-3 gap-2">
+          <img src="https://images.unsplash.com/photo-1520045892732-304bc3ac5d8e?q=80&w=400&auto=format&fit=crop" class="h-20 w-full object-cover grayscale hover:grayscale-0 transition-all">
+          <img src="https://images.unsplash.com/photo-1547447134-cd3f5c716030?q=80&w=400&auto=format&fit=crop" class="h-20 w-full object-cover grayscale hover:grayscale-0 transition-all">
+          <img src="https://images.unsplash.com/photo-1504221507732-5246c70c9d72?q=80&w=400&auto=format&fit=crop" class="h-20 w-full object-cover grayscale hover:grayscale-0 transition-all">
+        </div>
+
+        <div class="mt-6 font-marker text-[18px] text-neonLime -rotate-1">“Best ground in LA. Period.” – Tyshawn</div>
+      </div>
+
+      <!-- Vertical Tagline Mobile Hidden -->
+      <div class="hidden md:flex mt-6 items-center gap-3 font-mono text-[10px] tracking-[0.2em] opacity-50">
+        <div class="flex-1 h-[1px] bg-black/20"></div>
+        SCROLL TO ENTER ↓
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE 1 -->
+<div class="relative w-full bg-blackout border-y-[1.5px] border-blackout overflow-hidden py-3 z-20">
+  <div class="flex whitespace-nowrap animate-marquee will-change-transform">
+    <div class="flex items-center gap-8 px-4">
+      <span class="font-anton text-[26px] tracking-[0.05em] text-offwhite">CONCRETE // GRAVITY // REPEAT // NO RULES // POUR // RIDE // BLEED // REPEAT //</span>
+      <span class="w-3 h-3 bg-neonLime rotate-45"></span>
+      <span class="font-anton text-[26px] tracking-[0.05em] text-offwhite">CONCRETE // GRAVITY // REPEAT // NO RULES // POUR // RIDE // BLEED // REPEAT //</span>
+      <span class="w-3 h-3 bg-neonPink rotate-45"></span>
+      <span class="font-anton text-[26px] tracking-[0.05em] text-offwhite">CONCRETE // GRAVITY // REPEAT // NO RULES // POUR // RIDE // BLEED // REPEAT //</span>
+      <span class="w-3 h-3 bg-neonCyan rotate-45"></span>
+    </div>
+    <div class="flex items-center gap-8 px-4" aria-hidden="true">
+      <span class="font-anton text-[26px] tracking-[0.05em] text-offwhite">CONCRETE // GRAVITY // REPEAT // NO RULES // POUR // RIDE // BLEED // REPEAT //</span>
+      <span class="w-3 h-3 bg-neonLime rotate-45"></span>
+      <span class="font-anton text-[26px] tracking-[0.05em] text-offwhite">CONCRETE // GRAVITY // REPEAT // NO RULES // POUR // RIDE // BLEED // REPEAT //</span>
+      <span class="w-3 h-3 bg-neonPink rotate-45"></span>
+      <span class="font-anton text-[26px] tracking-[0.05em] text-offwhite">CONCRETE // GRAVITY // REPEAT // NO RULES // POUR // RIDE // BLEED // REPEAT //</span>
+      <span class="w-3 h-3 bg-neonCyan rotate-45"></span>
+    </div>
+  </div>
+</div>
+
+<!-- STORY / ABOUT -->
+<section id="about" class="relative bg-offwhite text-blackout py-24 md:py-40 overflow-hidden">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+    <div class="grid grid-cols-12 gap-10 md:gap-16 items-start">
+      
+      <!-- Left Number -->
+      <div class="col-span-12 md:col-span-5 relative">
+        <div class="sticky top-32">
+          <div class="font-mono text-[11px] tracking-[0.3em] mb-6 flex items-center gap-2"><span class="w-8 h-[1px] bg-blackout inline-block"></span> OUR POUR</div>
+          <div class="relative">
+            <div class="font-anton text-[28vw] md:text-[18vw] leading-[0.8] tracking-[-0.05em]">27</div>
+            <div class="absolute top-[18%] left-[42%] font-marker text-[22px] md:text-[32px] bg-neonLime px-3 py-1 -rotate-6 shadow-[6px_6px_0_#0a0a0a]">YEARS<br>DEEP</div>
+            <div class="absolute bottom-[18%] -right-4 w-[180px] h-[220px] bg-blackout p-2 rotate-3 shadow-xl hidden md:block">
+              <img src="https://images.unsplash.com/photo-1579757943759-bd1d49d6d2d7?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <div class="mt-12 grid grid-cols-2 gap-6 border-t border-black/10 pt-8 max-w-[420px]">
+            <div>
+              <div class="font-anton text-4xl">’98</div>
+              <div class="font-mono text-[10px] tracking-[0.15em] opacity-60 mt-1">FIRST POUR — 400FT TEST BOWL IN WAREHOUSE</div>
+            </div>
+            <div>
+              <div class="font-anton text-4xl">22K</div>
+              <div class="font-mono text-[10px] tracking-[0.15em] opacity-60 mt-1">SQ FT OF SEAMLESS TRANSITION TODAY</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Story -->
+      <div class="col-span-12 md:col-span-7">
+        <h2 class="font-anton text-[12vw] md:text-[7.5vw] leading-[0.85] tracking-[-0.02em] mb-12">
+          WE DIDN'T<br>
+          <span class="inline-block bg-blackout text-white px-2">BUILD</span> A PARK.<br>
+          <span class="stencil !text-blackout" style="-webkit-text-stroke-color:#0a0a0a;">WE DUG A HOLE</span><br>
+          AND FORGOT<br>TO STOP.
+        </h2>
+
+        <div class="grid grid-cols-12 gap-8">
+          <div class="col-span-12 md:col-span-7 space-y-6 font-space text-[16px] leading-[1.7]">
+            <p>In 1998 the city said no permits, no lights, no chance. So we poured at night. Three truckloads of surplus concrete from the 6th Street bridge demo, mixed by hand with river sand from the LA River. No blueprints — just a garden hose for the radius and Tony's dad holding the level.</p>
+            <p class="bg-neonLime/30 p-4 border-l-4 border-blackout font-mono text-[13px] leading-[1.6]"><span class="font-bold">PRINCIPLE:</span> If you can roll it with a mason's trowel, you can skate it. Every joint is cold. Every coping is pool block salvaged from demolished Encino mansions. That's why it grinds like teeth.</p>
+            <p>The Factory isn't smooth. It's alive. Hairline cracks hold winter rain. Summer heat expands the slab 3/8" — you hear it pop at 2pm daily. That's our clock. Kids learn to read the ground, not the signs.</p>
+          </div>
+          <div class="col-span-12 md:col-span-5 space-y-6">
+            <div class="bg-blackout text-offwhite p-6 concrete-edge">
+              <div class="font-mono text-[10px] tracking-[0.2em] opacity-50 mb-4">MATERIAL SPECS — BOWL 03</div>
+              <ul class="space-y-2 font-mono text-[12px]">
+                <li class="flex justify-between"><span class="opacity-60">MIX</span><span>4500 PSI / 6% AIR</span></li>
+                <li class="flex justify-between"><span class="opacity-60">REBAR</span><span>#4 @ 12" O/C</span></li>
+                <li class="flex justify-between"><span class="opacity-60">DEPTH</span><span>4' — 12' VERT</span></li>
+                <li class="flex justify-between"><span class="opacity-60">COPING</span><span>3" POOL TILE</span></li>
+                <li class="flex justify-between text-neonLime"><span>CURE</span><span>27 YEARS + COUNTING</span></li>
+              </ul>
+            </div>
+            <div class="relative h-[260px] bg-concrete overflow-hidden group">
+              <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s]">
+              <div class="absolute inset-0 bg-blackout/20"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-end">
+                <span class="font-anton text-white text-xl tracking-wide">POUR IN PROGRESS — 2003</span>
+                <span class="font-mono text-[10px] bg-white text-blackout px-2 py-1">ARCHIVE #043</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-16 flex flex-wrap gap-3">
+          <span class="px-5 py-2 border-[1.5px] border-blackout font-mono text-[11px] tracking-[0.15em]">NO SCOOTERS</span>
+          <span class="px-5 py-2 border-[1.5px] border-blackout font-mono text-[11px] tracking-[0.15em]">NO HELMET RULES (YOUR CALL)</span>
+          <span class="px-5 py-2 bg-neonPink text-white font-mono text-[11px] tracking-[0.15em] border-[1.5px] border-neonPink">DOGS OK — IF THEY CAN OLLIE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARK FEATURES -->
+<section id="park" class="relative bg-blackout text-offwhite py-24 md:py-32 overflow-hidden">
+  <!-- Spray texture background -->
+  <div class="absolute inset-0 opacity-[0.07]" style="background-image: url('https://images.unsplash.com/photo-1579757943759-bd1d49d6d2d7?q=80&w=1000&auto=format&fit=crop'); background-size:cover; mix-blend-mode:luminosity;"></div>
+  
+  <div class="relative max-w-[1600px] mx-auto px-6 md:px-10">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
+      <div>
+        <div class="font-mono text-[11px] tracking-[0.3em] text-neonLime mb-4">FEATURES // TERRAIN</div>
+        <h2 class="font-anton text-[15vw] md:text-[8vw] leading-[0.85] tracking-[-0.02em]">THE<br>GROUND</h2>
+      </div>
+      <div class="md:max-w-[380px] font-space text-[14px] leading-[1.6] opacity-70">
+        Three bowls, one street course that never ends, and a cradle that'll spit you out if you disrespect it. Designed to flow — one line can hit everything if you carry speed.
+        <div class="mt-6 w-full h-[1px] bg-white/10 relative overflow-hidden"><div class="absolute left-0 top-0 h-full w-1/3 bg-neonLime"></div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-[1px] bg-white/10 border border-white/10">
+      <!-- Bowl 1 -->
+      <div class="col-span-12 md:col-span-5 group relative bg-[#111] p-8 md:p-10 min-h-[560px] flex flex-col justify-between overflow-hidden hover:bg-[#151515] transition-colors">
+        <div class="absolute top-0 right-0 w-[60%] h-full opacity-20 group-hover:opacity-30 transition-opacity"><img src="https://images.unsplash.com/photo-1564982752979-3f7bc974d247?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover"></div>
+        <div class="relative">
+          <div class="flex justify-between items-start">
+            <div class="font-mono text-[10px] tracking-[0.2em] bg-white/10 px-3 py-1">BOWL 01 / THE KETTLE</div>
+            <div class="font-anton text-6xl leading-none text-white/10 group-hover:text-neonLime/20 transition-colors">01</div>
+          </div>
+          <h3 class="font-anton text-5xl md:text-[56px] leading-[0.9] mt-10">LITTLE<br>MONSTER</h3>
+          <div class="mt-4 flex gap-2 font-mono text-[10px]">
+            <span class="px-2 py-1 bg-neonLime text-blackout">5FT — 7FT</span>
+            <span class="px-2 py-1 border border-white/20">MELLOW • FLOW</span>
+          </div>
+        </div>
+        <div class="relative mt-12 space-y-4">
+          <p class="font-space text-[14px] leading-[1.6] opacity-70 max-w-[320px]">Beginners actually belong here. Tight transitions, long flat bottom, pool coping on one side, flat bar on the other. Learn to pump without fear.</p>
+          <div class="flex items-center gap-2 font-marker text-neonLime text-[20px] rotate-[-2deg]">perfect for new blood →</div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full h-[3px] bg-neonLime scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-700"></div>
+      </div>
+
+      <!-- Bowl 2 BIG -->
+      <div class="col-span-12 md:col-span-7 group relative bg-offwhite text-blackout p-8 md:p-10 min-h-[560px] flex flex-col justify-between overflow-hidden">
+        <div class="absolute inset-0 concrete-texture opacity-30"></div>
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[55%] aspect-square rounded-full border-[20px] border-blackout/5 pointer-events-none group-hover:rotate-45 transition-transform duration-[2s]"></div>
+        <div class="relative">
+          <div class="flex justify-between">
+            <div class="font-mono text-[10px] tracking-[0.2em] bg-blackout text-white px-3 py-1">BOWL 02 + 03 / CONNECTED</div>
+            <div class="font-anton text-6xl leading-none opacity-10">02-03</div>
+          </div>
+          <h3 class="font-anton text-6xl md:text-[72px] leading-[0.85] mt-8 tracking-[-0.02em]">THE<br>MAIN<br>EVENT</h3>
+          <div class="mt-4 font-marker text-[26px] bg-blackout text-neonLime inline-block px-3 -rotate-2">12ft vert • real coping • real fear</div>
+        </div>
+        <div class="relative grid grid-cols-2 gap-6 mt-12">
+          <ul class="font-mono text-[11px] leading-[1.8] space-y-1">
+            <li>— 12ft deep end with 1ft vert</li>
+            <li>— 8ft shallow with love seat</li>
+            <li>— Deathbox transfer</li>
+            <li>— Lighting after 7pm</li>
+          </ul>
+          <div class="bg-blackout text-white p-4">
+            <div class="font-mono text-[10px] opacity-50">CURRENT LINE HOLDER</div>
+            <div class="font-anton text-xl leading-none mt-1">JAXON • 7:42<br>3 BOWL TO STREET</div>
+            <div class="mt-2 h-[2px] bg-neonLime w-full"></div>
+          </div>
+        </div>
+        <div class="absolute -bottom-6 -right-6 font-anton text-[180px] leading-none opacity-[0.04] pointer-events-none">BOWL</div>
+      </div>
+
+      <!-- Street -->
+      <div class="col-span-12 md:col-span-7 group relative bg-[#0f0f0f] p-8 md:p-10 min-h-[460px] flex flex-col justify-between border-t border-white/10 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-neonCyan/10 via-transparent to-transparent"></div>
+        <div class="relative flex justify-between items-start">
+          <h3 class="font-anton text-5xl leading-[0.9]">STREET<br>NEVER ENDS</h3>
+          <div class="hidden md:block font-mono text-[10px] leading-[1.4] opacity-50 text-right">LEDGE / MANUAL / STAIR / HUBBA /<br>Rail / Bank / Wall / Repeat</div>
+        </div>
+        <div class="relative mt-10 flex flex-col md:flex-row gap-6 items-start">
+          <img src="https://images.unsplash.com/photo-1504221507732-5246c70c9d72?q=80&w=500&auto=format&fit=crop" class="w-full md:w-[220px] h-[140px] object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-700">
+          <div class="space-y-3">
+            <div class="font-mono text-[11px] px-3 py-1 bg-white/10 inline-block">14 OBSTACLES • NO WAX NEEDED</div>
+            <p class="font-space text-[14px] opacity-70 leading-[1.6] max-w-[380px]">Built from rejected curbs and parking blocks stolen from a mall demolition. Every ledge is different height — forces adaptation.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cradle -->
+      <div class="col-span-12 md:col-span-5 group relative bg-neonLime text-blackout p-8 md:p-10 min-h-[460px] flex flex-col justify-between overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-blackout rounded-full blur-[50px] opacity-20"></div>
+        <div class="relative">
+          <div class="font-mono text-[10px] tracking-[0.2em] bg-blackout text-neonLime px-3 py-1 inline-block">ONLY FOR CERTIFIED LUNATICS</div>
+          <h3 class="font-anton text-5xl leading-[0.9] mt-6">CRADLE<br>& FULL LOOP</h3>
+        </div>
+        <div class="relative mt-8">
+          <div class="font-anton text-[88px] leading-[0.8] tracking-[-0.05em]">360°</div>
+          <div class="font-space text-[13px] leading-[1.5] mt-2 max-w-[280px] font-medium">You need a key. Talk to Miguel. Bring proof you can drop in the deep end without crying.</div>
+          <button class="mt-6 w-full py-3 bg-blackout text-white font-mono text-[11px] tracking-[0.2em] hover:bg-white hover:text-blackout transition-colors">REQUEST ACCESS →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DECK GALLERY -->
+<section id="decks" class="relative bg-offwhite text-blackout overflow-hidden py-24 md:py-32">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+    <div class="flex flex-col md:flex-row justify-between items-start gap-8 mb-16 border-b border-black/10 pb-12">
+      <div class="flex items-start gap-6">
+        <div class="hidden md:block w-[88px] h-[88px] bg-blackout text-white flex items-center justify-center font-anton text-5xl leading-none shrink-0">→</div>
+        <div>
+          <div class="font-mono text-[11px] tracking-[0.3em] mb-2">DECK WALL / SHOP</div>
+          <h2 class="font-anton text-[12vw] md:text-[6vw] leading-[0.85] tracking-[-0.02em]">STACK<br>YOUR<br>WEAPON</h2>
+        </div>
+      </div>
+      <div class="md:max-w-[360px] space-y-4">
+        <p class="font-space text-[14px] leading-[1.6]">Local shapes only. Pressed in-house on our 1962 hydraulic press. No pro models — just wood that works. Wax the graphic, not the street.</p>
+        <div class="flex gap-2 font-mono text-[11px]">
+          <span class="px-3 py-1 bg-blackout text-white">$65 • BLANK</span>
+          <span class="px-3 py-1 border border-blackout">$85 • GRAPHIC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Horizontal Deck Scroller -->
+    <div class="relative">
+      <div class="flex gap-6 overflow-x-auto pb-10 snap-x snap-mandatory scrollbar-thin" id="deckScroller" style="-webkit-overflow-scrolling: touch;">
+        
+        <!-- Deck 1 -->
+        <div class="deck-card snap-start shrink-0 w-[280px] md:w-[320px] group cursor-pointer">
+          <div class="relative bg-[#f0ede8] border border-black/10 p-6 pb-10 h-[500px] flex flex-col items-center overflow-hidden">
+            <div class="absolute top-4 left-4 font-mono text-[10px] tracking-widest bg-blackout text-white px-2 py-1">#01 — OG POPSICLE</div>
+            <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-neonLime flex items-center justify-center font-mono text-[10px] font-bold">8.5"</div>
+            <div class="deck-img transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] mt-12 w-[140px] h-[380px] bg-gradient-to-b from-[#222] to-[#111] rounded-[70px] relative shadow-[inset_0_0_0_2px_rgba(255,255,255,0.1)] flex flex-col items-center justify-between py-8">
+              <div class="font-anton text-white text-[28px] tracking-widest rotate-90 origin-center translate-y-10">CØNCRETE</div>
+              <div class="w-20 h-20 rounded-full border-2 border-neonLime flex items-center justify-center"><span class="font-marker text-neonLime text-xl">98</span></div>
+              <div class="font-mono text-[9px] text-white/50 tracking-[0.2em] rotate-90">FACTORY PRESS</div>
+            </div>
+            <div class="deck-shadow w-[120px] h-4 bg-black/20 blur-[6px] rounded-full transition-all duration-500 mt-4 mx-auto"></div>
+          </div>
+          <div class="mt-4 flex justify-between items-start">
+            <div><div class="font-anton text-xl leading-none">OG POPSICLE</div><div class="font-mono text-[10px] opacity-60 mt-1">7-PLY MAPLE • MED CONCAVE</div></div>
+            <div class="font-anton text-xl">$65</div>
+          </div>
+        </div>
+
+        <!-- Deck 2 - Neon -->
+        <div class="deck-card snap-start shrink-0 w-[280px] md:w-[320px] group cursor-pointer">
+          <div class="relative bg-blackout text-white border border-white/10 p-6 pb-10 h-[500px] flex flex-col items-center overflow-hidden">
+            <div class="absolute top-4 left-4 font-mono text-[10px] tracking-widest bg-neonLime text-blackout px-2 py-1">#02 — NEON BOMB</div>
+            <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-neonPink flex items-center justify-center font-mono text-[10px] font-bold text-white">8.75</div>
+            <div class="deck-img transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] mt-12 w-[145px] h-[390px] bg-[#D6FF00] rounded-[70px] relative shadow-xl flex flex-col items-center justify-between py-8 rotate-[-2deg]">
+              <div class="absolute inset-[10px] border-[3px] border-blackout rounded-[60px] opacity-20"></div>
+              <div class="font-anton text-blackout text-[44px] leading-[0.8] text-center">SPRAY<br>DON'T<br>LIE</div>
+              <div class="w-full h-[60px] bg-blackout flex items-center justify-center"><span class="font-marker text-neonLime text-2xl">FACTORY</span></div>
+              <div class="font-mono text-[9px] text-blackout font-bold tracking-[0.2em]">LIMITED 100</div>
+            </div>
+            <div class="deck-shadow w-[120px] h-4 bg-neonLime/20 blur-[6px] rounded-full transition-all duration-500 mt-4 mx-auto"></div>
+          </div>
+          <div class="mt-4 flex justify-between items-start text-white">
+            <div class="mix-blend-difference"><div class="font-anton text-xl leading-none text-blackout">NEON BOMB</div><div class="font-mono text-[10px] opacity-60 mt-1 text-blackout">HEAVY CONCAVE • FOR BOWL</div></div>
+            <div class="font-anton text-xl text-blackout">$85</div>
+          </div>
+        </div>
+
+        <!-- Deck 3 -->
+        <div class="deck-card snap-start shrink-0 w-[280px] md:w-[320px] group cursor-pointer">
+          <div class="relative bg-[#e8e6e1] border border-black/10 p-6 pb-10 h-[500px] flex flex-col items-center overflow-hidden">
+            <div class="absolute top-4 left-4 font-mono text-[10px] tracking-widest bg-white border border-black/10 px-2 py-1">#03 — CRUISER</div>
+            <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white border border-blackout flex items-center justify-center font-mono text-[10px] font-bold">9.2"</div>
+            <div class="deck-img transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] mt-12 w-[160px] h-[380px] bg-[#c9c5ba] rounded-[20px] relative flex flex-col items-center justify-center overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1547447134-cd3f5c716030?q=80&w=400&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-60">
+              <div class="relative font-anton text-blackout text-[32px] leading-[0.9] text-center bg-white/80 px-2">CONCRETE<br>SLAB</div>
+            </div>
+            <div class="deck-shadow w-[130px] h-4 bg-black/20 blur-[6px] rounded-full transition-all duration-500 mt-4 mx-auto"></div>
+          </div>
+          <div class="mt-4 flex justify-between items-start">
+            <div><div class="font-anton text-xl leading-none">SLAB CRUISER</div><div class="font-mono text-[10px] opacity-60 mt-1">WIDE • FLAT • FOR BEER RUNS</div></div>
+            <div class="font-anton text-xl">$75</div>
+          </div>
+        </div>
+
+        <!-- Deck 4 -->
+        <div class="deck-card snap-start shrink-0 w-[280px] md:w-[320px] group cursor-pointer">
+          <div class="relative bg-neonPink text-white border border-black/10 p-6 pb-10 h-[500px] flex flex-col items-center overflow-hidden">
+            <div class="absolute top-4 left-4 font-mono text-[10px] tracking-widest bg-blackout text-white px-2 py-1">#04 — GIRL POWER</div>
+            <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white text-blackout flex items-center justify-center font-mono text-[10px] font-bold">8.25</div>
+            <div class="deck-img transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] mt-12 w-[140px] h-[380px] bg-white rounded-[70px] relative shadow-[inset_0_0_0_3px_#0a0a0a] flex flex-col items-center justify-between py-10 rotate-[2deg]">
+              <div class="font-marker text-blackout text-[22px]">she rips</div>
+              <div class="w-24 h-24 rounded-full bg-blackout flex items-center justify-center text-neonPink font-anton text-5xl">♀</div>
+              <div class="font-mono text-[10px] text-blackout font-bold">FACTORY 2025</div>
+            </div>
+            <div class="deck-shadow w-[120px] h-4 bg-black/30 blur-[6px] rounded-full transition-all duration-500 mt-4 mx-auto"></div>
+          </div>
+          <div class="mt-4 flex justify-between items-start">
+            <div><div class="font-anton text-xl leading-none text-blackout">SHE RIPS</div><div class="font-mono text-[10px] opacity-60 mt-1 text-blackout">FOR EVERYONE WHO WAS TOLD NO</div></div>
+            <div class="font-anton text-xl text-blackout">$85</div>
+          </div>
+        </div>
+
+        <!-- Deck 5 -->
+        <div class="deck-card snap-start shrink-0 w-[280px] md:w-[320px] group cursor-pointer">
+          <div class="relative bg-[#111] text-white border border-white/5 p-6 pb-10 h-[500px] flex flex-col items-center overflow-hidden">
+            <div class="absolute top-4 left-4 font-mono text-[10px] tracking-widest bg-white text-blackout px-2 py-1">#05 — BLACKOUT</div>
+            <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-concrete flex items-center justify-center font-mono text-[10px] font-bold text-blackout">8.5</div>
+            <div class="deck-img transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] mt-12 w-[140px] h-[380px] bg-blackout border border-white/10 rounded-[70px] relative flex flex-col items-center justify-between py-8">
+              <div class="w-full h-[1px] bg-white/10"></div>
+              <div class="font-anton text-white text-[12px] tracking-[0.4em]">CØNCRETE FACTORY</div>
+              <div class="w-[2px] h-24 bg-white/20"></div>
+              <div class="font-mono text-[8px] tracking-[0.3em] opacity-40">EST 1998 — NO COMPROMISE</div>
+            </div>
+            <div class="deck-shadow w-[120px] h-4 bg-white/10 blur-[6px] rounded-full transition-all duration-500 mt-4 mx-auto"></div>
+          </div>
+          <div class="mt-4 flex justify-between items-start">
+            <div><div class="font-anton text-xl leading-none text-blackout">BLACKOUT</div><div class="font-mono text-[10px] opacity-60 mt-1 text-blackout">STEALTH • NO GRAPHIC</div></div>
+            <div class="font-anton text-xl text-blackout">$65</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="mt-6 flex justify-between items-center font-mono text-[10px] tracking-[0.2em] opacity-50">
+        <span>← DRAG TO BROWSE QUIVER →</span>
+        <span class="hidden md:block">5 SHAPES • SAME PRESS • SAME CREW</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MEMBERSHIPS / SERVICES -->
+<section id="sessions" class="relative bg-blackout text-offwhite border-t border-white/10">
+  <div class="grid grid-cols-12 min-h-[720px]">
+    <div class="col-span-12 md:col-span-5 p-8 md:p-12 lg:p-16 flex flex-col justify-between bg-[#0e0e0e] border-r border-white/10">
+      <div>
+        <div class="font-mono text-[11px] tracking-[0.3em] text-neonLime">ACCESS / HOW IT WORKS</div>
+        <h2 class="font-anton text-[12vw] md:text-[5.5vw] leading-[0.85] mt-6">NO<br>MEMBER<br>SHIP<br>BS.</h2>
+        <div class="mt-8 w-20 h-[3px] bg-neonLime"></div>
+        <p class="mt-8 font-space text-[15px] leading-[1.6] opacity-70 max-w-[360px]">We hate gyms. Pay when you skate. Respect the concrete, bring your own water, leave no trash. That's it.</p>
+      </div>
+      <div class="mt-12 space-y-4 font-mono text-[11px]">
+        <div class="flex justify-between border-b border-white/10 pb-3"><span class="opacity-50">HOURS</span><span>6AM — MIDNIGHT DAILY</span></div>
+        <div class="flex justify-between border-b border-white/10 pb-3"><span class="opacity-50">AGE</span><span>ALL AGES • UNDER 12 W/ GUARDIAN</span></div>
+        <div class="flex justify-between"><span class="opacity-50">LOCATION</span><span>1732 S SANTA FE, DTLA</span></div>
+      </div>
+    </div>
+
+    <div class="col-span-12 md:col-span-7 grid grid-rows-3 divide-y divide-white/10">
+      <!-- Day Pass -->
+      <div class="group bg-offwhite text-blackout p-8 md:p-10 flex flex-col md:flex-row justify-between gap-6 hover:bg-neonLime transition-colors duration-500">
+        <div class="flex gap-6">
+          <div class="font-anton text-5xl leading-none opacity-20 group-hover:opacity-100 transition-opacity">01</div>
+          <div>
+            <div class="font-anton text-4xl leading-[0.9]">DAY PASS</div>
+            <div class="font-mono text-[11px] mt-2 tracking-[0.15em] opacity-70">SKATE ALL DAY, LEAVE WHEN YOU'RE BROKEN</div>
+            <ul class="mt-4 space-y-1 font-mono text-[11px] opacity-70">
+              <li>— 6AM-MIDNIGHT ACCESS</li>
+              <li>— FREE FILTERED WATER + SHADE</li>
+              <li>— BRING YOUR CREW (MAX 4)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flex flex-row md:flex-col justify-between md:justify-start items-end md:items-end gap-4">
+          <div class="font-anton text-5xl leading-none">$15</div>
+          <button class="px-6 py-3 bg-blackout text-white font-mono text-[11px] tracking-[0.2em] group-hover:bg-white group-hover:text-blackout transition-colors">GRAB PASS →</button>
+        </div>
+      </div>
+
+      <!-- Punch Card -->
+      <div class="group bg-[#161616] p-8 md:p-10 flex flex-col md:flex-row justify-between gap-6 hover:bg-[#1e1e1e] transition-colors">
+        <div class="flex gap-6">
+          <div class="font-anton text-5xl leading-none text-white/20">02</div>
+          <div>
+            <div class="font-anton text-4xl leading-[0.9] text-white">10 PUNCH</div>
+            <div class="font-mono text-[11px] mt-2 tracking-[0.15em] text-white/50">FOR LOCALS WHO LIVE HERE</div>
+            <div class="mt-4 flex gap-2">
+              <div class="w-6 h-6 rounded-full bg-neonLime"></div><div class="w-6 h-6 rounded-full bg-neonLime"></div><div class="w-6 h-6 rounded-full bg-white/20"></div><div class="w-6 h-6 rounded-full bg-white/20"></div><div class="w-6 h-6 rounded-full bg-white/20"></div>
+              <span class="font-mono text-[10px] ml-2 text-white/40">2 USED • 8 LEFT</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-row md:flex-col justify-between items-end gap-4">
+          <div class="font-anton text-5xl leading-none text-white">$100 <span class="text-xl align-super opacity-50">$10/ea</span></div>
+          <button class="px-6 py-3 bg-white text-blackout font-mono text-[11px] tracking-[0.2em] hover:bg-neonLime transition-colors">GET CARD →</button>
+        </div>
+      </div>
+
+      <!-- Private -->
+      <div class="group bg-neonPink text-white p-8 md:p-10 flex flex-col md:flex-row justify-between gap-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[200px] h-[200px] bg-blackout rounded-full blur-[40px] opacity-20"></div>
+        <div class="relative flex gap-6">
+          <div class="font-anton text-5xl leading-none opacity-30">03</div>
+          <div>
+            <div class="font-anton text-4xl leading-[0.9] flex items-center gap-3">PRIVATE SESSION <span class="text-[10px] font-mono bg-white text-neonPink px-2 py-1 tracking-widest">AFTER HOURS</span></div>
+            <div class="font-space text-[13px] mt-3 max-w-[360px] leading-[1.5] opacity-90">Midnight to 4AM. Full park, lights on, sound system yours. Film crew welcome. Bring beer, don't be an asshole.</div>
+          </div>
+        </div>
+        <div class="relative flex flex-row md:flex-col justify-between items-end gap-4">
+          <div class="font-anton text-5xl leading-none">$250<span class="text-xl">/4HR</span></div>
+          <button class="px-6 py-3 bg-blackout text-white font-mono text-[11px] tracking-[0.2em] hover:bg-white hover:text-blackout transition-colors">CHECK DATES →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY BENTO -->
+<section class="relative bg-offwhite text-blackout py-24 md:py-32">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+    <div class="flex justify-between items-end mb-12">
+      <h2 class="font-anton text-[14vw] md:text-[8vw] leading-[0.8] tracking-[-0.03em]">RAW<br>FOOTAGE</h2>
+      <div class="hidden md:block text-right">
+        <div class="font-mono text-[11px] tracking-[0.2em]">SELECTS FROM @CONCRETEFACTORY</div>
+        <div class="font-marker text-2xl -rotate-3 mt-1 bg-neonLime inline-block px-2">no filter needed</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-[12px] auto-rows-[260px] md:auto-rows-[340px]">
+      <div class="col-span-12 md:col-span-7 relative group overflow-hidden bg-blackout">
+        <img src="https://images.unsplash.com/photo-1520045892732-304bc3ac5d8e?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.2s] opacity-90">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+        <div class="absolute bottom-0 left-0 p-6 md:p-8">
+          <div class="font-mono text-[10px] bg-neonLime text-blackout inline-block px-2 py-1 mb-3">PHOTO BY @SOFIA_LENS • 05.12.24</div>
+          <div class="font-anton text-white text-3xl md:text-4xl leading-[0.9]">BOWL 02 AT GOLDEN HOUR<br>HITS DIFFERENT</div>
+        </div>
+        <div class="absolute top-6 right-6 w-12 h-12 bg-white rounded-full flex items-center justify-center font-anton text-xl group-hover:rotate-90 transition-transform">+</div>
+      </div>
+
+      <div class="col-span-6 md:col-span-5 relative overflow-hidden bg-concrete group">
+        <img src="https://images.unsplash.com/photo-1504221507732-5246c70c9d72?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700">
+        <div class="absolute bottom-4 left-4 font-mono text-[10px] bg-blackout text-white px-2 py-1">WAX OFF • 11AM</div>
+      </div>
+
+      <div class="col-span-6 md:col-span-3 relative overflow-hidden bg-blackout text-white p-6 flex flex-col justify-between group">
+        <div class="font-marker text-3xl leading-[0.9] rotate-[-3deg]">Spray<br>paint<br>is the<br>real<br>coping</div>
+        <div class="mt-6 font-mono text-[10px] opacity-60">— MIGUEL, FOUNDER, SINCE DAY 1</div>
+        <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-neonPink rounded-full blur-[30px] opacity-30 group-hover:opacity-60 transition-opacity"></div>
+      </div>
+
+      <div class="col-span-12 md:col-span-5 relative overflow-hidden bg-[#e8e6e1]">
+        <img src="https://images.unsplash.com/photo-1547447134-cd3f5c716030?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="w-20 h-20 bg-neonLime rounded-full flex items-center justify-center font-anton text-2xl shadow-[0_0_0_12px_rgba(214,255,0,0.3)]">▶</div>
+        </div>
+        <div class="absolute bottom-0 right-0 bg-blackout text-white font-mono text-[10px] px-3 py-2">REEL #212 — JAXON FS AIR 04.30</div>
+      </div>
+
+      <div class="col-span-12 md:col-span-4 relative overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover">
+        <div class="absolute top-4 left-4 tape bg-white rotate-6"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS - Graffiti Wall -->
+<section class="relative bg-blackout text-offwhite py-24 md:py-32 overflow-hidden">
+  <div class="absolute inset-0 concrete-texture opacity-[0.03] mix-blend-mode:soft-light"></div>
+  
+  <!-- Graffiti wall background text -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-anton text-[40vw] leading-none opacity-[0.03] whitespace-nowrap pointer-events-none select-none">WALL OF FAME</div>
+
+  <div class="relative max-w-[1600px] mx-auto px-6 md:px-10">
+    <div class="flex items-center gap-4 mb-20">
+      <div class="w-12 h-12 bg-neonPink text-white flex items-center justify-center font-anton text-2xl">”</div>
+      <div class="font-mono text-[11px] tracking-[0.3em]">VOICES FROM THE BOWL</div>
+      <div class="flex-1 h-[1px] bg-white/10"></div>
+      <div class="font-marker text-xl text-neonLime rotate-2">real tags — real skaters</div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 md:gap-10">
+      <div class="col-span-12 md:col-span-4 space-y-8">
+        <div class="bg-[#111] border border-white/10 p-8 relative rotate-[-1deg] hover:rotate-0 transition-transform">
+          <div class="absolute -top-3 -left-3 bg-neonLime text-blackout font-mono text-[10px] px-2 py-1 font-bold">VERIFIED LOCAL</div>
+          <div class="font-marker text-[28px] leading-[0.9] text-neonLime mb-4">“This bowl taught me how to fall. And get up faster.”</div>
+          <div class="flex gap-3 items-center">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover grayscale">
+            <div><div class="font-anton text-[18px] leading-none">LUIS • 19</div><div class="font-mono text-[10px] opacity-50">SKATES HERE 5X WEEK SINCE 2019</div></div>
+          </div>
+          <div class="mt-6 flex gap-1"><span class="w-5 h-5 bg-neonLime rounded-full"></span><span class="w-5 h-5 bg-neonLime rounded-full"></span><span class="w-5 h-5 bg-neonLime rounded-full"></span><span class="w-5 h-5 bg-neonLime rounded-full"></span><span class="w-5 h-5 bg-white/20 rounded-full"></span></div>
+        </div>
+
+        <div class="bg-offwhite text-blackout p-8 relative rotate-[1.5deg] hover:rotate-0 transition-transform ml-6">
+          <div class="absolute -top-2 -right-6 tape bg-neonPink"></div>
+          <div class="font-space text-[15px] leading-[1.5] font-medium">Came from Portland for a week. Stayed a month. You don't find concrete like this anymore — it bites, it rewards. The locals actually teach you lines.</div>
+          <div class="mt-4 font-anton text-xl">MAYA K.</div>
+          <div class="font-mono text-[10px] opacity-60">VISITING PRO • REAL SKATEBOARDS</div>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-4 md:mt-16 space-y-8">
+        <div class="relative bg-neonLime text-blackout p-8 rotate-[0.8deg]">
+          <div class="font-anton text-[42px] leading-[0.85]">BEST<br>GROUND<br>IN LA.</div>
+          <div class="mt-4 font-mono text-[11px] leading-[1.5]">Not even close. No kooks, no influencers posing. Just skaters. Security is Miguel with a broom. Perfection.</div>
+          <div class="mt-6 flex justify-between items-end"><div class="font-marker text-xl">- Tyshawn J.</div><div class="font-mono text-[10px] bg-blackout text-neonLime px-2 py-1">10 YRS DEEP</div></div>
+        </div>
+        <div class="bg-transparent border-[1.5px] border-white/20 p-6 font-mono text-[11px] leading-[1.6] opacity-70">
+          <span class="text-neonPink">WARNING:</span> Concrete stains. Knees will bleed. Ego will bruise. You will come back tomorrow anyway.<br><span class="text-white/40">— SIGN AT ENTRANCE, PAINTED 2001, NEVER REPAINTED</span>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-4 space-y-8 md:mt-8">
+        <div class="bg-[#111] border border-white/10 p-8 relative rotate-[-0.8deg]">
+          <div class="flex justify-between mb-6"><div class="font-mono text-[10px] opacity-40">SESSION LOG — 04.02.24</div><div class="font-mono text-[10px] bg-white/10 px-2">22:14</div></div>
+          <img src="https://images.unsplash.com/photo-1579757943759-bd1d49d6d2d7?q=80&w=400&auto=format&fit=crop" class="w-full h-40 object-cover grayscale contrast-125 mb-4">
+          <div class="font-space text-[14px] leading-[1.5]">Night session. Lights buzzing. Some kid landed his first invert in the deep end. Whole park screamed. That's why we keep the lights on.</div>
+          <div class="mt-4 font-anton">NIGHT CREW</div>
+        </div>
+
+        <div class="flex gap-3 items-center bg-white/5 border border-white/10 p-4">
+          <div class="w-12 h-12 bg-concrete flex items-center justify-center font-anton">4.9</div>
+          <div><div class="font-anton text-sm">4.9/5 • 847 REVIEWS</div><div class="font-mono text-[10px] opacity-50">GOOGLE • YELP • WORD OF MOUTH</div></div>
+          <div class="ml-auto font-marker text-neonPink text-xl">love u</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UPCOMING MARQUEE 2 -->
+<div class="relative w-full bg-neonLime border-y-[1.5px] border-blackout overflow-hidden py-3 z-20">
+  <div class="flex whitespace-nowrap animate-marqueeR will-change-transform">
+    <div class="flex items-center gap-8 px-4">
+      <span class="font-anton text-[22px] tracking-[0.05em] text-blackout">NEXT JAM: MAY 24 • FULL MOON SESSION • MIDNIGHT TILL 4AM • $10 • BRING LIGHTS •</span>
+      <span class="w-3 h-3 bg-blackout rotate-45"></span>
+      <span class="font-anton text-[22px] tracking-[0.05em] text-blackout">NEXT JAM: MAY 24 • FULL MOON SESSION • MIDNIGHT TILL 4AM • $10 • BRING LIGHTS •</span>
+      <span class="w-3 h-3 bg-neonPink rotate-45"></span>
+    </div>
+    <div class="flex items-center gap-8 px-4" aria-hidden="true">
+      <span class="font-anton text-[22px] tracking-[0.05em] text-blackout">NEXT JAM: MAY 24 • FULL MOON SESSION • MIDNIGHT TILL 4AM • $10 • BRING LIGHTS •</span>
+      <span class="w-3 h-3 bg-blackout rotate-45"></span>
+      <span class="font-anton text-[22px] tracking-[0.05em] text-blackout">NEXT JAM: MAY 24 • FULL MOON SESSION • MIDNIGHT TILL 4AM • $10 • BRING LIGHTS •</span>
+      <span class="w-3 h-3 bg-neonPink rotate-45"></span>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT / FOOTER -->
+<footer id="contact" class="relative bg-offwhite text-blackout overflow-hidden">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="grid grid-cols-12 min-h-[80vh]">
+      <!-- Left Form -->
+      <div class="col-span-12 md:col-span-7 p-8 md:p-12 lg:p-16 flex flex-col">
+        <div class="flex-1">
+          <div class="font-mono text-[11px] tracking-[0.3em] flex items-center gap-2 mb-8"><span class="w-2 h-2 bg-neonPink rounded-full animate-pulse"></span> DROP IN / WE'RE HERE</div>
+          <h2 class="font-anton text-[14vw] md:text-[7vw] leading-[0.85] tracking-[-0.02em]">
+            COME<br>
+            <span class="inline-block relative">FIND US <span class="absolute -top-4 -right-10 font-marker text-[22px] bg-neonLime px-2 py-1 rotate-6 text-blackout">yes, really</span></span><br>
+            <span class="stencil" style="-webkit-text-stroke-color:#0a0a0a;">OR DON'T.</span>
+          </h2>
+          
+          <div class="mt-12 grid grid-cols-12 gap-8">
+            <div class="col-span-12 md:col-span-5">
+              <div class="font-mono text-[11px] tracking-[0.2em] mb-3 opacity-60">ADDRESS</div>
+              <div class="font-space text-[15px] leading-[1.5] font-medium">
+                1732 S Santa Fe Ave<br>Arts District, DTLA 90021<br>
+                <span class="font-mono text-[11px] opacity-60">Gate code: skate or die (literally try it)</span>
+              </div>
+              <div class="mt-8 font-mono text-[11px] tracking-[0.2em] mb-3 opacity-60">HIT US</div>
+              <div class="space-y-1 font-anton text-xl leading-none">
+                <div>@concretefactory</div>
+                <div class="opacity-60">+1 (323) 244-0998</div>
+              </div>
+            </div>
+
+            <div class="col-span-12 md:col-span-7">
+              <form class="space-y-4" onsubmit="event.preventDefault(); alert('See you in the bowl. We sent directions via crow.');">
+                <div class="grid grid-cols-2 gap-4">
+                  <input type="text" placeholder="NAME" class="w-full px-4 py-4 bg-transparent border-[1.5px] border-blackout font-mono text-[12px] tracking-[0.15em] placeholder:opacity-40 focus:outline-none focus:bg-blackout focus:text-white transition-colors">
+                  <input type="text" placeholder="IG @HANDLE" class="w-full px-4 py-4 bg-transparent border-[1.5px] border-blackout font-mono text-[12px] tracking-[0.15em] placeholder:opacity-40 focus:outline-none focus:bg-blackout focus:text-white transition-colors">
+                </div>
+                <input type="text" placeholder="WHEN YOU COMING?" class="w-full px-4 py-4 bg-transparent border-[1.5px] border-blackout font-mono text-[12px] tracking-[0.15em] placeholder:opacity-40 focus:outline-none focus:bg-blackout focus:text-white transition-colors">
+                <textarea placeholder="WHAT'S YOUR LEVEL? BE HONEST. WE CAN TELL." rows="4" class="w-full px-4 py-4 bg-transparent border-[1.5px] border-blackout font-mono text-[12px] tracking-[0.15em] placeholder:opacity-40 focus:outline-none focus:bg-blackout focus:text-white transition-colors resize-none"></textarea>
+                <button type="submit" class="w-full py-5 bg-blackout text-white font-anton text-[18px] tracking-[0.08em] hover:bg-neonLime hover:text-blackout transition-colors flex items-center justify-center gap-3 group">
+                  SEND IT — LET'S SKATE
+                  <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </button>
+                <div class="font-mono text-[10px] opacity-50 text-center tracking-[0.1em]">NO SPAM. WE HATE EMAILS TOO. WE'LL DM YOU.</div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom bar -->
+        <div class="mt-16 pt-8 border-t border-black/10 flex flex-col md:flex-row justify-between gap-4 font-mono text-[10px] tracking-[0.15em] opacity-60">
+          <div>© 1998—2025 CONCRETE FACTORY • BUILT BY HAND • NO PERMITS EVER</div>
+          <div class="flex gap-6">
+            <a href="#" class="hover:text-blackout underline">PRIVACY (LOL)</a>
+            <a href="#" class="hover:text-blackout underline">SHOP POLICIES</a>
+            <a href="#" class="hover:text-blackout underline">PRESS KIT</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Concrete Visual -->
+      <div class="col-span-12 md:col-span-5 relative bg-blackout text-offwhite min-h-[600px] md:min-h-auto overflow-hidden flex flex-col">
+        <div class="absolute inset-0 concrete-texture opacity-20"></div>
+        <img src="https://images.unsplash.com/photo-1564982752979-3f7bc974d247?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50">
+        
+        <div class="relative p-8 md:p-10 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="w-full aspect-[4/3] bg-offwhite p-2 -rotate-1 shadow-2xl">
+              <div class="w-full h-full bg-concrete relative overflow-hidden">
+                <!-- Fake map -->
+                <div class="absolute inset-0" style="background-image: linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div class="w-6 h-6 bg-neonPink rounded-full animate-ping absolute"></div>
+                  <div class="w-6 h-6 bg-neonPink rounded-full border-2 border-white relative flex items-center justify-center font-anton text-[10px]">C</div>
+                </div>
+                <div class="absolute bottom-2 left-2 bg-blackout text-white font-mono text-[9px] px-2 py-1">1732 S SANTA FE</div>
+                <div class="absolute top-2 right-2 bg-neonLime text-blackout font-mono text-[8px] px-2 py-1 font-bold">YOU ARE HERE (PROBABLY LOST)</div>
+              </div>
+            </div>
+
+            <div class="mt-8 space-y-4 font-mono text-[11px]">
+              <div class="flex justify-between border-b border-white/10 pb-2"><span class="opacity-50">NEAREST METRO</span><span> LITTLE TOKYO / ARTS DIST 0.8MI</span></div>
+              <div class="flex justify-between border-b border-white/10 pb-2"><span class="opacity-50">PARKING</span><span>STREET • DON'T BLOCK LOADING</span></div>
+              <div class="flex justify-between"><span class="opacity-50">WATER</span><span>BRING BOTTLE • WE HAVE FILTER</span></div>
+            </div>
+          </div>
+
+          <div class="mt-12">
+            <div class="font-anton text-5xl md:text-6xl leading-[0.85]">OPEN<br>SESSION<br>TODAY</div>
+            <div class="mt-4 inline-flex items-center gap-2 bg-neonLime text-blackout font-mono text-[11px] px-3 py-2 font-bold tracking-widest">
+              <span class="w-2 h-2 bg-blackout rounded-full animate-pulse"></span> LIVE: 47 RIDERS INSIDE
+            </div>
+            <div class="mt-8 grid grid-cols-3 gap-[1px] bg-white/10">
+              <div class="bg-[#111] p-3 text-center"><div class="font-anton text-2xl">6AM</div><div class="font-mono text-[9px] opacity-50">OPEN</div></div>
+              <div class="bg-[#111] p-3 text-center"><div class="font-anton text-2xl">12A</div><div class="font-mono text-[9px] opacity-50">CLOSE</div></div>
+              <div class="bg-neonLime text-blackout p-3 text-center"><div class="font-anton text-2xl">NOW</div><div class="font-mono text-[9px] font-bold">SKATE</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spray tag overlay -->
+        <div class="absolute bottom-10 -right-6 font-marker text-[48px] text-neonPink/30 rotate-[-12deg] pointer-events-none leading-none">CONCRETE<br>FACTORY</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Big footer type -->
+  <div class="w-full bg-blackout text-offwhite overflow-hidden border-t border-white/10">
+    <div class="font-anton text-[18vw] leading-[0.8] tracking-[-0.04em] whitespace-nowrap py-6 flex gap-8 opacity-90">
+      <span>CONCRETE FACTORY</span><span class="stencil-lime">CONCRETE FACTORY</span><span>CONCRETE FACTORY</span><span class="stencil-lime">CONCRETE FACTORY</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Custom cursor
+const dot = document.getElementById('cDot');
+const ring = document.getElementById('cRing');
+let mouseX=0, mouseY=0, ringX=0, ringY=0;
+document.addEventListener('mousemove', e=>{
+  mouseX=e.clientX; mouseY=e.clientY;
+  dot.style.transform=`translate(${mouseX-4}px, ${mouseY-4}px)`;
+});
+(function animRing(){
+  ringX += (mouseX - ringX) * 0.16;
+  ringY += (mouseY - ringY) * 0.16;
+  ring.style.transform=`translate(${ringX-22}px, ${ringY-22}px)`;
+  requestAnimationFrame(animRing);
+})();
+// Hover states
+document.querySelectorAll('a, button, .deck-card').forEach(el=>{
+  el.addEventListener('mouseenter', ()=>{ ring.style.transform+=` scale(1.5)`; ring.style.borderColor='#D6FF00'; dot.style.transform+=` scale(2)`; });
+  el.addEventListener('mouseleave', ()=>{ ring.style.borderColor='rgba(245,243,240,0.4)'; });
+});
+
+// Reveal on scroll
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } });
+},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Mobile menu toggle
+const menuBtn=document.getElementById('menuBtn');
+const mobileMenu=document.getElementById('mobileMenu');
+menuBtn?.addEventListener('click',()=>{ mobileMenu.classList.toggle('hidden'); });
+
+// Tilt effect for hero card
+const heroCard=document.getElementById('heroCard');
+if(heroCard){
+  heroCard.addEventListener('mousemove', (e)=>{
+    const rect=heroCard.getBoundingClientRect();
+    const x=e.clientX-rect.left; const y=e.clientY-rect.top;
+    const rx=(y/rect.height-0.5)*-14; const ry=(x/rect.width-0.5)*14;
+    heroCard.style.transform=`perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) rotate(-2deg)`;
+  });
+  heroCard.addEventListener('mouseleave', ()=>{ heroCard.style.transform='perspective(800px) rotateX(0) rotateY(0) rotate(-2deg)'; });
+}
+
+// Simple deck scroller drag
+const scroller=document.getElementById('deckScroller');
+let isDown=false,startX,scrollLeft;
+scroller?.addEventListener('mousedown', e=>{ isDown=true; scroller.classList.add('cursor-grabbing'); startX=e.pageX-scroller.offsetLeft; scrollLeft=scroller.scrollLeft; });
+scroller?.addEventListener('mouseleave', ()=>{ isDown=false; scroller.classList.remove('cursor-grabbing'); });
+scroller?.addEventListener('mouseup', ()=>{ isDown=false; scroller.classList.remove('cursor-grabbing'); });
+scroller?.addEventListener('mousemove', e=>{ if(!isDown) return; e.preventDefault(); const x=e.pageX-scroller.offsetLeft; const walk=(x-startX)*1.5; scroller.scrollLeft=scrollLeft-walk; });
+
+// Magnetic buttons (light)
+document.querySelectorAll('.mag-btn').forEach(btn=>{
+  btn.addEventListener('mousemove', e=>{
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX-r.left-r.width/2; const y=e.clientY-r.top-r.height/2;
+    btn.style.transform=`translate(${x*0.12}px, ${y*0.2}px)`;
+  });
+  btn.addEventListener('mouseleave', ()=>{ btn.style.transform='translate(0,0)'; });
+});
+
+// Jitter random for marker
+setInterval(()=>{ document.querySelectorAll('.font-marker').forEach(el=>{ if(Math.random()>0.92){ el.style.transform=`rotate(${(Math.random()-0.5)*6}deg)`; } }); }, 120);
+</script>
+</body>
+</html>

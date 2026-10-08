@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Burger Joint</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cherry: '#e10600',
+        mustard: '#ffde00',
+        cream: '#FFF8E7',
+        ink: '#121212',
+        paper: '#FFFBF0',
+      },
+      fontFamily: {
+        anton: ['Anton', 'sans-serif'],
+        space: ['Space Grotesk', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{ -webkit-font-smoothing: antialiased; }
+  html{ scroll-behavior: smooth; }
+  body{ background:#FFF8E7; color:#121212; font-family:'Space Grotesk', sans-serif; overflow-x:hidden; cursor:none; }
+  ::selection{ background:#e10600; color:#ffde00; }
+  /* Grain texture */
+  .grain::after{
+    content:''; position:fixed; inset:-50%; pointer-events:none; z-index:9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+    opacity:0.6; mix-blend-mode:multiply; animation: grainShift 8s steps(10) infinite;
+  }
+  @keyframes grainShift{
+    0%,100%{ transform: translate(0,0); }
+    10%{ transform: translate(-5%,-10%); }
+    20%{ transform: translate(-15%,5%); }
+    30%{ transform: translate(7%,-25%); }
+    40%{ transform: translate(-5%,25%); }
+    50%{ transform: translate(-15%,10%); }
+    60%{ transform: translate(15%,0%); }
+    70%{ transform: translate(0%,15%); }
+    80%{ transform: translate(3%,-15%); }
+    90%{ transform: translate(-10%,10%); }
+  }
+  /* Custom Cursor */
+  .cursor-dot{ width:8px; height:8px; background:#e10600; position:fixed; top:0; left:0; border-radius:50%; pointer-events:none; z-index:10000; mix-blend-mode:normal; transition: transform 0.15s ease; }
+  .cursor-ring{ width:44px; height:44px; border:1.5px solid #121212; position:fixed; top:0; left:0; border-radius:50%; pointer-events:none; z-index:9999; transition: all 0.22s cubic-bezier(0.16,1,0.3,1); display:flex; align-items:center; justify-content:center; }
+  .cursor-ring.hover{ width:88px; height:88px; background:#e10600; border-color:#e10600; }
+  .cursor-ring.hover .cursor-label{ opacity:1; }
+  .cursor-label{ font-family:'Anton'; font-size:11px; letter-spacing:0.08em; color:#FFF8E7; opacity:0; transition:0.2s; }
+  @media (max-width:1024px){ .cursor-dot,.cursor-ring{ display:none; } body{ cursor:auto; } }
+  /* Checker Pattern */
+  .checker{ background-image:
+    linear-gradient(45deg, #121212 25%, transparent 25%),
+    linear-gradient(-45deg, #121212 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #121212 75%),
+    linear-gradient(-45deg, transparent 75%, #121212 75%);
+    background-size:24px 24px; background-position:0 0,0 12px,12px -12px,-12px 0;
+  }
+  .checker-small{ background-size:16px 16px; background-position:0 0,0 8px,8px -8px,-8px 0; }
+  .checker-yellow{ background-image:
+    linear-gradient(45deg, #ffde00 25%, transparent 25%),
+    linear-gradient(-45deg, #ffde00 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ffde00 75%),
+    linear-gradient(-45deg, transparent 75%, #ffde00 75%);
+  }
+  /* Marquee */
+  @keyframes marquee{ 0%{ transform: translateX(0);} 100%{ transform: translateX(-50%);} }
+  .marquee-track{ display:flex; width:max-content; animation: marquee 18s linear infinite; }
+  .marquee-track:hover{ animation-play-state: paused; }
+  /* Reveal */
+  .reveal{ opacity:0; transform: translateY(34px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.active{ opacity:1; transform: translateY(0); }
+  .reveal-delay-1{ transition-delay:0.1s; }
+  .reveal-delay-2{ transition-delay:0.2s; }
+  .reveal-delay-3{ transition-delay:0.3s; }
+  /* Stroke Text */
+  .stroke{ -webkit-text-stroke: 1.5px #121212; color:transparent; }
+  .stroke-red{ -webkit-text-stroke: 1.5px #e10600; }
+  .stroke-cream{ -webkit-text-stroke: 1.5px #FFF8E7; }
+  /* Burger Card Hover */
+  .burger-card{ transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s; }
+  .burger-card:hover{ transform: translateY(-6px) rotate(-0.8deg); box-shadow: 12px 12px 0px #121212; }
+  .burger-card:hover .burger-img{ transform: scale(1.08) rotate(1deg); }
+  .burger-img{ transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+  /* Parallax */
+  .parallax{ will-change: transform; }
+  /* Button Sizzle */
+  .btn-sizzle{ position:relative; overflow:hidden; }
+  .btn-sizzle::before{
+    content:''; position:absolute; inset:0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.35) 0%, transparent 70%);
+    transform: scale(0); transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .btn-sizzle:hover::before{ transform: scale(2.5); }
+  /* Menu Tab */
+  .tab-active{ background:#121212 !important; color:#FFF8E7 !important; }
+  /* Paper tear */
+  .paper-edge{
+    background: #FFF8E7;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), 98% 100%, 95% calc(100% - 10px), 92% 100%, 88% calc(100% - 8px), 84% 100%, 80% calc(100% - 12px), 75% 100%, 70% calc(100% - 6px), 65% 100%, 60% calc(100% - 10px), 55% 100%, 50% calc(100% - 8px), 45% 100%, 40% calc(100% - 12px), 35% 100%, 30% calc(100% - 8px), 25% 100%, 20% calc(100% - 10px), 15% 100%, 10% calc(100% - 6px), 5% 100%, 0 calc(100% - 14px));
+  }
+  /* Scrollbar */
+  ::-webkit-scrollbar{ width:10px; }
+  ::-webkit-scrollbar-track{ background:#FFF8E7; }
+  ::-webkit-scrollbar-thumb{ background:#121212; border:2px solid #FFF8E7; }
+</style>
+</head>
+<body class="grain antialiased">
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"><span class="cursor-label" id="cursorLabel">SMASH</span></div>
+
+<!-- Sticky Nav -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-[500] transition-all duration-500">
+  <div class="h-[18px] w-full checker checker-small bg-white"></div>
+  <div class="bg-cream border-b-[3px] border-ink">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 h-[72px] md:h-[84px] flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3 group" data-cursor="MENU">
+        <div class="w-11 h-11 md:w-[52px] md:h-[52px] bg-cherry rounded-full flex items-center justify-center border-[2.5px] border-ink shadow-[3px_3px_0px_#121212] group-hover:rotate-[-6deg] transition-transform">
+          <span class="font-anton text-cream text-[22px] tracking-[-0.02em] leading-none mt-[2px]">R'S</span>
+        </div>
+        <div class="leading-[0.85]">
+          <div class="font-anton text-[22px] md:text-[26px] tracking-[-0.01em] leading-none">RED'S GRIDDLE</div>
+          <div class="font-space font-bold text-[10px] tracking-[0.22em] text-cherry -mt-[1px]">SMASH CITY • EST. 68</div>
+        </div>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="hidden lg:flex items-center gap-10">
+        <a href="#philosophy" class="font-space font-bold text-[13px] tracking-[0.18em] hover:text-cherry transition-colors" data-cursor="WHY">PHILOSOPHY</a>
+        <a href="#menu" class="font-space font-bold text-[13px] tracking-[0.18em] hover:text-cherry transition-colors" data-cursor="EAT">MENU</a>
+        <a href="#gallery" class="font-space font-bold text-[13px] tracking-[0.18em] hover:text-cherry transition-colors" data-cursor="LOOK">GALLERY</a>
+        <a href="#findus" class="font-space font-bold text-[13px] tracking-[0.18em] hover:text-cherry transition-colors" data-cursor="GO">FIND US</a>
+        <div class="h-6 w-[1.5px] bg-ink/20"></div>
+        <a href="#order" class="btn-sizzle bg-cherry text-cream font-anton text-[16px] tracking-[0.02em] px-7 h-[44px] flex items-center border-[2.5px] border-ink shadow-[4px_4px_0px_#121212] hover:shadow-[2px_2px_0px_#121212] hover:translate-x-[2px] hover:translate-y-[2px] transition-all" data-cursor="NOW">
+          ORDER - 555-0199
+        </a>
+      </div>
+
+      <!-- Mobile Toggle -->
+      <button id="menuToggle" class="lg:hidden w-11 h-11 bg-ink text-cream flex items-center justify-center border-[2px] border-ink" data-cursor="OPEN">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="2.5" fill="currentColor"/><rect y="5.5" width="20" height="2.5" fill="currentColor"/><rect y="11" width="14" height="2.5" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+  <!-- Mobile Sheet -->
+  <div id="mobileMenu" class="lg:hidden bg-cream border-b-[3px] border-ink max-h-0 overflow-hidden transition-all duration-500">
+    <div class="px-6 py-8 flex flex-col gap-6">
+      <a href="#philosophy" class="font-anton text-[42px] leading-[0.9] tracking-[-0.02em]">PHILOSOPHY</a>
+      <a href="#menu" class="font-anton text-[42px] leading-[0.9] tracking-[-0.02em]">MENU</a>
+      <a href="#gallery" class="font-anton text-[42px] leading-[0.9] tracking-[-0.02em]">GALLERY</a>
+      <a href="#findus" class="font-anton text-[42px] leading-[0.9] tracking-[-0.02em]">FIND US</a>
+      <a href="#order" class="mt-2 bg-cherry text-cream font-anton text-[18px] tracking-[0.04em] px-8 h-[56px] inline-flex items-center justify-center border-[2.5px] border-ink shadow-[6px_6px_0px_#121212] w-full">CALL TO ORDER — 555-0199</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Spacer for sticky nav -->
+<div class="h-[90px] md:h-[102px]"></div>
+
+<!-- HERO -->
+<section class="relative overflow-hidden bg-mustard border-b-[3px] border-ink">
+  <div class="absolute top-0 right-0 w-[38%] h-full hidden xl:block">
+    <div class="absolute inset-0 checker opacity-[0.07]"></div>
+  </div>
+
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 relative">
+    <div class="grid grid-cols-12 min-h-[92vh] md:min-h-[88vh]">
+      <!-- Left Copy -->
+      <div class="col-span-12 xl:col-span-7 py-10 md:py-16 flex flex-col justify-between">
+        <div>
+          <div class="inline-flex items-center gap-3 mb-8 reveal">
+            <div class="h-[2px] w-12 bg-ink"></div>
+            <span class="font-space font-bold text-[11px] tracking-[0.26em]">SINCE GRIDDLE #1 • CHERRY ST • 1968</span>
+            <div class="w-2 h-2 bg-cherry rounded-full animate-pulse"></div>
+          </div>
+
+          <h1 class="font-anton leading-[0.82] tracking-[-0.03em] reveal reveal-delay-1">
+            <span class="block text-[18vw] xl:text-[11.5vw]">SMASH</span>
+            <span class="block text-[18vw] xl:text-[11.5vw] flex items-center gap-[0.12em]">
+              TIL IT
+              <span class="inline-block bg-cherry text-cream px-[0.18em] leading-[0.9] rotate-[-1.5deg] border-[3px] border-ink shadow-[6px_6px_0px_#121212] text-[14vw] xl:text-[8.5vw]">SIZZLES</span>
+            </span>
+            <span class="block text-[18vw] xl:text-[11.5vw] stroke">EVERY TIME.</span>
+          </h1>
+
+          <div class="mt-8 md:mt-10 grid grid-cols-12 gap-6 items-start reveal reveal-delay-2">
+            <p class="col-span-12 md:col-span-7 font-space text-[16px] md:text-[18px] leading-[1.5] font-medium max-w-[46ch]">
+              No gimmicks. No brioche nonsense. 4oz USDA chuck, salt, pepper, screaming hot steel. 
+              <span class="bg-ink text-cream px-1.5">90 seconds a side.</span> Lacey edges, juicy middle.
+              The sound is the sauce.
+            </p>
+            <div class="col-span-12 md:col-span-5 flex gap-3">
+              <a href="#menu" class="btn-sizzle flex-1 md:flex-none bg-ink text-cream font-anton text-[15px] tracking-[0.04em] h-[54px] px-8 inline-flex items-center justify-center border-[2.5px] border-ink hover:bg-cherry transition-colors" data-cursor="EAT NOW">
+                VIEW MENU
+                <svg class="ml-3" width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M0 7H16M10 1L16 7L10 13" stroke="currentColor" stroke-width="2"/></svg>
+              </a>
+              <div class="hidden md:flex w-[54px] h-[54px] bg-cream border-[2.5px] border-ink items-center justify-center">
+                <span class="font-anton text-[22px]">→</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom stats bar -->
+        <div class="mt-12 md:mt-8 grid grid-cols-3 border-[2.5px] border-ink bg-cream reveal reveal-delay-3">
+          <div class="px-5 md:px-8 py-5 border-r-[2.5px] border-ink">
+            <div class="font-anton text-[36px] md:text-[44px] leading-none">4oz</div>
+            <div class="font-space font-bold text-[10px] tracking-[0.2em] mt-1">FRESH CHUCK</div>
+          </div>
+          <div class="px-5 md:px-8 py-5 border-r-[2.5px] border-ink">
+            <div class="font-anton text-[36px] md:text-[44px] leading-none">405°</div>
+            <div class="font-space font-bold text-[10px] tracking-[0.2em] mt-1">GRIDDLE TEMP</div>
+          </div>
+          <div class="px-5 md:px-8 py-5">
+            <div class="font-anton text-[36px] md:text-[44px] leading-none">12s</div>
+            <div class="font-space font-bold text-[10px] tracking-[0.2em] mt-1">SMASH WINDOW</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Visual -->
+      <div class="col-span-12 xl:col-span-5 relative min-h-[560px] xl:min-h-auto mt-2 xl:mt-0">
+        <div class="absolute inset-0 xl:left-12 xl:right-0 xl:top-10 xl:bottom-10">
+          <!-- checker frame -->
+          <div class="absolute -inset-3 bg-ink checker checker-small"></div>
+          <div class="relative w-full h-full bg-ink overflow-hidden border-[3px] border-ink">
+            <img src="https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?q=80&w=1200&auto=format&fit=crop" alt="Smash burger" class="absolute inset-0 w-full h-full object-cover parallax" data-speed="0.12">
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent"></div>
+            <!-- Floating badge -->
+            <div class="absolute top-6 left-6 bg-mustard border-[2.5px] border-ink px-4 py-2 rotate-[-2deg] shadow-[4px_4px_0px_#121212]">
+              <div class="font-space font-bold text-[10px] tracking-[0.2em]">LIVE FROM THE FLAT TOP</div>
+              <div class="font-anton text-[18px] leading-none mt-1">GRIDDLE CAM 01</div>
+            </div>
+            <!-- Price sticker -->
+            <div class="absolute bottom-6 right-6 bg-cherry text-cream w-[108px] h-[108px] rounded-full border-[3px] border-ink flex flex-col items-center justify-center rotate-[8deg] shadow-[6px_6px_0px_#121212]">
+              <span class="font-space font-bold text-[10px] tracking-[0.2em]">TODAY ONLY</span>
+              <span class="font-anton text-[32px] leading-none">$9.5</span>
+              <span class="font-space font-bold text-[10px]">DOUBLE</span>
+            </div>
+            <!-- Crosshair -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[72%] h-[72%] border border-cream/40 rounded-full pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[76px] h-[76px] border border-cream/60 rounded-full bg-cream/10 backdrop-blur-[2px] flex items-center justify-center">
+              <div class="w-2 h-2 bg-cherry rounded-full animate-ping"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Red lip under hero -->
+  <div class="h-[14px] bg-cherry border-y-[2.5px] border-ink w-full relative z-10"></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="bg-ink text-cream border-b-[3px] border-ink overflow-hidden py-[14px]">
+  <div class="marquee-track">
+    <!-- duplicate for seamless -->
+    <div class="flex items-center gap-10 px-5">
+      <span class="font-anton text-[28px] tracking-[0.02em] whitespace-nowrap">SMASH • SIZZLE • FLIP • SALT • PEPPER • LACEY EDGES • NO KETCHUP ON THE GRILL •</span>
+      <span class="w-3 h-3 bg-mustard rotate-45"></span>
+      <span class="font-anton text-[28px] tracking-[0.02em] whitespace-nowrap">HOT OFF THE STEEL • FRESH NEVER FROZEN • 405° • 90 SECONDS •</span>
+      <span class="w-3 h-3 bg-cherry rounded-full"></span>
+      <span class="font-anton text-[28px] tracking-[0.02em] whitespace-nowrap">EST 1968 • CHERRY STREET DIVE • GREASE IS GLORY •</span>
+      <span class="w-3 h-3 bg-mustard rotate-45"></span>
+    </div>
+    <div class="flex items-center gap-10 px-5" aria-hidden="true">
+      <span class="font-anton text-[28px] tracking-[0.02em] whitespace-nowrap">SMASH • SIZZLE • FLIP • SALT • PEPPER • LACEY EDGES • NO KETCHUP ON THE GRILL •</span>
+      <span class="w-3 h-3 bg-mustard rotate-45"></span>
+      <span class="font-anton text-[28px] tracking-[0.02em] whitespace-nowrap">HOT OFF THE STEEL • FRESH NEVER FROZEN • 405° • 90 SECONDS •</span>
+      <span class="w-3 h-3 bg-cherry rounded-full"></span>
+      <span class="font-anton text-[28px] tracking-[0.02em] whitespace-nowrap">EST 1968 • CHERRY STREET DIVE • GREASE IS GLORY •</span>
+      <span class="w-3 h-3 bg-mustard rotate-45"></span>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy" class="relative bg-cream">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+    <div class="grid grid-cols-12 gap-0 border-x-[3px] border-ink">
+      <!-- Left image -->
+      <div class="col-span-12 lg:col-span-5 relative bg-paper border-b-[3px] lg:border-b-0 lg:border-r-[3px] border-ink min-h-[560px]">
+        <div class="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1555992336-fb0a08f6d1cd?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="Diner interior">
+          <div class="absolute inset-0 bg-ink/15"></div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 p-6">
+          <div class="paper-edge bg-cream border-[3px] border-ink p-6 md:p-7 shadow-[8px_8px_0px_#121212] rotate-[-0.6deg]">
+            <div class="font-anton text-[28px] leading-[0.95]">THE STEEL DON'T LIE.</div>
+            <p class="font-space text-[13px] leading-[1.5] mt-3 font-medium">We still run the original 1968 Wolf flat-top. 3/4 inch steel. Seasoned 57 years. Never washed with soap.</p>
+            <div class="mt-4 flex items-center gap-2">
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full border-[2px] border-ink object-cover" alt="">
+              <span class="font-space font-bold text-[11px] tracking-[0.12em]">RED CALHOUN - FOUNDER</span>
+            </div>
+          </div>
+        </div>
+        <!-- mustard tab -->
+        <div class="absolute top-8 -right-[3px] bg-mustard border-[3px] border-ink px-5 py-2 rotate-[2deg]">
+          <span class="font-anton text-[13px] tracking-[0.08em]">SINCE '68</span>
+        </div>
+      </div>
+
+      <!-- Right copy -->
+      <div class="col-span-12 lg:col-span-7 bg-cream p-8 md:p-12 xl:p-16">
+        <div class="reveal">
+          <div class="inline-flex items-center gap-2 bg-ink text-cream px-3 py-1">
+            <div class="w-1.5 h-1.5 bg-mustard rounded-full"></div>
+            <span class="font-space font-bold text-[10px] tracking-[0.2em]">OUR CODE — NO COMPROMISE</span>
+          </div>
+          <h2 class="font-anton text-[52px] md:text-[72px] xl:text-[84px] leading-[0.85] tracking-[-0.03em] mt-6">
+            WE DON'T<br>DO FANCY.<br><span class="bg-cherry text-cream px-2">WE DO RIGHT.</span>
+          </h2>
+        </div>
+
+        <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-10 reveal reveal-delay-1">
+          <div>
+            <h3 class="font-anton text-[22px] tracking-[-0.01em] flex items-center gap-2">
+              <span class="w-7 h-7 bg-mustard border-[2px] border-ink flex items-center justify-center text-[12px]">01</span>
+              THE SMASH
+            </h3>
+            <p class="font-space text-[14.5px] leading-[1.6] mt-3 text-ink/80 font-medium">Ball of chuck hits ripping steel. Spatula, parchment, shoulder. 12 seconds of pressure. The Maillard crust is not optional. It's the whole point.</p>
+          </div>
+          <div>
+            <h3 class="font-anton text-[22px] tracking-[-0.01em] flex items-center gap-2">
+              <span class="w-7 h-7 bg-cherry text-cream border-[2px] border-ink flex items-center justify-center text-[12px]">02</span>
+              THE BUILD
+            </h3>
+            <p class="font-space text-[14.5px] leading-[1.6] mt-3 text-ink/80 font-medium">Martin's potato roll, toasted on the flat. American cheese — yes, American. White onion shredded thin. Pickle chip. Mustard. No lettuce to steam.</p>
+          </div>
+          <div>
+            <h3 class="font-anton text-[22px] tracking-[-0.01em] flex items-center gap-2">
+              <span class="w-7 h-7 bg-ink text-cream border-[2px] border-ink flex items-center justify-center text-[12px]">03</span>
+              THE TIME
+            </h3>
+            <p class="font-space text-[14.5px] leading-[1.6] mt-3 text-ink/80 font-medium">3:47 average ticket. You order at the window. You eat on wax paper. You leave happy and slightly greasy. That's the contract.</p>
+          </div>
+          <div class="bg-ink text-cream p-5 border-[2.5px] border-ink -rotate-[0.8deg]">
+            <div class="font-space font-bold text-[10px] tracking-[0.2em] text-mustard">SECRET HANDSHAKE</div>
+            <div class="font-anton text-[20px] leading-[1.1] mt-2">ASK FOR "RED'S WAY" — Diced onion pressed into patty + extra lace.</div>
+          </div>
+        </div>
+
+        <!-- Big quote -->
+        <div class="mt-14 pt-8 border-t-[2.5px] border-ink/20 reveal reveal-delay-2">
+          <blockquote class="font-anton text-[30px] md:text-[36px] leading-[0.95] tracking-[-0.02em]">
+            "IF YOU CAN'T HEAR IT SIZZLING<br>FROM THE SIDEWALK, WE DIDN'T<br>DO OUR <span class="underline decoration-cherry decoration-[6px] underline-offset-[6px]">JOBS.</span>"
+          </blockquote>
+          <div class="mt-4 font-space font-bold text-[11px] tracking-[0.22em]">— MARA CALHOUN, 2ND GEN OWNER, 6AM GRIDDLE MASTER</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu" class="bg-ink relative overflow-hidden">
+  <!-- top checker -->
+  <div class="h-[18px] w-full checker bg-cream opacity-60"></div>
+
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-14 md:py-20">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+      <div class="reveal">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-[3px] bg-mustard"></div>
+          <span class="font-space font-bold text-mustard text-[11px] tracking-[0.26em]">MENU • UPDATED DAILY AT 5:45AM</span>
+        </div>
+        <h2 class="font-anton text-cream text-[64px] md:text-[96px] xl:text-[120px] leading-[0.82] tracking-[-0.04em] mt-4">
+          GRIDDLE<br><span class="text-mustard">MENU</span>
+        </h2>
+      </div>
+      <div class="lg:text-right reveal reveal-delay-1">
+        <p class="font-space text-cream/70 text-[15px] leading-[1.5] max-w-[32ch]">Potato rolls par-baked at 4am. Chuck ground in-house. Smashed to order. No substitutions after 11:30 — grill's too hot.</p>
+        <div class="mt-6 inline-flex bg-cream p-1 border-[2px] border-cream">
+          <button data-tab="classics" class="menu-tab tab-active font-anton text-[13px] tracking-[0.08em] px-5 h-[40px] bg-cream text-ink transition-colors">CLASSICS</button>
+          <button data-tab="specials" class="menu-tab font-anton text-[13px] tracking-[0.08em] px-5 h-[40px] bg-cream text-ink hover:bg-mustard transition-colors">SMASH SPECIALS</button>
+          <button data-tab="sides" class="menu-tab font-anton text-[13px] tracking-[0.08em] px-5 h-[40px] bg-cream text-ink hover:bg-mustard transition-colors">SIDES & SHAKES</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Grid -->
+    <div class="mt-14">
+      <!-- CLASSICS -->
+      <div id="tab-classics" class="menu-panel grid grid-cols-12 gap-[3px] bg-ink border-[3px] border-ink">
+        <!-- Featured double width -->
+        <div class="col-span-12 lg:col-span-6 bg-cream p-0 relative burger-card overflow-hidden group" data-cursor="LACEY">
+          <div class="grid grid-cols-12 h-full">
+            <div class="col-span-12 md:col-span-7 p-7 md:p-9 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="bg-cherry text-cream font-space font-bold text-[10px] tracking-[0.16em] px-2 py-1">HOUSE FAVORITE</span>
+                  <span class="font-space font-bold text-[10px] tracking-[0.16em]">NO. 01</span>
+                </div>
+                <h3 class="font-anton text-[38px] md:text-[44px] leading-[0.9] tracking-[-0.02em] mt-4">THE CHERRY STREET DOUBLE</h3>
+                <p class="font-space text-[13.5px] leading-[1.55] mt-3 text-ink/75 font-medium">Two 4oz patties, double American, shaved white onion pressed in, pickle chips, mustard + Red's sauce, potato roll.</p>
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <span class="border-[1.5px] border-ink px-2 py-1 font-space font-bold text-[10px] tracking-[0.12em]">LACEY EDGES</span>
+                  <span class="border-[1.5px] border-ink px-2 py-1 font-space font-bold text-[10px] tracking-[0.12em]">STEEL TOASTED</span>
+                </div>
+              </div>
+              <div class="mt-8 flex items-end justify-between">
+                <div class="font-anton text-[42px] leading-none">$11.5</div>
+                <div class="w-12 h-12 bg-ink text-cream flex items-center justify-center group-hover:bg-cherry transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2V16M2 9H16" stroke="currentColor" stroke-width="2.2"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-5 relative min-h-[280px] md:min-h-full bg-mustard overflow-hidden border-t-[3px] md:border-t-0 md:border-l-[3px] border-ink">
+              <img src="https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?q=80&w=800&auto=format&fit=crop" class="burger-img absolute inset-0 w-full h-full object-cover" alt="">
+              <div class="absolute bottom-3 left-3 bg-ink text-cream font-space font-bold text-[10px] tracking-[0.18em] px-3 py-1.5 rotate-[-2deg]">2 MINUTES FLAT</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-12 md:col-span-6 lg:col-span-3 bg-cream p-7 burger-card" data-cursor="CLASSIC">
+          <div class="flex justify-between items-start">
+            <span class="font-space font-bold text-[10px] tracking-[0.16em]">NO. 02</span>
+            <span class="w-2 h-2 bg-cherry rounded-full"></span>
+          </div>
+          <h3 class="font-anton text-[26px] leading-[0.9] mt-4">SINGLE<br>CHEESE</h3>
+          <p class="font-space text-[13px] leading-[1.5] mt-3 text-ink/70">4oz, American, onion, pickles, mustard / ketchup. The baseline test.</p>
+          <div class="mt-8 aspect-[4/3] overflow-hidden border-[2px] border-ink bg-paper">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=600&auto=format&fit=crop" class="burger-img w-full h-full object-cover" alt="">
+          </div>
+          <div class="mt-4 flex justify-between items-center">
+            <span class="font-anton text-[28px]">$7</span>
+            <span class="font-space font-bold text-[11px] tracking-[0.12em] border-b-[1.5px] border-ink pb-[1px]">+ BACON $2</span>
+          </div>
+        </div>
+
+        <div class="col-span-12 md:col-span-6 lg:col-span-3 bg-mustard p-7 burger-card" data-cursor="ONION">
+          <div class="flex justify-between items-start">
+            <span class="font-space font-bold text-[10px] tracking-[0.16em] bg-ink text-cream px-2 py-1">OKLAHOMA STYLE</span>
+          </div>
+          <h3 class="font-anton text-[26px] leading-[0.9] mt-4">ONION<br>SMASH</h3>
+          <p class="font-space text-[13px] leading-[1.5] mt-3">Shaved onion smashed into beef, mustard, American, pickles.</p>
+          <div class="mt-8 aspect-[4/3] overflow-hidden border-[2px] border-ink bg-paper">
+            <img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=600&auto=format&fit=crop" class="burger-img w-full h-full object-cover" alt="">
+          </div>
+          <div class="mt-4 flex justify-between items-center">
+            <span class="font-anton text-[28px]">$8.5</span>
+            <span class="font-space font-bold text-[11px]">1968 RECIPE</span>
+          </div>
+        </div>
+
+        <div class="col-span-12 md:col-span-4 lg:col-span-3 bg-paper p-7 burger-card" data-cursor="RED">
+          <span class="font-space font-bold text-[10px] tracking-[0.16em]">NO. 04 • RED'S WAY</span>
+          <h3 class="font-anton text-[26px] leading-[0.9] mt-4">RED'S<br>SECRET</h3>
+          <p class="font-space text-[13px] leading-[1.5] mt-3 text-ink/70">Double, diced onion cooked in patty, extra lace, hot pepper relish.</p>
+          <div class="mt-6 font-anton text-[28px]">$12</div>
+        </div>
+
+        <div class="col-span-12 md:col-span-4 lg:col-span-3 bg-cream p-7 burger-card flex flex-col justify-between border-t-[3px] md:border-t-0 border-ink" data-cursor="MUSH">
+          <div>
+            <span class="font-space font-bold text-[10px] tracking-[0.16em]">NO. 05</span>
+            <h3 class="font-anton text-[26px] leading-[0.9] mt-4">MUSHROOM<br>+ SWISS</h3>
+            <p class="font-space text-[13px] leading-[1.5] mt-3 text-ink/70">Flat-top mushrooms, caramelized onions, Swiss. Not our thing usually, but Mara insisted.</p>
+          </div>
+          <div class="mt-6 font-anton text-[28px]">$10.5</div>
+        </div>
+
+        <div class="col-span-12 md:col-span-4 lg:col-span-6 bg-cherry text-cream p-7 burger-card relative overflow-hidden" data-cursor="TRIPLE">
+          <div class="absolute top-0 right-0 w-[44%] h-full opacity-30 checker checker-yellow"></div>
+          <div class="relative">
+            <span class="font-space font-bold text-[10px] tracking-[0.18em] bg-cream text-ink px-2 py-1">TRIPLE DOG DARE</span>
+            <h3 class="font-anton text-[36px] md:text-[44px] leading-[0.85] mt-4">THE BRICKLAYER</h3>
+            <p class="font-space text-[13.5px] leading-[1.5] mt-3 max-w-[32ch]">Three patties, triple cheese, bacon, onion. If you finish without a fork, we put your Polaroid on the wall. 1,200+ up there.</p>
+            <div class="mt-6 flex items-center gap-4">
+              <span class="font-anton text-[32px]">$15</span>
+              <span class="font-space text-[11px] tracking-[0.14em] border border-cream/50 px-3 py-1">WALL OF FAME</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPECIALS (hidden) -->
+      <div id="tab-specials" class="menu-panel hidden grid grid-cols-12 gap-[3px] bg-ink border-[3px] border-ink">
+        <div class="col-span-12 lg:col-span-4 bg-cream p-8 burger-card">
+          <span class="bg-ink text-cream font-space font-bold text-[10px] tracking-[0.16em] px-2 py-1">THU ONLY • 11AM TIL OUT</span>
+          <h3 class="font-anton text-[32px] leading-[0.9] mt-5">CHILI CHEESE<br>SMASH</h3>
+          <p class="font-space text-[13px] leading-[1.5] mt-3 text-ink/70">Red's beanless Texas chili, diced onion, mustard, cheddar shake. Bowl of napkins included.</p>
+          <img src="https://images.unsplash.com/photo-1520072959219-c595dc870360?q=80&w=600&auto=format&fit=crop" class="mt-6 w-full h-[200px] object-cover border-[2px] border-ink burger-img" alt="">
+          <div class="mt-4 font-anton text-[28px]">$13</div>
+        </div>
+        <div class="col-span-12 lg:col-span-4 bg-mustard p-8 burger-card">
+          <span class="bg-cherry text-cream font-space font-bold text-[10px] tracking-[0.16em] px-2 py-1">FRI MARKET SPECIAL</span>
+          <h3 class="font-anton text-[32px] leading-[0.9] mt-5">PATTY MELT<br>FLAT TOP</h3>
+          <p class="font-space text-[13px] leading-[1.5] mt-3">Rye from H&H, Swiss + American, sweet onion jam, smash patty. Griddled in beef fat.</p>
+          <img src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=600&auto=format&fit=crop" class="mt-6 w-full h-[200px] object-cover border-[2px] border-ink burger-img" alt="">
+          <div class="mt-4 font-anton text-[28px]">$11</div>
+        </div>
+        <div class="col-span-12 lg:col-span-4 bg-paper p-8 burger-card">
+          <span class="font-space font-bold text-[10px] tracking-[0.16em]">SUNDAY • FAMILY MEAL</span>
+          <h3 class="font-anton text-[32px] leading-[0.9] mt-5">4 PACK +<br>FRIES TRAY</h3>
+          <p class="font-space text-[13px] leading-[1.5] mt-3 text-ink/70">Four doubles, full sheet fries, 4 canned beers / sodas. Wax paper and chaos included.</p>
+          <img src="https://images.unsplash.com/photo-1551782450-17144efb9c50?q=80&w=600&auto=format&fit=crop" class="mt-6 w-full h-[200px] object-cover border-[2px] border-ink burger-img" alt="">
+          <div class="mt-4 font-anton text-[28px]">$54</div>
+        </div>
+      </div>
+
+      <!-- SIDES -->
+      <div id="tab-sides" class="menu-panel hidden grid grid-cols-12 gap-[3px] bg-ink border-[3px] border-ink">
+        <div class="col-span-12 md:col-span-6 lg:col-span-3 bg-cream p-7">
+          <h4 class="font-anton text-[20px]">CUT FRIES</h4>
+          <p class="font-space text-[12px] leading-[1.5] mt-2 text-ink/70">Kennebec, beef tallow fried twice, sea salt. Malt vinegar on request.</p>
+          <div class="mt-4 font-anton text-[22px]">$4 / $6</div>
+        </div>
+        <div class="col-span-12 md:col-span-6 lg:col-span-3 bg-paper p-7">
+          <h4 class="font-anton text-[20px]">ONION RINGS</h4>
+          <p class="font-space text-[12px] leading-[1.5] mt-2 text-ink/70">Sweet onion, buttermilk, cracker crust. Ranch made in-house.</p>
+          <div class="mt-4 font-anton text-[22px]">$5.5</div>
+        </div>
+        <div class="col-span-12 md:col-span-6 lg:col-span-3 bg-mustard p-7">
+          <h4 class="font-anton text-[20px]">BLACK & WHITE SHAKE</h4>
+          <p class="font-space text-[12px] leading-[1.5] mt-2">Vanilla bean + chocolate syrup swirl, whole milk, malt optional +$1.</p>
+          <div class="mt-4 font-anton text-[22px]">$6.5</div>
+        </div>
+        <div class="col-span-12 md:col-span-6 lg:col-span-3 bg-cherry text-cream p-7">
+          <h4 class="font-anton text-[20px]">CHERRY LIME RICKY</h4>
+          <p class="font-space text-[12px] leading-[1.5] mt-2 text-cream/80">Fresh lime, tart cherry syrup, soda water. Built in pint glass.</p>
+          <div class="mt-4 font-anton text-[22px]">$4.5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom note -->
+    <div class="mt-6 bg-cream border-[2.5px] border-ink px-6 py-4 flex flex-col md:flex-row gap-4 md:items-center justify-between">
+      <span class="font-space font-bold text-[11px] tracking-[0.16em]">CASH & CARD • NO RESERVATIONS • LINE STARTS AT 10:45 • KITCHEN CLOSES WHEN MEAT'S GONE</span>
+      <span class="font-anton text-[13px]">GRIDDLE CLEANED ONCE DAILY • 6AM WITH ICE & SPATULA • NO SOAP SINCE '68</span>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="bg-cream relative overflow-hidden">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-14 md:py-24">
+    <div class="flex flex-col lg:flex-row gap-10 lg:items-end">
+      <div class="reveal">
+        <h2 class="font-anton text-[64px] md:text-[96px] leading-[0.82] tracking-[-0.04em]">
+          STEEL<br>& <span class="bg-ink text-cream px-3">SWEAT</span>
+        </h2>
+      </div>
+      <div class="lg:ml-auto reveal reveal-delay-1">
+        <p class="font-space font-bold text-[11px] tracking-[0.22em] max-w-[28ch]">FLICKR DUMP FROM CUSTOMERS, LINE COOKS, AND RED'S DISPOSABLES.</p>
+        <p class="font-space text-[14px] leading-[1.5] mt-3 max-w-[36ch]">No food stylists. No ring lights. Just steam, grease pop, and a busted neon sign that hums in B-flat.</p>
+      </div>
+    </div>
+
+    <!-- Bento -->
+    <div class="mt-14 grid grid-cols-12 gap-[10px] md:gap-4 auto-rows-[180px] md:auto-rows-[280px]">
+      <div class="col-span-12 md:col-span-7 row-span-2 relative overflow-hidden border-[3px] border-ink group reveal">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1.2s]" alt="Diner">
+        <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent"></div>
+        <div class="absolute bottom-4 left-4 bg-mustard border-[2px] border-ink px-3 py-1 font-space font-bold text-[10px] tracking-[0.18em]">BOOTHS 1972 • STILL SQUEAK</div>
+      </div>
+
+      <div class="col-span-6 md:col-span-5 relative overflow-hidden border-[3px] border-ink group reveal reveal-delay-1">
+        <img src="https://images.unsplash.com/photo-1555992336-03a8c2897478?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-700" alt="Burger close">
+        <div class="absolute top-3 right-3 w-8 h-8 bg-cherry border-[2px] border-ink rounded-full flex items-center justify-center">
+          <div class="w-2 h-2 bg-cream rounded-full"></div>
+        </div>
+      </div>
+
+      <div class="col-span-6 md:col-span-2 relative overflow-hidden border-[3px] border-ink bg-mustard flex flex-col justify-between p-5 reveal reveal-delay-2">
+        <div class="font-anton text-[40px] leading-[0.85]">57<br>YEARS</div>
+        <div class="font-space font-bold text-[10px] tracking-[0.18em]">SAME CORNER<br>NO FRANCHISE<br>NO APP</div>
+        <div class="absolute bottom-0 right-0 w-1/2 h-[56%] checker checker-small opacity-40"></div>
+      </div>
+
+      <div class="col-span-12 md:col-span-3 relative overflow-hidden border-[3px] border-ink group reveal">
+        <img src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" alt="Cook">
+        <div class="absolute inset-0 bg-cherry/20 mix-blend-multiply"></div>
+        <div class="absolute bottom-3 left-3 bg-cream border-[2px] border-ink px-2 py-1 font-anton text-[12px]">MARA • 6AM-2PM</div>
+      </div>
+
+      <div class="col-span-6 md:col-span-5 relative overflow-hidden border-[3px] border-ink bg-ink group reveal reveal-delay-1">
+        <img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-[1.05] transition-transform duration-700" alt="griddle">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-[1.5px] border-cream/60 rounded-full px-5 py-2 backdrop-blur">
+          <span class="font-space font-bold text-cream text-[11px] tracking-[0.2em]">405° • LISTEN</span>
+        </div>
+      </div>
+
+      <div class="col-span-6 md:col-span-3 relative overflow-hidden border-[3px] border-ink bg-cream p-5 flex flex-col justify-between reveal reveal-delay-2">
+        <div>
+          <div class="w-10 h-10 bg-cherry rounded-full border-[2px] border-ink flex items-center justify-center">
+            <span class="font-anton text-cream text-[18px]">!</span>
+          </div>
+          <p class="font-space font-bold text-[12px] leading-[1.4] mt-4">If the wax paper sticks, it's supposed to. The lace waits for no one.</p>
+        </div>
+        <div class="font-anton text-[13px] tracking-[0.08em] border-t-[2px] border-ink pt-3">HOUSE RULE #04</div>
+      </div>
+
+      <div class="col-span-12 md:col-span-4 relative overflow-hidden border-[3px] border-ink group reveal">
+        <img src="https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" alt="Burger">
+        <div class="absolute bottom-0 left-0 right-0 bg-cream/90 backdrop-blur border-t-[2.5px] border-ink px-4 py-3 flex justify-between items-center">
+          <span class="font-space font-bold text-[11px] tracking-[0.18em]">POLAROID #1142</span>
+          <span class="font-anton text-[14px]">BRICKLAYER CLUB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="bg-mustard border-y-[3px] border-ink overflow-hidden relative">
+  <div class="absolute inset-0 checker opacity-[0.06]"></div>
+  <div class="relative max-w-[1600px] mx-auto px-6 md:px-10 py-14 md:py-20">
+    <div class="flex items-center gap-4 reveal">
+      <div class="w-12 h-12 bg-ink text-cream border-[2px] border-ink flex items-center justify-center font-anton text-[20px]">★</div>
+      <span class="font-space font-bold text-[11px] tracking-[0.24em]">REGULARS • 4.9 • 1,200+ HAND-WRITTEN NOTES ON THE FRIDGE</span>
+    </div>
+
+    <div class="mt-10 grid grid-cols-12 gap-6">
+      <!-- Polaroid 1 -->
+      <div class="col-span-12 md:col-span-4 bg-cream border-[2.5px] border-ink p-3 pb-10 shadow-[8px_8px_0px_#121212] rotate-[-1.2deg] hover:rotate-[0deg] transition-transform duration-500 reveal">
+        <div class="aspect-[4/3] overflow-hidden border-[2px] border-ink bg-paper relative">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+          <div class="absolute bottom-2 left-2 bg-ink text-cream text-[10px] tracking-[0.12em] px-2 py-1 font-space font-bold">TUESDAYS • JESS + FINN</div>
+        </div>
+        <div class="pt-6 px-2">
+          <p class="font-space text-[15px] leading-[1.45] font-medium">"My dad brought me in '89 after little league. Same stool. Same griddle marks on the ceiling. Now I bring my kid. Nothing changes, that's why we come."</p>
+          <div class="mt-4 font-anton text-[14px] tracking-[0.02em]">— JESS MARTINEZ, 3RD GEN</div>
+          <div class="mt-1 flex gap-1">
+            <span class="text-cherry">★★★★★</span>
+            <span class="font-space text-[10px] tracking-[0.12em]">SINCE '89</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-4 bg-cream border-[2.5px] border-ink p-3 pb-10 shadow-[8px_8px_0px_#121212] rotate-[0.8deg] hover:rotate-[0deg] transition-transform duration-500 reveal reveal-delay-1 md:mt-10">
+        <div class="aspect-[4/3] overflow-hidden border-[2px] border-ink bg-paper relative">
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+          <div class="absolute top-2 right-2 w-6 h-6 bg-mustard border-[2px] border-ink"></div>
+        </div>
+        <div class="pt-6 px-2">
+          <p class="font-space text-[15px] leading-[1.45] font-medium">"I judged Red's on a $12M food show. Couldn't get the shot — steam kept fogging the lens. That's a good burger. We scrapped the script."</p>
+          <div class="mt-4 font-anton text-[14px]">— ANTHONY C., VISITOR 2017</div>
+          <div class="mt-1 flex gap-1">
+            <span class="text-cherry">★★★★★</span>
+            <span class="font-space text-[10px]">NO FILTER NEEDED</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-4 bg-ink text-cream border-[2.5px] border-ink p-3 pb-10 shadow-[8px_8px_0px_#121212] rotate-[-0.6deg] hover:rotate-[0deg] transition-transform duration-500 reveal reveal-delay-2">
+        <div class="aspect-[4/3] overflow-hidden border-[2px] border-cream/40 bg-ink relative">
+          <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="">
+          <div class="absolute inset-0 bg-cherry/30 mix-blend-multiply"></div>
+        </div>
+        <div class="pt-6 px-2">
+          <p class="font-space text-[15px] leading-[1.45] font-medium text-cream/90">"First shift, Red told me: 'You hear that? That's flavor leaving. Flip faster.' Took 3 years to understand. Still learning."</p>
+          <div class="mt-4 font-anton text-[14px] text-mustard">— MARA, LINE COOK SINCE 1998</div>
+          <div class="mt-1 flex gap-1 text-mustard">
+            <span>★★★★★</span>
+            <span class="font-space text-[10px] tracking-[0.12em] text-cream/60">57 YEARS OF GREASE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FIND US / BOOKING -->
+<section id="findus" class="bg-cream">
+  <div id="order" class="max-w-[1600px] mx-auto px-6 md:px-10 py-14 md:py-24">
+    <div class="grid grid-cols-12 gap-[3px] border-[3px] border-ink bg-ink">
+      <!-- Left: Visit -->
+      <div class="col-span-12 lg:col-span-5 bg-cream p-8 md:p-12 reveal">
+        <div class="inline-flex items-center gap-2 bg-cherry text-cream px-3 py-1 rotate-[-1deg] border-[2px] border-ink">
+          <div class="w-2 h-2 bg-mustard rounded-full animate-pulse"></div>
+          <span class="font-space font-bold text-[11px] tracking-[0.18em]">NOW GRILLING — LINE: ~22 MIN</span>
+        </div>
+
+        <h2 class="font-anton text-[48px] md:text-[64px] leading-[0.85] tracking-[-0.03em] mt-6">
+          PULL UP.<br>LINE OUT<br>THE DOOR.
+        </h2>
+
+        <div class="mt-10 space-y-8">
+          <div class="flex gap-4">
+            <div class="w-10 h-10 bg-ink text-cream flex items-center justify-center border-[2px] border-ink shrink-0">◐</div>
+            <div>
+              <div class="font-anton text-[18px] tracking-[0.02em]">CHERRY STREET DIVE</div>
+              <div class="font-space text-[14px] leading-[1.5] mt-1 text-ink/80 font-medium">
+                1421 Cherry St, Detroit, MI 48201<br>
+                Between the laundromat and the pawn. Look for the buzzing R.
+              </div>
+              <a href="#" class="inline-flex mt-3 font-space font-bold text-[11px] tracking-[0.16em] border-b-[2px] border-ink pb-[2px]" data-cursor="MAP">GET DIRECTIONS →</a>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <div class="w-10 h-10 bg-mustard flex items-center justify-center border-[2px] border-ink shrink-0">
+              <span class="font-anton text-[14px]">◑</span>
+            </div>
+            <div>
+              <div class="font-anton text-[18px] tracking-[0.02em]">HOURS — WHEN MEAT'S GONE, WE'RE DONE</div>
+              <div class="font-space text-[14px] leading-[1.6] mt-1 font-medium">
+                <div class="flex justify-between max-w-[280px]"><span>MON—THU</span><span>11AM—8PM / TILL 200 PATTIES</span></div>
+                <div class="flex justify-between max-w-[280px]"><span>FRI—SAT</span><span>11AM—11PM / TILL 300 PATTIES</span></div>
+                <div class="flex justify-between max-w-[280px] text-cherry font-bold"><span>SUN</span><span>12PM—6PM / FAMILY PACKS</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <div class="w-10 h-10 bg-cherry text-cream flex items-center justify-center border-[2px] border-ink shrink-0">◒</div>
+            <div>
+              <div class="font-anton text-[18px] tracking-[0.02em]">CALL AHEAD — NO APP, NO DELIVERY</div>
+              <div class="font-space text-[28px] md:text-[36px] font-anton tracking-[-0.02em] leading-none mt-2">555-0199</div>
+              <div class="font-space text-[12px] leading-[1.4] mt-1 text-ink/60 max-w-[32ch]">We answer between flips. If busy signal, we're flipping. Try again in 90 seconds.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini map checker -->
+        <div class="mt-10 border-[3px] border-ink h-[200px] relative overflow-hidden bg-paper">
+          <div class="absolute inset-0 checker opacity-10"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="bg-ink text-cream px-4 py-2 border-[2px] border-cream rotate-[-2deg] shadow-[4px_4px_0px_#121212]">
+              <div class="font-anton text-[16px]">1421 CHERRY</div>
+              <div class="font-space font-bold text-[10px] tracking-[0.18em]">DETR0IT • EST. 68</div>
+            </div>
+          </div>
+          <div class="absolute top-1/2 left-1/2 w-3 h-3 bg-cherry border-[2px] border-ink rounded-full -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
+          <div class="absolute bottom-2 left-2 bg-mustard font-space font-bold text-[9px] tracking-[0.16em] px-2 py-1 border-[1.5px] border-ink">NO PARKING IN ALLEY • USE LOT BEHIND</div>
+        </div>
+      </div>
+
+      <!-- Right: Order Form -->
+      <div class="col-span-12 lg:col-span-7 bg-paper p-8 md:p-12 reveal reveal-delay-1">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-anton text-[36px] md:text-[44px] leading-[0.9] tracking-[-0.02em]">ORDER<br>FOR PICKUP</h3>
+            <p class="font-space text-[13px] leading-[1.5] mt-3 max-w-[38ch] text-ink/70 font-medium">We don't do online ordering that sells your data. Old phone, wax paper, call it in. Form sends to the griddle printer.</p>
+          </div>
+          <div class="hidden md:block w-[88px] h-[88px] bg-mustard border-[3px] border-ink rounded-full flex items-center justify-center rotate-[8deg]">
+            <div class="text-center leading-[0.85]">
+              <div class="font-space font-bold text-[9px] tracking-[0.18em]">ORDER</div>
+              <div class="font-anton text-[22px]">NOW</div>
+            </div>
+          </div>
+        </div>
+
+        <form id="orderForm" class="mt-8 grid grid-cols-12 gap-4" onsubmit="return false;">
+          <div class="col-span-12 md:col-span-6">
+            <label class="font-space font-bold text-[11px] tracking-[0.18em]">YOUR NAME — WE YELL IT WHEN READY</label>
+            <input type="text" placeholder="RED OR REGULAR?" class="mt-2 w-full h-[52px] bg-cream border-[2.5px] border-ink px-4 font-space font-bold text-[14px] placeholder:text-ink/40 focus:outline-none focus:bg-mustard transition-colors" required>
+          </div>
+          <div class="col-span-12 md:col-span-6">
+            <label class="font-space font-bold text-[11px] tracking-[0.18em]">PHONE — BUSY SIGNAL = WE'RE FLIPPING</label>
+            <input type="tel" placeholder="555 - ___" class="mt-2 w-full h-[52px] bg-cream border-[2.5px] border-ink px-4 font-space font-bold text-[14px] placeholder:text-ink/40 focus:outline-none focus:bg-mustard transition-colors" required>
+          </div>
+
+          <div class="col-span-12">
+            <label class="font-space font-bold text-[11px] tracking-[0.18em]">SMASH IT — PICK YOUR PATTY</label>
+            <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-[2px] bg-ink border-[2.5px] border-ink">
+              <label class="bg-cream p-4 flex items-start gap-3 cursor-pointer hover:bg-mustard transition-colors group has-[:checked]:bg-ink has-[:checked]:text-cream">
+                <input type="radio" name="burger" class="mt-1 accent-cherry" checked>
+                <span><span class="font-anton text-[16px] leading-[1] block">CHERRY STREET DBL</span><span class="font-space text-[11px] leading-[1.3] mt-1 block opacity-70">Our fave • Lacey • Red sauce</span></span>
+              </label>
+              <label class="bg-cream p-4 flex items-start gap-3 cursor-pointer hover:bg-mustard transition-colors has-[:checked]:bg-ink has-[:checked]:text-cream">
+                <input type="radio" name="burger" class="mt-1 accent-cherry">
+                <span><span class="font-anton text-[16px] leading-[1] block">ONION SMASH</span><span class="font-space text-[11px] leading-[1.3] mt-1 block opacity-70">Shaved onion in patty</span></span>
+              </label>
+              <label class="bg-cream p-4 flex items-start gap-3 cursor-pointer hover:bg-mustard transition-colors has-[:checked]:bg-ink has-[:checked]:text-cream">
+                <input type="radio" name="burger" class="mt-1 accent-cherry">
+                <span><span class="font-anton text-[16px] leading-[1] block">BRICKLAYER TRIPLE</span><span class="font-space text-[11px] leading-[1.3] mt-1 block opacity-70">For the wall • Fork optional</span></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="col-span-12 md:col-span-6">
+            <label class="font-space font-bold text-[11px] tracking-[0.18em]">EXTRAS — SAY IT LOUD</label>
+            <div class="mt-2 bg-cream border-[2.5px] border-ink p-4 flex flex-wrap gap-x-4 gap-y-2">
+              <label class="flex items-center gap-2 font-space font-bold text-[12px] cursor-pointer"><input type="checkbox" class="accent-cherry"> BACON +$2</label>
+              <label class="flex items-center gap-2 font-space font-bold text-[12px] cursor-pointer"><input type="checkbox" class="accent-cherry"> RED'S WAY</label>
+              <label class="flex items-center gap-2 font-space font-bold text-[12px] cursor-pointer"><input type="checkbox" class="accent-cherry"> EXTRA LACE</label>
+              <label class="flex items-center gap-2 font-space font-bold text-[12px] cursor-pointer"><input type="checkbox" class="accent-cherry"> HOT RELISH</label>
+            </div>
+          </div>
+
+          <div class="col-span-12 md:col-span-6">
+            <label class="font-space font-bold text-[11px] tracking-[0.18em]">PICKUP TIME — WE START WHEN YOU CALL</label>
+            <select class="mt-2 w-full h-[52px] bg-cream border-[2.5px] border-ink px-4 font-space font-bold text-[14px] focus:outline-none focus:bg-mustard transition-colors">
+              <option>ASAP — 22 MIN</option>
+              <option>30 MIN</option>
+              <option>45 MIN</option>
+              <option>1 HR — KEEP IT HOT</option>
+            </select>
+          </div>
+
+          <div class="col-span-12">
+            <label class="font-space font-bold text-[11px] tracking-[0.18em]">NOTES — FOR THE GRILL, NOT THE APP</label>
+            <textarea placeholder="No lettuce, extra pickles, keep wax paper on. We read this." class="mt-2 w-full h-[88px] bg-cream border-[2.5px] border-ink p-4 font-space font-medium text-[13px] placeholder:text-ink/40 focus:outline-none focus:bg-mustard transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="col-span-12 flex flex-col md:flex-row gap-4 mt-2">
+            <button id="sizzleBtn" type="submit" class="flex-1 bg-cherry text-cream font-anton text-[18px] tracking-[0.04em] h-[60px] border-[2.5px] border-ink shadow-[6px_6px_0px_#121212] hover:shadow-[3px_3px_0px_#121212] hover:translate-x-[3px] hover:translate-y-[3px] transition-all btn-sizzle flex items-center justify-center gap-3" data-cursor="SIZZLE">
+              <span id="btnText">SEND TO GRIDDLE →</span>
+              <span id="btnSizzle" class="hidden">SZZZZT! • PRINTING</span>
+            </button>
+            <div class="md:w-[160px] bg-ink text-cream p-4 border-[2.5px] border-ink flex flex-col justify-center">
+              <div class="font-space font-bold text-[10px] tracking-[0.18em] text-mustard">TODAY'S COUNT</div>
+              <div class="font-anton text-[28px] leading-none mt-1" id="pattyCount">184 PATTIES</div>
+              <div class="font-space text-[10px] leading-[1.2] mt-1 opacity-60">Resets at 6am. We stop at meat out.</div>
+            </div>
+          </div>
+
+          <div class="col-span-12">
+            <p class="font-space text-[11px] leading-[1.4] text-ink/60">By ordering you agree: wax paper sticks sometimes, lace waits for no one, we don't do well-done — smash is medium-well plus crust by design. No refunds, just another burger.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-ink text-cream relative overflow-hidden">
+  <div class="h-[14px] w-full checker bg-cream opacity-40"></div>
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-12 md:py-16">
+    <div class="grid grid-cols-12 gap-8">
+      <div class="col-span-12 lg:col-span-5">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 bg-cherry rounded-full border-[3px] border-cream flex items-center justify-center">
+            <span class="font-anton text-[22px]">R'S</span>
+          </div>
+          <div class="leading-[0.85]">
+            <div class="font-anton text-[28px] tracking-[-0.01em]">RED'S GRIDDLE</div>
+            <div class="font-space font-bold text-[10px] tracking-[0.22em] text-mustard">CHERRY STREET • EST. 1968</div>
+          </div>
+        </div>
+        <p class="font-space text-[14px] leading-[1.5] mt-6 text-cream/70 max-w-[36ch] font-medium">Same corner, same steel, same shoulder into the spatula. No franchise. No app. No BS. If you hear sizzle from the sidewalk, we're open.</p>
+        <div class="mt-8 inline-flex bg-cream text-ink border-[2px] border-cream px-4 py-2 font-space font-bold text-[11px] tracking-[0.16em]">CASH & CARD • NO RESERVES • LINE FORMS AT 10:45</div>
+      </div>
+
+      <div class="col-span-6 md:col-span-3 lg:col-span-2">
+        <div class="font-anton text-[14px] tracking-[0.08em] text-mustard">GRIDDLE</div>
+        <div class="mt-4 flex flex-col gap-2 font-space font-bold text-[13px] tracking-[0.02em] text-cream/80">
+          <a href="#philosophy" class="hover:text-mustard transition-colors">Philosophy</a>
+          <a href="#menu" class="hover:text-mustard transition-colors">Menu</a>
+          <a href="#gallery" class="hover:text-mustard transition-colors">Gallery</a>
+          <a href="#" class="hover:text-mustard transition-colors">Wall of Fame</a>
+          <a href="#" class="hover:text-mustard transition-colors">Jobs — Bring Kneepads</a>
+        </div>
+      </div>
+
+      <div class="col-span-6 md:col-span-3 lg:col-span-2">
+        <div class="font-anton text-[14px] tracking-[0.08em] text-mustard">VISIT</div>
+        <div class="mt-4 font-space text-[13px] leading-[1.6] text-cream/80 font-medium">
+          1421 Cherry St<br>Detroit, MI 48201<br><br>
+          555-0199<br>grease@redsgriddle.det<br><br>
+          <span class="text-mustard">@redsgriddle</span><br>Line pics welcome
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-3">
+        <div class="bg-cherry border-[3px] border-cream p-5 rotate-[-0.8deg]">
+          <div class="font-anton text-[20px] leading-[0.9] text-cream">FRIDGE NOTES</div>
+          <p class="font-space text-[12px] leading-[1.4] mt-2 text-cream/90">Got a Polaroid on our fridge from '72? We still have it taped behind register #1. Come find it. Bring tape.</p>
+          <div class="mt-4 flex items-center gap-2">
+            <div class="w-7 h-7 bg-cream border-[2px] border-ink rounded-full flex items-center justify-center">
+              <span class="font-anton text-[12px] text-ink">♡</span>
+            </div>
+            <span class="font-space font-bold text-[10px] tracking-[0.18em] text-cream">1,200+ NOTES, ONE FRIDGE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Giant type -->
+    <div class="mt-14 md:mt-20 border-t-[1.5px] border-cream/20 pt-8 overflow-hidden">
+      <div class="font-anton text-[18vw] md:text-[13vw] leading-[0.8] tracking-[-0.05em] whitespace-nowrap select-none">
+        <span class="stroke-cream opacity-40">RED'S</span> <span class="text-cream">GRIDDLE</span> <span class="stroke-cream opacity-40">RED'S</span> <span class="text-mustard">SMASH</span>
+      </div>
+      <div class="mt-6 flex flex-col md:flex-row gap-4 md:items-center justify-between font-space font-bold text-[10px] tracking-[0.18em] text-cream/50">
+        <span>© 1968—2025 RED'S GRIDDLE • CHERRY ST • DETROIT • NO FRANCHISE • NO APP • GREASE IS GLORY</span>
+        <span class="flex items-center gap-2"><span class="w-2 h-2 bg-cherry rounded-full"></span>CONCEPTUAL SITE — BUILT FOR THE SIZZLE</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[700] pointer-events-none opacity-0 translate-y-4 transition-all duration-500">
+  <div class="bg-ink text-cream border-[2.5px] border-cream px-6 py-3 shadow-[8px_8px_0px_#121212] flex items-center gap-3">
+    <div class="w-8 h-8 bg-mustard text-ink flex items-center justify-center border-[2px] border-ink font-anton">!</div>
+    <div>
+      <div class="font-anton text-[14px] tracking-[0.02em]">TO THE GRIDDLE! 22 MIN.</div>
+      <div class="font-space text-[11px] tracking-[0.12em] opacity-70">Listen for your name. Wax paper. No trays.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Custom Cursor */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+const label = document.getElementById('cursorLabel');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', (e)=>{
+  mouseX = e.clientX; mouseY = e.clientY;
+  dot.style.transform = `translate3d(${mouseX - 4}px, ${mouseY - 4}px, 0)`;
+});
+
+(function animate(){
+  ringX += (mouseX - ringX) * 0.14;
+  ringY += (mouseY - ringY) * 0.14;
+  ring.style.transform = `translate3d(${ringX - 22}px, ${ringY - 22}px, 0)`;
+  requestAnimationFrame(animate);
+})();
+
+document.querySelectorAll('[data-cursor]').forEach(el=>{
+  el.addEventListener('mouseenter', ()=>{
+    ring.classList.add('hover');
+    label.textContent = el.getAttribute('data-cursor') || 'SMASH';
+    dot.style.transform += ' scale(2)';
+  });
+  el.addEventListener('mouseleave', ()=>{
+    ring.classList.remove('hover');
+    dot.style.transform = `translate3d(${mouseX - 4}px, ${mouseY - 4}px, 0)`;
+  });
+});
+
+/* Mobile menu */
+const toggle = document.getElementById('menuToggle');
+const mobile = document.getElementById('mobileMenu');
+let open = false;
+toggle.addEventListener('click', ()=>{
+  open = !open;
+  mobile.style.maxHeight = open ? '420px' : '0px';
+  toggle.setAttribute('data-cursor', open ? 'CLOSE' : 'OPEN');
+});
+mobile.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>{ open=false; mobile.style.maxHeight='0px'; }));
+
+/* Navbar shrink */
+const navbar = document.getElementById('navbar');
+let lastY = 0;
+window.addEventListener('scroll', ()=>{
+  const y = window.scrollY;
+  if(y>80){ navbar.classList.add('shadow-[0_8px_24px_rgba(0,0,0,0.12)]'); } else { navbar.classList.remove('shadow-[0_8px_24px_rgba(0,0,0,0.12)]'); }
+  lastY = y;
+});
+
+/* Reveal */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('active'); io.unobserve(e.target); }
+  });
+},{ threshold:0.15 });
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* Parallax */
+const parallaxEls = document.querySelectorAll('.parallax');
+window.addEventListener('scroll', ()=>{
+  const sy = window.scrollY;
+  parallaxEls.forEach(el=>{
+    const speed = parseFloat(el.dataset.speed || '0.08');
+    const rect = el.parentElement.getBoundingClientRect();
+    const offset = (sy + rect.top) * speed * -0.2;
+    el.style.transform = `translate3d(0, ${offset}px, 0) scale(1.08)`;
+  });
+},{ passive:true });
+
+/* Menu tabs */
+document.querySelectorAll('.menu-tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.menu-tab').forEach(b=>b.classList.remove('tab-active'));
+    btn.classList.add('tab-active');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.menu-panel').forEach(p=>p.classList.add('hidden'));
+    document.getElementById('tab-'+tab).classList.remove('hidden');
+    document.getElementById('tab-'+tab).classList.add('grid');
+  });
+});
+
+/* Order button sizzle */
+const sizzleBtn = document.getElementById('sizzleBtn');
+const btnText = document.getElementById('btnText');
+const btnSizzle = document.getElementById('btnSizzle');
+const toast = document.getElementById('toast');
+const pattyCountEl = document.getElementById('pattyCount');
+let count = 184;
+
+sizzleBtn.addEventListener('click', (e)=>{
+  e.preventDefault();
+  // validate simple
+  const form = document.getElementById('orderForm');
+  if(!form.checkValidity()){ form.reportValidity(); return; }
+
+  sizzleBtn.disabled = true;
+  btnText.classList.add('hidden');
+  btnSizzle.classList.remove('hidden');
+  sizzleBtn.classList.add('bg-ink');
+  
+  // patty tick sound simulation via counter
+  let ticks = 0;
+  const tickInt = setInterval(()=>{
+    count++;
+    pattyCountEl.textContent = count + ' PATTIES';
+    ticks++;
+    if(ticks>4){ clearInterval(tickInt); }
+  }, 180);
+
+  setTimeout(()=>{
+    toast.style.opacity = '1';
+    toast.style.transform = 'translate(-50%, 0)';
+    setTimeout(()=>{
+      toast.style.opacity = '0';
+      toast.style.transform = 'translate(-50%, 16px)';
+      sizzleBtn.disabled = false;
+      btnText.classList.remove('hidden');
+      btnSizzle.classList.add('hidden');
+      sizzleBtn.classList.remove('bg-ink');
+      form.reset();
+    }, 2600);
+  }, 800);
+});
+
+/* Randomize patty count slowly */
+setInterval(()=>{
+  if(Math.random()>0.7){
+    count++;
+    pattyCountEl.textContent = count + ' PATTIES';
+  }
+}, 3400);
+
+/* Keyboard: reduce motion respect */
+if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  document.querySelectorAll('.marquee-track').forEach(el=> el.style.animation = 'none');
+}
+</script>
+</body>
+</html>

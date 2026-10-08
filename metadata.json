@@ -1,0 +1,8 @@
+{
+  "name": "Marlon - Responsive Portfolio",
+  "description": "Responsive personal portfolio website with smooth scrolling, project gallery, and interactive animations.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

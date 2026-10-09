@@ -713,11 +713,14 @@ img {
 .hud-circle-img {
   width: 100%;
   height: 100%;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   object-position: center top;
   border-radius: 50%;
   filter: contrast(1.08) brightness(0.96);
   transition: transform 0.4s ease, filter 0.4s ease;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .hud-circle-container:hover .hud-circle-img {
@@ -852,10 +855,13 @@ img {
   height: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  object-position: center;
   border-radius: 18px;
   filter: contrast(1.05) brightness(0.98);
   transition: transform 0.4s ease;
   display: block;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .about__photo-panel:hover .about__img {
@@ -1013,7 +1019,13 @@ img {
 .gallery-chrome-dots,
 .gallery-chrome-title,
 .gallery-unboxed-meta,
-.gallery-card__tags {
+.gallery-card__tags,
+.section-meta,
+.home__telemetry,
+.contact__socials-label,
+.footer__compliance-bar,
+.compliance-badge,
+.footer__legal-note {
   display: none !important;
 }
 

@@ -1,10 +1,11 @@
-name: Deploy to Firebase Hosting on merge
+name: Deploy to Firebase Hosting
 
 on:
   push:
     branches:
       - main
       - master
+  workflow_dispatch:
 
 jobs:
   build_and_deploy:
@@ -13,6 +14,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Check Secret Configured
+        run: |
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC }}" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT_RAVANATEC secret is not set in Github repository Settings -> Secrets and variables -> Actions!"
+            echo "Please generate a Service Account key from Firebase Console -> Project Settings -> Service Accounts -> Generate new private key, and paste the JSON content into Github Secrets."
+            exit 1
+          fi
+
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -20,3 +29,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC }}
           channelId: live
           projectId: ravanatec
+

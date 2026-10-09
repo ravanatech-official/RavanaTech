@@ -65,6 +65,10 @@
       {
         "source": "/projects",
         "destination": "/projects.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ]
   }

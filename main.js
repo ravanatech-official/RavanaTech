@@ -244,6 +244,14 @@ window.addEventListener('touchend', (e) => {
 
 // Initialize initial screen based on URL on load
 const initDeckRoute = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectedPath = urlParams.get('p');
+    if (redirectedPath) {
+        const cleanPath = '/' + redirectedPath.replace(/^[/]+/, '');
+        window.history.replaceState(null, '', cleanPath);
+        switchScreen(cleanPath, false);
+        return;
+    }
     const target = window.location.hash || window.location.pathname;
     switchScreen(target, false);
 };

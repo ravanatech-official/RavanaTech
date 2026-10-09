@@ -138,18 +138,18 @@
         <header class="l-header" id="header" role="banner">
             <nav class="nav bd-grid" aria-label="Main Navigation">
                 <div class="nav__brand">
-                    <a href="#home" class="nav__logo" aria-label="Ravana Tech Homepage">
+                    <a href="/" data-target="home" class="nav__logo" aria-label="Ravana Tech Homepage">
                         RAVANA<span class="nav__logo-slash">//</span>TECH
                     </a>
                 </div>
 
                 <div class="nav__menu" id="nav-menu">
                     <ul class="nav__list">
-                        <li class="nav__item"><a href="#home" class="nav__link active-link">Home</a></li>
-                        <li class="nav__item"><a href="#about" class="nav__link">About</a></li>
-                        <li class="nav__item"><a href="#systems" class="nav__link">Systems</a></li>
-                        <li class="nav__item"><a href="#projects" class="nav__link">Projects</a></li>
-                        <li class="nav__item"><a href="#contact" class="nav__link">Contact</a></li>
+                        <li class="nav__item"><a href="/" data-target="home" class="nav__link active-link">Home</a></li>
+                        <li class="nav__item"><a href="/about" data-target="about" class="nav__link">About</a></li>
+                        <li class="nav__item"><a href="/systems" data-target="systems" class="nav__link">Systems</a></li>
+                        <li class="nav__item"><a href="/projects" data-target="projects" class="nav__link">Projects</a></li>
+                        <li class="nav__item"><a href="/contact" data-target="contact" class="nav__link">Contact</a></li>
                     </ul>
                 </div>
 
@@ -166,7 +166,7 @@
 
         <main class="l-main" id="main-content" role="main">
             <!--===== HOME (HERO) =====-->
-            <section class="home section" id="home">
+            <section class="home section deck-screen deck-screen-active" id="home" data-screen-index="0" data-screen-id="home" data-route="/" data-title="RAVANA TECH | Web, Software & AI">
                 <div class="home__container bd-grid">
                     <div class="home__data">
                         <h1 class="home__brand-title">
@@ -183,11 +183,11 @@
                         </p>
 
                         <div class="home__cta-group">
-                            <a href="#systems" class="button">
+                            <a href="/systems" data-target="systems" class="button">
                                 <i class='bx bx-chip'></i>
                                 EXPLORE SYSTEMS
                             </a>
-                            <a href="#contact" class="button button-outline">
+                            <a href="/contact" data-target="contact" class="button button-outline">
                                 <i class='bx bx-broadcast'></i>
                                 CONTACT RAVANA
                             </a>
@@ -231,7 +231,7 @@
             </section>
 
             <!--===== ABOUT =====-->
-            <section class="about section" id="about">
+            <section class="about section deck-screen" id="about" data-screen-index="1" data-screen-id="about" data-route="/about" data-title="ABOUT // RAVANA TECH | Web, Software & AI">
                 <div class="bd-grid">
                     <h2 class="section-title">ABOUT RAVANA TECH</h2>
                 </div>
@@ -271,7 +271,7 @@
             </section>
 
             <!--===== SYSTEMS =====-->
-            <section class="systems section" id="systems">
+            <section class="systems section deck-screen" id="systems" data-screen-index="2" data-screen-id="systems" data-route="/systems" data-title="SYSTEMS // RAVANA TECH | Web, Software & AI">
                 <div class="bd-grid">
                     <h2 class="section-title">ENGINEERING CAPABILITIES</h2>
                 </div>
@@ -370,7 +370,7 @@
             </section>
 
             <!--===== PROJECTS =====-->
-            <section class="projects section" id="projects">
+            <section class="projects section deck-screen" id="projects" data-screen-index="3" data-screen-id="projects" data-route="/projects" data-title="PROJECTS // RAVANA TECH | Web, Software & AI">
                 <div class="bd-grid">
                     <div class="projects__title-row">
                         <div>
@@ -429,7 +429,7 @@
             </section>
 
             <!--===== CONTACT =====-->
-            <section class="contact section" id="contact">
+            <section class="contact section deck-screen" id="contact" data-screen-index="4" data-screen-id="contact" data-route="/contact" data-title="CONTACT // RAVANA TECH | Web, Software & AI">
                 <div class="bd-grid">
                     <h2 class="section-title">TRANSMIT INQUIRY</h2>
                 </div>
@@ -548,12 +548,52 @@
             </section>
         </main>
 
-        <!--===== FOOTER =====-->
-        <footer class="footer" role="contentinfo">
-            <div class="footer__container bd-grid">
-                <p class="footer__copy">
-                    &#169; 2026 <strong>RAVANA TECH</strong>. ALL RIGHTS RESERVED. FOUNDED & DIRECTED BY <strong>SHANTHAPRIYA SILVA</strong>.
-                </p>
+        <!--===== ZERO-SCROLL DECK COMMAND CONSOLE BAR =====-->
+        <footer class="deck-console-bar" id="deck-console-bar" role="contentinfo" aria-label="Deck Switcher">
+            <div class="deck-console-container bd-grid">
+                <div class="deck-console-left">
+                    <button type="button" class="deck-nav-btn" id="deck-prev-btn" title="Previous Screen (Left Arrow)" aria-label="Previous screen">
+                        <i class='bx bx-chevron-left' aria-hidden="true"></i>
+                        <span>PREV</span>
+                    </button>
+                    <span class="deck-copyright-tag">&#169; 2026 RAVANA TECH</span>
+                </div>
+
+                <div class="deck-console-center">
+                    <div class="deck-pills" id="deck-pills" role="tablist" aria-label="Screen Deck">
+                        <button type="button" class="deck-pill active" data-screen="home" role="tab" aria-selected="true" title="01 // HOME">
+                            <span class="deck-pill-num">01</span>
+                            <span class="deck-pill-name">HOME</span>
+                        </button>
+                        <button type="button" class="deck-pill" data-screen="about" role="tab" aria-selected="false" title="02 // ABOUT">
+                            <span class="deck-pill-num">02</span>
+                            <span class="deck-pill-name">ABOUT</span>
+                        </button>
+                        <button type="button" class="deck-pill" data-screen="systems" role="tab" aria-selected="false" title="03 // SYSTEMS">
+                            <span class="deck-pill-num">03</span>
+                            <span class="deck-pill-name">SYSTEMS</span>
+                        </button>
+                        <button type="button" class="deck-pill" data-screen="projects" role="tab" aria-selected="false" title="04 // PROJECTS">
+                            <span class="deck-pill-num">04</span>
+                            <span class="deck-pill-name">PROJECTS</span>
+                        </button>
+                        <button type="button" class="deck-pill" data-screen="contact" role="tab" aria-selected="false" title="05 // CONTACT">
+                            <span class="deck-pill-num">05</span>
+                            <span class="deck-pill-name">CONTACT</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="deck-console-right">
+                    <span class="deck-hotkey-guide" title="Switch with keyboard arrow keys or 1 to 5">
+                        <i class='bx bx-slider-alt' aria-hidden="true"></i>
+                        <kbd>&#8592;</kbd> <kbd>&#8594;</kbd> <kbd>1-5</kbd>
+                    </span>
+                    <button type="button" class="deck-nav-btn" id="deck-next-btn" title="Next Screen (Right Arrow)" aria-label="Next screen">
+                        <span>NEXT</span>
+                        <i class='bx bx-chevron-right' aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
         </footer>
 

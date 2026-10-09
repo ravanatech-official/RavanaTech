@@ -30,6 +30,7 @@
   --font-mono: "Share Tech Mono", monospace;
 
   --header-height: 4.5rem;
+  --footer-deck-height: 3.5rem;
 }
 
 /*===== BASE =====*/
@@ -46,6 +47,9 @@ html {
 body {
   margin: 0;
   padding-top: var(--header-height);
+  padding-bottom: var(--footer-deck-height);
+  height: 100vh;
+  overflow: hidden;
   font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.6;
@@ -58,7 +62,6 @@ body {
   background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
   background-attachment: fixed;
   color: var(--rt-text);
-  overflow-x: hidden;
   position: relative;
 }
 
@@ -129,6 +132,70 @@ img {
   color: #fff;
 }
 
+/*===== MAIN LAYOUT (ZERO-SCROLL COMMAND DECK) =====*/
+main:nth-of-type(1),
+.l-main {
+  background-color: var(--rt-bg);
+  background-image: 
+    radial-gradient(circle at 50% 12%, rgba(0, 115, 184, 0.18) 0%, transparent 60%),
+    radial-gradient(circle at 85% 65%, rgba(0, 191, 255, 0.10) 0%, transparent 50%),
+    linear-gradient(rgba(0, 191, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 191, 255, 0.035) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+  background-attachment: fixed;
+  color: var(--rt-text);
+  height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  min-height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  max-height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Base Deck Screen */
+.deck-screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.97) translateY(12px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.deck-screen.deck-screen-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1) translateY(0);
+  z-index: 10;
+  animation: cyber-screen-reveal 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cyber-screen-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.98) translateY(10px);
+    filter: brightness(1.25) blur(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: brightness(1) blur(0);
+  }
+}
+
 /*===== LAYOUT =====*/
 .bd-grid {
   max-width: 1200px;
@@ -148,7 +215,7 @@ img {
 }
 
 .section {
-  padding: 5rem 0 3.5rem;
+  padding: 0;
   position: relative;
 }
 
@@ -1553,4 +1620,171 @@ img {
   font-size: 0.72rem;
   color: var(--rt-text-dim);
   letter-spacing: 0.15em;
+}
+
+/*===== ZERO-SCROLL DECK COMMAND CONSOLE BAR =====*/
+.deck-console-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-deck-height);
+  background: rgba(0, 5, 10, 0.95);
+  border-top: 1px solid var(--rt-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.deck-console-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.deck-console-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.deck-copyright-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--rt-text-dim);
+  text-transform: uppercase;
+}
+
+.deck-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  background: rgba(0, 191, 255, 0.08);
+  border: 1px solid var(--rt-border);
+  color: var(--rt-cyan-bright);
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  clip-path: polygon(0 4px, 4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%);
+}
+
+.deck-nav-btn:hover {
+  background: var(--rt-cyan-bright);
+  color: #000;
+  box-shadow: 0 0 16px var(--rt-cyan);
+  transform: translateY(-1px);
+}
+
+.deck-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.deck-console-center {
+  display: flex;
+  align-items: center;
+}
+
+.deck-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(2, 18, 30, 0.85);
+  border: 1px solid var(--rt-border-subtle);
+  border-radius: 24px;
+  padding: 3px 6px;
+}
+
+.deck-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: transparent;
+  border: none;
+  border-radius: 20px;
+  color: var(--rt-text-soft);
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.deck-pill-num {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--rt-cyan);
+  opacity: 0.8;
+}
+
+.deck-pill:hover {
+  color: #fff;
+  background: rgba(0, 191, 255, 0.12);
+}
+
+.deck-pill.active {
+  background: var(--rt-cyan);
+  color: #00050A;
+  box-shadow: 0 0 14px var(--rt-cyan-bright);
+  font-weight: 700;
+}
+
+.deck-pill.active .deck-pill-num {
+  color: #00050A;
+  font-weight: 800;
+  opacity: 1;
+}
+
+.deck-console-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.deck-hotkey-guide {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--rt-text-dim);
+  letter-spacing: 0.08em;
+}
+
+.deck-hotkey-guide kbd {
+  background: rgba(0, 191, 255, 0.08);
+  border: 1px solid var(--rt-border-subtle);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  color: var(--rt-cyan);
+  font-size: 0.65rem;
+}
+
+@media screen and (max-width: 900px) {
+  .deck-copyright-tag,
+  .deck-hotkey-guide {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .deck-pill-name {
+    display: none;
+  }
+  .deck-pill {
+    padding: 0.35rem 0.55rem;
+  }
 }

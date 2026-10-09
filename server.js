@@ -67,8 +67,13 @@ app.get('/api/conceptual-projects', (req, res) => {
 app.use(express.static(__dirname));
 
 // Dedicated Projects Archive Screen
-app.get(['/projects', '/projects.html', '/gallery', '/gallery.html'], (req, res) => {
+app.get(['/archive', '/projects.html', '/gallery', '/gallery.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'projects.html'));
+});
+
+// Clean URLs for Deck Screens
+app.get(['/', '/home', '/about', '/systems', '/projects', '/contact'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Fallback to index.html for navigation

@@ -51,7 +51,7 @@ function getScreenIndex(target) {
     if (typeof target === 'number') {
         return Math.max(0, Math.min(SCREENS.length - 1, target));
     }
-    const clean = String(target || '').toLowerCase().replace(/^[/#]/, '').trim();
+    const clean = String(target || '').toLowerCase().replace(/^[/#]+|[/#]+$/g, '').trim();
     if (!clean || clean === 'home') return 0;
     const found = SCREENS.findIndex(s => s.id === clean || s.route === `/${clean}`);
     return found !== -1 ? found : 0;
@@ -65,9 +65,9 @@ function switchScreen(target, updateHistory = true) {
     currentScreenIndex = nextIndex;
     const nextScreen = SCREENS[nextIndex];
 
-    // 1. Activate Target Deck Screen
-    screens.forEach((screen, idx) => {
-        if (idx === nextIndex || screen.id === nextScreen.id) {
+    // 1. Activate Target Deck Screen strictly by matching ID
+    screens.forEach((screen) => {
+        if (screen.id === nextScreen.id) {
             screen.classList.add('deck-screen-active');
             screen.scrollTop = 0;
         } else {
@@ -244,8 +244,8 @@ window.addEventListener('touchend', (e) => {
 
 // Initialize initial screen based on URL on load
 const initDeckRoute = () => {
-    const path = window.location.pathname;
-    switchScreen(path, false);
+    const target = window.location.hash || window.location.pathname;
+    switchScreen(target, false);
 };
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initDeckRoute);

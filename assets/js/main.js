@@ -266,7 +266,7 @@ const contactForm = document.getElementById('contact-form');
 const formFeedback = document.getElementById('form-feedback');
 
 if (contactForm && formFeedback) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const name = document.getElementById('sender-name').value.trim();
@@ -286,12 +286,54 @@ if (contactForm && formFeedback) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> ENCRYPTING & TRANSMITTING...";
 
+        // 1. Attempt Firestore write if initialized
+        let firestoreDocId = null;
+        if (typeof window.saveInquiryToFirestore === 'function') {
+            try {
+                const res = await window.saveInquiryToFirestore({ name, email, system, message });
+                if (res && res.success && res.id) {
+                    firestoreDocId = res.id;
+                }
+            } catch (err) {
+                console.warn("[RAVANA TECH] Firestore write deferred:", err);
+            }
+        }
+
         setTimeout(() => {
             submitBtn.disabled = false;
             submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> TRANSMISSION SENT";
 
             formFeedback.className = 'form__status-msg success';
-            formFeedback.innerHTML = `[ TRANSMISSION LOGGED // DISPATCH CONFIRMED ]<br>SYSTEM: ${system} • FREQUENCY: ${email}<br>WE WILL COMMUNICATE WITH YOU VIA SECURE PROTOCOL SHORTLY.`;
+            const logIdStr = firestoreDocId ? `RECORD ID: #${firestoreDocId.substring(0, 8).toUpperCase()} • ` : '';
+            formFeedback.innerHTML = `[ TRANSMISSION LOGGED // DISPATCH CONFIRMED ]<br>${logIdStr}SYSTEM: ${system} • FREQUENCY: ${email}<br>WE WILL COMMUNICATE WITH YOU VIA SECURE PROTOCOL SHORTLY.`;
+
+            // Prepare instant WhatsApp Handoff CTA
+            const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a transmission from your website.\n\nName: ${name}\nDomain: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);
+            const waUrl = `https://wa.me/94788470610?text=${waText}`;
+
+            const actionsWrap = document.createElement('div');
+            actionsWrap.style.display = 'flex';
+            actionsWrap.style.flexWrap = 'wrap';
+            actionsWrap.style.gap = '0.5rem';
+            actionsWrap.style.marginTop = '0.65rem';
+
+            const waLink = document.createElement('a');
+            waLink.href = waUrl;
+            waLink.target = '_blank';
+            waLink.rel = 'noopener noreferrer';
+            waLink.style.display = 'inline-flex';
+            waLink.style.alignItems = 'center';
+            waLink.style.gap = '0.35rem';
+            waLink.style.padding = '0.35rem 0.75rem';
+            waLink.style.background = 'rgba(37, 211, 102, 0.15)';
+            waLink.style.border = '1px solid rgba(37, 211, 102, 0.4)';
+            waLink.style.borderRadius = '4px';
+            waLink.style.color = '#25D366';
+            waLink.style.fontSize = '0.72rem';
+            waLink.style.fontFamily = 'monospace';
+            waLink.style.textDecoration = 'none';
+            waLink.innerHTML = "<i class='bx bxl-whatsapp' style='font-size:0.95rem;'></i> WHATSAPP DIRECT HANDOFF";
+            actionsWrap.appendChild(waLink);
 
             // Prepare mailto fallback link in case user wants immediate email client copy
             const subject = encodeURIComponent(`[RAVANA TECH INQUIRY] - ${system} from ${name}`);
@@ -301,18 +343,28 @@ if (contactForm && formFeedback) {
             const emailLink = document.createElement('a');
             emailLink.href = mailtoUrl;
             emailLink.target = '_blank';
-            emailLink.style.display = 'block';
-            emailLink.style.marginTop = '0.5rem';
+            emailLink.rel = 'noopener noreferrer';
+            emailLink.style.display = 'inline-flex';
+            emailLink.style.alignItems = 'center';
+            emailLink.style.gap = '0.35rem';
+            emailLink.style.padding = '0.35rem 0.75rem';
+            emailLink.style.background = 'rgba(0, 191, 255, 0.1)';
+            emailLink.style.border = '1px solid rgba(0, 191, 255, 0.3)';
+            emailLink.style.borderRadius = '4px';
             emailLink.style.color = 'var(--rt-cyan-bright)';
             emailLink.style.fontSize = '0.72rem';
-            emailLink.textContent = '→ OPEN IN DESKTOP EMAIL CLIENT AS BACKUP';
-            formFeedback.appendChild(emailLink);
+            emailLink.style.fontFamily = 'monospace';
+            emailLink.style.textDecoration = 'none';
+            emailLink.innerHTML = "<i class='bx bx-envelope' style='font-size:0.95rem;'></i> EMAIL CLIENT BACKUP";
+            actionsWrap.appendChild(emailLink);
+
+            formFeedback.appendChild(actionsWrap);
 
             contactForm.reset();
 
             setTimeout(() => {
                 submitBtn.innerHTML = originalBtnText;
             }, 6000);
-        }, 1200);
+        }, 1000);
     });
 }

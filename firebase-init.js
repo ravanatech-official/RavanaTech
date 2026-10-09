@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -23,9 +24,39 @@ try {
   console.info("[Firebase Analytics] Analytics initialized or deferred:", err);
 }
 
+export let db = null;
+try {
+  db = getFirestore(app);
+} catch (err) {
+  console.info("[Firestore] Firestore initialized or deferred:", err);
+}
+
+// Global persistence helper
+export async function saveInquiry(inquiryData) {
+  if (!db) return { success: false, reason: "firestore_not_initialized" };
+  try {
+    const docRef = await addDoc(collection(db, "inquiries"), {
+      name: inquiryData.name,
+      email: inquiryData.email,
+      system: inquiryData.system,
+      message: inquiryData.message,
+      createdAt: serverTimestamp(),
+      clientTimestamp: new Date().toISOString(),
+      source: "website_command_console",
+      status: "new"
+    });
+    return { success: true, id: docRef.id };
+  } catch (err) {
+    console.warn("[Firestore] saveInquiry error:", err);
+    return { success: false, error: err };
+  }
+}
+
 // Expose globally on window for client convenience
 if (typeof window !== "undefined") {
   window.firebaseApp = app;
   window.firebaseAnalytics = analytics;
-  console.log("[RAVANA TECH] Firebase initialized successfully // Project: ravanatec");
+  window.firebaseDb = db;
+  window.saveInquiryToFirestore = saveInquiry;
+  console.log("[RAVANA TECH] Firebase & Firestore initialized successfully // Project: ravanatec");
 }

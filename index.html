@@ -125,7 +125,8 @@
         {
           "imports": {
             "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-            "firebase/analytics": "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js"
+            "firebase/analytics": "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js",
+            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
           }
         }
         </script>
@@ -449,7 +450,7 @@
 
                         <div class="contact__action-list">
                             <!-- WhatsApp -->
-                            <a href="https://wa.me/94788470610" target="_blank" rel="noopener noreferrer" class="contact__action-btn">
+                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20your%20Web%2C%20Software%20and%20AI%20solutions.%20Let%27s%20discuss%20a%20project." target="_blank" rel="noopener noreferrer" class="contact__action-btn">
                                 <span><i class='bx bxl-whatsapp'></i> WHATSAPP SECURE CHAT</span>
                                 <span>+94 78 847 0610</span>
                             </a>
@@ -491,7 +492,7 @@
                                 <a href="https://youtube.com/@ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
                                     <i class='bx bxl-youtube'></i> YOUTUBE
                                 </a>
-                                <a href="https://wa.me/94788470610" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
+                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20your%20Web%2C%20Software%20and%20AI%20solutions.%20Let%27s%20discuss%20a%20project." target="_blank" rel="noopener noreferrer" class="contact__social-pill">
                                     <i class='bx bxl-whatsapp'></i> WHATSAPP
                                 </a>
                             </div>
@@ -698,14 +699,14 @@
         <!--===== SCROLL REVEAL =====-->
         <script src="https://unpkg.com/scrollreveal"></script>
 
-        <!--===== FIREBASE INITIALIZATION =====-->
+        <!--===== FIREBASE INITIALIZATION & FIRESTORE INTEGRATION =====-->
         <script type="module">
             // Import the functions you need from the SDKs you need
             import { initializeApp } from "firebase/app";
             import { getAnalytics } from "firebase/analytics";
+            import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
             // Your web app's Firebase configuration
-            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
             const firebaseConfig = {
               apiKey: "AIzaSyDOIt7fmrcHiL8VJbqXqaw-bBmzVuLxxvo",
               authDomain: "ravanatec.firebaseapp.com",
@@ -716,7 +717,7 @@
               measurementId: "G-47HKDPCRH5"
             };
 
-            // Initialize Firebase
+            // Initialize Firebase & Firestore
             try {
               const app = initializeApp(firebaseConfig);
               let analytics = null;
@@ -725,9 +726,30 @@
               } catch (err) {
                 console.info("[Firebase Analytics] Analytics active or queued:", err);
               }
+              const db = getFirestore(app);
               window.firebaseApp = app;
               window.firebaseAnalytics = analytics;
-              console.log("[RAVANA TECH] Firebase online // Project: ravanatec");
+              window.firebaseDb = db;
+              window.saveInquiryToFirestore = async function(inquiryData) {
+                try {
+                  const docRef = await addDoc(collection(db, "inquiries"), {
+                    name: inquiryData.name,
+                    email: inquiryData.email,
+                    system: inquiryData.system,
+                    message: inquiryData.message,
+                    createdAt: serverTimestamp(),
+                    clientTimestamp: new Date().toISOString(),
+                    source: "website_command_console",
+                    status: "new"
+                  });
+                  console.log("[RAVANA TECH] Transmission recorded to Firestore with ID:", docRef.id);
+                  return { success: true, id: docRef.id };
+                } catch (firestoreErr) {
+                  console.warn("[RAVANA TECH] Firestore persistence deferred / fallback:", firestoreErr);
+                  return { success: false, error: firestoreErr };
+                }
+              };
+              console.log("[RAVANA TECH] Firebase & Firestore online // Project: ravanatec");
             } catch (err) {
               console.error("[RAVANA TECH] Firebase initialization error:", err);
             }

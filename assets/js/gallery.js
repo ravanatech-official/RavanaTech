@@ -166,11 +166,6 @@
                 <i class='bx ${project.icon || 'bx-layer'}'></i>
               </div>
               <div>
-                <div class="gallery-unboxed-meta">
-                  <span>${escapeHtml(project.categoryLabel)}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>PRODUCTION READY</span>
-                </div>
                 <h4 class="gallery-list-title">${escapeHtml(project.fullTitle || project.title)}</h4>
                 <p class="gallery-list-domain">${escapeHtml(project.domain)}</p>
               </div>
@@ -204,16 +199,6 @@
             <span class="hud-corner hud-corner-bl"></span>
             <span class="hud-corner hud-corner-br"></span>
 
-            <!-- Mini Browser Chrome Top Bar -->
-            <div class="gallery-card__chrome-bar">
-              <div class="gallery-chrome-dots">
-                <span class="gallery-chrome-dot red"></span>
-                <span class="gallery-chrome-dot yellow"></span>
-                <span class="gallery-chrome-dot green"></span>
-              </div>
-              <span class="gallery-chrome-title">LIVE BLUEPRINT // MOD-${String(projectIndex + 1).padStart(2, '0')}</span>
-            </div>
-
             <!-- Card Visual Banner (16:10 Bento Aspect) -->
             <div class="gallery-card__visual">
               <img src="${imageSrc}" alt="${escapeHtml(project.title)} Preview" class="gallery-card__img" loading="lazy" onerror="this.style.display='none';">
@@ -239,22 +224,9 @@
 
             <!-- Card Content Body -->
             <div class="gallery-card__body">
-              <div class="gallery-unboxed-meta">
-                <span>${escapeHtml(project.categoryLabel)}</span>
-                <span aria-hidden="true">·</span>
-                <span>INTERACTIVE DEMO</span>
-                <span aria-hidden="true">·</span>
-                <span class="text-accent">${(project.techStack && project.techStack[0]) || 'HTML5/Tailwind'}</span>
-              </div>
-
               <h3 class="gallery-card__title">${escapeHtml(project.title)}</h3>
               <p class="gallery-card__domain">${escapeHtml(project.domain)}</p>
               <p class="gallery-card__description">${escapeHtml(project.description)}</p>
-
-              <!-- Tech Highlights -->
-              <div class="gallery-card__tags">
-                ${(project.techStack || []).map(t => `<span class="gallery-tag">${escapeHtml(t)}</span>`).join('')}
-              </div>
 
               <!-- Actions -->
               <div class="gallery-card__actions">

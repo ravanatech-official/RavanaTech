@@ -998,17 +998,23 @@ img {
 
 .system__header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 1.35rem;
 }
 
-.system__index {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--rt-cyan);
-  letter-spacing: 0.18em;
+.system__index,
+.system__status,
+.hud-circle-badge,
+.about__telemetry-bar,
+.home__attribution,
+.nav__subtitle,
+.gallery-card__chrome-bar,
+.gallery-chrome-dots,
+.gallery-chrome-title,
+.gallery-unboxed-meta,
+.gallery-card__tags {
+  display: none !important;
 }
 
 /* Circular Icon Mini-Reactor */

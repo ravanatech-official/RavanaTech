@@ -261,7 +261,117 @@ if (document.readyState === 'loading') {
     initDeckRoute();
 }
 
-/*==================== TRANSMISSION FORM DISPATCH ====================*/
+/*==================== RAPTOR 3 INTERACTIVE SOLUTION CONFIGURATOR ====================*/
+function initSolutionConfigurator() {
+    const typeButtons = document.querySelectorAll('#config-type-options .config-pill-btn');
+    const timelineButtons = document.querySelectorAll('#config-timeline-options .config-pill-btn');
+    const specSolutionName = document.getElementById('spec-solution-name');
+    const specDeliveryTime = document.getElementById('spec-delivery-time');
+    const specTechStack = document.getElementById('spec-tech-stack');
+    const specWhatsAppBtn = document.getElementById('spec-whatsapp-btn');
+    const specFormBtn = document.getElementById('spec-form-btn');
+
+    let currentType = 'Online Store';
+    let currentDelivery = '4 - 7 Business Days';
+    let currentStack = 'Ultra-Fast Cloud CDN + WhatsApp Pay';
+    let currentTimeline = 'Rush (3-5 Days)';
+
+    function updateConfiguratorOutput() {
+        if (specSolutionName) specSolutionName.textContent = currentType;
+        if (specDeliveryTime) specDeliveryTime.textContent = currentDelivery;
+        if (specTechStack) specTechStack.textContent = currentStack;
+
+        // Generate clean, high-converting WhatsApp message
+        const waMessage = encodeURIComponent(
+            `Hello Ravana Tech! I configured a project on your website:\n\n` +
+            `• Solution: ${currentType}\n` +
+            `• Preferred Timeline: ${currentTimeline}\n` +
+            `• Estimated Delivery: ${currentDelivery}\n` +
+            `• Recommended Stack: ${currentStack}\n\n` +
+            `Can we discuss the project details and pricing?`
+        );
+        const waUrl = `https://wa.me/94788470610?text=${waMessage}`;
+        if (specWhatsAppBtn) specWhatsAppBtn.href = waUrl;
+    }
+
+    typeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            typeButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            currentType = btn.getAttribute('data-type') || 'Online Store';
+            currentDelivery = btn.getAttribute('data-days') || '3-5 Days';
+            currentStack = btn.getAttribute('data-stack') || 'Modern Web Core';
+            updateConfiguratorOutput();
+        });
+    });
+
+    timelineButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            timelineButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            currentTimeline = btn.getAttribute('data-timeline') || 'Standard (1-2 Weeks)';
+            updateConfiguratorOutput();
+        });
+    });
+
+    // "USE IN CONTACT FORM" Button Handler
+    if (specFormBtn) {
+        specFormBtn.addEventListener('click', () => {
+            // Switch to Contact screen
+            if (typeof switchScreen === 'function') {
+                switchScreen('contact', true);
+            }
+
+            // Pre-select service dropdown
+            const senderSystem = document.getElementById('sender-system');
+            if (senderSystem) {
+                for (let i = 0; i < senderSystem.options.length; i++) {
+                    if (senderSystem.options[i].text.toLowerCase().includes(currentType.toLowerCase())) {
+                        senderSystem.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // Pre-fill message
+            const senderMessage = document.getElementById('sender-message');
+            if (senderMessage) {
+                senderMessage.value = `I am looking to build a ${currentType} with a ${currentTimeline} timeline.\nKey requirement: Modern, responsive design with high speed.`;
+            }
+
+            // Focus name field
+            const senderName = document.getElementById('sender-name');
+            if (senderName) {
+                setTimeout(() => senderName.focus(), 250);
+            }
+        });
+    }
+
+    // Hero "START YOUR PROJECT" Button Handler
+    const heroStartBtn = document.getElementById('hero-get-started-btn');
+    if (heroStartBtn) {
+        heroStartBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const configuratorElem = document.getElementById('quick-configurator');
+            if (configuratorElem) {
+                configuratorElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    // Initial sync
+    updateConfiguratorOutput();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSolutionConfigurator);
+} else {
+    initSolutionConfigurator();
+}
+
+/*==================== CONTACT FORM DISPATCH ====================*/
 const contactForm = document.getElementById('contact-form');
 const formFeedback = document.getElementById('form-feedback');
 
@@ -277,16 +387,27 @@ if (contactForm && formFeedback) {
 
         if (!name || !email || !message) {
             formFeedback.className = 'form__status-msg error';
-            formFeedback.textContent = '[ ERROR: ALL TELEMETRY FIELDS ARE REQUIRED ]';
+            formFeedback.textContent = 'Please fill out all required fields (Name, Email, and Message).';
             return;
         }
 
-        // Animated HUD sending state
+        // Animated sending state
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> ENCRYPTING & TRANSMITTING...";
+        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Submitting Your Inquiry...";
 
-        // 1. Attempt Firestore write if initialized
+        // 1. Submit to Backend REST API
+        try {
+            fetch('/api/inquiry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, service: system, message, source: 'website_contact_form' })
+            }).catch(e => console.warn('[API Inquiry] Deferred/Background error:', e));
+        } catch (apiErr) {
+            console.warn('[API Inquiry] Error:', apiErr);
+        }
+
+        // 2. Submit to Firestore if available
         let firestoreDocId = null;
         if (typeof window.saveInquiryToFirestore === 'function') {
             try {
@@ -301,21 +422,21 @@ if (contactForm && formFeedback) {
 
         setTimeout(() => {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> TRANSMISSION SENT";
+            submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> Inquiry Submitted";
 
             formFeedback.className = 'form__status-msg success';
-            const logIdStr = firestoreDocId ? `RECORD ID: #${firestoreDocId.substring(0, 8).toUpperCase()} • ` : '';
-            formFeedback.innerHTML = `[ TRANSMISSION LOGGED // DISPATCH CONFIRMED ]<br>${logIdStr}SYSTEM: ${system} • FREQUENCY: ${email}<br>WE WILL COMMUNICATE WITH YOU VIA SECURE PROTOCOL SHORTLY.`;
+            const recordNum = firestoreDocId ? `Reference ID: #${firestoreDocId.substring(0, 8).toUpperCase()}<br>` : '';
+            formFeedback.innerHTML = `<strong>Thank you, ${name}!</strong><br>${recordNum}Your project inquiry for <em>${system}</em> has been received. Our team will review your requirements and respond within 60 minutes.`;
 
             // Prepare instant WhatsApp Handoff CTA
-            const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a transmission from your website.\n\nName: ${name}\nDomain: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);
+            const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a project inquiry from your website.\n\nName: ${name}\nService: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);
             const waUrl = `https://wa.me/94788470610?text=${waText}`;
 
             const actionsWrap = document.createElement('div');
             actionsWrap.style.display = 'flex';
             actionsWrap.style.flexWrap = 'wrap';
             actionsWrap.style.gap = '0.5rem';
-            actionsWrap.style.marginTop = '0.65rem';
+            actionsWrap.style.marginTop = '0.75rem';
 
             const waLink = document.createElement('a');
             waLink.href = waUrl;
@@ -323,48 +444,24 @@ if (contactForm && formFeedback) {
             waLink.rel = 'noopener noreferrer';
             waLink.style.display = 'inline-flex';
             waLink.style.alignItems = 'center';
-            waLink.style.gap = '0.35rem';
-            waLink.style.padding = '0.35rem 0.75rem';
-            waLink.style.background = 'rgba(37, 211, 102, 0.15)';
-            waLink.style.border = '1px solid rgba(37, 211, 102, 0.4)';
+            waLink.style.gap = '0.4rem';
+            waLink.style.padding = '0.45rem 0.85rem';
+            waLink.style.background = '#25D366';
             waLink.style.borderRadius = '4px';
-            waLink.style.color = '#25D366';
-            waLink.style.fontSize = '0.72rem';
-            waLink.style.fontFamily = 'monospace';
+            waLink.style.color = '#000';
+            waLink.style.fontWeight = '600';
+            waLink.style.fontSize = '0.78rem';
+            waLink.style.fontFamily = 'var(--font-hud)';
             waLink.style.textDecoration = 'none';
-            waLink.innerHTML = "<i class='bx bxl-whatsapp' style='font-size:0.95rem;'></i> WHATSAPP DIRECT HANDOFF";
+            waLink.innerHTML = "<i class='bx bxl-whatsapp' style='font-size:1rem;'></i> CHAT WITH US ON WHATSAPP";
             actionsWrap.appendChild(waLink);
 
-            // Prepare mailto fallback link in case user wants immediate email client copy
-            const subject = encodeURIComponent(`[RAVANA TECH INQUIRY] - ${system} from ${name}`);
-            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nSystem Domain: ${system}\n\nProject Scope & Message:\n${message}`);
-            const mailtoUrl = `mailto:hello.ravanatech@gmail.com?subject=${subject}&body=${body}`;
-
-            const emailLink = document.createElement('a');
-            emailLink.href = mailtoUrl;
-            emailLink.target = '_blank';
-            emailLink.rel = 'noopener noreferrer';
-            emailLink.style.display = 'inline-flex';
-            emailLink.style.alignItems = 'center';
-            emailLink.style.gap = '0.35rem';
-            emailLink.style.padding = '0.35rem 0.75rem';
-            emailLink.style.background = 'rgba(0, 191, 255, 0.1)';
-            emailLink.style.border = '1px solid rgba(0, 191, 255, 0.3)';
-            emailLink.style.borderRadius = '4px';
-            emailLink.style.color = 'var(--rt-cyan-bright)';
-            emailLink.style.fontSize = '0.72rem';
-            emailLink.style.fontFamily = 'monospace';
-            emailLink.style.textDecoration = 'none';
-            emailLink.innerHTML = "<i class='bx bx-envelope' style='font-size:0.95rem;'></i> EMAIL CLIENT BACKUP";
-            actionsWrap.appendChild(emailLink);
-
             formFeedback.appendChild(actionsWrap);
-
             contactForm.reset();
 
             setTimeout(() => {
                 submitBtn.innerHTML = originalBtnText;
             }, 6000);
-        }, 1000);
+        }, 900);
     });
 }

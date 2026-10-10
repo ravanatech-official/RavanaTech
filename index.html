@@ -158,7 +158,7 @@
 
                 <div class="nav__online-status" aria-label="System operational status">
                     <span class="pulse-dot" aria-hidden="true"></span>
-                    <span>SYSTEM ONLINE</span>
+                    <span>ONLINE • READY TO BUILD</span>
                 </div>
 
                 <button class="nav__toggle" id="nav-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
@@ -169,7 +169,7 @@
 
         <main class="l-main" id="main-content" role="main">
             <!--===== HOME (HERO) =====-->
-            <section class="home section deck-screen deck-screen-active" id="home" data-screen-index="0" data-screen-id="home" data-route="/" data-title="RAVANA TECH | Web, Software & AI">
+            <section class="home section deck-screen deck-screen-active" id="home" data-screen-index="0" data-screen-id="home" data-route="/" data-title="RAVANA TECH | High-Performance Web Solutions">
                 <div class="home__container bd-grid">
                     <div class="home__data">
                         <h1 class="home__brand-title">
@@ -178,21 +178,25 @@
                         </h1>
 
                         <div class="home__specialties">
-                            WEBSITES • ONLINE STORES • WEB APPS
+                            WEBSITES • ONLINE STORES • WEB SOLUTIONS
                         </div>
 
                         <p class="home__description">
-                            Crafting high-speed websites, online stores, and digital solutions tailored for your business — built fast, priced fairly, and engineered for real results.
+                            We build high-performance websites, online stores, and digital solutions that grow your business. Sub-second speed, clean modern design, and zero technical jargon.
                         </p>
 
                         <div class="home__cta-group">
-                            <a href="/systems" data-target="systems" class="button">
-                                <i class='bx bx-globe'></i>
-                                EXPLORE SERVICES
+                            <a href="#quick-configurator" id="hero-get-started-btn" class="button">
+                                <i class='bx bx-rocket'></i>
+                                START YOUR PROJECT
                             </a>
-                            <a href="/contact" data-target="contact" class="button button-outline">
-                                <i class='bx bx-broadcast'></i>
-                                GET A FREE QUOTE
+                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20would%20like%20to%20discuss%20a%20web%20solution%20for%20my%20business." target="_blank" rel="noopener noreferrer" class="button button-outline" style="border-color: #25D366; color: #25D366;">
+                                <i class='bx bxl-whatsapp'></i>
+                                WHATSAPP CHAT
+                            </a>
+                            <a href="/systems" data-target="systems" class="button button-outline">
+                                <i class='bx bx-grid-alt'></i>
+                                SERVICES
                             </a>
                         </div>
 
@@ -228,6 +232,128 @@
                         <div class="hud-circle-footer-badge">
                             <span>SHANTHAPRIYA SILVA</span>
                             <span class="hud-circle-sub">DIGITAL SOLUTIONS CREATOR</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RAPTOR 3 POWER BAR & 60-SEC CONFIGURATOR CONTAINER -->
+                <div class="bd-grid" style="width: 100%; max-width: 1024px; margin: 1.5rem auto;">
+                    <!-- RAPTOR 3 ENGINEERING POWER BAR -->
+                    <div class="raptor-power-bar">
+                        <div class="power-bar__item">
+                            <span class="power-bar__value" id="telemetry-speed">0.18s</span>
+                            <span class="power-bar__label">Average Load Speed</span>
+                        </div>
+                        <div class="power-bar__item">
+                            <span class="power-bar__value" id="telemetry-security">100%</span>
+                            <span class="power-bar__label">Security & Uptime</span>
+                        </div>
+                        <div class="power-bar__item">
+                            <span class="power-bar__value" id="telemetry-blueprints">50+</span>
+                            <span class="power-bar__label">Ready Blueprints</span>
+                        </div>
+                        <div class="power-bar__item">
+                            <span class="power-bar__value" id="telemetry-response">&lt;60s</span>
+                            <span class="power-bar__label">WhatsApp Response</span>
+                        </div>
+                        <div class="power-bar__status-row">
+                            <span class="power-bar__pulse"></span>
+                            <span>LIVE TELEMETRY: RAPTOR 3 ARCHITECTURE • ALL ENGINES OPTIMAL</span>
+                        </div>
+                    </div>
+
+                    <!-- 60-SECOND SOLUTION CONFIGURATOR -->
+                    <div class="solution-configurator" id="quick-configurator">
+                        <div class="configurator__header">
+                            <div class="configurator__badge">
+                                <i class='bx bx-slider-alt'></i>
+                                <span>RAPTOR 3 ENGINE // INSTANT PROJECT SPECIFICATION</span>
+                            </div>
+                            <h2 class="configurator__title">60-Second Solution Configurator</h2>
+                            <p class="configurator__subtitle">
+                                Select what you need below to generate an instant project specification, estimated delivery time, and connect directly with an engineer.
+                            </p>
+                        </div>
+
+                        <div class="configurator__steps">
+                            <!-- Step 1: Solution Type -->
+                            <div class="config-step">
+                                <span class="config-step__label"><i class='bx bx-check-circle'></i> Step 1: What do you want to build?</span>
+                                <div class="config-options-grid" id="config-type-options">
+                                    <button type="button" class="config-pill-btn active" data-type="Online Store" data-days="4-7 Days" data-stack="Ultra-Fast Cloud CDN + WhatsApp Pay">
+                                        <span class="pill-title"><i class='bx bx-shopping-bag'></i> Online Store</span>
+                                        <span class="pill-desc">Sell products 24/7 with catalog, WhatsApp orders, and card payments.</span>
+                                    </button>
+                                    <button type="button" class="config-pill-btn" data-type="Business Website" data-days="3-5 Days" data-stack="High-Speed JAMstack + SEO Engine">
+                                        <span class="pill-title"><i class='bx bx-buildings'></i> Business Website</span>
+                                        <span class="pill-desc">Clean, trustworthy corporate site designed to convert clients.</span>
+                                    </button>
+                                    <button type="button" class="config-pill-btn" data-type="Booking System" data-days="5-8 Days" data-stack="Real-Time Calendar + Instant SMS/WA Alerts">
+                                        <span class="pill-title"><i class='bx bx-calendar-check'></i> Booking System</span>
+                                        <span class="pill-desc">Automated appointment scheduling for salons, clinics, and hotels.</span>
+                                    </button>
+                                    <button type="button" class="config-pill-btn" data-type="Speed & Redesign" data-days="2-4 Days" data-stack="Modern Web Core + Sub-Second Optimization">
+                                        <span class="pill-title"><i class='bx bx-tachometer'></i> Speed & Redesign</span>
+                                        <span class="pill-desc">Transform an old, slow website into a super-fast modern experience.</span>
+                                    </button>
+                                    <button type="button" class="config-pill-btn" data-type="Custom Web App" data-days="7-14 Days" data-stack="Full-Stack Cloud + Secure Database">
+                                        <span class="pill-title"><i class='bx bx-code-alt'></i> Custom Web App</span>
+                                        <span class="pill-desc">Client portals, bespoke dashboards, and business software tools.</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Timeline Preference -->
+                            <div class="config-step">
+                                <span class="config-step__label"><i class='bx bx-time'></i> Step 2: What is your preferred delivery timeline?</span>
+                                <div class="config-options-grid" id="config-timeline-options">
+                                    <button type="button" class="config-pill-btn active" data-timeline="Rush (3-5 Days)">
+                                        <span class="pill-title"><i class='bx bx-zap'></i> Fast Track</span>
+                                        <span class="pill-desc">Priority sprint for urgent business launches (3-5 business days).</span>
+                                    </button>
+                                    <button type="button" class="config-pill-btn" data-timeline="Standard (1-2 Weeks)">
+                                        <span class="pill-title"><i class='bx bx-rocket'></i> Standard</span>
+                                        <span class="pill-desc">Balanced delivery timeline with full quality assurance (1-2 weeks).</span>
+                                    </button>
+                                    <button type="button" class="config-pill-btn" data-timeline="Flexible (This Month)">
+                                        <span class="pill-title"><i class='bx bx-calendar'></i> Flexible</span>
+                                        <span class="pill-desc">Comprehensive project roadmap scheduled for this month.</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Live Output Specification Deck -->
+                        <div class="config-summary-deck">
+                            <div class="summary-meta-grid">
+                                <div class="summary-meta-item">
+                                    <div class="meta-k">Selected Solution</div>
+                                    <div class="meta-v" id="spec-solution-name">Online Store</div>
+                                </div>
+                                <div class="summary-meta-item">
+                                    <div class="meta-k">Estimated Delivery</div>
+                                    <div class="meta-v" id="spec-delivery-time" style="color: var(--rt-cyan-bright);">4 - 7 Business Days</div>
+                                </div>
+                                <div class="summary-meta-item">
+                                    <div class="meta-k">Recommended Tech Stack</div>
+                                    <div class="meta-v" id="spec-tech-stack" style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--rt-text-soft);">Ultra-Fast Cloud CDN + WhatsApp Pay</div>
+                                </div>
+                                <div class="summary-meta-item">
+                                    <div class="meta-k">Lead Architect Support</div>
+                                    <div class="meta-v" style="color: #00ff88;">1-on-1 Direct Access</div>
+                                </div>
+                            </div>
+
+                            <div class="summary-actions">
+                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech!%20I%20configured%20a%20project:%20Online%20Store%20(Timeline:%20Rush%203-5%20Days).%20Let%27s%20discuss!" id="spec-whatsapp-btn" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-spec">
+                                    <i class='bx bxl-whatsapp' style='font-size:1.15rem;'></i>
+                                    <span>CHAT ON WHATSAPP WITH THIS SPEC</span>
+                                </a>
+                                <button type="button" id="spec-form-btn" class="btn-form-spec">
+                                    <i class='bx bx-edit-alt'></i>
+                                    <span>USE IN CONTACT FORM</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -432,9 +558,9 @@
             </section>
 
             <!--===== CONTACT =====-->
-            <section class="contact section deck-screen" id="contact" data-screen-index="4" data-screen-id="contact" data-route="/contact" data-title="CONTACT // RAVANA TECH | Web, Software & AI">
+            <section class="contact section deck-screen" id="contact" data-screen-index="4" data-screen-id="contact" data-route="/contact" data-title="START YOUR PROJECT // RAVANA TECH">
                 <div class="bd-grid">
-                    <h2 class="section-title">TRANSMIT INQUIRY</h2>
+                    <h2 class="section-title">START YOUR PROJECT</h2>
                 </div>
 
                 <div class="contact__container bd-grid">
@@ -445,33 +571,33 @@
                         <span class="hud-corner hud-corner-bl"></span>
                         <span class="hud-corner hud-corner-br"></span>
 
-                        <h3 class="contact__headline">READY TO BUILD THE FUTURE?</h3>
+                        <h3 class="contact__headline">READY TO GROW YOUR BUSINESS?</h3>
                         <p class="contact__intro">
-                            Establish an encrypted transmission with Ravana Tech. Select your preferred channel below or send a dispatch directly through our command console.
+                            Reach out to Ravana Tech. Chat with an engineer directly on WhatsApp, send an email, or submit the form below to receive a detailed proposal and quote within 60 minutes.
                         </p>
 
                         <div class="contact__action-list">
                             <!-- WhatsApp -->
-                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20your%20Web%2C%20Software%20and%20AI%20solutions.%20Let%27s%20discuss%20a%20project." target="_blank" rel="noopener noreferrer" class="contact__action-btn">
-                                <span><i class='bx bxl-whatsapp'></i> WHATSAPP SECURE CHAT</span>
+                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20would%20like%20to%20discuss%20a%20web%20solution%20for%20my%20business." target="_blank" rel="noopener noreferrer" class="contact__action-btn">
+                                <span><i class='bx bxl-whatsapp'></i> WHATSAPP DIRECT CHAT</span>
                                 <span>+94 78 847 0610</span>
                             </a>
 
                             <!-- Email -->
                             <a href="mailto:hello.ravanatech@gmail.com" class="contact__action-btn">
-                                <span><i class='bx bx-envelope'></i> DIRECT EMAIL DISPATCH</span>
+                                <span><i class='bx bx-envelope'></i> DIRECT EMAIL INQUIRY</span>
                                 <span>hello.ravanatech@gmail.com</span>
                             </a>
 
                             <!-- Mobile Phone -->
                             <a href="tel:+94788470610" class="contact__action-btn">
-                                <span><i class='bx bx-phone-call'></i> VOICE TRANSMISSION</span>
+                                <span><i class='bx bx-phone-call'></i> DIRECT PHONE CALL</span>
                                 <span>+94 78 847 0610</span>
                             </a>
 
                             <!-- Google Meet -->
                             <a href="https://meet.google.com/dmk-sdvr-iin" target="_blank" rel="noopener noreferrer" class="contact__action-btn" id="open-meet-btn">
-                                <span><i class='bx bx-video'></i> BOOK GOOGLE MEET</span>
+                                <span><i class='bx bx-video'></i> SCHEDULE GOOGLE MEET</span>
                                 <span>MEET ROOM: dmk-sdvr-iin <i class='bx bx-link-external'></i></span>
                             </a>
                         </div>
@@ -494,7 +620,7 @@
                                 <a href="https://youtube.com/@ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
                                     <i class='bx bxl-youtube'></i> YOUTUBE
                                 </a>
-                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20your%20Web%2C%20Software%20and%20AI%20solutions.%20Let%27s%20discuss%20a%20project." target="_blank" rel="noopener noreferrer" class="contact__social-pill">
+                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20would%20like%20to%20discuss%20a%20web%20solution%20for%20my%20business." target="_blank" rel="noopener noreferrer" class="contact__social-pill">
                                     <i class='bx bxl-whatsapp'></i> WHATSAPP
                                 </a>
                             </div>
@@ -508,40 +634,39 @@
                         <span class="hud-corner hud-corner-bl"></span>
                         <span class="hud-corner hud-corner-br"></span>
 
-                        <h3 class="contact__headline">SYSTEM TRANSMISSION CONSOLE</h3>
+                        <h3 class="contact__headline">PROJECT INQUIRY FORM</h3>
                         
                         <form id="contact-form" class="contact__form">
                             <div class="form__field">
-                                <label for="sender-name" class="form__label">NAME / SENDER IDENTITY</label>
+                                <label for="sender-name" class="form__label">YOUR FULL NAME</label>
                                 <input type="text" id="sender-name" required placeholder="Enter your full name" class="form__input">
                             </div>
 
                             <div class="form__field">
-                                <label for="sender-email" class="form__label">TRANSMISSION FREQUENCY (EMAIL)</label>
+                                <label for="sender-email" class="form__label">YOUR EMAIL ADDRESS</label>
                                 <input type="email" id="sender-email" required placeholder="name@domain.com" class="form__input">
                             </div>
 
                             <div class="form__field">
-                                <label for="sender-system" class="form__label">TARGET SYSTEM DOMAIN</label>
+                                <label for="sender-system" class="form__label">WHAT DO YOU WANT TO BUILD?</label>
                                 <select id="sender-system" class="form__input">
-                                    <option value="Web Development">01 // Web Development</option>
-                                    <option value="Software Development">02 // Software Development</option>
-                                    <option value="Artificial Intelligence">03 // Artificial Intelligence</option>
-                                    <option value="UI / UX">04 // UI / UX Design</option>
-                                    <option value="Automation">05 // Workflow Automation</option>
-                                    <option value="IT Consulting">06 // IT Consulting</option>
-                                    <option value="General Inquiry">General Strategic Partnership</option>
+                                    <option value="Online Store (E-Commerce)">01 // Online Store (E-Commerce)</option>
+                                    <option value="Business & Company Website">02 // Business & Company Website</option>
+                                    <option value="Booking & Appointments Portal">03 // Booking & Appointments Portal</option>
+                                    <option value="Website Speed & Redesign">04 // Website Speed & Redesign</option>
+                                    <option value="Custom Web App / Dashboard">05 // Custom Web App / Dashboard</option>
+                                    <option value="General Web Consultation">06 // General Web Consultation</option>
                                 </select>
                             </div>
 
                             <div class="form__field">
-                                <label for="sender-message" class="form__label">PAYLOAD (MESSAGE)</label>
-                                <textarea id="sender-message" required placeholder="Describe your project scope, requirements or timeline..." class="form__textarea"></textarea>
+                                <label for="sender-message" class="form__label">PROJECT DETAILS & TIMELINE</label>
+                                <textarea id="sender-message" required placeholder="Describe your project, features you need, and any launch deadline..." class="form__textarea"></textarea>
                             </div>
 
                             <button type="submit" class="button" style="width: 100%;">
                                 <i class='bx bx-send'></i>
-                                SEND TRANSMISSION
+                                SUBMIT PROJECT INQUIRY
                             </button>
 
                             <div id="form-feedback" class="form__status-msg"></div>

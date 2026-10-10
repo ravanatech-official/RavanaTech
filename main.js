@@ -386,3 +386,105 @@ if (contactForm && formFeedback) {
         }, 900);
     });
 }
+
+/*==================== CYBER MATRIX DIGITAL CODE RAIN ENGINE ====================*/
+(function initMatrixRain() {
+    const canvas = document.getElementById('matrix-rain-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = 0;
+    let height = 0;
+    let columns = 0;
+    let drops = [];
+    let animationFrameId = null;
+    let lastRenderTime = 0;
+    const FPS = 33; // Ultra-smooth 33 FPS cadence (low CPU/battery footprint)
+    const FRAME_INTERVAL = 1000 / FPS;
+
+    // Characters: futuristic mix of cyber glyphs, binary, hex, and tech characters
+    const CHARACTERS = '010101RAVANATECHｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜXYZ<>{}/*#$';
+    const FONT_SIZE = 14;
+
+    function resize() {
+        const parent = canvas.parentElement;
+        if (!parent) return;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = parent.clientWidth;
+        height = parent.clientHeight;
+
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        columns = Math.floor(width / FONT_SIZE);
+        drops = [];
+        for (let i = 0; i < columns; i++) {
+            // Stagger drops randomly across viewport height
+            drops[i] = Math.floor(Math.random() * -50);
+        }
+
+        ctx.fillStyle = '#01060D';
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    function render(currentTime) {
+        animationFrameId = requestAnimationFrame(render);
+
+        if (document.hidden) return; // Pause when browser tab is inactive
+
+        const delta = currentTime - lastRenderTime;
+        if (delta < FRAME_INTERVAL) return;
+        lastRenderTime = currentTime - (delta % FRAME_INTERVAL);
+
+        // Smooth translucent fade for elegant streaming trails
+        ctx.fillStyle = 'rgba(1, 6, 13, 0.08)';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.font = `${FONT_SIZE}px "Courier New", monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS.length));
+            const x = i * FONT_SIZE;
+            const y = drops[i] * FONT_SIZE;
+
+            if (y > 0 && y < height + FONT_SIZE) {
+                // Leading character glows bright cyan/white
+                ctx.fillStyle = '#e0f9ff';
+                ctx.shadowColor = 'rgba(0, 240, 255, 0.8)';
+                ctx.shadowBlur = 6;
+                ctx.fillText(char, x, y);
+
+                // Trailing character color
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#00e1ff';
+            }
+
+            // Loop reset with staggered random intervals
+            if (y > height && Math.random() > 0.975) {
+                drops[i] = 0;
+            } else {
+                drops[i]++;
+            }
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        resize();
+    }, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            lastRenderTime = performance.now();
+        }
+    });
+
+    resize();
+    animationFrameId = requestAnimationFrame(render);
+})();

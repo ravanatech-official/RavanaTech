@@ -186,6 +186,19 @@ main:nth-of-type(1),
   box-sizing: border-box;
 }
 
+/*===== CYBER MATRIX DIGITAL CODE RAIN =====*/
+.matrix-rain-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.13;
+  mix-blend-mode: screen;
+}
+
 /* Base Deck Screen */
 .deck-screen {
   position: absolute;

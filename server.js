@@ -124,6 +124,11 @@ app.get(['/archive', '/projects.html', '/gallery', '/gallery.html'], (req, res) 
   res.sendFile(path.join(__dirname, 'projects.html'));
 });
 
+// Dedicated Full Services Screen
+app.get(['/services.html', '/all-services'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'services.html'));
+});
+
 // Clean URLs for Deck Screens
 app.get(['/', '/home', '/about', '/systems', '/projects', '/contact'], (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));

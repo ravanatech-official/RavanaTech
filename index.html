@@ -558,17 +558,17 @@
 
                     <!-- Responsive Device Frame Switcher -->
                     <div class="modal-device-controls">
-                        <button type="button" class="device-toggle-btn active" data-device="desktop" title="Desktop View (100%)">
-                            <i class='bx bx-desktop'></i>
-                            <span>DESKTOP</span>
+                        <button type="button" class="device-toggle-btn active" data-device="laptop" title="MacBook Pro">
+                            <i class='bx bx-laptop'></i>
+                            <span>MACBOOK PRO</span>
                         </button>
-                        <button type="button" class="device-toggle-btn" data-device="tablet" title="Tablet View (768px)">
+                        <button type="button" class="device-toggle-btn" data-device="tablet" title="iPad Pro">
                             <i class='bx bx-tab'></i>
-                            <span>TABLET</span>
+                            <span>IPAD PRO</span>
                         </button>
-                        <button type="button" class="device-toggle-btn" data-device="mobile" title="Mobile View (390px)">
+                        <button type="button" class="device-toggle-btn" data-device="mobile" title="iPhone 17 Pro">
                             <i class='bx bx-mobile-alt'></i>
-                            <span>MOBILE</span>
+                            <span>IPHONE 17 PRO</span>
                         </button>
                     </div>
 
@@ -594,18 +594,51 @@
 
                 <!-- Viewport Canvas with Device Frame Simulation -->
                 <div class="modal-viewport-canvas">
-                    <div class="preview-iframe-wrapper" id="preview-iframe-wrapper" data-device="desktop">
+                    <div class="preview-iframe-wrapper" id="preview-iframe-wrapper" data-device="laptop">
+                        <!-- MacBook Pro Hardware -->
+                        <div class="macbook-camera-notch" aria-hidden="true">
+                            <span class="notch-lens"></span>
+                            <span class="notch-sensor"></span>
+                        </div>
+
+                        <!-- iPad Pro Hardware -->
+                        <div class="ipad-camera-lens" aria-hidden="true"></div>
+
+                        <!-- iPhone 17 Pro Hardware -->
+                        <div class="iphone-speaker-slit" aria-hidden="true"></div>
+                        <div class="iphone-dynamic-island" aria-hidden="true">
+                            <span class="island-camera"></span>
+                            <span class="island-sensor"></span>
+                        </div>
+                        <div class="iphone-side-buttons" aria-hidden="true">
+                            <span class="btn-action"></span>
+                            <span class="btn-vol-up"></span>
+                            <span class="btn-vol-down"></span>
+                            <span class="btn-power"></span>
+                        </div>
+
                         <!-- Loading Spinner -->
                         <div class="modal-iframe-loader" id="modal-iframe-loader">
                             <div class="loader-spinner"></div>
                             <span class="loader-text">INITIALIZING INTERACTIVE ENVIRONMENT...</span>
                         </div>
-                        <iframe 
-                            id="preview-modal-iframe" 
-                            class="preview-modal-iframe" 
-                            title="Interactive Project Preview"
-                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                        ></iframe>
+
+                        <!-- Screen Viewport -->
+                        <div class="preview-screen-viewport">
+                            <iframe 
+                                id="preview-modal-iframe" 
+                                class="preview-modal-iframe" 
+                                title="Interactive Project Preview"
+                                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                            ></iframe>
+                            <!-- iOS Home Indicator -->
+                            <div class="ios-home-indicator" aria-hidden="true"></div>
+                        </div>
+
+                        <!-- MacBook Pro Chin -->
+                        <div class="macbook-chin" aria-hidden="true">
+                            <div class="macbook-thumb-groove"></div>
+                        </div>
                     </div>
                 </div>
 

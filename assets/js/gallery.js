@@ -10,7 +10,7 @@
   let viewMode = 'grid'; // 'grid' or 'list'
   let currentPage = 1;
   let currentModalIndex = -1;
-  let currentDevice = 'desktop'; // 'desktop', 'tablet', 'mobile'
+  let currentDevice = 'laptop'; // 'laptop' (MacBook Pro), 'tablet' (iPad Pro), 'mobile' (iPhone 17 Pro)
 
   const CATEGORY_DEFINITIONS = [
     { id: 'all', label: 'ALL CONCEPTS' },
@@ -430,6 +430,7 @@
   }
 
   function setDeviceViewport(device) {
+    if (device === 'desktop') device = 'laptop';
     currentDevice = device;
     const frameWrap = document.getElementById('preview-iframe-wrapper');
     const deviceButtons = document.querySelectorAll('.device-toggle-btn');
@@ -439,7 +440,8 @@
     }
 
     deviceButtons.forEach(btn => {
-      if (btn.getAttribute('data-device') === device) {
+      const btnDev = btn.getAttribute('data-device');
+      if (btnDev === device || (device === 'laptop' && btnDev === 'desktop')) {
         btn.classList.add('active');
       } else {
         btn.classList.remove('active');

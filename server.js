@@ -67,6 +67,15 @@ app.get('/api/conceptual-projects', (req, res) => {
 
 // Real-Time System Health & Telemetry Endpoint (Raptor 3 Standard)
 app.get('/api/health', (req, res) => {
+  let projectCount = 50;
+  try {
+    if (fs.existsSync(conceptualProjectsDir)) {
+      projectCount = fs.readdirSync(conceptualProjectsDir).filter(f => f.endsWith('.html')).length;
+    }
+  } catch (e) {
+    projectCount = 50;
+  }
+
   res.json({
     status: 'optimal',
     engine: 'Ravana Tech Raptor 3 Architecture',
@@ -76,7 +85,7 @@ app.get('/api/health', (req, res) => {
       loadSpeed: '<0.20s',
       securityScore: '100/100',
       activeServices: 6,
-      readyBlueprints: 50
+      readyBlueprints: projectCount
     }
   });
 });

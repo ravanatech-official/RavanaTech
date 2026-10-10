@@ -14,19 +14,47 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Check Secret Configured
-        run: |
-          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC }}" ]; then
-            echo "::error::FIREBASE_SERVICE_ACCOUNT_RAVANATEC secret is not set in Github repository Settings -> Secrets and variables -> Actions!"
-            echo "Please generate a Service Account key from Firebase Console -> Project Settings -> Service Accounts -> Generate new private key, and paste the JSON content into Github Secrets."
-            exit 1
-          fi
-
-      - name: Deploy to Firebase Hosting
+      # Mode 1: When FIREBASE_SERVICE_ACCOUNT_RAVANATEC is configured (Recommended by Google)
+      - name: Deploy via Firebase Service Account
+        if: env.HAS_SERVICE_ACCOUNT == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC }}
           channelId: live
           projectId: ravanatec
+        env:
+          HAS_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC != '' }}
+
+      # Mode 2: When FIREBASE_TOKEN is configured (Standard CLI Token fallback)
+      - name: Deploy via Firebase CLI Token
+        if: env.HAS_SERVICE_ACCOUNT != 'true' && env.HAS_FIREBASE_TOKEN == 'true'
+        run: |
+          npm install -g firebase-tools
+          firebase deploy --only hosting,firestore:rules --project ravanatec --token "${{ secrets.FIREBASE_TOKEN }}"
+        env:
+          HAS_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC != '' }}
+          HAS_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN != '' }}
+
+      # Validation & Guide if neither secret is present
+      - name: Secret Configuration Notice
+        if: env.HAS_SERVICE_ACCOUNT != 'true' && env.HAS_FIREBASE_TOKEN != 'true'
+        run: |
+          echo "::error::Neither FIREBASE_SERVICE_ACCOUNT_RAVANATEC nor FIREBASE_TOKEN secret was found in this GitHub repository!"
+          echo "------------------------------------------------------------------------"
+          echo "HOW TO ACTIVATE AUTOMATIC DEPLOYMENT IN 2 SIMPLE STEPS:"
+          echo "Option A (Fastest - 1 Minute):"
+          echo "1. On your machine run: npx firebase login:ci"
+          echo "2. Copy the token generated in terminal."
+          echo "3. Go to GitHub repo Settings -> Secrets and variables -> Actions -> New repository secret"
+          echo "4. Name: FIREBASE_TOKEN | Value: <paste copied token>"
+          echo ""
+          echo "Option B (Service Account):"
+          echo "1. Firebase Console -> Project Settings -> Service accounts -> Generate new private key"
+          echo "2. Name: FIREBASE_SERVICE_ACCOUNT_RAVANATEC | Value: <paste entire JSON contents>"
+          echo "------------------------------------------------------------------------"
+          exit 1
+        env:
+          HAS_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC != '' }}
+          HAS_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN != '' }}
 

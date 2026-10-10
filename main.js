@@ -255,10 +255,41 @@ const initDeckRoute = () => {
     const target = window.location.hash || window.location.pathname;
     switchScreen(target, false);
 };
+
+// Real-Time Dynamic Project Counter
+const updateDynamicProjectCount = async () => {
+    const statEl = document.getElementById('stats-projects-count');
+    if (!statEl) return;
+
+    try {
+        const res = await fetch('/api/conceptual-projects');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && typeof data.count === 'number' && data.count > 0) {
+                const countFormatted = data.count < 10 ? `0${data.count}` : `${data.count}`;
+                statEl.textContent = `${countFormatted}+`;
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn('[PROJECT STATS] API fetch deferred:', e);
+    }
+
+    if (window.CONCEPTUAL_PROJECTS && window.CONCEPTUAL_PROJECTS.length > 0) {
+        const localCount = window.CONCEPTUAL_PROJECTS.length;
+        const countFormatted = localCount < 10 ? `0${localCount}` : `${localCount}`;
+        statEl.textContent = `${countFormatted}+`;
+    }
+};
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDeckRoute);
+    document.addEventListener('DOMContentLoaded', () => {
+        initDeckRoute();
+        updateDynamicProjectCount();
+    });
 } else {
     initDeckRoute();
+    updateDynamicProjectCount();
 }
 
 /*==================== CONTACT FORM DISPATCH ====================*/

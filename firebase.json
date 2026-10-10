@@ -70,6 +70,18 @@
         "destination": "/projects.html"
       },
       {
+        "source": "/archive",
+        "destination": "/projects.html"
+      },
+      {
+        "source": "/services",
+        "destination": "/services.html"
+      },
+      {
+        "source": "/all-services",
+        "destination": "/services.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

@@ -145,6 +145,25 @@ app.post('/api/inquiry', (req, res) => {
 // Serve all static files from root directory with high-speed caching
 app.use(express.static(__dirname, staticCacheOptions));
 
+// Explicit Favicon Routes for 100% Cross-Browser Tab Compatibility
+app.get('/favicon.ico', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.type('image/x-icon');
+  res.sendFile(path.join(__dirname, 'favicon.ico'));
+});
+
+app.get('/favicon.png', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.type('image/png');
+  res.sendFile(path.join(__dirname, 'favicon.png'));
+});
+
+app.get('/favicon.svg', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.type('image/svg+xml');
+  res.sendFile(path.join(__dirname, 'favicon.svg'));
+});
+
 // Dedicated Projects Archive Screen
 app.get(['/archive', '/projects.html', '/gallery', '/gallery.html'], (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');

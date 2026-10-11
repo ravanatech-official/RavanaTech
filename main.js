@@ -37,11 +37,11 @@ navLinks.forEach(n => n.addEventListener('click', linkAction));
 
 /*==================== ZERO-SCROLL DECK COMMAND ENGINE ====================*/
 const SCREENS = [
-    { id: 'home', route: '/', label: 'HOME', title: 'RAVANA TECH | Web, Software & AI' },
-    { id: 'about', route: '/about', label: 'ABOUT', title: 'ABOUT // RAVANA TECH | Web, Software & AI' },
-    { id: 'systems', route: '/systems', label: 'SYSTEMS', title: 'SYSTEMS // RAVANA TECH | Web, Software & AI' },
-    { id: 'projects', route: '/projects', label: 'PROJECTS', title: 'PROJECTS // RAVANA TECH | Web, Software & AI' },
-    { id: 'contact', route: '/contact', label: 'CONTACT', title: 'CONTACT // RAVANA TECH | Web, Software & AI' }
+    { id: 'home', route: '/', label: 'HOME', title: 'Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'about', route: '/about', label: 'ABOUT', title: 'ABOUT // Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'systems', route: '/systems', label: 'SYSTEMS', title: 'SERVICES // Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'projects', route: '/projects', label: 'PROJECTS', title: 'PROJECTS // Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'contact', route: '/contact', label: 'CONTACT', title: 'CONTACT // Ravana Tech - Your Digital Solutions Creator' }
 ];
 
 let currentScreenIndex = 0;

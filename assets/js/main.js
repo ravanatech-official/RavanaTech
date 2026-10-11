@@ -37,11 +37,11 @@ navLinks.forEach(n => n.addEventListener('click', linkAction));
 
 /*==================== ZERO-SCROLL DECK COMMAND ENGINE ====================*/
 const SCREENS = [
-    { id: 'home', route: '/', label: 'HOME', title: 'RAVANA TECH | Web, Software & AI' },
-    { id: 'about', route: '/about', label: 'ABOUT', title: 'ABOUT // RAVANA TECH | Web, Software & AI' },
-    { id: 'systems', route: '/systems', label: 'SYSTEMS', title: 'SYSTEMS // RAVANA TECH | Web, Software & AI' },
-    { id: 'projects', route: '/projects', label: 'PROJECTS', title: 'PROJECTS // RAVANA TECH | Web, Software & AI' },
-    { id: 'contact', route: '/contact', label: 'CONTACT', title: 'CONTACT // RAVANA TECH | Web, Software & AI' }
+    { id: 'home', route: '/', label: 'HOME', title: 'Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'about', route: '/about', label: 'ABOUT', title: 'ABOUT // Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'systems', route: '/systems', label: 'SYSTEMS', title: 'SERVICES // Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'projects', route: '/projects', label: 'PROJECTS', title: 'PROJECTS // Ravana Tech - Your Digital Solutions Creator' },
+    { id: 'contact', route: '/contact', label: 'CONTACT', title: 'CONTACT // Ravana Tech - Your Digital Solutions Creator' }
 ];
 
 let currentScreenIndex = 0;
@@ -255,13 +255,44 @@ const initDeckRoute = () => {
     const target = window.location.hash || window.location.pathname;
     switchScreen(target, false);
 };
+
+// Real-Time Dynamic Project Counter
+const updateDynamicProjectCount = async () => {
+    const statEl = document.getElementById('stats-projects-count');
+    if (!statEl) return;
+
+    try {
+        const res = await fetch('/api/conceptual-projects');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && typeof data.count === 'number' && data.count > 0) {
+                const countFormatted = data.count < 10 ? `0${data.count}` : `${data.count}`;
+                statEl.textContent = `${countFormatted}+`;
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn('[PROJECT STATS] API fetch deferred:', e);
+    }
+
+    if (window.CONCEPTUAL_PROJECTS && window.CONCEPTUAL_PROJECTS.length > 0) {
+        const localCount = window.CONCEPTUAL_PROJECTS.length;
+        const countFormatted = localCount < 10 ? `0${localCount}` : `${localCount}`;
+        statEl.textContent = `${countFormatted}+`;
+    }
+};
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDeckRoute);
+    document.addEventListener('DOMContentLoaded', () => {
+        initDeckRoute();
+        updateDynamicProjectCount();
+    });
 } else {
     initDeckRoute();
+    updateDynamicProjectCount();
 }
 
-/*==================== TRANSMISSION FORM DISPATCH ====================*/
+/*==================== CONTACT FORM DISPATCH ====================*/
 const contactForm = document.getElementById('contact-form');
 const formFeedback = document.getElementById('form-feedback');
 
@@ -277,16 +308,27 @@ if (contactForm && formFeedback) {
 
         if (!name || !email || !message) {
             formFeedback.className = 'form__status-msg error';
-            formFeedback.textContent = '[ ERROR: ALL TELEMETRY FIELDS ARE REQUIRED ]';
+            formFeedback.textContent = 'Please fill out all required fields (Name, Email, and Message).';
             return;
         }
 
-        // Animated HUD sending state
+        // Animated sending state
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> ENCRYPTING & TRANSMITTING...";
+        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Submitting Your Inquiry...";
 
-        // 1. Attempt Firestore write if initialized
+        // 1. Submit to Backend REST API
+        try {
+            fetch('/api/inquiry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, service: system, message, source: 'website_contact_form' })
+            }).catch(e => console.warn('[API Inquiry] Deferred/Background error:', e));
+        } catch (apiErr) {
+            console.warn('[API Inquiry] Error:', apiErr);
+        }
+
+        // 2. Submit to Firestore if available
         let firestoreDocId = null;
         if (typeof window.saveInquiryToFirestore === 'function') {
             try {
@@ -301,21 +343,21 @@ if (contactForm && formFeedback) {
 
         setTimeout(() => {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> TRANSMISSION SENT";
+            submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> Inquiry Submitted";
 
             formFeedback.className = 'form__status-msg success';
-            const logIdStr = firestoreDocId ? `RECORD ID: #${firestoreDocId.substring(0, 8).toUpperCase()} • ` : '';
-            formFeedback.innerHTML = `[ TRANSMISSION LOGGED // DISPATCH CONFIRMED ]<br>${logIdStr}SYSTEM: ${system} • FREQUENCY: ${email}<br>WE WILL COMMUNICATE WITH YOU VIA SECURE PROTOCOL SHORTLY.`;
+            const recordNum = firestoreDocId ? `Reference ID: #${firestoreDocId.substring(0, 8).toUpperCase()}<br>` : '';
+            formFeedback.innerHTML = `<strong>Thank you, ${name}!</strong><br>${recordNum}Your project inquiry for <em>${system}</em> has been received. Our team will review your requirements and respond within 60 minutes.`;
 
             // Prepare instant WhatsApp Handoff CTA
-            const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a transmission from your website.\n\nName: ${name}\nDomain: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);
+            const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a project inquiry from your website.\n\nName: ${name}\nService: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);
             const waUrl = `https://wa.me/94788470610?text=${waText}`;
 
             const actionsWrap = document.createElement('div');
             actionsWrap.style.display = 'flex';
             actionsWrap.style.flexWrap = 'wrap';
             actionsWrap.style.gap = '0.5rem';
-            actionsWrap.style.marginTop = '0.65rem';
+            actionsWrap.style.marginTop = '0.75rem';
 
             const waLink = document.createElement('a');
             waLink.href = waUrl;
@@ -323,48 +365,157 @@ if (contactForm && formFeedback) {
             waLink.rel = 'noopener noreferrer';
             waLink.style.display = 'inline-flex';
             waLink.style.alignItems = 'center';
-            waLink.style.gap = '0.35rem';
-            waLink.style.padding = '0.35rem 0.75rem';
-            waLink.style.background = 'rgba(37, 211, 102, 0.15)';
-            waLink.style.border = '1px solid rgba(37, 211, 102, 0.4)';
+            waLink.style.gap = '0.4rem';
+            waLink.style.padding = '0.45rem 0.85rem';
+            waLink.style.background = '#25D366';
             waLink.style.borderRadius = '4px';
-            waLink.style.color = '#25D366';
-            waLink.style.fontSize = '0.72rem';
-            waLink.style.fontFamily = 'monospace';
+            waLink.style.color = '#000';
+            waLink.style.fontWeight = '600';
+            waLink.style.fontSize = '0.78rem';
+            waLink.style.fontFamily = 'var(--font-hud)';
             waLink.style.textDecoration = 'none';
-            waLink.innerHTML = "<i class='bx bxl-whatsapp' style='font-size:0.95rem;'></i> WHATSAPP DIRECT HANDOFF";
+            waLink.innerHTML = "<i class='bx bxl-whatsapp' style='font-size:1rem;'></i> CHAT WITH US ON WHATSAPP";
             actionsWrap.appendChild(waLink);
 
-            // Prepare mailto fallback link in case user wants immediate email client copy
-            const subject = encodeURIComponent(`[RAVANA TECH INQUIRY] - ${system} from ${name}`);
-            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nSystem Domain: ${system}\n\nProject Scope & Message:\n${message}`);
-            const mailtoUrl = `mailto:hello.ravanatech@gmail.com?subject=${subject}&body=${body}`;
-
-            const emailLink = document.createElement('a');
-            emailLink.href = mailtoUrl;
-            emailLink.target = '_blank';
-            emailLink.rel = 'noopener noreferrer';
-            emailLink.style.display = 'inline-flex';
-            emailLink.style.alignItems = 'center';
-            emailLink.style.gap = '0.35rem';
-            emailLink.style.padding = '0.35rem 0.75rem';
-            emailLink.style.background = 'rgba(0, 191, 255, 0.1)';
-            emailLink.style.border = '1px solid rgba(0, 191, 255, 0.3)';
-            emailLink.style.borderRadius = '4px';
-            emailLink.style.color = 'var(--rt-cyan-bright)';
-            emailLink.style.fontSize = '0.72rem';
-            emailLink.style.fontFamily = 'monospace';
-            emailLink.style.textDecoration = 'none';
-            emailLink.innerHTML = "<i class='bx bx-envelope' style='font-size:0.95rem;'></i> EMAIL CLIENT BACKUP";
-            actionsWrap.appendChild(emailLink);
-
             formFeedback.appendChild(actionsWrap);
-
             contactForm.reset();
 
             setTimeout(() => {
                 submitBtn.innerHTML = originalBtnText;
             }, 6000);
-        }, 1000);
+        }, 900);
     });
 }
+
+/*==================== CYBER MATRIX DIGITAL CODE RAIN ENGINE ====================*/
+(function initMatrixRain() {
+    const canvas = document.getElementById('matrix-rain-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = 0;
+    let height = 0;
+    let columns = 0;
+    let drops = [];
+    let animationFrameId = null;
+    let lastRenderTime = 0;
+    const FPS = 33; // Ultra-smooth 33 FPS cadence (low CPU/battery footprint)
+    const FRAME_INTERVAL = 1000 / FPS;
+
+    // Characters: futuristic mix of cyber glyphs, binary, hex, and tech characters
+    const CHARACTERS = '010101RAVANATECHｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜXYZ<>{}/*#$';
+    const FONT_SIZE = 14;
+
+    function resize() {
+        const parent = canvas.parentElement;
+        if (!parent) return;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = parent.clientWidth;
+        height = parent.clientHeight;
+
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        columns = Math.floor(width / FONT_SIZE);
+        drops = [];
+        for (let i = 0; i < columns; i++) {
+            // Stagger drops randomly across viewport height
+            drops[i] = Math.floor(Math.random() * -50);
+        }
+
+        ctx.fillStyle = '#01060D';
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    function render(currentTime) {
+        animationFrameId = requestAnimationFrame(render);
+
+        if (document.hidden) return; // Pause when browser tab is inactive
+
+        const delta = currentTime - lastRenderTime;
+        if (delta < FRAME_INTERVAL) return;
+        lastRenderTime = currentTime - (delta % FRAME_INTERVAL);
+
+        // Smooth translucent fade for elegant streaming trails
+        ctx.fillStyle = 'rgba(1, 6, 13, 0.08)';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.font = `${FONT_SIZE}px "Courier New", monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS.length));
+            const x = i * FONT_SIZE;
+            const y = drops[i] * FONT_SIZE;
+
+            if (y > 0 && y < height + FONT_SIZE) {
+                // Leading character glows bright cyan/white
+                ctx.fillStyle = '#e0f9ff';
+                ctx.shadowColor = 'rgba(0, 240, 255, 0.8)';
+                ctx.shadowBlur = 6;
+                ctx.fillText(char, x, y);
+
+                // Trailing character color
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#00e1ff';
+            }
+
+            // Loop reset with staggered random intervals
+            if (y > height && Math.random() > 0.975) {
+                drops[i] = 0;
+            } else {
+                drops[i]++;
+            }
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        resize();
+    }, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            lastRenderTime = performance.now();
+        }
+    });
+
+    resize();
+    animationFrameId = requestAnimationFrame(render);
+})();
+
+/*==================== INSTANT ZERO-LATENCY PREFETCHER ====================*/
+(function initInstantPrefetch() {
+    const prefetchedUrls = new Set();
+    function prefetchUrl(url) {
+        if (!url || prefetchedUrls.has(url) || url.startsWith('#') || url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('https://wa.me')) return;
+        try {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            link.as = 'document';
+            document.head.appendChild(link);
+            prefetchedUrls.add(url);
+        } catch (e) {}
+    }
+
+    // Prefetch on intent (pointerenter / touchstart) for instant sub-millisecond perceived loads
+    document.addEventListener('mouseover', (e) => {
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.href && anchor.origin === window.location.origin) {
+            prefetchUrl(anchor.getAttribute('href'));
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchstart', (e) => {
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.href && anchor.origin === window.location.origin) {
+            prefetchUrl(anchor.getAttribute('href'));
+        }
+    }, { passive: true });
+})();

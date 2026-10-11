@@ -12,37 +12,54 @@ const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
 // Global Industrial Standards: Gzip Compression & JSON Parsing Middleware
-app.use(compression());
+app.use(compression({ level: 6, threshold: 512 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Global Industrial Standards: Security Headers Middleware
+// Global Industrial Standards: Security Headers & Performance Middleware
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Timing-Allow-Origin', '*');
   next();
 });
 
+// High-Speed Static Caching Strategy: Instant Disk/Memory retrieval for client
+const staticCacheOptions = {
+  maxAge: '30d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.match(/\.(jpg|jpeg|png|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (filePath.match(/\.(css|js)$/i)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+    } else if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    }
+  }
+};
+
 // Serve assets folder
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/assets', express.static(path.join(__dirname, 'assets'), staticCacheOptions));
 
 // Static asset alias fallbacks
-app.use('/assets/css', express.static(path.join(__dirname, 'assets/css')));
-app.use('/assets/css', express.static(__dirname));
-app.use('/assets/js', express.static(path.join(__dirname, 'assets/js')));
-app.use('/assets/js', express.static(__dirname));
-app.use('/assets/img', express.static(path.join(__dirname, 'assets/img')));
-app.use('/assets/img', express.static(__dirname));
+app.use('/assets/css', express.static(path.join(__dirname, 'assets/css'), staticCacheOptions));
+app.use('/assets/css', express.static(__dirname, staticCacheOptions));
+app.use('/assets/js', express.static(path.join(__dirname, 'assets/js'), staticCacheOptions));
+app.use('/assets/js', express.static(__dirname, staticCacheOptions));
+app.use('/assets/img', express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
+app.use('/assets/img', express.static(__dirname, staticCacheOptions));
 
 // Serve files from assets/img at root path as well (for image 01.jpg, etc.)
-app.use(express.static(path.join(__dirname, 'assets/img')));
+app.use(express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
 
 // Serve conceptual projects directory directly under multiple common route paths
 const conceptualProjectsDir = path.join(__dirname, 'conceptual projects');
-app.use('/conceptual projects', express.static(conceptualProjectsDir));
-app.use('/conceptual-projects', express.static(conceptualProjectsDir));
-app.use('/conceptual%20projects', express.static(conceptualProjectsDir));
+app.use('/conceptual projects', express.static(conceptualProjectsDir, staticCacheOptions));
+app.use('/conceptual-projects', express.static(conceptualProjectsDir, staticCacheOptions));
+app.use('/conceptual%20projects', express.static(conceptualProjectsDir, staticCacheOptions));
 
 // API route to list all conceptual projects
 app.get('/api/conceptual-projects', (req, res) => {
@@ -125,26 +142,30 @@ app.post('/api/inquiry', (req, res) => {
   }
 });
 
-// Serve all static files from root directory
-app.use(express.static(__dirname));
+// Serve all static files from root directory with high-speed caching
+app.use(express.static(__dirname, staticCacheOptions));
 
 // Dedicated Projects Archive Screen
 app.get(['/archive', '/projects.html', '/gallery', '/gallery.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   res.sendFile(path.join(__dirname, 'projects.html'));
 });
 
 // Dedicated Full Services Screen
 app.get(['/services.html', '/all-services'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   res.sendFile(path.join(__dirname, 'services.html'));
 });
 
 // Clean URLs for Deck Screens
 app.get(['/', '/home', '/about', '/systems', '/projects', '/contact'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Fallback to index.html for navigation
 app.get('*', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

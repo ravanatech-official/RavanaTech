@@ -488,3 +488,34 @@ if (contactForm && formFeedback) {
     resize();
     animationFrameId = requestAnimationFrame(render);
 })();
+
+/*==================== INSTANT ZERO-LATENCY PREFETCHER ====================*/
+(function initInstantPrefetch() {
+    const prefetchedUrls = new Set();
+    function prefetchUrl(url) {
+        if (!url || prefetchedUrls.has(url) || url.startsWith('#') || url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('https://wa.me')) return;
+        try {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            link.as = 'document';
+            document.head.appendChild(link);
+            prefetchedUrls.add(url);
+        } catch (e) {}
+    }
+
+    // Prefetch on intent (pointerenter / touchstart) for instant sub-millisecond perceived loads
+    document.addEventListener('mouseover', (e) => {
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.href && anchor.origin === window.location.origin) {
+            prefetchUrl(anchor.getAttribute('href'));
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchstart', (e) => {
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.href && anchor.origin === window.location.origin) {
+            prefetchUrl(anchor.getAttribute('href'));
+        }
+    }, { passive: true });
+})();

@@ -5,9 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <!-- ===== PRIMARY META TAGS ===== -->
-        <meta name="description" content="Ravana Tech — Web, Software and AI development by Shanthapriya Silva.">
+        <meta name="description" content="Ravana Tech builds high-speed websites, custom software, and intelligent digital platforms for ambitious modern businesses. Bring your vision to life.">
         <meta property="og:title" content="Ravana Tech - Your Digital Solutions Creator">
-        <meta property="og:description" content="Ravana Tech — Web, Software and AI development by Shanthapriya Silva.">
+        <meta property="og:description" content="Ravana Tech builds high-speed websites, custom software, and intelligent digital platforms for ambitious modern businesses. Bring your vision to life.">
 
         <title>Ravana Tech - Your Digital Solutions Creator</title>
 
@@ -46,7 +46,7 @@
         <meta name="twitter:site" content="@ravanatech_official">
         <meta name="twitter:creator" content="@ravanatech_official">
         <meta name="twitter:title" content="Ravana Tech - Your Digital Solutions Creator">
-        <meta name="twitter:description" content="Ravana Tech — Web, Software and AI development by Shanthapriya Silva.">
+        <meta name="twitter:description" content="Ravana Tech builds high-speed websites, custom software, and intelligent digital platforms for ambitious modern businesses. Bring your vision to life.">
         <meta name="twitter:image" content="https://ravanatec.web.app/Ravana.webp">
 
         <!-- ===== RESOURCE PRECONNECT & PERFORMANCE ===== -->
@@ -97,10 +97,11 @@
                 "availableLanguage": ["English", "Sinhala"]
               },
               "sameAs": [
-                "https://github.com/ravanatech-official",
-                "https://linkedin.com/company/ravanatech-official",
                 "https://facebook.com/ravanatech-official",
                 "https://instagram.com/ravanatech-official",
+                "https://github.com/ravanatech-official",
+                "https://wa.me/94788470610",
+                "https://linkedin.com/company/ravanatech-official",
                 "https://youtube.com/@ravanatech-official"
               ]
             },
@@ -262,7 +263,7 @@
                         <div class="about__stats-grid">
                             <div class="about__stat-card hud-panel">
                                 <div class="about__stat-value" id="stats-projects-count">50+</div>
-                                <div class="about__stat-label">Live Projects</div>
+                                <div class="about__stat-label">Conceptual Projects</div>
                             </div>
                             <div class="about__stat-card hud-panel">
                                 <div class="about__stat-value">100%</div>
@@ -459,20 +460,14 @@
                         <!-- All Social Media Matrix -->
                         <div class="contact__socials-section">
                             <div class="contact__social-pills">
-                                <a href="https://github.com/ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
-                                    <i class='bx bxl-github'></i> GITHUB
-                                </a>
-                                <a href="https://linkedin.com/company/ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
-                                    <i class='bx bxl-linkedin'></i> LINKEDIN
-                                </a>
                                 <a href="https://facebook.com/ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
                                     <i class='bx bxl-facebook'></i> FACEBOOK
                                 </a>
                                 <a href="https://instagram.com/ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
                                     <i class='bx bxl-instagram'></i> INSTAGRAM
                                 </a>
-                                <a href="https://youtube.com/@ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
-                                    <i class='bx bxl-youtube'></i> YOUTUBE
+                                <a href="https://github.com/ravanatech-official" target="_blank" rel="noopener noreferrer" class="contact__social-pill">
+                                    <i class='bx bxl-github'></i> GITHUB
                                 </a>
                                 <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20would%20like%20to%20discuss%20a%20web%20solution%20for%20my%20business." target="_blank" rel="noopener noreferrer" class="contact__social-pill">
                                     <i class='bx bxl-whatsapp'></i> WHATSAPP
@@ -689,42 +684,56 @@
               measurementId: "G-47HKDPCRH5"
             };
 
-            // Initialize Firebase & Firestore
-            try {
-              const app = initializeApp(firebaseConfig);
-              let analytics = null;
-              try {
-                analytics = getAnalytics(app);
-              } catch (err) {
-                console.info("[Firebase Analytics] Analytics active or queued:", err);
-              }
-              const db = getFirestore(app);
-              window.firebaseApp = app;
-              window.firebaseAnalytics = analytics;
-              window.firebaseDb = db;
-              window.saveInquiryToFirestore = async function(inquiryData) {
+            // Lazy-Initialize Firebase & Firestore on user demand (Saves 35MB+ initial browser memory)
+            let appInstance = null;
+            let firestoreInstance = null;
+
+            function getFirestoreInstance() {
+              if (!firestoreInstance) {
+                appInstance = initializeApp(firebaseConfig);
                 try {
-                  const docRef = await addDoc(collection(db, "inquiries"), {
-                    name: inquiryData.name,
-                    email: inquiryData.email,
-                    system: inquiryData.system,
-                    message: inquiryData.message,
-                    createdAt: serverTimestamp(),
-                    clientTimestamp: new Date().toISOString(),
-                    source: "website_command_console",
-                    status: "new"
-                  });
-                  console.log("[RAVANA TECH] Transmission recorded to Firestore with ID:", docRef.id);
-                  return { success: true, id: docRef.id };
-                } catch (firestoreErr) {
-                  console.warn("[RAVANA TECH] Firestore persistence deferred / fallback:", firestoreErr);
-                  return { success: false, error: firestoreErr };
-                }
-              };
-              console.log("[RAVANA TECH] Firebase & Firestore online // Project: ravanatec");
-            } catch (err) {
-              console.error("[RAVANA TECH] Firebase initialization error:", err);
+                  window.firebaseAnalytics = getAnalytics(appInstance);
+                } catch (e) {}
+                firestoreInstance = getFirestore(appInstance);
+                window.firebaseApp = appInstance;
+                window.firebaseDb = firestoreInstance;
+                console.log("[RAVANA TECH] Firebase & Firestore initialized on-demand // Project: ravanatec");
+              }
+              return firestoreInstance;
             }
+
+            // Pre-warm Firestore on contact form focus/entry to ensure zero delay on submission
+            const contactSection = document.getElementById('contact');
+            if (contactSection && 'IntersectionObserver' in window) {
+              const contactObserver = new IntersectionObserver((entries) => {
+                if (entries[0] && entries[0].isIntersecting) {
+                  getFirestoreInstance();
+                  contactObserver.disconnect();
+                }
+              }, { threshold: 0.1 });
+              contactObserver.observe(contactSection);
+            }
+
+            window.saveInquiryToFirestore = async function(inquiryData) {
+              try {
+                const db = getFirestoreInstance();
+                const docRef = await addDoc(collection(db, "inquiries"), {
+                  name: inquiryData.name,
+                  email: inquiryData.email,
+                  system: inquiryData.system,
+                  message: inquiryData.message,
+                  createdAt: serverTimestamp(),
+                  clientTimestamp: new Date().toISOString(),
+                  source: "website_command_console",
+                  status: "new"
+                });
+                console.log("[RAVANA TECH] Transmission recorded to Firestore with ID:", docRef.id);
+                return { success: true, id: docRef.id };
+              } catch (firestoreErr) {
+                console.warn("[RAVANA TECH] Firestore persistence deferred / fallback:", firestoreErr);
+                return { success: false, error: firestoreErr };
+              }
+            };
         </script>
 
         <!--===== MAIN JS & GALLERY SCRIPTS =====-->

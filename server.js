@@ -11,10 +11,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
-// Global Industrial Standards: Gzip Compression & JSON Parsing Middleware
-app.use(compression({ level: 6, threshold: 512 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Global Industrial Standards: Optimized Gzip Compression & Low-Memory Footprint
+app.use(compression({ level: 5, threshold: 1024, memLevel: 7 }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
 // Global Industrial Standards: Security Headers & Performance Middleware
 app.use((req, res, next) => {

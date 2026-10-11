@@ -115,7 +115,10 @@ function switchScreen(target, updateHistory = true) {
     // 6. Update Document Title
     document.title = nextScreen.title;
 
-    // 7. Close Mobile Menu if open
+    // 7. Dispatch Screen Change Event for Subsystem Memory Optimization
+    window.dispatchEvent(new CustomEvent('screenchange', { detail: { screenId: nextScreen.id, index: nextIndex } }));
+
+    // 8. Close Mobile Menu if open
     const navMenu = document.getElementById('nav-menu');
     const navToggle = document.getElementById('nav-toggle');
     if (navMenu && navMenu.classList.contains('show')) {
@@ -387,12 +390,12 @@ if (contactForm && formFeedback) {
     });
 }
 
-/*==================== CYBER MATRIX DIGITAL CODE RAIN ENGINE ====================*/
+/*==================== CYBER MATRIX DIGITAL CODE RAIN ENGINE (OPTIMIZED) ====================*/
 (function initMatrixRain() {
     const canvas = document.getElementById('matrix-rain-canvas');
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
     if (!ctx) return;
 
     let width = 0;
@@ -401,7 +404,10 @@ if (contactForm && formFeedback) {
     let drops = [];
     let animationFrameId = null;
     let lastRenderTime = 0;
-    const FPS = 33; // Ultra-smooth 33 FPS cadence (low CPU/battery footprint)
+    let isRunning = false;
+    let isHomeScreenActive = (currentScreenIndex === 0);
+
+    const FPS = 28; // Optimized cadence for silky smooth visual cyber effect with ultra-low CPU/RAM footprint
     const FRAME_INTERVAL = 1000 / FPS;
 
     // Characters: futuristic mix of cyber glyphs, binary, hex, and tech characters
@@ -412,22 +418,19 @@ if (contactForm && formFeedback) {
         const parent = canvas.parentElement;
         if (!parent) return;
 
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        width = parent.clientWidth;
-        height = parent.clientHeight;
+        // Cap DPR to 1 for background ambient canvas to save up to 75% GPU and RAM buffer memory
+        width = parent.clientWidth || window.innerWidth;
+        height = parent.clientHeight || window.innerHeight;
 
-        canvas.width = Math.floor(width * dpr);
-        canvas.height = Math.floor(height * dpr);
+        canvas.width = Math.floor(width);
+        canvas.height = Math.floor(height);
         canvas.style.width = width + 'px';
         canvas.style.height = height + 'px';
-
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         columns = Math.floor(width / FONT_SIZE);
         drops = [];
         for (let i = 0; i < columns; i++) {
-            // Stagger drops randomly across viewport height
-            drops[i] = Math.floor(Math.random() * -50);
+            drops[i] = Math.floor(Math.random() * -40);
         }
 
         ctx.fillStyle = '#01060D';
@@ -435,16 +438,18 @@ if (contactForm && formFeedback) {
     }
 
     function render(currentTime) {
+        if (!isRunning) return;
+
         animationFrameId = requestAnimationFrame(render);
 
-        if (document.hidden) return; // Pause when browser tab is inactive
+        if (document.hidden || !isHomeScreenActive) return;
 
         const delta = currentTime - lastRenderTime;
         if (delta < FRAME_INTERVAL) return;
         lastRenderTime = currentTime - (delta % FRAME_INTERVAL);
 
         // Smooth translucent fade for elegant streaming trails
-        ctx.fillStyle = 'rgba(1, 6, 13, 0.08)';
+        ctx.fillStyle = 'rgba(1, 6, 13, 0.09)';
         ctx.fillRect(0, 0, width, height);
 
         ctx.font = `${FONT_SIZE}px "Courier New", monospace`;
@@ -455,14 +460,11 @@ if (contactForm && formFeedback) {
             const y = drops[i] * FONT_SIZE;
 
             if (y > 0 && y < height + FONT_SIZE) {
-                // Leading character glows bright cyan/white
-                ctx.fillStyle = '#e0f9ff';
-                ctx.shadowColor = 'rgba(0, 240, 255, 0.8)';
-                ctx.shadowBlur = 6;
+                // High-performance direct glyph rendering without shadowBlur memory thrashing
+                ctx.fillStyle = '#ffffff';
                 ctx.fillText(char, x, y);
 
                 // Trailing character color
-                ctx.shadowBlur = 0;
                 ctx.fillStyle = '#00e1ff';
             }
 
@@ -475,25 +477,71 @@ if (contactForm && formFeedback) {
         }
     }
 
+    function startAnimation() {
+        if (isRunning) return;
+        isRunning = true;
+        lastRenderTime = performance.now();
+        animationFrameId = requestAnimationFrame(render);
+    }
+
+    function stopAnimation() {
+        if (!isRunning) return;
+        isRunning = false;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+    }
+
+    // Pause when switching away from Home screen; resume when returning
+    window.addEventListener('screenchange', (e) => {
+        const isHome = e.detail && e.detail.screenId === 'home';
+        isHomeScreenActive = isHome;
+        if (isHome && !document.hidden) {
+            startAnimation();
+        } else {
+            stopAnimation();
+        }
+    });
+
+    // Pause when tab is inactive / hidden
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopAnimation();
+        } else if (isHomeScreenActive) {
+            startAnimation();
+        }
+    });
+
     window.addEventListener('resize', () => {
         resize();
     }, { passive: true });
 
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-            lastRenderTime = performance.now();
-        }
-    });
-
     resize();
-    animationFrameId = requestAnimationFrame(render);
+    if (isHomeScreenActive && !document.hidden) {
+        startAnimation();
+    }
 })();
 
-/*==================== INSTANT ZERO-LATENCY PREFETCHER ====================*/
+/*==================== INSTANT ZERO-LATENCY PREFETCHER (MEMORY-SAFE) ====================*/
 (function initInstantPrefetch() {
     const prefetchedUrls = new Set();
+    const ALLOWED_PREFETCH = new Set([
+        '/',
+        '/home',
+        '/about',
+        '/systems',
+        '/projects',
+        '/contact',
+        '/services.html',
+        '/projects.html'
+    ]);
+
     function prefetchUrl(url) {
-        if (!url || prefetchedUrls.has(url) || url.startsWith('#') || url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('https://wa.me')) return;
+        if (!url || prefetchedUrls.has(url)) return;
+        // Strictly prevent prefetching heavy multi-megabyte project files into memory
+        if (!ALLOWED_PREFETCH.has(url)) return;
+
         try {
             const link = document.createElement('link');
             link.rel = 'prefetch';
@@ -504,18 +552,14 @@ if (contactForm && formFeedback) {
         } catch (e) {}
     }
 
-    // Prefetch on intent (pointerenter / touchstart) for instant sub-millisecond perceived loads
+    // Prefetch only on intentional navigation cues
     document.addEventListener('mouseover', (e) => {
         const anchor = e.target.closest('a');
-        if (anchor && anchor.href && anchor.origin === window.location.origin) {
-            prefetchUrl(anchor.getAttribute('href'));
-        }
-    }, { passive: true });
-
-    document.addEventListener('touchstart', (e) => {
-        const anchor = e.target.closest('a');
-        if (anchor && anchor.href && anchor.origin === window.location.origin) {
-            prefetchUrl(anchor.getAttribute('href'));
+        if (anchor && anchor.origin === window.location.origin) {
+            const path = anchor.getAttribute('href');
+            if (path && ALLOWED_PREFETCH.has(path)) {
+                prefetchUrl(path);
+            }
         }
     }, { passive: true });
 })();

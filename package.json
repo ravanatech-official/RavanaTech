@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js",
+    "dev": "node --optimize-for-size --max-old-space-size=96 server.js",
+    "start": "node --optimize-for-size --max-old-space-size=96 server.js",
     "build": "echo 'Build complete'",
     "lint": "echo 'No lint errors'"
   },

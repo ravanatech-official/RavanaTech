@@ -94,7 +94,9 @@ body {
 
 body:not(.archive-screen-body) {
   height: 100vh;
+  height: 100dvh;
   max-height: 100vh;
+  max-height: 100dvh;
   overflow: hidden;
 }
 
@@ -178,8 +180,11 @@ main:nth-of-type(1),
   background-attachment: fixed;
   color: var(--rt-text);
   height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  height: calc(100dvh - var(--header-height) - var(--footer-deck-height));
   min-height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  min-height: calc(100dvh - var(--header-height) - var(--footer-deck-height));
   max-height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  max-height: calc(100dvh - var(--header-height) - var(--footer-deck-height));
   position: relative;
   overflow: hidden;
   width: 100%;
@@ -236,14 +241,22 @@ main:nth-of-type(1),
   animation: cyber-screen-reveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Vertically center content if screen height allows */
+/* Deck Screen Content Architecture: Natural Top-to-Bottom Flow (Zero Phantom Gaps) */
 .deck-screen > .bd-grid,
 .deck-screen > .home__container,
 .deck-screen > .about__container,
 .deck-screen > .systems__container,
 .deck-screen > .contact__container {
-  margin-top: auto;
-  margin-bottom: auto;
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem !important;
+  width: 100%;
+}
+
+/* On large desktop displays with tall viewports, vertically center the content gracefully */
+@media screen and (min-width: 1024px) and (min-height: 850px) {
+  .deck-screen {
+    justify-content: center !important;
+  }
 }
 
 @keyframes cyber-screen-reveal {
@@ -923,19 +936,12 @@ main:nth-of-type(1),
 }
 
 /*===== ABOUT SECTION =====*/
-.about > div:nth-of-type(1) {
-  height: 50.1562px;
-}
-
 .about__container {
   display: grid;
   grid-template-columns: 1fr;
-  row-gap: 2.5rem;
+  row-gap: 2rem;
   align-items: center;
-  margin-left: 20px;
-  margin-top: -70px;
-  padding-left: 2px;
-  margin-bottom: 70px;
+  width: 100%;
 }
 
 @media screen and (min-width: 860px) {
@@ -1391,9 +1397,15 @@ main:nth-of-type(1),
 
 /*===== CONTACT SECTION (1-SCREEN FIT ARCHITECTURE) =====*/
 section#contact.deck-screen {
-  padding-top: clamp(0.5rem, 1.5vh, 1.25rem);
-  padding-bottom: clamp(0.5rem, 1.5vh, 1.25rem);
-  justify-content: center;
+  padding-top: clamp(0.75rem, 2vh, 1.5rem);
+  padding-bottom: clamp(1rem, 2vh, 2rem);
+  justify-content: flex-start;
+}
+
+@media screen and (min-width: 860px) and (min-height: 800px) {
+  section#contact.deck-screen {
+    justify-content: center;
+  }
 }
 
 section#contact .section-title {
@@ -1924,6 +1936,15 @@ section#contact .section-title::after {
 }
 
 @media screen and (max-width: 900px) {
+  :root {
+    --footer-deck-height: 0px;
+  }
+  body {
+    padding-bottom: 0 !important;
+  }
+  .deck-console-bar {
+    display: none !important;
+  }
   .deck-copyright-tag,
   .deck-hotkey-guide {
     display: none;
@@ -3364,6 +3385,120 @@ main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div
   color: var(--rt-text-soft);
 }
 
+/* Modal Lightbox & Device Emulator Mobile Optimization */
+@media screen and (max-width: 768px) {
+  .modal-dialog {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .modal-header-station {
+    padding: 0.5rem 0.75rem !important;
+    gap: 0.4rem !important;
+  }
+
+  .modal-project-info {
+    gap: 0.5rem !important;
+    flex: 1 1 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .modal-title-wrap h3 {
+    font-size: 0.88rem !important;
+    max-width: 250px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .modal-title-meta {
+    font-size: 0.62rem !important;
+  }
+
+  .modal-device-controls {
+    padding: 2px !important;
+    gap: 2px !important;
+    order: 2 !important;
+  }
+
+  .device-toggle-btn {
+    padding: 0.25rem 0.45rem !important;
+    font-size: 0.6rem !important;
+    gap: 0.2rem !important;
+  }
+
+  .modal-top-actions {
+    gap: 0.35rem !important;
+    order: 3 !important;
+    margin-left: auto !important;
+  }
+
+  .modal-action-btn {
+    padding: 0.3rem 0.5rem !important;
+    font-size: 0.62rem !important;
+  }
+
+  .modal-close-btn {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 1.1rem !important;
+  }
+
+  .modal-viewport-canvas {
+    padding: 0.25rem !important;
+  }
+
+  .preview-iframe-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    border-width: 3px !important;
+    border-radius: 14px !important;
+  }
+
+  .preview-iframe-wrapper[data-device="laptop"] .macbook-chin,
+  .preview-iframe-wrapper[data-device="desktop"] .macbook-chin {
+    height: 8px !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .preview-iframe-wrapper[data-device="laptop"] .macbook-camera-notch,
+  .preview-iframe-wrapper[data-device="desktop"] .macbook-camera-notch {
+    height: 12px !important;
+    width: 90px !important;
+  }
+
+  .preview-iframe-wrapper[data-device="mobile"] .iphone-dynamic-island {
+    top: 4px !important;
+    width: 90px !important;
+    height: 20px !important;
+  }
+
+  .preview-modal-iframe {
+    width: 100% !important;
+    height: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-bottom-bar {
+    padding: 0.45rem 0.75rem !important;
+  }
+
+  .modal-hotkeys-hint {
+    display: none !important;
+  }
+
+  .modal-nav-btn {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.65rem !important;
+  }
+}
+
 /*==============================================================
   DEDICATED FULLSCREEN PROJECTS SCREEN // SILICON VALLEY SPEC
   Zero-Scroll Matrix Deck & Launch Station
@@ -3933,5 +4068,266 @@ main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div
   flex-wrap: wrap;
   gap: 1rem;
 }
+
+/* ==============================================================
+   COMPREHENSIVE MOBILE VIEWPORT ARCHITECTURE (PHONES & SMALL SCREENS)
+   ============================================================== */
+@media screen and (max-width: 768px) {
+  /* Global Deck Screen Layout on Mobile: Starts cleanly at the top */
+  .deck-screen {
+    padding: 1.25rem 0 2.5rem !important;
+    justify-content: flex-start !important;
+  }
+
+  .deck-screen > .bd-grid,
+  .deck-screen > .home__container,
+  .deck-screen > .about__container,
+  .deck-screen > .systems__container,
+  .deck-screen > .contact__container {
+    margin-top: 0 !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .section-title {
+    font-size: 1.5rem !important;
+    margin-bottom: 1.25rem !important;
+    text-align: center !important;
+  }
+
+  .section-title::after {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: -0.35rem !important;
+  }
+
+  /* HOME (HERO) ON MOBILE */
+  .home__container {
+    row-gap: 1.75rem !important;
+    text-align: center !important;
+  }
+
+  .home__data {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .home__brand-title {
+    font-size: 2.25rem !important;
+    letter-spacing: 0.1em !important;
+    line-height: 1.1 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .home__specialties {
+    font-size: 0.8rem !important;
+    letter-spacing: 0.18em !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .home__description {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    margin-bottom: 1.5rem !important;
+    max-width: 100% !important;
+  }
+
+  .home__cta-group {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .home__cta-group .button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.82rem !important;
+  }
+
+  .home__social {
+    justify-content: center !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .home__hud-core {
+    min-height: auto !important;
+    padding: 0.5rem 0 1.5rem !important;
+  }
+
+  .hud-radar-ring {
+    width: 250px !important;
+    height: 250px !important;
+  }
+
+  .hud-radar-ring-2 {
+    width: 280px !important;
+    height: 280px !important;
+  }
+
+  .hud-radar-ring-3 {
+    width: 220px !important;
+    height: 220px !important;
+  }
+
+  .hud-circle-container {
+    width: 200px !important;
+    height: 200px !important;
+  }
+
+  .hud-circle-img {
+    width: 200px !important;
+    height: 200px !important;
+  }
+
+  .hud-circle-footer-badge {
+    margin-top: 1rem !important;
+  }
+
+  .hud-circle-footer-badge span:first-child {
+    font-size: 0.75rem !important;
+  }
+
+  .hud-circle-sub {
+    font-size: 0.62rem !important;
+  }
+
+  /* ABOUT ON MOBILE */
+  .about__container {
+    row-gap: 1.5rem !important;
+  }
+
+  .about__photo-panel.hud-rounded-card {
+    padding: 0.75rem !important;
+    border-radius: 18px !important;
+  }
+
+  .about__img {
+    border-radius: 14px !important;
+  }
+
+  .about__headline {
+    font-size: 1.15rem !important;
+    margin-bottom: 0.75rem !important;
+    text-align: center !important;
+  }
+
+  .about__text {
+    font-size: 0.92rem !important;
+    line-height: 1.65 !important;
+    margin-bottom: 1.25rem !important;
+    text-align: center !important;
+  }
+
+  .about__stats-grid {
+    gap: 0.6rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .about__stat-card {
+    padding: 0.65rem 0.35rem !important;
+  }
+
+  .about__stat-value {
+    font-size: 1.3rem !important;
+  }
+
+  .about__stat-label {
+    font-size: 0.6rem !important;
+  }
+
+  /* SYSTEMS (SERVICES) ON MOBILE */
+  .services-compact-header {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .systems__container {
+    gap: 1rem !important;
+  }
+
+  .system__card {
+    padding: 1.35rem !important;
+    border-radius: 18px !important;
+    min-height: auto !important;
+  }
+
+  .system__title {
+    font-size: 1.1rem !important;
+  }
+
+  .system__description {
+    font-size: 0.88rem !important;
+    line-height: 1.55 !important;
+  }
+
+  /* PROJECTS GALLERY ON MOBILE */
+  .projects__title-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 1rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .gallery-filter-tabs {
+    gap: 0.4rem !important;
+    justify-content: center !important;
+  }
+
+  .gallery-filter-btn {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.65rem !important;
+  }
+
+  .gallery-grid-view {
+    gap: 1.25rem !important;
+  }
+
+  .gallery-card {
+    border-radius: 16px !important;
+  }
+
+  .gallery-card__visual {
+    height: 165px !important;
+  }
+
+  /* CONTACT ON MOBILE */
+  .contact__container {
+    row-gap: 1.25rem !important;
+  }
+
+  .contact__channels-panel,
+  .contact__form-panel {
+    padding: 1.25rem !important;
+    border-radius: 18px !important;
+  }
+
+  .contact__action-list {
+    gap: 0.65rem !important;
+  }
+
+  .contact__action-btn {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .contact__social-pills {
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .contact__social-pill {
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.72rem !important;
+  }
+}
+
 
 

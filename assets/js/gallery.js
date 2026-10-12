@@ -395,7 +395,10 @@
       if (loader) loader.style.display = 'none';
     };
 
-    // Set device mode
+    // Set device mode (automatically default to mobile on mobile viewports)
+    if (window.innerWidth <= 768 && currentDevice === 'laptop') {
+      currentDevice = 'mobile';
+    }
     setDeviceViewport(currentDevice);
 
     modal.classList.add('is-open');

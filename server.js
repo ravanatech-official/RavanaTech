@@ -120,11 +120,7 @@ function initDb() {
       const initialDb = {
         initializedAt: new Date().toISOString(),
         version: '1.0.0',
-        inquiries: [],
-        audits: [],
-        estimates: [],
-        teardowns: [],
-        playbookDownloads: []
+        inquiries: []
       };
       fs.writeFileSync(DB_FILE, JSON.stringify(initialDb, null, 2), 'utf-8');
     }
@@ -142,7 +138,7 @@ function readDb() {
     return JSON.parse(raw);
   } catch (err) {
     console.error('[DB READ ERROR]', err);
-    return { inquiries: [], audits: [], estimates: [], teardowns: [], playbookDownloads: [] };
+    return { inquiries: [] };
   }
 }
 
@@ -204,175 +200,6 @@ app.post('/api/inquiry', (req, res) => {
   }
 });
 
-// LEAD MAGNET ENDPOINTS // SILICON VALLEY GROWTH LAB (PERSISTENT DB INTEGRATED)
-app.post('/api/lead/audit', (req, res) => {
-  try {
-    const { url, contact } = req.body || {};
-    if (!url) {
-      return res.status(400).json({ success: false, error: 'URL is required' });
-    }
-    const cleanUrl = String(url).replace(/^https?:\/\//i, '').split('/')[0];
-    const auditId = `AUDIT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
-    const metrics = {
-      score: Math.floor(Math.random() * 15) + 32, // Realistic average score 32-47
-      ttfb: '1.42s',
-      lcp: '4.85s',
-      cls: '0.24',
-      speedIndex: '5.1s',
-      estimatedLostSales: '28% - 35%'
-    };
-
-    const auditRecord = {
-      auditId,
-      url: cleanUrl,
-      contact: contact ? String(contact).trim() : 'pending_whatsapp',
-      metrics,
-      ip: req.ip || req.connection.remoteAddress || 'local',
-      userAgent: req.get('user-agent') || 'browser',
-      timestamp: new Date().toISOString()
-    };
-
-    saveDbRecord('audits', auditRecord);
-    console.log('[DATABASE PERSISTENCE: AUDIT]', auditId, cleanUrl);
-
-    return res.status(200).json({
-      success: true,
-      auditId,
-      url: cleanUrl,
-      metrics,
-      message: 'Audit report generated and saved to Database. Full 10-page blueprint queued.'
-    });
-  } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.post('/api/lead/estimate', (req, res) => {
-  try {
-    const { projectType, features, scope, contact, name, investment, timeline } = req.body || {};
-    const estimateId = `EST-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
-    const estimateRecord = {
-      estimateId,
-      name: name ? String(name).trim() : 'Prospective Client',
-      contact: contact ? String(contact).trim() : 'direct_whatsapp',
-      projectType: projectType || 'Corporate Website',
-      features: Array.isArray(features) ? features : [],
-      scope: scope || 'Custom',
-      investment: investment || '$450 - $750',
-      timeline: timeline || '7 - 12 Days',
-      ip: req.ip || req.connection.remoteAddress || 'local',
-      userAgent: req.get('user-agent') || 'browser',
-      timestamp: new Date().toISOString()
-    };
-
-    saveDbRecord('estimates', estimateRecord);
-    console.log('[DATABASE PERSISTENCE: ESTIMATE]', estimateId);
-
-    return res.status(200).json({
-      success: true,
-      estimateId,
-      message: 'Project estimation blueprint locked in and saved to Database.',
-      blueprintUrl: `https://wa.me/94788470610?text=${encodeURIComponent(`Hello Ravana Tech! I generated a Project Estimate (Ref: #${estimateId}) for a ${estimateRecord.projectType}. Scope: ${estimateRecord.scope}. Features: ${estimateRecord.features.join(', ')}.`)}`
-    });
-  } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.post('/api/lead/teardown', (req, res) => {
-  try {
-    const { name, contact, websiteUrl, preferredSlot } = req.body || {};
-    const bookingId = `TD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
-    const teardownRecord = {
-      bookingId,
-      name: name ? String(name).trim() : 'Client',
-      contact: contact ? String(contact).trim() : 'direct_whatsapp',
-      websiteUrl: websiteUrl ? String(websiteUrl).trim() : 'not_provided',
-      preferredSlot: preferredSlot || 'Tomorrow Morning',
-      status: 'confirmed',
-      ip: req.ip || req.connection.remoteAddress || 'local',
-      userAgent: req.get('user-agent') || 'browser',
-      timestamp: new Date().toISOString()
-    };
-
-    saveDbRecord('teardowns', teardownRecord);
-    console.log('[DATABASE PERSISTENCE: TEARDOWN]', bookingId);
-
-    return res.status(200).json({
-      success: true,
-      bookingId,
-      message: '15-Minute Teardown Session successfully reserved and recorded in Database.'
-    });
-  } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.post('/api/lead/playbook', (req, res) => {
-  try {
-    const { email, businessName } = req.body || {};
-    const downloadId = `PB-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
-    const playbookRecord = {
-      downloadId,
-      email: email ? String(email).trim() : 'anonymous',
-      businessName: businessName ? String(businessName).trim() : 'Modern Enterprise',
-      ip: req.ip || req.connection.remoteAddress || 'local',
-      userAgent: req.get('user-agent') || 'browser',
-      timestamp: new Date().toISOString()
-    };
-
-    saveDbRecord('playbookDownloads', playbookRecord);
-    console.log('[DATABASE PERSISTENCE: PLAYBOOK]', downloadId, playbookRecord.email);
-
-    return res.status(200).json({
-      success: true,
-      downloadId,
-      downloadUrl: '/download/Ravana_Tech_High_Conversion_Web_Architecture_Playbook_2026.html',
-      message: 'Playbook access granted and saved to Database. Preparing instantaneous delivery.'
-    });
-  } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// REAL-TIME LEADS DATABASE QUERY & TELEMETRY API
-app.get('/api/leads/stats', (req, res) => {
-  try {
-    const db = readDb();
-    const totalInquiries = db.inquiries ? db.inquiries.length : 0;
-    const totalAudits = db.audits ? db.audits.length : 0;
-    const totalEstimates = db.estimates ? db.estimates.length : 0;
-    const totalTeardowns = db.teardowns ? db.teardowns.length : 0;
-    const totalPlaybooks = db.playbookDownloads ? db.playbookDownloads.length : 0;
-
-    res.json({
-      success: true,
-      database: 'Ravana Tech Active Persistent Database Layer (Dual Firestore + Local DB)',
-      stats: {
-        totalInquiries,
-        totalAudits,
-        totalEstimates,
-        totalTeardowns,
-        totalPlaybooks,
-        totalLeadsCaptured: totalInquiries + totalAudits + totalEstimates + totalTeardowns + totalPlaybooks
-      },
-      latestLeads: {
-        recentInquiries: (db.inquiries || []).slice(0, 5),
-        recentAudits: (db.audits || []).slice(0, 5),
-        recentEstimates: (db.estimates || []).slice(0, 5),
-        recentTeardowns: (db.teardowns || []).slice(0, 5),
-        recentPlaybooks: (db.playbookDownloads || []).slice(0, 5)
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
 // Serve all static files from root directory with high-speed caching
 app.use(express.static(__dirname, staticCacheOptions));
 
@@ -407,15 +234,8 @@ app.get(['/services.html', '/all-services'], (req, res) => {
   res.sendFile(path.join(__dirname, 'services.html'));
 });
 
-// Dedicated Playbook Download File Route
-app.get('/download/Ravana_Tech_High_Conversion_Web_Architecture_Playbook_2026.html', (req, res) => {
-  res.setHeader('Content-Disposition', 'attachment; filename="Ravana_Tech_Web_Architecture_Playbook_2026.html"');
-  res.setHeader('Content-Type', 'text/html');
-  res.sendFile(path.join(__dirname, 'playbook-2026.html'));
-});
-
-// Clean URLs for Deck Screens & Growth Lab Stations
-app.get(['/', '/home', '/about', '/systems', '/projects', '/contact', '/growth-lab', '/audit', '/estimator', '/roi', '/teardown', '/playbook', '/lab'], (req, res) => {
+// Clean URLs for Deck Screens
+app.get(['/', '/home', '/about', '/systems', '/projects', '/contact'], (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   res.sendFile(path.join(__dirname, 'index.html'));
 });

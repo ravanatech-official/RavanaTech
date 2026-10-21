@@ -8,7 +8,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// AI Studio Environment: app server must bind directly to port 3000
+const PORT = 3000;
 const HOST = '0.0.0.0';
 
 // Global Industrial Standards: Optimized Gzip Compression & Low-Memory Footprint
@@ -27,16 +28,16 @@ app.use((req, res, next) => {
 
 // High-Speed Static Caching Strategy: Instant Disk/Memory retrieval for client
 const staticCacheOptions = {
-  maxAge: '30d',
-  etag: true,
-  lastModified: true,
+  maxAge: '0',
+  etag: false,
+  lastModified: false,
   setHeaders: (res, filePath) => {
     if (filePath.match(/\.(jpg|jpeg|png|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else if (filePath.match(/\.(css|js)$/i)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
-    } else if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
     }
   }
 };
@@ -234,16 +235,109 @@ app.get(['/services.html', '/all-services'], (req, res) => {
   res.sendFile(path.join(__dirname, 'services.html'));
 });
 
+// AI Lab & Document Controller Simulation API Endpoint
+app.post('/api/document-sim', (req, res) => {
+  const { sampleId } = req.body || {};
+  const samples = {
+    'submittal': {
+      docId: 'SUB-STR-2026-0442',
+      title: 'Architectural Facade Glazing & Structural Framing Submittal',
+      discipline: 'Structural & Architectural',
+      revision: 'Rev 03',
+      status: 'CODE 1 - APPROVED WITH NO COMMENTS',
+      issuingParty: 'Al-Farooq Façade Engineering LLC',
+      receivedDate: new Date().toISOString().split('T')[0],
+      normalizedFilename: 'RT-EDMS_SUB_STR_0442_REV03_APP.pdf',
+      cloudPath: '/Google_Cloud/EDMS/2026/Structural/Submittals/Approved/',
+      confidence: '99.98%',
+      extractedFields: {
+        drawingCount: 14,
+        specificationRef: 'SPEC-SEC-084400-GLAZING',
+        contractorApproval: 'STAMP_VERIFIED',
+        consultantCode: 'CODE-1-UNCONDITIONAL',
+        retentionPeriod: '10 Years (ISO 9001:2015)'
+      }
+    },
+    'invoice': {
+      docId: 'INV-DXB-2026-9042',
+      title: 'Commercial Tax Invoice & Material Delivery Note',
+      discipline: 'Commercial & Procurement',
+      revision: 'Original Final',
+      status: 'VERIFIED & MATCHED TO PO-90118',
+      issuingParty: 'Emirates Cement & Steel Corporation',
+      receivedDate: new Date().toISOString().split('T')[0],
+      normalizedFilename: 'RT-COMM_INV_DXB_9042_PO90118.pdf',
+      cloudPath: '/Google_Cloud/Accounts/Invoices/2026/Matched_PO/',
+      confidence: '100%',
+      extractedFields: {
+        vatRegistration: 'TRN 10029481900003',
+        subtotal: 'AED 135,714.28',
+        vatAmount: 'AED 6,785.72 (5%)',
+        totalAmount: 'AED 142,500.00',
+        paymentTerms: '30 Days Net'
+      }
+    },
+    'hvac': {
+      docId: 'TS-MEP-HVAC-0881',
+      title: 'Technical Submittal: High-Efficiency Variable Air Volume (VAV) Terminal Units',
+      discipline: 'MEP / Mechanical',
+      revision: 'Rev 02',
+      status: 'CODE 2 - APPROVED WITH COMMENTS AS NOTED',
+      issuingParty: 'Apex Thermo-Dynamic Solutions Ltd',
+      receivedDate: new Date().toISOString().split('T')[0],
+      normalizedFilename: 'RT-EDMS_TS_MEP_HVAC_0881_REV02_REV.pdf',
+      cloudPath: '/Google_Cloud/EDMS/2026/MEP/Technical_Submittals/',
+      confidence: '99.94%',
+      extractedFields: {
+        cfmCapacity: '450 - 2800 CFM',
+        acousticRating: 'NC 32 Compliant',
+        complianceCode: 'ASHRAE 90.1-2022',
+        consultantAction: 'Resubmit for record only'
+      }
+    },
+    'ncr': {
+      docId: 'NCR-QAQC-2026-019',
+      title: 'Non-Conformance Report & Remedial Corrective Action Protocol',
+      discipline: 'QA/QC Quality Assurance',
+      revision: 'Rev 01 - Closure Pending',
+      status: 'UNDER TECHNICAL REVIEW',
+      issuingParty: 'Ravana QA/QC Directorate',
+      receivedDate: new Date().toISOString().split('T')[0],
+      normalizedFilename: 'RT-QA_NCR_2026_019_OPEN.pdf',
+      cloudPath: '/Google_Cloud/Quality/NCR_Logs/2026/',
+      confidence: '100%',
+      extractedFields: {
+        rootCause: 'Batch aggregate slump discrepancy',
+        severityLevel: 'Level 2 - Non-Structural',
+        actionRequired: 'Core compressive re-testing',
+        closureDeadline: '2026-10-25'
+      }
+    }
+  };
+
+  const doc = samples[sampleId] || samples['submittal'];
+  res.json({
+    success: true,
+    engine: 'Ravana Tech Cognitive OCR & EDMS Pipeline',
+    timestamp: new Date().toISOString(),
+    document: doc
+  });
+});
+
 // Clean URLs for Deck Screens
-app.get(['/', '/home', '/about', '/systems', '/projects', '/contact'], (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'index.html'));
+app.get(['/', '/home', '/about', '/systems', '/projects', '/contact', '/ai-lab', '/automation', '/lab', '/experience'], (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(path.join(__dirname, 'index.html'), { etag: false, lastModified: false });
 });
 
 // Fallback to index.html for navigation
 app.get('*', (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(path.join(__dirname, 'index.html'), { etag: false, lastModified: false });
 });
 
 app.listen(PORT, HOST, () => {

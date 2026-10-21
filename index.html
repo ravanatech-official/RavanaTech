@@ -57,7 +57,8 @@
         <link rel="preload" href="styles.css?v=2.2.0" as="style">
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" as="style">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap">
-        <link rel="preload" as="image" href="assets/img/image_01_1791448896391.jpg" fetchpriority="high">
+        <link rel="preload" as="image" href="assets/img/image_01_opt.webp" type="image/webp" fetchpriority="high">
+        <link rel="preload" as="image" href="/src/assets/images/ravana_tech_logo_opt.webp" type="image/webp" fetchpriority="high">
 
         <!-- ===== SCHEMA.ORG STRUCTURED DATA (JSON-LD) ===== -->
         <script type="application/ld+json">
@@ -123,8 +124,10 @@
         }
         </script>
 
-        <!-- ===== BOX ICONS ===== -->
-        <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
+        <!-- ===== BOX ICONS (ASYNC NON-BLOCKING) ===== -->
+        <link rel="preload" href="https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css" as="style">
+        <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css"></noscript>
 
         <!-- ===== STYLESHEET ===== -->
         <link rel="stylesheet" href="styles.css?v=2.2.0">
@@ -173,6 +176,9 @@
         <main class="l-main" id="main-content" role="main">
             <!--===== CYBER MATRIX DIGITAL CODE RAIN CANVAS =====-->
             <canvas id="matrix-rain-canvas" class="matrix-rain-canvas" aria-hidden="true"></canvas>
+
+            <!--===== GLOBAL CYBER LOGO WATERMARK (UNDER ALL SECTIONS) =====-->
+            <div class="deck-global-watermark" aria-hidden="true"></div>
 
             <!--===== HOME (HERO) =====-->
             <section class="home section deck-screen deck-screen-active" id="home" data-screen-index="0" data-screen-id="home" data-route="/" data-title="RAVANA TECH | Web, Software & AI">
@@ -232,7 +238,10 @@
                             <div class="hud-circle-ring-dashed"></div>
 
                             <div class="hud-circle-image-wrap">
-                                <img src="assets/img/image_01_1791448896391.jpg" alt="Ravana Tech Founder Shanthapriya Silva" class="hud-circle-img" width="340" height="340" fetchpriority="high" decoding="async" onerror="this.onerror=null;this.src='image_01_1791448896391.jpg';">
+                                <picture>
+                                    <source srcset="assets/img/image_01_opt.webp" type="image/webp">
+                                    <img src="assets/img/image_01_1791448896391.jpg" alt="Ravana Tech Founder Shanthapriya Silva" class="hud-circle-img" width="340" height="340" fetchpriority="high" decoding="async" onerror="this.onerror=null;this.src='image_01_1791448896391.jpg';">
+                                </picture>
                                 <div class="hud-circle-scan-beam"></div>
                             </div>
                         </div>
@@ -255,7 +264,10 @@
                     <!-- EMBEDDED ROUNDED HUD ABOUT CARD -->
                     <div class="about__photo-panel hud-rounded-card">
                         <div class="about__photo-wrap">
-                            <img src="assets/img/ravana_banner_1791448914226.jpg" alt="Ravana Tech - Your Digital Architect for a Smarter Tomorrow" class="about__img" width="600" height="338" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='ravana_banner_1791448914226.jpg';">
+                            <picture>
+                                <source srcset="assets/img/ravana_banner_opt.webp" type="image/webp">
+                                <img src="assets/img/ravana_banner_1791448914226.jpg" alt="Ravana Tech - Your Digital Architect for a Smarter Tomorrow" class="about__img" width="600" height="338" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='ravana_banner_1791448914226.jpg';">
+                            </picture>
                             <div class="hud-scan-beam"></div>
                         </div>
                     </div>

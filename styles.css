@@ -200,8 +200,40 @@ main:nth-of-type(1),
   height: 100%;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.13;
+  opacity: 0.17;
   mix-blend-mode: screen;
+}
+
+/*===== GLOBAL CYBER LOGO WATERMARK (VISIBLE BEHIND ALL SECTIONS) =====*/
+.deck-global-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, 86vw);
+  height: min(720px, 86vw);
+  background-image: url("/src/assets/images/ravana_tech_logo_1792581937150.jpg");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.12;
+  filter: drop-shadow(0 0 50px rgba(24, 200, 255, 0.45));
+  pointer-events: none;
+  z-index: 2;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96) 42%, rgba(0, 0, 0, 0) 74%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96) 42%, rgba(0, 0, 0, 0) 74%);
+  animation: watermark-pulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes watermark-pulse {
+  0% {
+    opacity: 0.09;
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+  100% {
+    opacity: 0.15;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
 }
 
 /* Base Deck Screen */
@@ -639,40 +671,8 @@ main:nth-of-type(1),
   min-height: auto;
   align-items: center;
   position: relative;
-  overflow: hidden;
-}
-
-/* Home Section Background Logo Watermark */
-#home.home::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(680px, 90vw);
-  height: min(680px, 90vw);
-  background-image: url("/src/assets/images/ravana_tech_logo_1792581937150.jpg");
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.13;
-  filter: drop-shadow(0 0 45px rgba(24, 200, 255, 0.4));
-  pointer-events: none;
-  z-index: 1;
-  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 42%, rgba(0, 0, 0, 0) 74%);
-  -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 42%, rgba(0, 0, 0, 0) 74%);
-  animation: watermark-pulse 8s ease-in-out infinite alternate;
-}
-
-@keyframes watermark-pulse {
-  0% {
-    opacity: 0.10;
-    transform: translate(-50%, -50%) scale(0.98);
-  }
-  100% {
-    opacity: 0.16;
-    transform: translate(-50%, -50%) scale(1.02);
-  }
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 .home__container {

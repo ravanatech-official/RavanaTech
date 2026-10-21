@@ -236,7 +236,11 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-// Debounced Mouse Wheel Navigation (Zero scrolling into AI Lab; stops at Contact)
+// Responsive & Fluid Mouse Wheel Navigation (Zero scrolling into AI Lab; stops at Contact)
+let accumulatedWheelDelta = 0;
+let wheelResetTimer = null;
+let isWheelTransitioning = false;
+
 window.addEventListener('wheel', (e) => {
     const modal = document.getElementById('gallery-preview-modal');
     if (modal && modal.classList.contains('active')) return;
@@ -250,28 +254,40 @@ window.addEventListener('wheel', (e) => {
     // IF INSIDE AI-LAB: Never switch screens on mouse wheel! Scroll its own content smoothly.
     if (activeScreenEl.id === 'ai-lab') return;
 
-    const atTop = activeScreenEl.scrollTop <= 2;
-    const atBottom = activeScreenEl.scrollTop + activeScreenEl.clientHeight >= activeScreenEl.scrollHeight - 2;
+    const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
+    const hasScroll = scrollableHeight > 10;
+    const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
+    const atBottom = !hasScroll || activeScreenEl.scrollTop >= (scrollableHeight - 14);
 
-    if (e.deltaY > 60 && atBottom) {
-        if (isSwitching) return;
-        // Strictly stop at Contact (index 4). NEVER scroll into AI Lab!
+    accumulatedWheelDelta += e.deltaY;
+    clearTimeout(wheelResetTimer);
+    wheelResetTimer = setTimeout(() => {
+        accumulatedWheelDelta = 0;
+    }, 180);
+
+    if (isWheelTransitioning || isSwitching) return;
+
+    // Downward scroll / Next Screen
+    if (accumulatedWheelDelta > 28 && atBottom) {
         if (currentScreenIndex < 4) {
-            isSwitching = true;
+            isWheelTransitioning = true;
+            accumulatedWheelDelta = 0;
             switchScreen(currentScreenIndex + 1, true);
-            setTimeout(() => { isSwitching = false; }, 450);
+            setTimeout(() => { isWheelTransitioning = false; }, 420);
         }
-    } else if (e.deltaY < -60 && atTop) {
-        if (isSwitching) return;
+    } 
+    // Upward scroll / Previous Screen
+    else if (accumulatedWheelDelta < -28 && atTop) {
         if (currentScreenIndex > 0 && currentScreenIndex <= 4) {
-            isSwitching = true;
+            isWheelTransitioning = true;
+            accumulatedWheelDelta = 0;
             switchScreen(currentScreenIndex - 1, true);
-            setTimeout(() => { isSwitching = false; }, 450);
+            setTimeout(() => { isWheelTransitioning = false; }, 420);
         }
     }
 }, { passive: true });
 
-// Mobile Touch Swipe Navigation (Strictly stops at Contact; AI Lab is button-only)
+// Mobile Touch Swipe Navigation (Supports both swipe up/down and swipe left/right; stops at Contact)
 let touchStartX = 0;
 let touchStartY = 0;
 window.addEventListener('touchstart', (e) => {
@@ -294,12 +310,29 @@ window.addEventListener('touchend', (e) => {
     if (e.changedTouches && e.changedTouches.length) {
         const diffX = e.changedTouches[0].clientX - touchStartX;
         const diffY = e.changedTouches[0].clientY - touchStartY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
 
-        if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.4) {
-            // Strictly stop at Contact (index 4). Never swipe into AI Lab!
+        const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
+        const hasScroll = scrollableHeight > 10;
+        const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
+        const atBottom = !hasScroll || activeScreenEl.scrollTop >= (scrollableHeight - 14);
+
+        if (isSwitching || isWheelTransitioning) return;
+
+        // Horizontal swipe (left = next, right = prev)
+        if (absX > 45 && absX > absY * 1.2) {
             if (diffX < 0 && currentScreenIndex < 4) {
                 switchScreen(currentScreenIndex + 1, true);
             } else if (diffX > 0 && currentScreenIndex > 0 && currentScreenIndex <= 4) {
+                switchScreen(currentScreenIndex - 1, true);
+            }
+        }
+        // Vertical swipe (swipe up = scroll down / next, swipe down = scroll up / prev)
+        else if (absY > 45 && absY > absX * 1.2) {
+            if (diffY < 0 && atBottom && currentScreenIndex < 4) {
+                switchScreen(currentScreenIndex + 1, true);
+            } else if (diffY > 0 && atTop && currentScreenIndex > 0 && currentScreenIndex <= 4) {
                 switchScreen(currentScreenIndex - 1, true);
             }
         }
@@ -451,7 +484,7 @@ if (contactForm && formFeedback) {
     });
 }
 
-/*==================== CYBER MATRIX DIGITAL CODE RAIN ENGINE (OPTIMIZED) ====================*/
+/*==================== CYBER MATRIX DIGITAL CODE RAIN ENGINE (GLOBAL ACROSS ALL SECTIONS) ====================*/
 (function initMatrixRain() {
     const canvas = document.getElementById('matrix-rain-canvas');
     if (!canvas) return;
@@ -466,7 +499,6 @@ if (contactForm && formFeedback) {
     let animationFrameId = null;
     let lastRenderTime = 0;
     let isRunning = false;
-    let isHomeScreenActive = (currentScreenIndex === 0);
 
     const FPS = 28; // Optimized cadence for silky smooth visual cyber effect with ultra-low CPU/RAM footprint
     const FRAME_INTERVAL = 1000 / FPS;
@@ -503,7 +535,7 @@ if (contactForm && formFeedback) {
 
         animationFrameId = requestAnimationFrame(render);
 
-        if (document.hidden || !isHomeScreenActive) return;
+        if (document.hidden) return;
 
         const delta = currentTime - lastRenderTime;
         if (delta < FRAME_INTERVAL) return;
@@ -554,22 +586,18 @@ if (contactForm && formFeedback) {
         }
     }
 
-    // Pause when switching away from Home screen; resume when returning
-    window.addEventListener('screenchange', (e) => {
-        const isHome = e.detail && e.detail.screenId === 'home';
-        isHomeScreenActive = isHome;
-        if (isHome && !document.hidden) {
+    // Keep running smoothly across all screen transitions
+    window.addEventListener('screenchange', () => {
+        if (!document.hidden && !isRunning) {
             startAnimation();
-        } else {
-            stopAnimation();
         }
     });
 
-    // Pause when tab is inactive / hidden
+    // Pause when tab is inactive / hidden to conserve device power
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             stopAnimation();
-        } else if (isHomeScreenActive) {
+        } else {
             startAnimation();
         }
     });
@@ -579,7 +607,7 @@ if (contactForm && formFeedback) {
     }, { passive: true });
 
     resize();
-    if (isHomeScreenActive && !document.hidden) {
+    if (!document.hidden) {
         startAnimation();
     }
 })();

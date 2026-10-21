@@ -12,8 +12,8 @@ const app = express();
 const PORT = 3000;
 const HOST = '0.0.0.0';
 
-// Global Industrial Standards: Optimized Gzip Compression & Low-Memory Footprint
-app.use(compression({ level: 5, threshold: 1024, memLevel: 7 }));
+// Global Industrial Standards: Ultra-Fast Gzip Compression
+app.use(compression({ level: 6, threshold: 256, memLevel: 8 }));
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
@@ -26,23 +26,26 @@ app.use((req, res, next) => {
   next();
 });
 
-// High-Speed Static Caching Strategy: Instant Disk/Memory retrieval for client
+// Beastly Static Caching Strategy: Instant Disk/Memory retrieval with 304 conditional support
 const staticCacheOptions = {
-  maxAge: '0',
-  etag: false,
-  lastModified: false,
+  maxAge: '1d',
+  etag: true,
+  lastModified: true,
   setHeaders: (res, filePath) => {
     if (filePath.match(/\.(jpg|jpeg|png|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-    } else {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+      // 1 year immutable cache for media and webfonts
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (filePath.match(/\.(css|js)$/i)) {
+      // Fast 7-day browser cache with stale-while-revalidate for instantaneous loads
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+    } else if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
     }
   }
 };
 
-// Serve assets folder
+// Serve static directories with high-speed caching
+app.use('/src', express.static(path.join(__dirname, 'src'), staticCacheOptions));
 app.use('/assets', express.static(path.join(__dirname, 'assets'), staticCacheOptions));
 
 // Static asset alias fallbacks
@@ -53,8 +56,9 @@ app.use('/assets/js', express.static(__dirname, staticCacheOptions));
 app.use('/assets/img', express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
 app.use('/assets/img', express.static(__dirname, staticCacheOptions));
 
-// Serve files from assets/img at root path as well (for image 01.jpg, etc.)
+// Serve files from assets/img and root static assets
 app.use(express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
+app.use(express.static(__dirname, staticCacheOptions));
 
 // Serve conceptual projects directory directly under multiple common route paths
 const conceptualProjectsDir = path.join(__dirname, 'conceptual projects');

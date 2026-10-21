@@ -1806,5 +1806,15 @@ Contact: ${p.email} | WhatsApp: ${p.phone}`;
             showLabToast('Reset to standard templates');
         });
     }
+
+    /*==================== OPTION A + B COMBO: WATERMARK MOUSE TRACKING ====================*/
+    document.addEventListener('mousemove', (e) => {
+        const watermark = document.querySelector('.deck-global-watermark');
+        if (!watermark) return;
+        const x = (e.clientX / window.innerWidth - 0.5) * 45;
+        const y = (e.clientY / window.innerHeight - 0.5) * 45;
+        watermark.style.setProperty('--mouse-offset-x', `${x}px`);
+        watermark.style.setProperty('--mouse-offset-y', `${y}px`);
+    }, { passive: true });
 })();
 

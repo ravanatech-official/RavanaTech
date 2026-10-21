@@ -204,35 +204,51 @@ main:nth-of-type(1),
   mix-blend-mode: screen;
 }
 
-/*===== GLOBAL CYBER LOGO WATERMARK (VISIBLE BEHIND ALL SECTIONS) =====*/
+/*===== GLOBAL CYBER LOGO WATERMARK (OPTION A + OPTION B COMBO - ENHANCED VISIBILITY) =====*/
 .deck-global-watermark {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(720px, 86vw);
-  height: min(720px, 86vw);
+  transform: translate(calc(-50% + var(--mouse-offset-x, 0px)), calc(-50% + var(--mouse-offset-y, 0px))) scale(var(--mouse-scale, 1));
+  width: min(760px, 90vw);
+  height: min(760px, 90vw);
   background-image: url("/src/assets/images/ravana_tech_logo_1792581937150.jpg");
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.12;
-  filter: drop-shadow(0 0 50px rgba(24, 200, 255, 0.45));
+  opacity: 0.25;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 80px rgba(0, 210, 255, 0.8)) brightness(1.25);
   pointer-events: none;
-  z-index: 2;
-  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96) 42%, rgba(0, 0, 0, 0) 74%);
-  -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96) 42%, rgba(0, 0, 0, 0) 74%);
-  animation: watermark-pulse 8s ease-in-out infinite alternate;
+  z-index: 5;
+  animation: watermark-combo-pulse 5s ease-in-out infinite alternate, cyber-flare-blink 8s infinite;
+  transition: transform 0.1s cubic-bezier(0.1, 1, 0.2, 1), filter 0.25s ease;
 }
 
-@keyframes watermark-pulse {
+@keyframes watermark-combo-pulse {
   0% {
-    opacity: 0.09;
-    transform: translate(-50%, -50%) scale(0.98);
+    opacity: 0.18;
+    filter: drop-shadow(0 0 50px rgba(0, 191, 255, 0.6)) brightness(1.1);
+  }
+  50% {
+    opacity: 0.32;
+    filter: drop-shadow(0 0 100px rgba(0, 255, 170, 0.95)) brightness(1.4);
   }
   100% {
-    opacity: 0.15;
-    transform: translate(-50%, -50%) scale(1.02);
+    opacity: 0.22;
+    filter: drop-shadow(0 0 70px rgba(0, 191, 255, 0.7)) brightness(1.2);
+  }
+}
+
+@keyframes cyber-flare-blink {
+  0%, 78%, 92%, 100% {
+    filter: drop-shadow(0 0 60px rgba(0, 191, 255, 0.7)) brightness(1.2);
+  }
+  82% {
+    filter: drop-shadow(0 0 130px rgba(0, 255, 220, 1)) brightness(1.6);
+  }
+  87% {
+    filter: drop-shadow(0 0 110px rgba(255, 255, 255, 0.95)) brightness(1.5);
   }
 }
 

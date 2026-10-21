@@ -52,7 +52,6 @@
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
         <link rel="preload" href="styles.css" as="style">
-        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" as="style">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap">
 
         <!-- ===== BOXICONS ===== -->
@@ -60,6 +59,95 @@
 
         <!-- ===== STYLESHEET ===== -->
         <link rel="stylesheet" href="styles.css">
+        <style>
+            html, body {
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                overflow: hidden !important;
+                margin: 0;
+                background: #00050A;
+                color: var(--rt-text, #e2f1ff);
+            }
+            .services-deck-viewport {
+                position: absolute;
+                top: var(--header-height, 4rem);
+                bottom: var(--footer-deck-height, 3.5rem);
+                left: 0;
+                right: 0;
+                overflow: hidden !important;
+            }
+            .deck-screen {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                padding: 1rem 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+                box-sizing: border-box;
+                display: none !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+                transform: scale(0.97) translateY(12px);
+                transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .deck-screen.deck-screen-active {
+                display: flex !important;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                transform: scale(1) translateY(0) !important;
+                z-index: 10;
+            }
+            /* Command Deck Navigation Dots Bar */
+            .services-deck-nav-bar {
+                position: fixed;
+                bottom: calc(var(--footer-deck-height, 3.5rem) + 0.65rem);
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 0.65rem;
+                z-index: 100;
+                background: rgba(1, 14, 24, 0.9);
+                padding: 0.4rem 0.9rem;
+                border-radius: 999px;
+                border: 1px solid rgba(0, 191, 255, 0.35);
+                backdrop-filter: blur(12px);
+                box-shadow: 0 0 20px rgba(0, 191, 255, 0.2);
+            }
+            .services-dot-btn {
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+                background: rgba(0, 191, 255, 0.3);
+                border: 1px solid rgba(0, 191, 255, 0.5);
+                cursor: pointer;
+                transition: all 0.25s ease;
+            }
+            .services-dot-btn.active {
+                background: var(--rt-cyan-bright, #00bfff);
+                border-color: #fff;
+                box-shadow: 0 0 12px var(--rt-cyan-bright, #00bfff);
+                transform: scale(1.35);
+            }
+            .screen-badge {
+                font-family: var(--font-mono, monospace);
+                font-size: 0.7rem;
+                color: var(--rt-cyan-bright, #00bfff);
+                background: rgba(0, 191, 255, 0.1);
+                border: 1px solid rgba(0, 191, 255, 0.3);
+                padding: 0.2rem 0.65rem;
+                border-radius: 6px;
+                margin-bottom: 0.5rem;
+                display: inline-block;
+                letter-spacing: 0.1em;
+            }
+        </style>
     </head>
     <body class="services-standalone-body">
         <!--===== ACCESSIBILITY SKIP TO CONTENT =====-->
@@ -90,195 +178,229 @@
         </header>
 
         <main class="l-main services-main-viewport" id="main-content" role="main">
-            <section class="services-full-page section" id="services-viewport">
-                <div class="bd-grid">
-                    <!-- Hero Header Station -->
-                    <div class="archive-hero-header">
-                        <div class="archive-title-row">
-                            <div>
-                                <h1 class="archive-main-heading">FULL WEB DEVELOPMENT SERVICES</h1>
+            <div class="services-deck-viewport">
+
+                <!-- ================= SCREEN 01 (DECK SCREEN 1) ================= -->
+                <section class="deck-screen deck-screen-active" id="services-screen-1">
+                    <div class="bd-grid" style="width: 100%;">
+                        <div style="text-align: center;">
+                            <span class="screen-badge">SCREEN 01 OF 03</span>
+                        </div>
+                        <!-- Hero Header Station -->
+                        <div class="archive-hero-header" style="margin-bottom: 1.25rem;">
+                            <div class="archive-title-row">
+                                <div>
+                                    <h1 class="archive-main-heading">FULL WEB DEVELOPMENT SERVICES</h1>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Screen 1 Cards Grid (First 3 Services) -->
+                        <div class="services-full-grid">
+                            <!-- 01: Business Websites -->
+                            <div class="services-detail-card hud-rounded-card">
+                                <div class="service-detail-head">
+                                    <div class="system__reactor-ring">
+                                        <i class='bx bx-globe system__icon'></i>
+                                    </div>
+                                    <div class="service-detail-badge">MOST POPULAR</div>
+                                </div>
+                                <h2 class="service-detail-title">BUSINESS WEBSITES</h2>
+                                <p class="service-detail-desc">
+                                    Clean, modern, high-impact corporate and professional websites that establish trust instantly. Perfect for corporate firms, doctors, legal practices, construction agencies, and local services wanting an elite reputation.
+                                </p>
+                                <ul class="service-detail-features">
+                                    <li><i class='bx bx-check-circle'></i> 100% Responsive on Mobile, Tablet & Desktop</li>
+                                    <li><i class='bx bx-check-circle'></i> Instant 1-Click WhatsApp & Direct Call Integration</li>
+                                    <li><i class='bx bx-check-circle'></i> Google SEO Optimization & Google Maps Profile Link</li>
+                                    <li><i class='bx bx-check-circle'></i> High-speed Cloud Hosting & SSL Security Included</li>
+                                </ul>
+                                <div class="service-detail-actions">
+                                    <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20a%20Business%20Website." target="_blank" rel="noopener noreferrer" class="button">
+                                        <i class='bx bxl-whatsapp'></i>
+                                        DISCUSS BUSINESS WEBSITE
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- 02: Online Stores / E-Commerce -->
+                            <div class="services-detail-card hud-rounded-card">
+                                <div class="service-detail-head">
+                                    <div class="system__reactor-ring">
+                                        <i class='bx bx-shopping-bag system__icon'></i>
+                                    </div>
+                                    <div class="service-detail-badge">HIGH DEMAND</div>
+                                </div>
+                                <h2 class="service-detail-title">ONLINE STORES (E-COMMERCE)</h2>
+                                <p class="service-detail-desc">
+                                    Turn your products into 24/7 revenue with seamless customer checkout. Fast loading catalogs, instant WhatsApp order slips, shopping carts, and local/international payment gateways.
+                                </p>
+                                <ul class="service-detail-features">
+                                    <li><i class='bx bx-check-circle'></i> 1-Click Direct WhatsApp Ordering System</li>
+                                    <li><i class='bx bx-check-circle'></i> Credit/Debit Card & Bank Transfer Payment Gateways</li>
+                                    <li><i class='bx bx-check-circle'></i> Effortless Product, Stock & Category Management</li>
+                                    <li><i class='bx bx-check-circle'></i> Fast Mobile Checkout Flow Designed to Maximize Sales</li>
+                                </ul>
+                                <div class="service-detail-actions">
+                                    <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20an%20Online%20Store%20(E-Commerce)." target="_blank" rel="noopener noreferrer" class="button">
+                                        <i class='bx bxl-whatsapp'></i>
+                                        START ONLINE STORE
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- 03: Fast Landing Pages -->
+                            <div class="services-detail-card hud-rounded-card">
+                                <div class="service-detail-head">
+                                    <div class="system__reactor-ring">
+                                        <i class='bx bx-rocket system__icon'></i>
+                                    </div>
+                                    <div class="service-detail-badge">HIGH CONVERSION</div>
+                                </div>
+                                <h2 class="service-detail-title">FAST LANDING PAGES</h2>
+                                <p class="service-detail-desc">
+                                    High-converting single page websites engineered specifically for Facebook, Instagram, TikTok, and Google Ads campaigns. Converts visitors into calls and leads within seconds.
+                                </p>
+                                <ul class="service-detail-features">
+                                    <li><i class='bx bx-check-circle'></i> Built to Load Under 0.2s for Minimum Ad Bounce Rates</li>
+                                    <li><i class='bx bx-check-circle'></i> High-Converting Lead Generation Forms</li>
+                                    <li><i class='bx bx-check-circle'></i> Meta Pixel, Google Tag & TikTok Tracking Ready</li>
+                                    <li><i class='bx bx-check-circle'></i> Eye-catching Visual Hierarchy & Compelling Copy Layout</li>
+                                </ul>
+                                <div class="service-detail-actions">
+                                    <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20a%20Fast%20Landing%20Page." target="_blank" rel="noopener noreferrer" class="button">
+                                        <i class='bx bxl-whatsapp'></i>
+                                        LAUNCH LANDING PAGE
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <!-- Complete 6 Services Detailed Grid -->
-                    <div class="services-full-grid">
-                        <!-- 01: Business Websites -->
-                        <div class="services-detail-card hud-rounded-card">
-                            <div class="service-detail-head">
-                                <div class="system__reactor-ring">
-                                    <i class='bx bx-globe system__icon'></i>
+                <!-- ================= SCREEN 02 (DECK SCREEN 2) ================= -->
+                <section class="deck-screen" id="services-screen-2">
+                    <div class="bd-grid" style="width: 100%;">
+                        <div style="text-align: center;">
+                            <span class="screen-badge">SCREEN 02 OF 03</span>
+                        </div>
+                        <!-- Screen 2 Cards Grid (Next 3 Services) -->
+                        <div class="services-full-grid">
+                            <!-- 04: Booking & Web Apps -->
+                            <div class="services-detail-card hud-rounded-card">
+                                <div class="service-detail-head">
+                                    <div class="system__reactor-ring">
+                                        <i class='bx bx-calendar-check system__icon'></i>
+                                    </div>
+                                    <div class="service-detail-badge">AUTOMATION</div>
                                 </div>
-                                <div class="service-detail-badge">MOST POPULAR</div>
+                                <h2 class="service-detail-title">BOOKING & WEB APPS</h2>
+                                <p class="service-detail-desc">
+                                    Custom digital portals and interactive booking systems designed for salons, clinics, fitness trainers, vacation rentals, and business operations that need streamlined client scheduling.
+                                </p>
+                                <ul class="service-detail-features">
+                                    <li><i class='bx bx-check-circle'></i> Real-Time Slot Availability & Appointment Management</li>
+                                    <li><i class='bx bx-check-circle'></i> Automated SMS & WhatsApp Client Confirmation Alerts</li>
+                                    <li><i class='bx bx-check-circle'></i> Client Management Console & Clean Admin Dashboard</li>
+                                    <li><i class='bx bx-check-circle'></i> Custom Logic Tailored Specifically to Your Workflow</li>
+                                </ul>
+                                <div class="service-detail-actions">
+                                    <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20a%20Booking%20System%20or%20Web%20App." target="_blank" rel="noopener noreferrer" class="button">
+                                        <i class='bx bxl-whatsapp'></i>
+                                        BUILD WEB APP
+                                    </a>
+                                </div>
                             </div>
-                            <h2 class="service-detail-title">BUSINESS WEBSITES</h2>
-                            <p class="service-detail-desc">
-                                Clean, modern, high-impact corporate and professional websites that establish trust instantly. Perfect for corporate firms, doctors, legal practices, construction agencies, and local services wanting an elite reputation.
-                            </p>
-                            <ul class="service-detail-features">
-                                <li><i class='bx bx-check-circle'></i> 100% Responsive on Mobile, Tablet & Desktop</li>
-                                <li><i class='bx bx-check-circle'></i> Instant 1-Click WhatsApp & Direct Call Integration</li>
-                                <li><i class='bx bx-check-circle'></i> Google SEO Optimization & Google Maps Profile Link</li>
-                                <li><i class='bx bx-check-circle'></i> High-speed Cloud Hosting & SSL Security Included</li>
-                            </ul>
-                            <div class="service-detail-actions">
-                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20a%20Business%20Website." target="_blank" rel="noopener noreferrer" class="button">
-                                    <i class='bx bxl-whatsapp'></i>
-                                    DISCUSS BUSINESS WEBSITE
-                                </a>
+
+                            <!-- 05: Redesign & Speed Fix -->
+                            <div class="services-detail-card hud-rounded-card">
+                                <div class="service-detail-head">
+                                    <div class="system__reactor-ring">
+                                        <i class='bx bx-refresh system__icon'></i>
+                                    </div>
+                                    <div class="service-detail-badge">MODERNIZATION</div>
+                                </div>
+                                <h2 class="service-detail-title">REDESIGN & SPEED FIX</h2>
+                                <p class="service-detail-desc">
+                                    Have an old, slow, or outdated website that looks bad on mobile phones? We overhaul the design completely, purge the bloat, and turn it into a lightning-fast modern masterpiece.
+                                </p>
+                                <ul class="service-detail-features">
+                                    <li><i class='bx bx-check-circle'></i> Complete Visual Makeover with Modern Industrial UI</li>
+                                    <li><i class='bx bx-check-circle'></i> Speed Acceleration: 90+ Score on Google PageSpeed</li>
+                                    <li><i class='bx bx-check-circle'></i> Flawless Mobile & Tablet UI/UX Re-engineering</li>
+                                    <li><i class='bx bx-check-circle'></i> Zero Downtime Migration from Old Platform</li>
+                                </ul>
+                                <div class="service-detail-actions">
+                                    <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20want%20to%20Redesign%20or%20Speed%20Up%20my%20website." target="_blank" rel="noopener noreferrer" class="button">
+                                        <i class='bx bxl-whatsapp'></i>
+                                        SPEED UP MY SITE
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- 06: Hosting & Support -->
+                            <div class="services-detail-card hud-rounded-card">
+                                <div class="service-detail-head">
+                                    <div class="system__reactor-ring">
+                                        <i class='bx bx-shield-quarter system__icon'></i>
+                                    </div>
+                                    <div class="service-detail-badge">HASSLE-FREE</div>
+                                </div>
+                                <h2 class="service-detail-title">HOSTING & SUPPORT</h2>
+                                <p class="service-detail-desc">
+                                    Complete peace of mind for your business. We take care of global cloud servers, custom domain DNS, SSL certificates, automated backups, and 24/7 technical assistance.
+                                </p>
+                                <ul class="service-detail-features">
+                                    <li><i class='bx bx-check-circle'></i> High-speed Global Cloud CDN Infrastructure</li>
+                                    <li><i class='bx bx-check-circle'></i> Free SSL Encryption & Automated Daily Backups</li>
+                                    <li><i class='bx bx-check-circle'></i> Custom Domain & Professional Business Email Setup</li>
+                                    <li><i class='bx bx-check-circle'></i> Direct WhatsApp Support for Any Updates or Edits</li>
+                                </ul>
+                                <div class="service-detail-actions">
+                                    <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20Hosting%20and%20Support." target="_blank" rel="noopener noreferrer" class="button">
+                                        <i class='bx bxl-whatsapp'></i>
+                                        GET MANAGED HOSTING
+                                    </a>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </section>
 
-                        <!-- 02: Online Stores / E-Commerce -->
-                        <div class="services-detail-card hud-rounded-card">
-                            <div class="service-detail-head">
-                                <div class="system__reactor-ring">
-                                    <i class='bx bx-shopping-bag system__icon'></i>
-                                </div>
-                                <div class="service-detail-badge">HIGH DEMAND</div>
-                            </div>
-                            <h2 class="service-detail-title">ONLINE STORES (E-COMMERCE)</h2>
-                            <p class="service-detail-desc">
-                                Turn your products into 24/7 revenue with seamless customer checkout. Fast loading catalogs, instant WhatsApp order slips, shopping carts, and local/international payment gateways.
-                            </p>
-                            <ul class="service-detail-features">
-                                <li><i class='bx bx-check-circle'></i> 1-Click Direct WhatsApp Ordering System</li>
-                                <li><i class='bx bx-check-circle'></i> Credit/Debit Card & Bank Transfer Payment Gateways</li>
-                                <li><i class='bx bx-check-circle'></i> Effortless Product, Stock & Category Management</li>
-                                <li><i class='bx bx-check-circle'></i> Fast Mobile Checkout Flow Designed to Maximize Sales</li>
-                            </ul>
-                            <div class="service-detail-actions">
-                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20an%20Online%20Store%20(E-Commerce)." target="_blank" rel="noopener noreferrer" class="button">
-                                    <i class='bx bxl-whatsapp'></i>
-                                    START ONLINE STORE
-                                </a>
-                            </div>
+                <!-- ================= SCREEN 03 (DECK SCREEN 3) ================= -->
+                <section class="deck-screen" id="services-screen-3">
+                    <div class="bd-grid" style="width: 100%; max-width: 900px;">
+                        <div style="text-align: center;">
+                            <span class="screen-badge">SCREEN 03 OF 03</span>
                         </div>
-
-                        <!-- 03: Fast Landing Pages -->
-                        <div class="services-detail-card hud-rounded-card">
-                            <div class="service-detail-head">
-                                <div class="system__reactor-ring">
-                                    <i class='bx bx-rocket system__icon'></i>
-                                </div>
-                                <div class="service-detail-badge">HIGH CONVERSION</div>
+                        <!-- Bottom Call To Action Console -->
+                        <div class="services-bottom-cta hud-rounded-card" style="margin-top: 1rem;">
+                            <div class="services-cta-content">
+                                <h3>NOT SURE WHICH SOLUTION YOU NEED?</h3>
+                                <p>Tell us what your business does and what goal you want to achieve. We will recommend the exact, cost-effective solution with zero obligation.</p>
                             </div>
-                            <h2 class="service-detail-title">FAST LANDING PAGES</h2>
-                            <p class="service-detail-desc">
-                                High-converting single page websites engineered specifically for Facebook, Instagram, TikTok, and Google Ads campaigns. Converts visitors into calls and leads within seconds.
-                            </p>
-                            <ul class="service-detail-features">
-                                <li><i class='bx bx-check-circle'></i> Built to Load Under 0.2s for Minimum Ad Bounce Rates</li>
-                                <li><i class='bx bx-check-circle'></i> High-Converting Lead Generation Forms</li>
-                                <li><i class='bx bx-check-circle'></i> Meta Pixel, Google Tag & TikTok Tracking Ready</li>
-                                <li><i class='bx bx-check-circle'></i> Eye-catching Visual Hierarchy & Compelling Copy Layout</li>
-                            </ul>
-                            <div class="service-detail-actions">
-                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20am%20interested%20in%20a%20Fast%20Landing%20Page." target="_blank" rel="noopener noreferrer" class="button">
+                            <div class="services-cta-btns">
+                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20guidance%20on%20choosing%20the%20right%20web%20solution." target="_blank" rel="noopener noreferrer" class="button" style="background: linear-gradient(135deg, #128C7E, #25D366); border-color: #25D366; color: #fff;">
                                     <i class='bx bxl-whatsapp'></i>
-                                    LAUNCH LANDING PAGE
+                                    CHAT ON WHATSAPP
                                 </a>
-                            </div>
-                        </div>
-
-                        <!-- 04: Booking & Web Apps -->
-                        <div class="services-detail-card hud-rounded-card">
-                            <div class="service-detail-head">
-                                <div class="system__reactor-ring">
-                                    <i class='bx bx-calendar-check system__icon'></i>
-                                </div>
-                                <div class="service-detail-badge">AUTOMATION</div>
-                            </div>
-                            <h2 class="service-detail-title">BOOKING & WEB APPS</h2>
-                            <p class="service-detail-desc">
-                                Custom digital portals and interactive booking systems designed for salons, clinics, fitness trainers, vacation rentals, and business operations that need streamlined client scheduling.
-                            </p>
-                            <ul class="service-detail-features">
-                                <li><i class='bx bx-check-circle'></i> Real-Time Slot Availability & Appointment Management</li>
-                                <li><i class='bx bx-check-circle'></i> Automated SMS & WhatsApp Client Confirmation Alerts</li>
-                                <li><i class='bx bx-check-circle'></i> Client Management Console & Clean Admin Dashboard</li>
-                                <li><i class='bx bx-check-circle'></i> Custom Logic Tailored Specifically to Your Workflow</li>
-                            </ul>
-                            <div class="service-detail-actions">
-                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20a%20Booking%20System%20or%20Web%20App." target="_blank" rel="noopener noreferrer" class="button">
-                                    <i class='bx bxl-whatsapp'></i>
-                                    BUILD WEB APP
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- 05: Redesign & Speed Fix -->
-                        <div class="services-detail-card hud-rounded-card">
-                            <div class="service-detail-head">
-                                <div class="system__reactor-ring">
-                                    <i class='bx bx-refresh system__icon'></i>
-                                </div>
-                                <div class="service-detail-badge">MODERNIZATION</div>
-                            </div>
-                            <h2 class="service-detail-title">REDESIGN & SPEED FIX</h2>
-                            <p class="service-detail-desc">
-                                Have an old, slow, or outdated website that looks bad on mobile phones? We overhaul the design completely, purge the bloat, and turn it into a lightning-fast modern masterpiece.
-                            </p>
-                            <ul class="service-detail-features">
-                                <li><i class='bx bx-check-circle'></i> Complete Visual Makeover with Modern Industrial UI</li>
-                                <li><i class='bx bx-check-circle'></i> Speed Acceleration: 90+ Score on Google PageSpeed</li>
-                                <li><i class='bx bx-check-circle'></i> Flawless Mobile & Tablet UI/UX Re-engineering</li>
-                                <li><i class='bx bx-check-circle'></i> Zero Downtime Migration from Old Platform</li>
-                            </ul>
-                            <div class="service-detail-actions">
-                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20want%20to%20Redesign%20or%20Speed%20Up%20my%20website." target="_blank" rel="noopener noreferrer" class="button">
-                                    <i class='bx bxl-whatsapp'></i>
-                                    SPEED UP MY SITE
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- 06: Hosting & Support -->
-                        <div class="services-detail-card hud-rounded-card">
-                            <div class="service-detail-head">
-                                <div class="system__reactor-ring">
-                                    <i class='bx bx-shield-quarter system__icon'></i>
-                                </div>
-                                <div class="service-detail-badge">HASSLE-FREE</div>
-                            </div>
-                            <h2 class="service-detail-title">HOSTING & SUPPORT</h2>
-                            <p class="service-detail-desc">
-                                Complete peace of mind for your business. We take care of global cloud servers, custom domain DNS, SSL certificates, automated backups, and 24/7 technical assistance.
-                            </p>
-                            <ul class="service-detail-features">
-                                <li><i class='bx bx-check-circle'></i> High-speed Global Cloud CDN Infrastructure</li>
-                                <li><i class='bx bx-check-circle'></i> Free SSL Encryption & Automated Daily Backups</li>
-                                <li><i class='bx bx-check-circle'></i> Custom Domain & Professional Business Email Setup</li>
-                                <li><i class='bx bx-check-circle'></i> Direct WhatsApp Support for Any Updates or Edits</li>
-                            </ul>
-                            <div class="service-detail-actions">
-                                <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20Hosting%20and%20Support." target="_blank" rel="noopener noreferrer" class="button">
-                                    <i class='bx bxl-whatsapp'></i>
-                                    GET MANAGED HOSTING
+                                <a href="index.html#contact" class="button button-outline">
+                                    <i class='bx bx-envelope'></i>
+                                    SEND INQUIRY FORM
                                 </a>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <!-- Bottom Call To Action Console -->
-                    <div class="services-bottom-cta hud-rounded-card">
-                        <div class="services-cta-content">
-                            <h3>NOT SURE WHICH SOLUTION YOU NEED?</h3>
-                            <p>Tell us what your business does and what goal you want to achieve. We will recommend the exact, cost-effective solution with zero obligation.</p>
-                        </div>
-                        <div class="services-cta-btns">
-                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20guidance%20on%20choosing%20the%20right%20web%20solution." target="_blank" rel="noopener noreferrer" class="button" style="background: linear-gradient(135deg, #128C7E, #25D366); border-color: #25D366; color: #fff;">
-                                <i class='bx bxl-whatsapp'></i>
-                                CHAT ON WHATSAPP
-                            </a>
-                            <a href="index.html#contact" class="button button-outline">
-                                <i class='bx bx-envelope'></i>
-                                SEND INQUIRY FORM
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </div>
+
+            <!-- Command Deck Navigation Dots Bar -->
+            <div class="services-deck-nav-bar" aria-label="Services Screens Navigation">
+                <button class="services-dot-btn active" data-index="0" aria-label="Screen 1"></button>
+                <button class="services-dot-btn" data-index="1" aria-label="Screen 2"></button>
+                <button class="services-dot-btn" data-index="2" aria-label="Screen 3"></button>
+            </div>
         </main>
 
         <!--===== FOOTER =====-->
@@ -302,7 +424,7 @@
         </footer>
 
         <script>
-            // Mobile toggle
+            // Mobile menu toggle
             const toggle = document.getElementById('nav-toggle');
             const menu = document.getElementById('nav-menu');
             if (toggle && menu) {
@@ -310,6 +432,75 @@
                     menu.classList.toggle('show');
                 });
             }
+
+            // Strict Command Deck Architecture (One screen visible at a time, instant wheel switching)
+            let currentServicesIndex = 0;
+            const screens = document.querySelectorAll('.deck-screen');
+            const dots = document.querySelectorAll('.services-dot-btn');
+            let isTransitioning = false;
+
+            function switchServiceScreen(index) {
+                if (index < 0 || index >= screens.length || isTransitioning) return;
+                isTransitioning = true;
+                currentServicesIndex = index;
+
+                screens.forEach((scr, i) => {
+                    if (i === currentServicesIndex) {
+                        scr.classList.add('deck-screen-active');
+                    } else {
+                        scr.classList.remove('deck-screen-active');
+                    }
+                });
+
+                dots.forEach((dot, i) => {
+                    if (i === currentServicesIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+
+                setTimeout(() => { isTransitioning = false; }, 350);
+            }
+
+            dots.forEach((dot, idx) => {
+                dot.addEventListener('click', () => {
+                    switchServiceScreen(idx);
+                });
+            });
+
+            // Strict Mouse Wheel Command Deck Switching
+            let accumulatedDelta = 0;
+            let resetTimer = null;
+
+            window.addEventListener('wheel', (e) => {
+                accumulatedDelta += e.deltaY;
+                clearTimeout(resetTimer);
+                resetTimer = setTimeout(() => { accumulatedDelta = 0; }, 180);
+
+                if (isTransitioning) return;
+
+                if (accumulatedDelta > 20 && currentServicesIndex < screens.length - 1) {
+                    accumulatedDelta = 0;
+                    switchServiceScreen(currentServicesIndex + 1);
+                } else if (accumulatedDelta < -20 && currentServicesIndex > 0) {
+                    accumulatedDelta = 0;
+                    switchServiceScreen(currentServicesIndex - 1);
+                }
+            }, { passive: true });
+
+            // Keyboard Navigation (Arrow Keys)
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'ArrowRight') {
+                    if (currentServicesIndex < screens.length - 1) {
+                        switchServiceScreen(currentServicesIndex + 1);
+                    }
+                } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'ArrowLeft') {
+                    if (currentServicesIndex > 0) {
+                        switchServiceScreen(currentServicesIndex - 1);
+                    }
+                }
+            });
         </script>
     </body>
 </html>

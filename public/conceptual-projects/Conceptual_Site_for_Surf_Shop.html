@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Surf Shop</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        sky: '#7dd3e0',
+        'sky-deep': '#3eb8ca',
+        sun: '#fde047',
+        'sun-deep': '#facc15',
+        cream: '#FFF8E7',
+        sand: '#f5e6c4',
+        'sand-dark': '#e8d5a8',
+        terracotta: '#ff7a45',
+        ink: '#1a1a18',
+        'ink-light': '#57534e',
+      },
+      fontFamily: {
+        hand: ['Caveat', 'cursive'],
+        sans: ['Outfit', 'sans-serif'],
+      },
+      animation: {
+        'float': 'float 6s ease-in-out infinite',
+        'float-slow': 'float 8s ease-in-out infinite',
+        'spin-slow': 'spinSlow 18s linear infinite',
+        'wave': 'wave 4s ease-in-out infinite',
+        'marquee': 'marquee 28s linear infinite',
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #FFF8E7;
+    color: #1a1a18;
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+  @media (max-width: 1024px) { body { cursor: auto; } .custom-cursor { display:none !important; } }
+
+  /* Grain Texture */
+  .grain::before {
+    content: '';
+    position: fixed;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    animation: grainMove 0.8s steps(10) infinite;
+  }
+  @keyframes grainMove {
+    0% { transform: translate(0,0); }
+    10% { transform: translate(-5%,-5%); }
+    20% { transform: translate(-15%,5%); }
+    30% { transform: translate(7%,-25%); }
+    40% { transform: translate(-5%,25%); }
+    50% { transform: translate(-15%,10%); }
+    60% { transform: translate(15%,0%); }
+    70% { transform: translate(0%,15%); }
+    80% { transform: translate(3%,35%); }
+    90% { transform: translate(-10%,10%); }
+    100% { transform: translate(5%,-5%); }
+  }
+
+  /* Custom Cursor */
+  .custom-cursor {
+    position: fixed;
+    top:0; left:0;
+    width: 22px; height: 22px;
+    background: #fde047;
+    border: 1.5px solid #1a1a18;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    mix-blend-mode: normal;
+    transition: transform 0.18s cubic-bezier(0.23,1,0.32,1), width 0.2s, height 0.2s, background 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .custom-cursor-ring {
+    position: fixed;
+    top:0; left:0;
+    width: 56px; height: 56px;
+    border: 1px dashed rgba(26,26,24,0.3);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
+  }
+  .custom-cursor.hover {
+    width: 78px; height: 78px;
+    background: #7dd3e0;
+  }
+  .custom-cursor.hover::after {
+    content: attr(data-label);
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 16px;
+    color: #1a1a18;
+  }
+
+  /* Wavy underline */
+  .wavy { position: relative; display:inline-block; }
+  .wavy::after {
+    content:'';
+    position:absolute;
+    left:-2%; right:-2%; bottom: 2px;
+    height: 12px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12' viewBox='0 0 120 12'%3E%3Cpath d='M0 8 Q 15 2, 30 8 T 60 8 T 90 8 T 120 8' stroke='%23fde047' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x;
+    background-size: 60px 12px;
+    z-index:-1;
+  }
+
+  /* Paper tape */
+  .tape {
+    position:absolute;
+    width: 82px; height: 26px;
+    background: rgba(125,211,224,0.7);
+    backdrop-filter: blur(2px);
+    transform: rotate(-8deg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    z-index:2;
+  }
+  .tape.yellow { background: rgba(253,224,71,0.85); }
+
+  /* Hand drawn border */
+  .hand-border {
+    border: 2.5px solid #1a1a18;
+    border-radius: 18px 24px 20px 22px / 22px 18px 24px 20px;
+  }
+
+  @keyframes float { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-14px) rotate(1deg);} }
+  @keyframes waveMorph {
+    0% { d: path("M0,40 C 150,80 350,0 500,40 C 650,80 850,0 1000,40 C 1150,80 1350,0 1440,40 L 1440,120 L 0,120 Z"); }
+    50% { d: path("M0,55 C 150,20 350,90 500,55 C 650,20 850,90 1000,55 C 1150,20 1350,90 1440,55 L 1440,120 L 0,120 Z"); }
+    100% { d: path("M0,40 C 150,80 350,0 500,40 C 650,80 850,0 1000,40 C 1150,80 1350,0 1440,40 L 1440,120 L 0,120 Z"); }
+  }
+  @keyframes spinSlow { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  @keyframes marquee { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  @keyframes sunRays { 0%{transform:rotate(0deg) scale(1);} 50%{transform:rotate(180deg) scale(1.05);} 100%{transform:rotate(360deg) scale(1);} }
+
+  .polaroid {
+    background: white;
+    padding: 12px 12px 44px 12px;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
+    transform: rotate(-2deg);
+    transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+  }
+  .polaroid:hover { transform: rotate(1deg) translateY(-8px) scale(1.03); box-shadow: 0 20px 40px rgba(0,0,0,0.16);}
+  .polaroid:nth-child(2){ transform: rotate(2deg);} 
+  .polaroid:nth-child(2):hover{ transform: rotate(-1deg) translateY(-8px) scale(1.03);}
+
+  .board-card {
+    transition: transform 0.6s cubic-bezier(0.23,1,0.32,1), box-shadow 0.6s;
+    transform-style: preserve-3d;
+  }
+  .board-card:hover { transform: translateY(-12px) rotateX(4deg) rotateY(-6deg); }
+
+  /* Sun burst */
+  .sunburst {
+    background: radial-gradient(circle at center, #fde047 0%, #fde047 32%, #facc15 32%, #facc15 35%, transparent 35%),
+                repeating-conic-gradient(from 0deg, #fde047 0deg 8deg, transparent 8deg 18deg);
+    width: 120%; height: 120%;
+  }
+
+  ::selection { background: #fde047; }
+  /* Scroll bar hidden but progress */
+  .progress { transform-origin: left; }
+</style>
+</head>
+<body class="grain selection:bg-sun">
+  <!-- Progress -->
+  <div class="fixed top-0 left-0 h-[4px] w-full bg-transparent z-[100] pointer-events-none">
+    <div id="progress" class="progress h-full bg-terracotta w-full scale-x-0"></div>
+  </div>
+
+  <!-- Cursors -->
+  <div id="cursor" class="custom-cursor"></div>
+  <div id="cursorRing" class="custom-cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav id="navbar" class="fixed top-0 w-full z-40 transition-all duration-500">
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10 py-4 lg:py-5 flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <!-- Logo -->
+        <a href="#" class="group flex items-center gap-3">
+          <div class="relative w-[48px] h-[48px] bg-sun hand-border flex items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 sunburst opacity-70 group-hover:animate-spin-slow"></div>
+            <span class="relative font-hand font-bold text-[24px] -rotate-6">S</span>
+          </div>
+          <div class="leading-[0.9]">
+            <p class="font-hand font-bold text-[22px] tracking-tight">Sunbleached</p>
+            <p class="font-sans text-[10px] tracking-[0.22em] uppercase font-bold opacity-70">Venice Surf Co.</p>
+          </div>
+        </a>
+        <div class="hidden lg:flex items-center gap-8 font-sans text-[13px] font-semibold tracking-[0.08em] uppercase">
+          <a href="#quiver" class="hover:opacity-60 transition-opacity relative group">Quiver <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-sun group-hover:w-full transition-all"></span></a>
+          <a href="#story" class="hover:opacity-60 transition-opacity relative group">Our Story <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-sky group-hover:w-full transition-all"></span></a>
+          <a href="#lessons" class="hover:opacity-60 transition-opacity relative group">Lessons <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-terracotta group-hover:w-full transition-all"></span></a>
+          <a href="#gallery" class="hover:opacity-60 transition-opacity relative group">Shots <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-sun group-hover:w-full transition-all"></span></a>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 font-hand text-[18px] bg-white hand-border px-4 py-2 -rotate-1">
+          <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Shop open till 6pm
+        </div>
+        <button class="hidden lg:flex items-center gap-2 bg-ink text-cream px-6 py-[11px] rounded-full font-sans text-[13px] font-semibold uppercase tracking-wider hover:bg-ink-light transition-colors magnetic">
+          <span>Visit us — 73 Windward Ave</span><span class="text-sun">↗</span>
+        </button>
+        <button id="cartBtn" class="w-[46px] h-[46px] bg-white hand-border grid place-items-center hover:bg-sun transition-colors relative">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span id="cartCount" class="absolute -top-2 -right-2 bg-terracotta text-white text-[11px] w-5 h-5 rounded-full grid place-items-center font-bold">2</span>
+        </button>
+        <button id="menuBtn" class="lg:hidden w-[46px] h-[46px] bg-sun hand-border grid place-items-center">
+          <div class="space-y-1"><span class="block w-5 h-[2px] bg-ink"></span><span class="block w-5 h-[2px] bg-ink"></span><span class="block w-3 h-[2px] bg-ink"></span></div>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="fixed inset-0 z-50 bg-cream translate-x-full transition-transform duration-700 cubic-bezier(0.77,0,0.175,1) lg:hidden">
+    <div class="h-full flex flex-col p-8">
+      <div class="flex justify-between items-center">
+        <p class="font-hand text-3xl font-bold">Sunbleached</p>
+        <button id="closeMenu" class="w-12 h-12 bg-ink text-cream rounded-full grid place-items-center">✕</button>
+      </div>
+      <div class="mt-20 space-y-6">
+        <a href="#quiver" class="mobile-link block text-[64px] font-[900] leading-[0.9] font-sans tracking-tighter">QUIVER</a>
+        <a href="#story" class="mobile-link block text-[64px] font-[900] leading-[0.9] font-sans tracking-tighter opacity-60">STORY</a>
+        <a href="#lessons" class="mobile-link block text-[64px] font-[900] leading-[0.9] font-sans tracking-tighter opacity-60">LESSONS</a>
+        <a href="#gallery" class="mobile-link block text-[64px] font-[900] leading-[0.9] font-sans tracking-tighter opacity-60">SHOTS</a>
+      </div>
+      <div class="mt-auto hand-border bg-sky p-6 rotate-1">
+        <p class="font-hand text-2xl leading-tight">Come say hi — coffee's on us until 10am every morning.</p>
+        <p class="font-sans text-sm mt-2 opacity-70">73 Windward Ave, Venice, CA 90291</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="relative min-h-[92vh] lg:min-h-[100vh] pt-[88px] overflow-hidden">
+    <div class="absolute inset-0 -z-20">
+      <div class="absolute top-[-10%] right-[-10%] w-[68%] aspect-square">
+        <div class="w-full h-full rounded-full bg-sun/40 blur-[1px]"></div>
+        <div class="absolute inset-[12%] rounded-full border-[1.5px] border-ink/10 border-dashed animate-spin-slow"></div>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-sand/60 to-transparent"></div>
+    </div>
+
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10 h-full grid lg:grid-cols-[1.15fr_0.85fr] gap-8 items-center">
+      <!-- Left Copy -->
+      <div class="relative z-10 pt-8 lg:pt-16">
+        <div class="inline-flex items-center gap-3 bg-white hand-border px-4 py-2 rotate-[-1.5deg] mb-8">
+          <span class="font-hand text-[20px] leading-none">✦ new boards just dropped</span>
+          <span class="w-6 h-6 bg-sky rounded-full grid place-items-center text-[12px]">→</span>
+        </div>
+
+        <h1 class="font-sans font-[900] leading-[0.82] tracking-[-0.04em] text-[13vw] lg:text-[122px] xl:text-[136px]">
+          <span class="block">SUN'S</span>
+          <span class="block relative">OUT
+            <span class="absolute -top-4 -right-6 lg:right-10 font-hand font-bold text-[22px] lg:text-[28px] tracking-normal bg-terracotta text-white px-3 py-1 rotate-6 rounded-full">est. 1972</span>
+          </span>
+          <span class="block text-transparent" style="-webkit-text-stroke: 2px #1a1a18;">SURF'S</span>
+          <span class="block relative">
+            UP
+            <span class="absolute left-[52%] -bottom-2 w-[120px] h-[20px] -rotate-3 hidden lg:block">
+              <svg viewBox="0 0 120 12" class="w-full h-full overflow-visible"><path d="M0 8 Q 15 2, 30 8 T 60 8 T 90 8 T 120 8" stroke="#7dd3e0" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+            </span>
+          </span>
+        </h1>
+
+        <div class="mt-8 max-w-[440px] grid grid-cols-[auto_1fr] gap-4">
+          <div class="w-[2px] bg-ink/20 h-full"></div>
+          <div>
+            <p class="font-sans text-[18px] leading-[1.4] font-medium">Hand-shaped boards, salty hair, and no bad days. Venice's favorite little surf shop since your parents were groms.</p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <a href="#quiver" class="group relative inline-flex items-center bg-ink text-cream px-7 py-4 rounded-full font-sans font-bold text-[13px] tracking-[0.12em] uppercase overflow-hidden">
+                <span class="absolute inset-0 bg-sky translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]"></span>
+                <span class="relative flex items-center gap-3">Shop the Quiver <span class="group-hover:rotate-45 transition-transform">↗</span></span>
+              </a>
+              <a href="#lessons" class="inline-flex items-center gap-2 bg-white hand-border px-7 py-4 rounded-full font-sans font-bold text-[13px] tracking-[0.12em] uppercase hover:bg-sun transition-colors">
+                Take a lesson
+              </a>
+            </div>
+            <div class="mt-10 flex items-center gap-6">
+              <div class="flex -space-x-3">
+                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full border-2 border-cream object-cover" />
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full border-2 border-cream object-cover" />
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full border-2 border-cream object-cover" />
+              </div>
+              <p class="font-hand text-[18px] leading-[1.1] max-w-[160px]">"Best boards on the west coast, hands down" — 400+ happy shredders</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Visual -->
+      <div class="relative lg:h-[86vh] min-h-[560px] flex items-end justify-center pb-0 lg:pb-0">
+        <!-- Surfboard showcase stack -->
+        <div class="relative w-full max-w-[520px] mx-auto h-[640px] lg:h-[820px]">
+          <!-- Shadow puddle -->
+          <div class="absolute bottom-[36px] left-1/2 -translate-x-1/2 w-[60%] h-[28px] bg-ink/10 blur-[18px] rounded-full"></div>
+
+          <!-- Board 1 - main -->
+          <div class="absolute left-1/2 -translate-x-1/2 bottom-[48px] w-[200px] lg:w-[242px] h-[560px] lg:h-[720px] board-card z-30">
+            <div class="w-full h-full hand-border bg-white overflow-hidden relative p-3">
+              <div class="w-full h-full rounded-[120px] bg-sky relative overflow-hidden">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[78%] h-[88%] rounded-[100px] bg-cream flex flex-col items-center pt-12">
+                  <p class="font-hand text-[28px] font-bold -rotate-90 origin-left translate-y-[110px]">Sunbleached • The Log</p>
+                  <div class="w-[90%] h-[1.5px] bg-ink/10 my-8 rotate-90 origin-center"></div>
+                  <div class="w-14 h-14 bg-sun rounded-full grid place-items-center font-sans font-black text-[12px]">9'2"</div>
+                </div>
+                <!-- Fin -->
+                <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-10 bg-ink rounded-t-full"></div>
+              </div>
+            </div>
+            <!-- Price tag -->
+            <div class="absolute -right-6 top-[22%] bg-sun hand-border px-3 py-2 rotate-3 z-40">
+              <p class="font-sans font-black text-[12px] leading-none">$1,250</p>
+              <p class="font-hand text-[14px] leading-none">shaped by hand</p>
+            </div>
+          </div>
+
+          <!-- Board 2 -->
+          <div class="absolute left-[14%] bottom-[60px] w-[150px] h-[460px] board-card z-20 hidden lg:block rotate-[-8deg]">
+            <div class="w-full h-full hand-border bg-white p-2 opacity-90">
+              <div class="w-full h-full rounded-[110px] bg-sun relative overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,white_0%,transparent_45%)] opacity-60"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Board 3 -->
+          <div class="absolute right-[12%] bottom-[70px] w-[145px] h-[440px] board-card z-10 hidden lg:block rotate-[9deg]">
+            <div class="w-full h-full hand-border bg-white p-2 opacity-80">
+              <div class="w-full h-full rounded-[110px] bg-terracotta/90"></div>
+            </div>
+          </div>
+
+          <!-- Floating doodles -->
+          <div class="absolute top-[8%] right-[6%] font-hand text-[22px] rotate-12 bg-white hand-border px-4 py-1">stay salty ✦</div>
+          <div class="absolute top-[18%] left-[4%] w-12 h-12 hand-border bg-sky rounded-full grid place-items-center text-[20px] animate-float">☀️</div>
+          <div class="absolute bottom-[26%] left-[0%] font-sans text-[11px] tracking-[0.2em] uppercase font-bold -rotate-90 origin-left border border-ink/20 px-3 py-1 rounded-full hidden lg:block">Venice Beach — 33.9850° N</div>
+        </div>
+
+        <!-- Beach image behind -->
+        <div class="absolute left-1/2 -translate-x-1/2 bottom-0 w-[92vw] lg:w-[48vw] h-[42%] -z-10 overflow-hidden rounded-t-[32px] hand-border">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&h=600&fit=crop" alt="beach" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-sky/20 mix-blend-multiply"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave divider -->
+    <div class="absolute bottom-0 left-0 w-full h-[72px] -mb-[1px] z-20 pointer-events-none">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" class="w-full h-full">
+        <path id="wavePath" fill="#f5e6c4" d="M0,40 C 150,80 350,0 500,40 C 650,80 850,0 1000,40 C 1150,80 1350,0 1440,40 L 1440,120 L 0,120 Z"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="relative bg-ink text-cream overflow-hidden py-3 rotate-[-0.6deg] -mt-1 z-30">
+    <div class="flex whitespace-nowrap animate-marquee">
+      <div class="flex items-center gap-6 font-sans font-black tracking-[0.08em] text-[14px] uppercase pr-6">
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+      </div>
+      <div aria-hidden="true" class="flex items-center gap-6 font-sans font-black tracking-[0.08em] text-[14px] uppercase pr-6">
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+        <span>✦ wax up • paddle out • stay salty • no kooks • sunbleached surf co. • Venice 1972 •</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY -->
+  <section id="story" class="relative bg-sand py-20 lg:py-32 overflow-hidden">
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10 grid lg:grid-cols-[0.95fr_1.05fr] gap-12 lg:gap-20 items-start">
+      <!-- Polaroids -->
+      <div class="relative">
+        <div class="tape -top-3 left-[18%] rotate-[-6deg]"></div>
+        <div class="grid grid-cols-2 gap-6 max-w-[520px]">
+          <div class="polaroid">
+            <div class="aspect-[4/5] overflow-hidden bg-sand-dark">
+              <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=750&fit=crop" alt="70s surf" class="w-full h-full object-cover grayscale-[0.2] contrast-[1.1]"/>
+            </div>
+            <p class="font-hand text-[20px] mt-4 leading-none">Marty's first board - 1972</p>
+          </div>
+          <div class="polaroid mt-10">
+            <div class="aspect-[4/5] overflow-hidden bg-sand-dark">
+              <img src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=600&h=750&fit=crop" alt="surf shop" class="w-full h-full object-cover"/>
+            </div>
+            <p class="font-hand text-[20px] mt-4 leading-none">Shop cat: Pickles 🐾</p>
+          </div>
+          <div class="polaroid col-span-2 -mt-6 rotate-[-1.2deg]">
+            <div class="aspect-[16/10] overflow-hidden bg-sand-dark">
+              <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=900&h=560&fit=crop" alt="shaping bay" class="w-full h-full object-cover"/>
+            </div>
+            <p class="font-hand text-[20px] mt-4 leading-none">Shaping bay smells like wax + coffee. Open door policy.</p>
+          </div>
+        </div>
+        <div class="tape yellow bottom-[12%] right-[10%] rotate-[12deg]"></div>
+      </div>
+
+      <!-- Copy -->
+      <div class="lg:sticky top-[120px]">
+        <p class="font-hand text-[28px] text-terracotta leading-none rotate-[-2deg] inline-block">wait... let us tell you</p>
+        <h2 class="font-sans font-[900] text-[56px] lg:text-[84px] leading-[0.88] tracking-[-0.03em] mt-4">
+          WE STARTED IN<br/>
+          A GARAGE WITH<br/>
+          <span class="relative inline-block">TWO FOAM BLANKS
+            <span class="absolute left-0 right-0 bottom-2 h-[14px] bg-sun -z-10 -rotate-1"></span>
+          </span><br/>
+          & A DREAM.
+        </h2>
+        <div class="mt-8 space-y-6 font-sans text-[18px] leading-[1.6] max-w-[520px]">
+          <p>1972. Marty & June — two art school dropouts with more beach time than sense — started shaping boards in a Venice garage that leaked every time it rained. Which was never, because it's Venice.</p>
+          <p class="opacity-70">Fifty years later we're still here, still hand-shaping every single board that leaves the shop. No CNC, no factories, no buzzwords. Just foam, fiberglass, and a lot of terrible jokes.</p>
+          <div class="grid grid-cols-3 gap-4 pt-6">
+            <div class="hand-border bg-white p-4 -rotate-1">
+              <p class="font-sans font-black text-[32px] leading-none">50+</p>
+              <p class="font-hand text-[16px] leading-[1.1] mt-1">years salty<br/>and sun-bleached</p>
+            </div>
+            <div class="hand-border bg-sky p-4 rotate-1">
+              <p class="font-sans font-black text-[32px] leading-none">12k</p>
+              <p class="font-hand text-[16px] leading-[1.1] mt-1">boards shaped<br/>by actual humans</p>
+            </div>
+            <div class="hand-border bg-sun p-4 -rotate-1">
+              <p class="font-sans font-black text-[32px] leading-none">0</p>
+              <p class="font-hand text-[16px] leading-[1.1] mt-1">bad vibes<br/>we tolerate</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-12 flex items-center gap-4">
+          <div class="w-14 h-14 rounded-full bg-ink text-cream grid place-items-center font-hand text-[26px] -rotate-6">MJ</div>
+          <div>
+            <p class="font-sans font-bold text-[14px] uppercase tracking-wider">Marty & June Alvarez</p>
+            <p class="font-hand text-[18px] leading-none opacity-70">founders, still sweeping the shop</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIVER / PRODUCTS -->
+  <section id="quiver" class="relative bg-cream py-20 lg:py-28 overflow-hidden">
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+        <div>
+          <div class="inline-flex items-center gap-2 font-hand text-[22px] bg-sky hand-border px-4 py-1 rotate-1">✦ hand-shaped in Venice</div>
+          <h2 class="mt-6 font-sans font-[900] text-[56px] lg:text-[96px] leading-[0.85] tracking-[-0.04em]">THE QUIVER</h2>
+        </div>
+        <div class="max-w-[380px] font-sans text-[16px] leading-[1.5] opacity-70 pb-4">Four shapes we obsess over. Each one glassed, sanded, and signed by hand. Ride what we ride.</div>
+      </div>
+
+      <div class="mt-12 lg:mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <!-- Board Card 1 -->
+        <div class="group relative">
+          <div class="hand-border bg-white p-3 lg:p-4 pb-6 relative overflow-hidden board-card">
+            <div class="absolute top-4 left-4 bg-ink text-cream text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1 rounded-full">Best Seller</div>
+            <div class="absolute top-4 right-4 w-8 h-8 bg-sun hand-border rounded-full grid place-items-center font-hand font-bold">new!</div>
+            <div class="aspect-[3/4.2] mt-6 rounded-[28px] bg-gradient-to-b from-sky/30 to-sky/70 relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=500&h=680&fit=crop" class="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-70" alt="board">
+              <div class="absolute inset-0 grid place-items-center"><div class="w-[56px] h-[82%] bg-cream/90 rounded-full hand-border"></div></div>
+              <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white hand-border px-3 py-1 text-[11px] font-bold tracking-widest uppercase">The Log // 9'2</div>
+            </div>
+            <div class="mt-5 px-1">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="font-sans font-bold text-[20px] leading-[1.1]">The Log<br/><span class="font-hand font-normal text-[18px] opacity-60">for noseriders & dreamers</span></h3>
+                <p class="font-sans font-black text-[18px]">$1,250</p>
+              </div>
+              <div class="mt-4 flex gap-2">
+                <span class="w-5 h-5 rounded-full bg-sky border border-ink"></span>
+                <span class="w-5 h-5 rounded-full bg-sand border border-ink"></span>
+                <span class="w-5 h-5 rounded-full bg-white border border-ink"></span>
+              </div>
+              <button class="mt-5 w-full bg-ink text-cream rounded-full py-3 font-bold text-[12px] tracking-[0.12em] uppercase group-hover:bg-terracotta transition-colors">Add to Cart — $1,250</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Board Card 2 -->
+        <div class="group relative lg:mt-10">
+          <div class="hand-border bg-white p-3 lg:p-4 pb-6 relative overflow-hidden board-card">
+            <div class="aspect-[3/4.2] mt-3 rounded-[28px] bg-sun relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1526761122248-c31c93f8b2d9?w=500&h=700&fit=crop" class="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-50" alt="board">
+              <div class="absolute inset-0 grid place-items-center"><div class="w-[62px] h-[78%] bg-ink rounded-full"></div></div>
+              <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-ink text-cream hand-border px-3 py-1 text-[11px] font-bold tracking-widest uppercase">Sunset Twin // 5'8</div>
+            </div>
+            <div class="mt-5 px-1">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="font-sans font-bold text-[20px] leading-[1.1]">Sunset Twin<br/><span class="font-hand font-normal text-[18px] opacity-60">fishy & fast</span></h3>
+                <p class="font-sans font-black text-[18px]">$895</p>
+              </div>
+              <div class="mt-4 flex gap-2">
+                <span class="w-5 h-5 rounded-full bg-sun border border-ink"></span>
+                <span class="w-5 h-5 rounded-full bg-terracotta border border-ink"></span>
+              </div>
+              <button class="mt-5 w-full bg-white hand-border rounded-full py-3 font-bold text-[12px] tracking-[0.12em] uppercase group-hover:bg-sun transition-colors">Add to Cart — $895</button>
+            </div>
+          </div>
+          <div class="absolute -top-3 -right-3 bg-sky hand-border px-3 py-1 rotate-6 font-hand text-[14px] hidden lg:block">staff pick</div>
+        </div>
+
+        <!-- Board Card 3 -->
+        <div class="group relative">
+          <div class="hand-border bg-white p-3 lg:p-4 pb-6 relative overflow-hidden board-card">
+            <div class="aspect-[3/4.2] mt-3 rounded-[28px] bg-terracotta/30 relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1502680393100-267202a7d534?w=500&h=700&fit=crop" class="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-60" alt="board">
+              <div class="absolute inset-0 grid place-items-center"><div class="w-[58px] h-[80%] bg-cream rounded-full hand-border"></div></div>
+              <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white hand-border px-3 py-1 text-[11px] font-bold tracking-widest uppercase">Golden Mid // 7'0</div>
+            </div>
+            <div class="mt-5 px-1">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="font-sans font-bold text-[20px] leading-[1.1]">Golden Mid<br/><span class="font-hand font-normal text-[18px] opacity-60">the one-board quiver</span></h3>
+                <p class="font-sans font-black text-[18px]">$1,050</p>
+              </div>
+              <div class="mt-4 flex gap-2">
+                <span class="w-5 h-5 rounded-full bg-cream border border-ink"></span>
+                <span class="w-5 h-5 rounded-full bg-[#a7f3d0] border border-ink"></span>
+              </div>
+              <button class="mt-5 w-full bg-white hand-border rounded-full py-3 font-bold text-[12px] tracking-[0.12em] uppercase group-hover:bg-sun transition-colors">Add to Cart — $1,050</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Board Card 4 -->
+        <div class="group relative lg:mt-10">
+          <div class="hand-border bg-white p-3 lg:p-4 pb-6 relative overflow-hidden board-card">
+            <div class="absolute top-4 left-4 bg-sun text-ink text-[10px] font-bold tracking-[0.14em] uppercase px-3 py-1 rounded-full hand-border">Grom Approved</div>
+            <div class="aspect-[3/4.2] mt-8 rounded-[28px] bg-sky-deep/30 relative overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1519048400217-341b6774d43d?w=500&h=700&fit=crop" class="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-40" alt="board">
+              <div class="absolute inset-0 grid place-items-center"><div class="w-[50px] h-[74%] bg-sun rounded-full hand-border rotate-2"></div></div>
+              <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-sky text-ink hand-border px-3 py-1 text-[11px] font-bold tracking-widest uppercase">Grom Rocket // 5'2</div>
+            </div>
+            <div class="mt-5 px-1">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="font-sans font-bold text-[20px] leading-[1.1]">Grom Rocket<br/><span class="font-hand font-normal text-[18px] opacity-60">for the little rippers</span></h3>
+                <p class="font-sans font-black text-[18px]">$720</p>
+              </div>
+              <div class="mt-4 flex gap-2">
+                <span class="w-5 h-5 rounded-full bg-sky border border-ink"></span>
+                <span class="w-5 h-5 rounded-full bg-sun border border-ink"></span>
+              </div>
+              <button class="mt-5 w-full bg-white hand-border rounded-full py-3 font-bold text-[12px] tracking-[0.12em] uppercase group-hover:bg-sky transition-colors">Add to Cart — $720</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub note -->
+      <div class="mt-12 flex flex-wrap items-center justify-between gap-6 border-t border-ink/10 pt-8">
+        <p class="font-hand text-[22px] max-w-[520px] leading-[1.2]">All boards made from recycled foam & bio-resin. We plant 10 trees? Nah — we actually clean the beach every Tuesday. Pull up.</p>
+        <a href="#" class="inline-flex items-center gap-2 font-sans font-bold text-[13px] tracking-[0.1em] uppercase underline decoration-wavy decoration-[3px] decoration-sun underline-offset-8">View full lookbook ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- LESSONS & SERVICES -->
+  <section id="lessons" class="relative bg-ink text-cream py-20 lg:py-32 overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 22px 22px;"></div>
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10 relative">
+      <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-16">
+        <div>
+          <div class="inline-flex items-center gap-2 bg-sun text-ink hand-border px-4 py-2 rotate-[-1deg] font-hand text-[20px]">☀️ don't know how to surf yet? perfect</div>
+          <h2 class="mt-8 font-sans font-[900] text-[48px] lg:text-[72px] leading-[0.85] tracking-[-0.03em] text-cream">
+            LEARN FROM<br/>
+            <span class="text-sun">LOCO</span> LOCALS
+          </h2>
+          <div class="mt-10 space-y-4 max-w-[420px]">
+            <div class="flex gap-4">
+              <span class="w-10 h-10 rounded-full bg-sky text-ink grid place-items-center font-black flex-shrink-0">1</span>
+              <div><p class="font-bold text-[15px] uppercase tracking-wider">First Timers — 2hrs / $95</p><p class="font-hand text-[18px] opacity-70 leading-tight mt-1">We get you standing. No ego, just stoke. Wetsuit + board included.</p></div>
+            </div>
+            <div class="flex gap-4">
+              <span class="w-10 h-10 rounded-full bg-sun text-ink grid place-items-center font-black flex-shrink-0">2</span>
+              <div><p class="font-bold text-[15px] uppercase tracking-wider">Sunrise Club — 6am / $65</p><p class="font-hand text-[18px] opacity-70 leading-tight mt-1">Coffee, stretch, dawn patrol. Mon/Wed/Fri. Bring a friend, it's $10 less.</p></div>
+            </div>
+            <div class="flex gap-4">
+              <span class="w-10 h-10 rounded-full bg-terracotta text-cream grid place-items-center font-black flex-shrink-0">3</span>
+              <div><p class="font-bold text-[15px] uppercase tracking-wider">Shaping 101 — 4hrs / $250</p><p class="font-hand text-[18px] opacity-70 leading-tight mt-1">Shape your own alaias with Marty. You’ll leave dusty and proud.</p></div>
+            </div>
+          </div>
+          <button class="mt-10 bg-sun text-ink px-8 py-4 rounded-full font-bold text-[13px] uppercase tracking-[0.14em] hover:bg-white transition-colors">Book a Lesson — we reply fast</button>
+        </div>
+
+        <div class="relative">
+          <!-- Big image -->
+          <div class="relative hand-border overflow-hidden rotate-1 bg-sand">
+            <div class="tape -top-2 left-[20%]-2 -rotate-6"></div>
+            <img src="https://images.unsplash.com/photo-1502680393100-267202a7d534?w=1100&h=800&fit=crop" alt="surf lesson" class="w-full aspect-[4/3] lg:aspect-[1.2/1] object-cover"/>
+            <div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md p-5 flex items-center justify-between">
+              <div>
+                <p class="font-sans font-black text-[14px] uppercase tracking-wider">Next Dawn Patrol</p>
+                <p class="font-hand text-[20px] leading-none">Tomorrow 6:12am — south swell looking juicy</p>
+              </div>
+              <div class="w-12 h-12 bg-ink text-cream rounded-full grid place-items-center">→</div>
+            </div>
+          </div>
+          <!-- Small floating info -->
+          <div class="absolute -bottom-10 -left-6 lg:-left-12 bg-sky text-ink hand-border p-5 max-w-[260px] rotate-[-2deg] hidden md:block">
+            <p class="font-sans font-black text-[11px] tracking-[0.2em] uppercase">Rental Shed</p>
+            <p class="font-hand text-[20px] leading-[1.1] mt-2">Soft-tops $35/day, shorties $25, we hold your ID not your soul.</p>
+            <img src="https://images.unsplash.com/photo-1519048400217-341b6774d43d?w=400&h=300&fit=crop" class="mt-4 w-full h-[100px] object-cover hand-border"/>
+          </div>
+          <div class="absolute top-[10%] -right-6 bg-sun text-ink hand-border px-4 py-3 rotate-3 font-hand text-[18px] hidden lg:block">no reservation needed for vibes</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery" class="bg-cream py-20 lg:py-28 overflow-hidden">
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10">
+      <div class="flex flex-wrap items-end justify-between gap-6 mb-12">
+        <h2 class="font-sans font-[900] text-[52px] lg:text-[88px] leading-[0.85] tracking-[-0.04em]">SALTY SNAPS<br/><span class="font-hand font-bold text-[36px] lg:text-[42px] tracking-normal opacity-60">from the street, the beach & the shaping room</span></h2>
+        <p class="font-hand text-[20px] bg-white hand-border px-4 py-2 rotate-1 max-w-[300px]">Tag us @sunbleached.surf — we repost everything, even your wipeouts</p>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-12 gap-3 lg:gap-4 auto-rows-[160px] lg:auto-rows-[220px]">
+        <div class="lg:col-span-5 row-span-2 hand-border overflow-hidden relative group">
+          <img src="https://images.unsplash.com/photo-1473186505569-9c61870c11f9?w=800&h=900&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" alt="surf"/>
+          <div class="absolute bottom-3 left-3 bg-ink text-cream text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">Venice Pier — 6:34am</div>
+        </div>
+        <div class="lg:col-span-3 hand-border overflow-hidden relative group">
+          <img src="https://images.unsplash.com/photo-1559827291-72ee739d0d95?w=600&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.08] transition-transform duration-700" alt="surf"/>
+        </div>
+        <div class="lg:col-span-4 row-span-2 hand-border overflow-hidden relative group">
+          <img src="https://images.unsplash.com/photo-1526761122248-c31c93f8b2d9?w=800&h=1100&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" alt="board"/>
+          <div class="tape yellow top-4 right-4 rotate-12"></div>
+        </div>
+        <div class="lg:col-span-3 hand-border overflow-hidden relative group">
+          <img src="https://images.unsplash.com/photo-1502680393100-267202a7d534?w=600&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.08] transition-transform duration-700" alt="surf"/>
+          <div class="absolute inset-0 bg-sun/20 mix-blend-multiply opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </div>
+        <div class="col-span-2 lg:col-span-4 hand-border overflow-hidden relative group">
+          <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=900&h=500&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-700" alt="shop"/>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white hand-border px-4 py-2 font-hand text-[20px] rotate-2">shaping bay →</div>
+        </div>
+        <div class="lg:col-span-3 hand-border overflow-hidden relative group">
+          <img src="https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=600&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.08] transition-transform duration-700" alt="beach"/>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="relative bg-sky py-20 lg:py-28 overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-[72px] -mt-[1px] rotate-180">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" class="w-full h-full"><path fill="#FFF8E7" d="M0,40 C 150,80 350,0 500,40 C 650,80 850,0 1000,40 C 1150,80 1350,0 1440,40 L 1440,120 L 0,120 Z"></path></svg>
+    </div>
+
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10 pt-10">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-14">
+        <h2 class="font-sans font-black text-[52px] lg:text-[88px] leading-[0.85] tracking-[-0.04em]">NO KOOKS,<br/>JUST STOKE</h2>
+        <p class="font-hand text-[26px] leading-[1.1] max-w-[360px] -rotate-1">what the regulars say when we're not bribing them with free wax</p>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- Review 1 -->
+        <div class="bg-white hand-border p-6 lg:p-8 relative rotate-[-0.8deg] hover:rotate-0 transition-transform duration-500">
+          <div class="flex gap-1 text-[18px]">★★★★★</div>
+          <p class="font-sans font-medium text-[18px] leading-[1.4] mt-4">"Marty shaped me a board based on literally a cocktail napkin drawing I did. It’s the best board I’ve ever ridden. The dude is a wizard."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full object-cover"/>
+            <div>
+              <p class="font-sans font-bold text-[13px] uppercase tracking-wider">Leo — Venice</p>
+              <p class="font-hand text-[16px] leading-none">rides The Log 9'2</p>
+            </div>
+          </div>
+          <div class="absolute -top-3 -right-3 bg-sun hand-border px-3 py-1 font-hand text-[14px] rotate-6">legit wizardry</div>
+        </div>
+        <!-- Review 2 -->
+        <div class="bg-ink text-cream hand-border p-6 lg:p-8 relative rotate-[1deg] hover:rotate-0 transition-transform duration-500">
+          <div class="flex gap-1 text-[18px] text-sun">★★★★★</div>
+          <p class="font-sans font-medium text-[18px] leading-[1.4] mt-4">"I walked in to buy wax and left with a lesson booked, a coffee, and life advice I didn’t know I needed. June is literally your cool surf aunt."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full object-cover"/>
+            <div>
+              <p class="font-sans font-bold text-[13px] uppercase tracking-wider text-sun">Samira — Topanga</p>
+              <p class="font-hand text-[16px] leading-none opacity-80">Sunrise Club regular</p>
+            </div>
+          </div>
+          <div class="absolute -bottom-4 -left-2 bg-white text-ink hand-border px-3 py-1 font-hand text-[14px] -rotate-3">cool surf aunt approved</div>
+        </div>
+        <!-- Review 3 -->
+        <div class="bg-sun hand-border p-6 lg:p-8 relative rotate-[-0.3deg] hover:rotate-0 transition-transform duration-500">
+          <div class="flex gap-1 text-[18px]">★★★★★</div>
+          <p class="font-sans font-medium text-[18px] leading-[1.4] mt-4">"My Grom Rocket board? My 9-year-old hasn't stopped talking about it. She sleeps next to it. Is that normal? No? We don’t care."</p>
+          <div class="mt-6 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full object-cover"/>
+            <div>
+              <p class="font-sans font-bold text-[13px] uppercase tracking-wider">Tasha — Culver</p>
+              <p class="font-hand text-[16px] leading-none">mom of a ripper</p>
+            </div>
+          </div>
+          <div class="tape top-2 right-[20%] rotate-[-8deg]"></div>
+        </div>
+      </div>
+
+      <div class="mt-12 flex flex-wrap justify-center gap-3 font-sans text-[11px] font-bold tracking-[0.15em] uppercase opacity-60">
+        <span class="hand-border bg-white px-4 py-2 -rotate-1">400+ Reviews on Google ★ 4.9</span>
+        <span class="hand-border bg-white px-4 py-2 rotate-1">Yelp's "Most Chill Shop" 2023</span>
+        <span class="hand-border bg-white px-4 py-2 -rotate-1">Surfer Mag Staff Pick</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT / VISIT -->
+  <section id="contact" class="relative bg-cream py-20 lg:py-28 overflow-hidden">
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10 grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-start">
+      <div>
+        <h2 class="font-sans font-[900] text-[56px] lg:text-[96px] leading-[0.82] tracking-[-0.04em]">PULL UP,<br/>THE WATER'S<br/><span class="relative inline-block">FINE<span class="absolute -right-8 -top-2 text-[36px]">☀️</span></span></h2>
+        
+        <div class="mt-10 grid sm:grid-cols-2 gap-6 max-w-[560px]">
+          <div class="hand-border bg-white p-6">
+            <p class="font-sans font-black text-[12px] tracking-[0.18em] uppercase">Find us in Venice</p>
+            <p class="font-sans font-medium text-[18px] leading-[1.3] mt-3">73 Windward Ave<br/>Venice, CA 90291<br/><span class="opacity-50">Between the taco spot and tattoo parlor. You’ll smell the wax.</span></p>
+            <a href="#" class="mt-4 inline-flex bg-ink text-cream px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider">Open Maps ↗</a>
+          </div>
+          <div class="hand-border bg-sun p-6 rotate-1">
+            <p class="font-sans font-black text-[12px] tracking-[0.18em] uppercase">Hours — we surf early</p>
+            <div class="font-hand text-[20px] leading-[1.3] mt-3 space-y-1">
+              <p>Mon – Fri • 7am – 6pm</p>
+              <p>Sat – Sun • 6am – 7pm</p>
+              <p class="font-sans text-[13px] font-bold uppercase opacity-60 pt-2">Tuesdays we close early to clean the beach</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-10 flex flex-col sm:flex-row gap-4">
+          <div class="flex items-center gap-3 hand-border bg-white px-6 py-4">
+            <span class="w-10 h-10 bg-sky hand-border rounded-full grid place-items-center">☎</span>
+            <div><p class="font-sans font-black text-[12px] uppercase tracking-wider opacity-60">Call the shop</p><p class="font-sans font-bold text-[16px]">(310) 555-0142</p></div>
+          </div>
+          <div class="flex items-center gap-3 hand-border bg-white px-6 py-4">
+            <span class="w-10 h-10 bg-sun hand-border rounded-full grid place-items-center">✉</span>
+            <div><p class="font-sans font-black text-[12px] uppercase tracking-wider opacity-60">Holler</p><p class="font-sans font-bold text-[16px]">hey@sunbleached.surf</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="hand-border bg-ink text-cream p-7 lg:p-8 rotate-[-0.5deg]">
+          <div class="flex items-center justify-between">
+            <p class="font-hand text-[28px] leading-none">join the sunrise club list</p>
+            <span class="text-sun text-[24px]">✦</span>
+          </div>
+          <p class="font-sans text-[14px] leading-[1.5] opacity-70 mt-3 max-w-[360px]">Swell alerts, secret shop sales, and terrible surf jokes twice a month. No spam, just stoke.</p>
+          <form class="mt-6 flex flex-col sm:flex-row gap-3" onsubmit="event.preventDefault(); this.querySelector('button').textContent='YOU\'RE IN! ☀️';">
+            <input required type="email" placeholder="your email — we'll be gentle" class="flex-1 bg-white text-ink hand-border px-5 py-4 font-sans text-[15px] placeholder:opacity-50 focus:outline-none focus:ring-2 focus:ring-sun rounded-full"/>
+            <button class="bg-sun text-ink px-7 py-4 rounded-full font-bold text-[12px] tracking-[0.12em] uppercase hover:bg-white transition-colors">Sign Me Up</button>
+          </form>
+          <p class="font-hand text-[16px] opacity-50 mt-4">p.s. we never sell your email. Marty still uses a flip phone.</p>
+
+          <div class="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-6">
+            <img src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=200&h=200&fit=crop" class="w-full h-[72px] object-cover hand-border opacity-80"/>
+            <img src="https://images.unsplash.com/photo-1519048400217-341b6774d43d?w=200&h=200&fit=crop" class="w-full h-[72px] object-cover hand-border opacity-80"/>
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&h=200&fit=crop" class="w-full h-[72px] object-cover hand-border opacity-80"/>
+          </div>
+        </div>
+
+        <div class="absolute -bottom-6 -right-4 bg-terracotta text-cream hand-border px-4 py-3 rotate-6 font-hand text-[18px] hidden lg:block max-w-[200px] leading-[1.1]">Free coffee & terrible advice daily till 10am</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="relative bg-ink text-cream pt-16 pb-8 overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-[56px] -mt-[1px]">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" class="w-full h-full rotate-180"><path fill="#FFF8E7" d="M0,40 C 150,80 350,0 500,40 C 650,80 850,0 1000,40 C 1150,80 1350,0 1440,40 L 1440,120 L 0,120 Z"></path></svg>
+    </div>
+    <div class="mx-auto max-w-[1440px] px-6 lg:px-10 pt-10">
+      <div class="flex flex-col lg:flex-row justify-between gap-12">
+        <div>
+          <div class="flex items-center gap-3">
+            <div class="w-[52px] h-[52px] bg-sun text-ink hand-border grid place-items-center font-hand font-bold text-[24px] -rotate-6">S</div>
+            <div><p class="font-hand font-bold text-[26px] leading-none">Sunbleached</p><p class="font-sans text-[11px] tracking-[0.2em] uppercase opacity-60">Venice Surf Co. • Est. 1972</p></div>
+          </div>
+          <p class="font-hand text-[22px] leading-[1.2] max-w-[320px] mt-6 opacity-80 rotate-[-0.5deg]">We shape boards, teach humans, drink too much coffee, and believe every day is a good day to paddle out.</p>
+          <div class="mt-8 flex gap-2">
+            <a href="#" class="w-10 h-10 bg-white/10 hover:bg-sun hover:text-ink transition-colors rounded-full grid place-items-center">ig</a>
+            <a href="#" class="w-10 h-10 bg-white/10 hover:bg-sky hover:text-ink transition-colors rounded-full grid place-items-center">tt</a>
+            <a href="#" class="w-10 h-10 bg-white/10 hover:bg-sun hover:text-ink transition-colors rounded-full grid place-items-center">yt</a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-10 lg:gap-16 font-sans text-[14px]">
+          <div>
+            <p class="font-black tracking-[0.14em] uppercase text-[11px] opacity-40 mb-4">Shop</p>
+            <div class="space-y-3 opacity-80">
+              <a href="#" class="block hover:text-sun">Quiver</a>
+              <a href="#" class="block hover:text-sun">Wetsuits</a>
+              <a href="#" class="block hover:text-sun">Wax & Fins</a>
+              <a href="#" class="block hover:text-sun">Lookbook</a>
+            </div>
+          </div>
+          <div>
+            <p class="font-black tracking-[0.14em] uppercase text-[11px] opacity-40 mb-4">Learn</p>
+            <div class="space-y-3 opacity-80">
+              <a href="#" class="block hover:text-sun">Lessons</a>
+              <a href="#" class="block hover:text-sun">Rentals</a>
+              <a href="#" class="block hover:text-sun">Shaping 101</a>
+              <a href="#" class="block hover:text-sun">Dawn Patrol</a>
+            </div>
+          </div>
+          <div>
+            <p class="font-black tracking-[0.14em] uppercase text-[11px] opacity-40 mb-4">Visit</p>
+            <div class="space-y-3 opacity-80">
+              <a href="#" class="block hover:text-sun">Shop Tour</a>
+              <a href="#" class="block hover:text-sun">Hours</a>
+              <a href="#" class="block hover:text-sun">Parking Tips</a>
+              <a href="#" class="block hover:text-sun">Careers</a>
+            </div>
+          </div>
+          <div>
+            <p class="font-black tracking-[0.14em] uppercase text-[11px] opacity-40 mb-4">Tiny Print</p>
+            <div class="space-y-3 opacity-60">
+              <a href="#" class="block">Shipping</a>
+              <a href="#" class="block">Returns</a>
+              <a href="#" class="block">Repairs</a>
+              <p class="font-hand text-[16px] opacity-100 mt-4 leading-tight">Made with salty hands in Venice Beach</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-16 border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="font-sans text-[11px] tracking-[0.16em] uppercase opacity-40">© 2026 Sunbleached Surf Co. • No kooks, no algorithms, just good waves. All boards hand-shaped on Tongva land.</p>
+        <div class="flex items-center gap-6">
+          <span class="font-hand text-[18px] opacity-60 rotate-[-1deg]">stay salty ✦ see you at first light</span>
+          <div class="w-8 h-8 bg-sun rounded-full grid place-items-center text-ink animate-spin-slow">☀️</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Big background text -->
+    <div class="pointer-events-none select-none absolute -bottom-[6%] left-0 right-0 text-center font-sans font-[900] text-[18vw] leading-none tracking-[-0.05em] opacity-[0.04]">SUNBLEACHED</div>
+  </footer>
+
+<script>
+  // Progress bar
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    progress.style.transform = `scaleX(${scrolled})`;
+    const nav = document.getElementById('navbar');
+    if (window.scrollY > 80) {
+      nav.classList.add('bg-cream/80','backdrop-blur-xl','shadow-[0_8px_24px_rgba(0,0,0,0.06)]');
+    } else {
+      nav.classList.remove('bg-cream/80','backdrop-blur-xl','shadow-[0_8px_24px_rgba(0,0,0,0.06)]');
+    }
+  });
+
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0, curX = 0, curY = 0;
+  window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+  (function animateCursor(){
+    curX += (mouseX - curX) * 0.22;
+    curY += (mouseY - curY) * 0.22;
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    cursor.style.transform = `translate(${curX - 11}px, ${curY - 11}px)`;
+    cursorRing.style.transform = `translate(${ringX - 28}px, ${ringY - 28}px)`;
+    requestAnimationFrame(animateCursor);
+  })();
+
+  const hoverEls = document.querySelectorAll('a, button, .board-card, .polaroid');
+  hoverEls.forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.classList.add('hover');
+      const label = el.dataset.cursor || el.textContent.slice(0,10) || '✦';
+      if (el.classList.contains('board-card')) cursor.setAttribute('data-label','ride!');
+      else if (el.tagName === 'A') cursor.setAttribute('data-label','go');
+      else cursor.setAttribute('data-label','✦');
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.classList.remove('hover');
+      cursor.removeAttribute('data-label');
+    });
+  });
+
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const closeMenu = document.getElementById('closeMenu');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn?.addEventListener('click', () => mobileMenu.classList.remove('translate-x-full'));
+  closeMenu?.addEventListener('click', () => mobileMenu.classList.add('translate-x-full'));
+  document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => mobileMenu.classList.add('translate-x-full')));
+
+  // Board tilt effect
+  document.querySelectorAll('.board-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const rx = (y / rect.height - 0.5) * -12;
+      const ry = (x / rect.width - 0.5) * 14;
+      card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-10px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+
+  // Wave morph animation via JS (fallback)
+  const wavePath = document.getElementById('wavePath');
+  if (wavePath) {
+    let t = 0;
+    const base = "M0,40 C 150,80 350,0 500,40 C 650,80 850,0 1000,40 C 1150,80 1350,0 1440,40 L 1440,120 L 0,120 Z";
+    // Use CSS keyframes primarily, JS as subtle drift
+    setInterval(() => {
+      t+=0.02;
+      const a = 40 + Math.sin(t)*8;
+      const b = 80 + Math.cos(t*0.8)*12;
+      const c = Math.sin(t*1.2)*15;
+      // simple live update for extra organic feel
+      wavePath.setAttribute('d', `M0,${a} C 150,${b} 350,${a-c} 500,${a} C 650,${b} 850,${a-c} 1000,${a} C 1150,${b} 1350,${a-c} 1440,${a} L 1440,120 L 0,120 Z`);
+    }, 40);
+  }
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0) rotate(0)';
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.polaroid, .board-card, .hand-border').forEach((el,i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(18px)';
+    el.style.transition = `all 0.8s cubic-bezier(0.23,1,0.32,1) ${i*0.04}s`;
+    observer.observe(el);
+  });
+
+  // Cart tiny interaction
+  const cartBtn = document.getElementById('cartBtn');
+  const cartCount = document.getElementById('cartCount');
+  let count = 2;
+  document.querySelectorAll('button').forEach(btn => {
+    if (btn.textContent.includes('Add to Cart')) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        count++;
+        cartCount.textContent = count;
+        cartCount.classList.add('scale-125');
+        btn.textContent = 'Added! ☀️';
+        setTimeout(()=> { cartCount.classList.remove('scale-125'); btn.textContent = btn.textContent.includes('$') ? btn.textContent : 'Add to Cart — ' + btn.textContent.match(/\$[\d,]+/)?.[0]; }, 1200);
+      });
+    }
+  });
+
+  // Magnetic buttons
+  document.querySelectorAll('.magnetic').forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top - r.height/2;
+      btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+    });
+    btn.addEventListener('mouseleave', () => btn.style.transform = '');
+  });
+
+  // Remove initial hidden after load
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.polaroid, .board-card, .hand-border').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = '';
+    });
+  });
+</script>
+</body>
+</html>

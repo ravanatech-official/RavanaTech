@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Boutique Hotel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,300;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        warm: '#fdfbf7',
+        stone: '#eae6df',
+        stoneDark: '#ddd6c9',
+        taupe: '#9a8c7e',
+        taupeDark: '#7a6f64',
+        ink: '#1a1917',
+        clay: '#c4b8a8',
+        paper: '#f6f1ea',
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'serif'],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Instrument Serif', 'serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html { scroll-behavior: smooth; }
+  body { background: #fdfbf7; color: #1a1917; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+  ::selection { background: #1a1917; color: #fdfbf7; }
+
+  /* Grain texture */
+  .grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+  .hairline { height: 1px; background: rgba(26,25,23,0.12); }
+  .hairline-v { width: 1px; background: rgba(26,25,23,0.12); }
+
+  .caps { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 500; }
+
+  /* Reveal animations */
+  .reveal { opacity: 0; transform: translateY(28px); transition: all 1.2s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: .12s; }
+  .reveal-delay-2 { transition-delay: .24s; }
+  .reveal-delay-3 { transition-delay: .36s; }
+
+  .line-reveal { position: relative; overflow: hidden; }
+  .line-reveal span { display: block; transform: translateY(110%); transition: transform 1.4s cubic-bezier(0.16,1,0.3,1); }
+  .line-reveal.in span { transform: translateY(0); }
+
+  .img-reveal { position: relative; overflow: hidden; }
+  .img-reveal img { transform: scale(1.12); transition: transform 2.2s cubic-bezier(0.16,1,0.3,1); }
+  .img-reveal.in img { transform: scale(1); }
+  .img-reveal::after {
+    content: ''; position: absolute; inset: 0; background: #fdfbf7;
+    transform: scaleY(1); transform-origin: top; transition: transform 1.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .img-reveal.in::after { transform: scaleY(0); transform-origin: bottom; }
+
+  @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.08); } }
+  .slow-zoom { animation: slowZoom 18s ease-in-out alternate infinite; }
+
+  /* Custom cursor - desktop only */
+  @media (min-width: 1024px) {
+    body { cursor: none; }
+    a, button { cursor: none; }
+    .cursor { position: fixed; top: 0; left: 0; width: 12px; height: 12px; background: #1a1917; border-radius: 50%; pointer-events: none; z-index: 10000; mix-blend-mode: normal; transition: transform .25s cubic-bezier(0.16,1,0.3,1), background .25s; }
+    .cursor-follow { position: fixed; top: 0; left: 0; width: 40px; height: 40px; border: 1px solid rgba(26,25,23,0.18); border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform .6s cubic-bezier(0.16,1,0.3,1), border-color .3s, opacity .3s; }
+    .cursor.hover { transform: scale(4); background: rgba(26,25,23,0.08); backdrop-filter: blur(1px); border: 1px solid rgba(26,25,23,0.08); }
+    .cursor-follow.hover { transform: scale(1.6); border-color: transparent; opacity: 0; }
+  }
+
+  .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; }
+
+  .suite-card:hover .suite-img { transform: scale(1.04); }
+  .suite-card .suite-img { transition: transform 1.6s cubic-bezier(0.16,1,0.3,1); }
+
+  /* Magnetic button base */
+  .magnet-wrap { display: inline-block; transition: transform .3s cubic-bezier(0.16,1,0.3,1); }
+
+  /* Marquee */
+  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .marquee-track { animation: marquee 42s linear infinite; }
+
+  .custom-scrollbar::-webkit-scrollbar { display: none; }
+  .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="bg-warm">
+<div class="grain"></div>
+<div class="cursor hidden lg:block" id="cursor"></div>
+<div class="cursor-follow hidden lg:block" id="cursorFollow"></div>
+
+<!-- NAV -->
+<header id="nav" class="fixed top-0 inset-x-0 z-40 mix-blend-normal transition-all duration-700">
+  <div class="border-b border-[rgba(26,25,23,0.08)] bg-warm/80 backdrop-blur-[12px]">
+    <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14 h-[72px] md:h-[84px] flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <button id="menuToggle" class="group flex items-center gap-3">
+          <span class="w-6 h-6 relative block">
+            <span class="absolute top-[7px] left-0 w-6 h-[1px] bg-ink transition-all group-[.open]:rotate-45 group-[.open]:top-[11px]"></span>
+            <span class="absolute bottom-[7px] left-0 w-6 h-[1px] bg-ink transition-all group-[.open]:-rotate-45 group-[.open]:bottom-[12px]"></span>
+          </span>
+          <span class="caps hidden md:block">Menu</span>
+        </button>
+        <div class="hidden lg:flex items-center gap-8 pl-10 border-l border-[rgba(26,25,23,0.08)]">
+          <a href="#suites" class="caps hover:opacity-50 transition-opacity">Suites</a>
+          <a href="#experience" class="caps hover:opacity-50 transition-opacity">Experience</a>
+          <a href="#journal" class="caps hover:opacity-50 transition-opacity">Journal</a>
+        </div>
+      </div>
+
+      <a href="#" class="absolute left-1/2 -translate-x-1/2 text-center">
+        <div class="font-serif text-[26px] md:text-[28px] tracking-[0.14em] font-light leading-none">CASA NIVOLA</div>
+        <div class="caps mt-[2px] tracking-[0.32em] opacity-60">Amalfi — 1927</div>
+      </a>
+
+      <div class="flex items-center gap-6">
+        <span class="caps hidden md:block opacity-60">IT / EN</span>
+        <a href="#reserve" class="magnet-wrap">
+          <span class="magnetic-btn inline-flex items-center justify-center h-10 px-6 rounded-full border border-ink text-[11px] tracking-[0.18em] uppercase font-medium hover:bg-ink hover:text-warm transition-colors duration-500">Reserve</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Progress -->
+  <div class="h-[1px] w-full bg-transparent">
+    <div id="progress" class="h-[1px] bg-ink w-0 transition-[width] duration-150"></div>
+  </div>
+</header>
+
+<!-- Fullscreen Menu Overlay -->
+<div id="menuOverlay" class="fixed inset-0 z-30 bg-warm translate-y-[-100%] transition-transform duration-[1s] cubic-bezier(0.16,1,0.3,1) pt-[84px] overflow-y-auto">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-14 py-14 md:py-20 grid lg:grid-cols-[1.1fr_0.9fr] gap-16">
+    <div>
+      <div class="caps opacity-40 mb-10">Navigation — 01</div>
+      <nav class="space-y-2">
+        <a href="#about" class="menu-link block font-serif text-[56px] md:text-[84px] leading-[0.9] font-light tracking-[-0.02em] hover:italic transition-all">Our House</a>
+        <a href="#suites" class="menu-link block font-serif text-[56px] md:text-[84px] leading-[0.9] font-light tracking-[-0.02em] hover:italic transition-all">Suites & Rooms</a>
+        <a href="#experience" class="menu-link block font-serif text-[56px] md:text-[84px] leading-[0.9] font-light tracking-[-0.02em] hover:italic transition-all">The Life at Sea</a>
+        <a href="#journal" class="menu-link block font-serif text-[56px] md:text-[84px] leading-[0.9] font-light tracking-[-0.02em] hover:italic transition-all">Journal</a>
+        <a href="#reserve" class="menu-link block font-serif text-[56px] md:text-[84px] leading-[0.9] font-light tracking-[-0.02em] hover:italic transition-all">Reservations</a>
+      </nav>
+    </div>
+    <div class="lg:pt-4 flex flex-col justify-between">
+      <div class="grid grid-cols-2 gap-10">
+        <div>
+          <div class="caps opacity-40 mb-6">Contact</div>
+          <p class="font-serif text-[22px] leading-[1.3]">Via Torre di Milo<br>84010 Conca dei Marini<br>Amalfi Coast, IT</p>
+          <p class="mt-6 text-[13px] leading-[1.6] opacity-60 max-w-[28ch]">An 11-room villa anchored in stone above the Tyrrhenian. Reached only by foot and sea.</p>
+        </div>
+        <div>
+          <div class="caps opacity-40 mb-6">Inquiries</div>
+          <p class="text-[14px] underline underline-offset-4 decoration-[rgba(26,25,23,0.2)]">ciao@casanivola.com</p>
+          <p class="text-[14px] mt-2">+39 089 831 123</p>
+          <div class="mt-10 caps opacity-40">Follow</div>
+          <div class="mt-3 flex gap-4 text-[13px]"><a href="#" class="hover:opacity-50">Instagram</a><a href="#" class="hover:opacity-50">Journal</a></div>
+        </div>
+      </div>
+      <div class="mt-16 lg:mt-0">
+        <div class="aspect-[4/2.6] overflow-hidden bg-stone">
+          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover" alt="Amalfi">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero" class="relative min-h-[100svh] pt-[72px] md:pt-[84px] bg-warm">
+  <div class="mx-auto max-w-[1920px] px-0 lg:px-[14px] h-[calc(100svh-72px)] md:h-[calc(100svh-84px)] flex flex-col">
+    <div class="flex-1 grid lg:grid-cols-[auto_1fr_auto] gap-0 items-stretch">
+      <!-- Left vertical -->
+      <div class="hidden lg:flex flex-col justify-between py-10 px-6 border-r border-[rgba(26,25,23,0.08)] w-[72px]">
+        <div class="vertical-text caps opacity-40 tracking-[0.3em]">— Since MCMXXVII</div>
+        <div class="vertical-text caps opacity-60 rotate-180">Conca dei Marini — Amalfi Coast</div>
+        <div class="w-6 h-6 rounded-full border border-ink/20 flex items-center justify-center text-[10px]">↓</div>
+      </div>
+
+      <!-- Center hero image with editorial type -->
+      <div class="relative flex-1 overflow-hidden bg-stone">
+        <div class="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2000&auto=format&fit=crop" alt="Villa above sea" class="w-full h-full object-cover slow-zoom opacity-[0.92]">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink/30 via-ink/5 to-transparent"></div>
+          <div class="absolute inset-0 bg-[#fdfbf7]/10"></div>
+        </div>
+
+        <!-- Huge serif title -->
+        <div class="relative h-full flex flex-col justify-end p-6 md:p-10 lg:p-14">
+          <div class="flex items-start justify-between">
+            <div class="max-w-[14ch]">
+              <div class="caps text-white/70 mb-4 tracking-[0.28em]">A House Above The Sea — No. 01</div>
+              <h1 class="font-serif font-light text-white text-[52px] md:text-[86px] lg:text-[116px] leading-[0.88] tracking-[-0.03em]">
+                <span class="block line-reveal"><span>The quiet</span></span>
+                <span class="block line-reveal italic font-light -mt-2 md:-mt-3 ml-[0.18em]"><span>of being</span></span>
+                <span class="block line-reveal"><span>off — the — map</span></span>
+              </h1>
+            </div>
+            <div class="hidden md:block text-right">
+              <div class="w-[1px] h-24 bg-white/30 ml-auto mb-6"></div>
+              <div class="caps text-white/70">40°37'11"N<br>14°34'13"E</div>
+            </div>
+          </div>
+
+          <div class="mt-10 md:mt-16 grid md:grid-cols-[1fr_auto] gap-8 items-end border-t border-white/20 pt-8">
+            <p class="font-serif text-white/85 text-[18px] md:text-[20px] leading-[1.5] max-w-[48ch] font-light">
+              Casa Nivola is an eleven-room villa from 1927, set into the limestone cliff between Amalfi and Positano. Restored with lime, oak and stone — nothing more.
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="hidden md:flex items-center gap-3 caps text-white/70"><span class="w-8 h-[1px] bg-white/40"></span> Scroll to enter</div>
+              <a href="#about" class="w-12 h-12 rounded-full bg-white text-ink flex items-center justify-center hover:scale-105 transition-transform">↓</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top floating badge -->
+        <div class="absolute top-6 left-6 md:top-8 md:left-8 lg:left-10 bg-warm/90 backdrop-blur px-4 py-2 rounded-full flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-[#8fa88f] animate-pulse"></span><span class="caps">Limited — Three rooms left for October</span>
+        </div>
+      </div>
+
+      <!-- Right vertical editorial -->
+      <div class="hidden lg:flex w-[300px] border-l border-[rgba(26,25,23,0.08)] flex-col">
+        <div class="p-8 flex-1 flex flex-col">
+          <div class="caps opacity-40 mb-8">At a glance</div>
+          <div class="space-y-8">
+            <div class="flex justify-between"><span class="caps opacity-60">Rooms</span><span class="font-serif text-[20px]">11</span></div>
+            <div class="hairline"></div>
+            <div class="flex justify-between"><span class="caps opacity-60">Built</span><span class="font-serif text-[20px]">1927</span></div>
+            <div class="hairline"></div>
+            <div class="flex justify-between"><span class="caps opacity-60">Altitude</span><span class="font-serif text-[20px]">127m</span></div>
+            <div class="hairline"></div>
+            <div class="flex justify-between"><span class="caps opacity-60">Distance to sea</span><span class="font-serif text-[20px]">2 min</span></div>
+          </div>
+          <div class="mt-auto pt-12">
+            <p class="font-serif italic text-[17px] leading-[1.5] opacity-70">"We didn't add luxury. We took everything away until only light, stone and salt air remained."</p>
+            <div class="mt-4 caps opacity-50">— L. Nivola, founder</div>
+          </div>
+        </div>
+        <div class="h-[38%] relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Lemons Amalfi">
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-ink/40 to-transparent"><span class="caps text-white">Lemon terraces, 1920s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marquee -->
+    <div class="h-[44px] border-y border-[rgba(26,25,23,0.08)] overflow-hidden flex items-center bg-warm relative z-10">
+      <div class="marquee-track flex whitespace-nowrap will-change-transform">
+        <span class="flex items-center gap-8 px-4 caps opacity-60"><span>Quiet luxury is not a trend — it is a subtraction</span><span class="w-1 h-1 bg-ink rounded-full"></span><span>Lime walls • Oak floors • Sea salt • Handmade linen</span><span class="w-1 h-1 bg-ink rounded-full"></span><span>Casa Nivola — Conca dei Marini — Est. 1927</span><span class="w-1 h-1 bg-ink rounded-full"></span></span>
+        <span class="flex items-center gap-8 px-4 caps opacity-60"><span>Quiet luxury is not a trend — it is a subtraction</span><span class="w-1 h-1 bg-ink rounded-full"></span><span>Lime walls • Oak floors • Sea salt • Handmade linen</span><span class="w-1 h-1 bg-ink rounded-full"></span><span>Casa Nivola — Conca dei Marini — Est. 1927</span><span class="w-1 h-1 bg-ink rounded-full"></span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT / STORY -->
+<section id="about" class="relative bg-warm py-24 md:py-32 lg:py-[160px] border-b border-[rgba(26,25,23,0.08)]">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14">
+    <div class="grid lg:grid-cols-12 gap-10 lg:gap-0">
+
+      <div class="lg:col-span-1 hidden lg:block">
+        <div class="sticky top-32 vertical-text caps opacity-30 tracking-[0.3em]">Manifesto — 02</div>
+      </div>
+
+      <div class="lg:col-span-5 lg:pr-16">
+        <div class="caps opacity-40 mb-8 reveal">A 1920s villa in Amalfi</div>
+        <h2 class="font-serif text-[42px] md:text-[58px] lg:text-[64px] leading-[0.95] tracking-[-0.02em] font-light reveal">
+          <span class="block">We preserved</span>
+          <span class="block italic ml-[0.6em]">the silence.</span>
+          <span class="block mt-2">Everything else</span>
+          <span class="block">followed.</span>
+        </h2>
+
+        <div class="mt-12 md:mt-20 grid md:grid-cols-[auto_1fr] gap-8 reveal reveal-delay-1">
+          <div class="font-serif text-[72px] leading-none font-light opacity-10">01</div>
+          <div>
+            <p class="text-[16px] md:text-[17px] leading-[1.8] opacity-80">
+              In 1927, a Neapolitan engineer built a summer retreat into the cliff between terraces of Sfusato lemons. For ninety years it stood half-abandoned — lime washing away, shutters blue peeling to bare wood.
+            </p>
+            <p class="mt-6 text-[16px] md:text-[17px] leading-[1.8] opacity-80">
+              When we found it in 2019, we didn't renovate. We removed. Three years with local maestri, removing cement added in the 70s, uncovering original pozzolana plaster, re-laying chestnut beams by hand. The result is not a hotel. It is a house that breathes with the sea.
+            </p>
+            <div class="mt-10 flex items-center gap-4">
+              <span class="w-10 h-[1px] bg-ink/20"></span><span class="caps">Full story in journal ↗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-6 lg:pl-10 mt-10 lg:mt-0">
+        <div class="grid grid-cols-12 gap-3 md:gap-4">
+          <div class="col-span-8 img-reveal">
+            <div class="aspect-[4/5] overflow-hidden bg-stone">
+              <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1200&auto=format&fit=crop" alt="Villa interior stone" class="w-full h-full object-cover">
+            </div>
+            <div class="mt-3 flex justify-between caps opacity-40"><span>Main living — original lime finish</span><span>1927 / 2022</span></div>
+          </div>
+          <div class="col-span-4 flex flex-col gap-3 md:gap-4">
+            <div class="img-reveal reveal-delay-1">
+              <div class="aspect-[3/4] overflow-hidden bg-stone">
+                <img src="https://images.unsplash.com/photo-1414235077428-13a4ee04ec5a?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover">
+              </div>
+            </div>
+            <div class="flex-1 bg-paper p-5 md:p-7 flex flex-col justify-between border border-[rgba(26,25,23,0.06)]">
+              <div class="caps opacity-40">Materials</div>
+              <div class="mt-10 font-serif text-[15px] leading-[1.5]">Local limestone<br>Chestnut beam — Agerola<br>Lime + hemp plaster<br>Raw silk curtains<br>Olivastro wood tables</div>
+              <div class="mt-8 w-6 h-[1px] bg-ink/20"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 md:mt-12 border border-[rgba(26,25,23,0.08)] p-6 md:p-10 flex flex-col md:flex-row gap-8 items-start">
+          <div class="font-serif text-[42px] leading-none">"</div>
+          <div>
+            <p class="font-serif text-[20px] md:text-[24px] leading-[1.35] italic">No TV. No minibar. No lobby music. Just a library of 400 books on plants, sea, and building, a kitchen that smells of coffee all day, and a door that is always open to the terraces.</p>
+            <div class="mt-6 flex items-center gap-3"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover"><span class="caps opacity-60">Mara + Luca — resident hosts since opening</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUITES / ASYMMETRIC SHOWCASE -->
+<section id="suites" class="bg-[#f6f1ea] py-24 md:py-32 lg:py-[160px]">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 md:mb-24">
+      <div>
+        <div class="caps opacity-40 mb-6 reveal">Suites — No. 11 total, 6 sea-facing</div>
+        <h2 class="font-serif text-[48px] md:text-[72px] lg:text-[88px] leading-[0.9] tracking-[-0.03em] font-light reveal">
+          <span class="block">Rooms where</span><span class="block italic ml-[0.5em]">light stays longer</span>
+        </h2>
+      </div>
+      <div class="md:max-w-[32ch] reveal reveal-delay-1">
+        <p class="text-[15px] leading-[1.7] opacity-70">Each suite occupies what was once a different part of the house — the old lemon store, the engineer's study, the summer kitchen. No two share the same floor-height or window.</p>
+        <div class="mt-8 hairline"></div>
+        <div class="mt-4 flex gap-6 caps"><span>From €740 / night</span><span class="opacity-40">• Incl. breakfast + boat</span></div>
+      </div>
+    </div>
+
+    <!-- Asymmetric Grid -->
+    <div class="grid lg:grid-cols-12 gap-6 md:gap-8 lg:gap-10">
+
+      <!-- Suite 01 - large -->
+      <div class="suite-card group lg:col-span-7 reveal">
+        <div class="relative aspect-[16/11] overflow-hidden bg-stone">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1600&auto=format&fit=crop" alt="Studio Torre" class="suite-img w-full h-full object-cover">
+          <div class="absolute top-0 inset-x-0 p-6 flex justify-between">
+            <span class="bg-warm/90 backdrop-blur px-3 py-1 rounded-full caps">Studio Torre — 01</span>
+            <span class="bg-ink text-warm px-3 py-1 rounded-full caps">Sea + Sky • 38m²</span>
+          </div>
+          <div class="absolute bottom-0 inset-x-0 p-6 md:p-8 flex justify-between items-end">
+            <div class="bg-warm/90 backdrop-blur px-5 py-3 rounded-full hidden md:flex items-center gap-3"><span class="w-2 h-2 bg-ink rounded-full"></span><span class="caps">Available for your dates</span></div>
+            <div class="ml-auto w-10 h-10 bg-warm rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-700">↗</div>
+          </div>
+        </div>
+        <div class="mt-6 grid grid-cols-[auto_1fr_auto] gap-6 items-start">
+          <div class="font-serif text-[48px] leading-none font-light opacity-20">01</div>
+          <div>
+            <h3 class="font-serif text-[28px] leading-none">Torre</h3>
+            <p class="caps opacity-40 mt-2">Upper tower — 270° Tyrrhenian</p>
+            <p class="mt-4 text-[14px] leading-[1.7] opacity-60 max-w-[36ch]">Former watchtower, converted. Three arched windows, no glass to the west — only linen curtains that move all night. Outdoor stone bathtub.</p>
+          </div>
+          <div class="hidden md:block text-right caps leading-[1.6]">Bed: Grand<br>Bath: Outdoor<br>Light: West — evening</div>
+        </div>
+      </div>
+
+      <!-- Suite 02 - tall narrow -->
+      <div class="suite-card group lg:col-span-5 lg:pl-8 reveal reveal-delay-1">
+        <div class="relative aspect-[4/5] lg:aspect-[4/5.8] overflow-hidden bg-stone">
+          <img src="https://images.unsplash.com/photo-1618773928121-c32242d4f530?q=80&w=900&auto=format&fit=crop" alt="Limonaia" class="suite-img w-full h-full object-cover">
+          <div class="absolute top-0 inset-x-0 p-5 flex justify-between">
+            <span class="bg-warm/90 backdrop-blur px-3 py-1 rounded-full caps">Limonaia — 04</span>
+            <span class="bg-warm/80 px-3 py-1 rounded-full caps">Terrace — 42m²</span>
+          </div>
+        </div>
+        <div class="mt-6 flex gap-6">
+          <div class="font-serif text-[48px] leading-none font-light opacity-20">04</div>
+          <div>
+            <h3 class="font-serif text-[26px]">Limonaia</h3>
+            <p class="text-[14px] leading-[1.6] opacity-60 mt-3 max-w-[32ch]">Built around two lemon trees growing through the floor. Private pergola, outdoor kitchen.</p>
+            <a href="#" class="inline-flex items-center gap-2 mt-5 caps border-b border-ink/20 pb-1 hover:border-ink transition-colors">View room <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suite 03 - wide low + details block -->
+      <div class="lg:col-span-12 grid lg:grid-cols-12 gap-6 md:gap-8 lg:gap-10 mt-4 md:mt-12">
+        <div class="suite-card group lg:col-span-5 lg:pr-8 order-2 lg:order-1 reveal">
+          <div class="flex gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full overflow-hidden bg-stone flex-shrink-0"><img src="https://images.unsplash.com/photo-1625585662084-617a6aaa4be5?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover"></div>
+            <div><div class="caps opacity-40">Residency note</div><div class="font-serif text-[15px] leading-[1.4] mt-1">All suites include private gozzo boat — 5.5m, 40hp — moored at Marina di Conca.</div></div>
+          </div>
+          <div class="relative aspect-[16/10] overflow-hidden bg-stone">
+            <img src="https://images.unsplash.com/photo-1571896349842-68c894d3d63c?q=80&w=900&auto=format&fit=crop" alt="Caletta" class="suite-img w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div class="absolute bottom-4 left-4 bg-warm px-3 py-1 rounded-full caps">Caletta — 09 • Ground • 29m²</div>
+          </div>
+          <div class="mt-5 flex justify-between caps"><span class="opacity-60">Morning light — east</span><span>Private sea access ↘</span></div>
+        </div>
+
+        <div class="suite-card group lg:col-span-7 order-1 lg:order-2 reveal reveal-delay-1">
+          <div class="relative aspect-[16/10] overflow-hidden bg-stone">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop" alt="Studio Mare" class="suite-img w-full h-full object-cover">
+            <div class="absolute top-5 left-5 bg-warm px-4 py-2 rounded-full flex items-center gap-2"><span class="w-1.5 h-1.5 bg-ink rounded-full"></span><span class="caps">Studio Mare — 07 is editors' pick — 51m²</span></div>
+          </div>
+          <div class="mt-6 grid md:grid-cols-[1fr_auto] gap-6">
+            <div class="flex gap-6">
+              <div class="font-serif text-[48px] leading-none font-light opacity-20">07</div>
+              <div>
+                <h3 class="font-serif text-[30px]">Mare</h3>
+                <p class="caps opacity-40 mt-1">The engineer's former study</p>
+                <p class="mt-3 text-[14px] leading-[1.7] opacity-60 max-w-[44ch]">Original 1927 dark walnut desk retained — now a writing table. Vaulted ceiling, deep-set window you can sit in. The sea sounds like it is inside the room.</p>
+              </div>
+            </div>
+            <div class="flex items-start md:justify-end">
+              <div class="inline-flex rounded-full border border-ink p-1"><a href="#" class="px-5 py-2 rounded-full bg-ink text-warm caps hover:opacity-90 transition-opacity">Details</a><a href="#" class="px-5 py-2 rounded-full caps hover:opacity-60 transition-opacity">Book</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-20 md:mt-28 flex justify-center">
+      <a href="#" class="group inline-flex items-center gap-6 border border-ink/15 rounded-full pl-8 pr-2 py-2 hover:border-ink/30 transition-colors">
+        <span class="caps tracking-[0.2em]">View all eleven</span>
+        <span class="w-10 h-10 rounded-full bg-ink text-warm flex items-center justify-center group-hover:rotate-90 transition-transform duration-700">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- IMMERSIVE BREAK -->
+<section id="immersive" class="relative h-[86vh] md:h-[92vh] overflow-hidden bg-ink">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=2000&auto=format&fit=crop" alt="Cliff view" class="w-full h-full object-cover opacity-80 slow-zoom">
+    <div class="absolute inset-0 bg-ink/30"></div>
+  </div>
+  <div class="relative h-full mx-auto max-w-[1920px] px-6 md:px-14 flex flex-col justify-between py-10 md:py-14">
+    <div class="flex justify-between caps text-white/60"><span>Sea level — 2 minutes by stairs</span><span class="hidden md:block">40°37'11"N — No road access</span><span>Private dock</span></div>
+    <div class="text-center">
+      <div class="inline-block border border-white/20 rounded-full px-6 py-2 caps text-white/80 mb-8">Morning ritual — 06:30</div>
+      <h2 class="font-serif font-light text-white text-[54px] md:text-[92px] lg:text-[124px] leading-[0.85] tracking-[-0.04em]">wake — to — the<br><span class="italic">light on water</span></h2>
+      <p class="mt-8 md:mt-12 font-serif text-white/70 text-[18px] md:text-[22px] max-w-[48ch] mx-auto leading-[1.5]">Every morning, espresso at the dock with your gozzo captain. No itinerary. The coast decides.</p>
+    </div>
+    <div class="flex justify-between items-end">
+      <div class="hidden md:block caps text-white/50 max-w-[22ch]">There are still places on this coast only reachable by sea — we keep a hand-drawn map for guests.</div>
+      <a href="#experience" class="w-14 h-14 rounded-full bg-warm text-ink flex items-center justify-center hover:scale-105 transition-transform">↓</a>
+    </div>
+  </div>
+</section>
+
+<!-- LIVING / EDITORIAL -->
+<section id="living" class="bg-warm py-24 md:py-32 lg:py-[160px] border-b border-[rgba(26,25,23,0.08)]">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14">
+    <div class="grid lg:grid-cols-12 gap-12 lg:gap-0">
+      <div class="lg:col-span-5">
+        <div class="sticky top-36">
+          <div class="caps opacity-40 mb-8 reveal">The living — 03</div>
+          <h2 class="font-serif text-[44px] md:text-[60px] leading-[0.95] tracking-[-0.02em] font-light reveal">Not a lobby.<br>An afternoon<br><span class="italic">that never ends.</span></h2>
+          <div class="mt-12 space-y-8 max-w-[38ch] reveal reveal-delay-1">
+            <p class="text-[15px] leading-[1.8] opacity-70">We left the ground floor as we found it — one long room with seven doors to terraces. Morning light from east, afternoon from west. No reception desk. Check-in happens wherever you want to sit.</p>
+            <div class="hairline"></div>
+            <div class="grid grid-cols-2 gap-8">
+              <div><div class="font-serif text-[22px]">06:00 — 12:00</div><div class="caps opacity-40 mt-2">Kitchen open — coffee, bread, fruit from terraces</div></div>
+              <div><div class="font-serif text-[22px]">16:00 — 21:00</div><div class="caps opacity-40 mt-2">Aperitivo at long table — anchovies, olives, vermouth</div></div>
+            </div>
+            <div class="hairline"></div>
+            <div class="flex items-center gap-3"><span class="w-2 h-2 bg-ink rounded-full"></span><span class="caps">No restaurant — we cook together or not at all</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 lg:pl-16">
+        <div class="grid grid-cols-12 gap-3 md:gap-4">
+          <div class="col-span-12 img-reveal">
+            <div class="aspect-[16/10] overflow-hidden bg-stone relative">
+              <img src="https://images.unsplash.com/photo-1414235077428-13a4ee04ec5a?q=80&w=1600&auto=format&fit=crop" alt="Long table" class="w-full h-full object-cover">
+              <div class="absolute bottom-0 left-0 bg-warm px-4 py-2 caps">Long table — seats 18 — chestnut single plank</div>
+            </div>
+          </div>
+          <div class="col-span-7 img-reveal reveal-delay-1">
+            <div class="aspect-[4/5] overflow-hidden bg-stone"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800&auto=format&fit=crop" alt="Kitchen" class="w-full h-full object-cover"></div>
+            <div class="mt-3 caps opacity-40">Morning kitchen — unstaffed after 10am</div>
+          </div>
+          <div class="col-span-5 flex flex-col gap-3 md:gap-4">
+            <div class="img-reveal reveal-delay-2">
+              <div class="aspect-[1/1] overflow-hidden bg-stone"><img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600&auto=format&fit=crop" alt="Library" class="w-full h-full object-cover"></div>
+            </div>
+            <div class="bg-ink text-warm p-6 md:p-8 flex-1 flex flex-col justify-between">
+              <div class="caps text-white/50">Library — 400 books</div>
+              <p class="font-serif text-[18px] leading-[1.4] mt-8">No fiction about elsewhere. Only books about making, growing, building by hand.</p>
+              <div class="mt-6 text-[12px] opacity-50 leading-[1.6]">Including original 1928 manual 'Costruire in pietra calcarea' found in wall cavity during restoration.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE GRID -->
+<section id="experience" class="bg-paper py-24 md:py-32">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14">
+    <div class="grid lg:grid-cols-12 gap-10 border-b border-[rgba(26,25,23,0.08)] pb-16 md:pb-20">
+      <div class="lg:col-span-4">
+        <div class="caps opacity-40 mb-8">The experience — 04</div>
+        <h2 class="font-serif text-[42px] md:text-[52px] leading-[0.95] font-light">Do less.<br><span class="italic">Remember more.</span></h2>
+      </div>
+      <div class="lg:col-span-8 grid md:grid-cols-3 gap-8 md:gap-12">
+        <div class="reveal"><div class="w-10 h-[1px] bg-ink/20 mb-6"></div><div class="caps opacity-40 mb-3">Morning</div><h3 class="font-serif text-[22px] leading-[1.2]">Gozzo to hidden coves</h3><p class="mt-3 text-[13px] leading-[1.6] opacity-60">Your boat, your captain, no route. We keep towels and sea salt on board.</p></div>
+        <div class="reveal reveal-delay-1"><div class="w-10 h-[1px] bg-ink/20 mb-6"></div><div class="caps opacity-40 mb-3">Midday</div><h3 class="font-serif text-[22px] leading-[1.2]">Lemon harvest with Elisa</h3><p class="mt-3 text-[13px] leading-[1.6] opacity-60">Third generation. Only Sfusato Amalfitano. Hands sticky, lunch under trees.</p></div>
+        <div class="reveal reveal-delay-2"><div class="w-10 h-[1px] bg-ink/20 mb-6"></div><div class="caps opacity-40 mb-3">Evening</div><h3 class="font-serif text-[22px] leading-[1.2]">Nothing scheduled</h3><p class="mt-3 text-[13px] leading-[1.6] opacity-60">The best evenings are when the kitchen decides we have enough and stops cooking.</p></div>
+      </div>
+    </div>
+
+    <div class="mt-16 md:mt-20 grid lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-8 grid md:grid-cols-2 gap-8">
+        <div class="bg-warm p-8 md:p-10 border border-[rgba(26,25,23,0.06)] flex flex-col justify-between reveal">
+          <div><div class="flex justify-between caps"><span class="opacity-40">Includes</span><span>— All stays</span></div><div class="mt-10 font-serif text-[32px] leading-[0.95]">What we<br>don't charge for<br><span class="italic opacity-60">because it shouldn't be charged</span></div></div>
+          <ul class="mt-12 space-y-3 text-[14px] leading-[1.6] opacity-70">
+            <li class="flex gap-3"><span>—</span> Private gozzo with skipper, daily</li>
+            <li class="flex gap-3"><span>—</span> Breakfast from terraces + Agerola bread</li>
+            <li class="flex gap-3"><span>—</span> Laundry — we wash, fold, return same day</li>
+            <li class="flex gap-3"><span>—</span> Library, projector, records — no sign-out</li>
+            <li class="flex gap-3"><span>—</span> Transfer from Naples — vintage Fiat 500 or boat</li>
+          </ul>
+        </div>
+        <div class="img-reveal reveal-delay-1"><div class="h-full min-h-[420px] overflow-hidden bg-stone relative"><img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Boat"><div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-ink/60 to-transparent"><div class="caps text-white">Gozzo Nivola — 1962 Riva restoration</div></div></div></div>
+      </div>
+      <div class="lg:col-span-4">
+        <div class="bg-ink text-warm h-full p-8 md:p-10 flex flex-col justify-between reveal reveal-delay-2">
+          <div class="caps text-white/40">A note on service</div>
+          <p class="font-serif text-[22px] leading-[1.35] mt-10">We employ no uniform. If you need anything, ask anyone. If you need nothing, we won't ask.</p>
+          <div class="mt-12 pt-8 border-t border-white/10 flex items-center justify-between caps text-white/50"><span>Staff : Guests — 1 : 1.4</span><span>Max 22 guests</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNAL / GALLERY -->
+<section id="journal" class="bg-warm py-24 md:py-32 border-y border-[rgba(26,25,23,0.08)]">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14">
+    <div class="flex flex-col md:flex-row justify-between gap-8 mb-16">
+      <div><div class="caps opacity-40 mb-4">Journal — 05</div><h2 class="font-serif text-[40px] md:text-[56px] leading-[0.95] font-light">Notes from<br><span class="italic">the restoration</span></h2></div>
+      <div class="flex items-end gap-4"><span class="caps opacity-40">Archive — 2019 — 2025</span><a href="#" class="caps underline underline-offset-4 decoration-ink/20 hover:decoration-ink transition-colors">View all — 27 entries</a></div>
+    </div>
+
+    <div class="grid md:grid-cols-12 gap-[1px] bg-[rgba(26,25,23,0.08)] border border-[rgba(26,25,23,0.08)]">
+      <a href="#" class="group bg-warm md:col-span-7 p-6 md:p-10 flex flex-col justify-between min-h-[520px] hover:bg-[#fdfaf5] transition-colors reveal">
+        <div class="flex justify-between caps opacity-40"><span>Jan — 2023</span><span>Restoration diary — Entry 19</span></div>
+        <div class="mt-16"><h3 class="font-serif text-[32px] md:text-[44px] leading-[0.95] group-hover:italic transition-all">How we removed 3cm of cement without touching the lime underneath</h3><p class="mt-6 text-[14px] leading-[1.7] opacity-60 max-w-[48ch]">The 1970s owner sprayed the whole villa with cement render. We used a dental tool, 6 hours per square meter. Here is what we learned about patience.</p></div>
+        <div class="mt-12 flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-stone overflow-hidden"><img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=100&auto=format&fit=crop" class="w-full h-full object-cover"></div><span class="caps">By Luca — Foreman, 197 days on site</span></div>
+      </a>
+      <div class="md:col-span-5 grid grid-rows-2 gap-[1px]">
+        <a href="#" class="group bg-warm p-6 md:p-8 flex flex-col justify-between hover:bg-[#fdfaf5] transition-colors reveal reveal-delay-1">
+          <div class="flex justify-between caps opacity-40"><span>Archive</span><span>Oct — 2022</span></div>
+          <div><div class="aspect-[16/10] overflow-hidden bg-stone mt-8"><img src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1.2s]"></div><h4 class="font-serif text-[22px] mt-6 leading-[1.15]">A single oak table, 6.2 meters, from one tree</h4></div>
+        </a>
+        <a href="#" class="group bg-warm p-6 md:p-8 flex flex-col justify-between hover:bg-[#fdfaf5] transition-colors reveal reveal-delay-2">
+          <div class="flex justify-between caps opacity-40"><span>Letter</span><span>Jun — 1927</span></div>
+          <blockquote class="font-serif italic text-[20px] leading-[1.35] mt-8">“The sea here is not a view. It is a weather system inside the house.” — Engineer Nivola to his wife</blockquote>
+          <div class="mt-6 caps opacity-40 group-hover:opacity-60 transition-opacity">Found in wall — now framed in Mare suite →</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- mini gallery strip -->
+    <div class="mt-[1px] grid grid-cols-2 md:grid-cols-4 gap-[1px] bg-[rgba(26,25,23,0.08)] border-x border-b border-[rgba(26,25,23,0.08)]">
+      <div class="aspect-[1/1] bg-stone overflow-hidden img-reveal"><img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover"></div>
+      <div class="aspect-[1/1] bg-stone overflow-hidden img-reveal reveal-delay-1"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover"></div>
+      <div class="aspect-[1/1] bg-stone overflow-hidden img-reveal reveal-delay-2 hidden md:block"><img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover"></div>
+      <div class="aspect-[1/1] bg-paper p-6 flex flex-col justify-between hidden md:flex"><div class="caps opacity-40">Site photos — unretouched</div><div class="font-serif text-[18px] leading-[1.3]">No staging. All images taken at 7am before guests wake.</div><a href="#" class="caps underline">Gallery — 143 photos</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRESS / SELECTED -->
+<section id="press" class="bg-warm py-20 md:py-28 border-y border-[rgba(26,25,23,0.08)]">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14">
+    <div class="flex flex-col md:flex-row justify-between gap-6 md:items-center">
+      <div class="flex items-center gap-6">
+        <div class="caps opacity-40">Press — Selected — 2023—25</div>
+        <div class="hidden md:block w-12 h-[1px] bg-ink/15"></div>
+      </div>
+      <div class="flex gap-8 caps opacity-40">
+        <span>Ceramics by Fornace De Martino</span><span class="hidden md:block">•</span><span>Linen by Bonotto</span><span class="hidden md:block">•</span><span>Oils by Laudemio</span>
+      </div>
+    </div>
+    <div class="mt-16 grid md:grid-cols-12 gap-[1px] bg-[rgba(26,25,23,0.08)] border border-[rgba(26,25,23,0.08)]">
+      <div class="md:col-span-3 bg-warm p-8 flex flex-col justify-between min-h-[220px]">
+        <div class="font-serif text-[13px] leading-[1.2] tracking-[0.18em] uppercase opacity-30">01 / Cereal Magazine — Issue 22</div>
+        <p class="font-serif text-[20px] leading-[1.25] mt-12">“The anti-hotel: where luxury is measured in meters of shadow, not amenities.”</p>
+        <div class="mt-6 caps opacity-40">Read →</div>
+      </div>
+      <div class="md:col-span-3 bg-warm p-8 flex flex-col justify-between min-h-[220px]">
+        <div class="font-serif text-[13px] leading-[1.2] tracking-[0.18em] uppercase opacity-30">02 / Kinfolk — Slow Living</div>
+        <p class="font-serif text-[20px] leading-[1.25] mt-12">“A restoration that refuses to restore — it excavates silence.”</p>
+        <div class="mt-6 caps opacity-40">Read →</div>
+      </div>
+      <div class="md:col-span-3 bg-warm p-8 flex flex-col justify-between min-h-[220px]">
+        <div class="font-serif text-[13px] leading-[1.2] tracking-[0.18em] uppercase opacity-30">03 / Apartamento — #29</div>
+        <p class="font-serif text-[20px] leading-[1.25] mt-12">“Eleven rooms, no concierge, best sleep on the Mediterranean.”</p>
+        <div class="mt-6 caps opacity-40">Read →</div>
+      </div>
+      <div class="md:col-span-3 bg-[#f6f1ea] p-8 flex flex-col justify-between min-h-[220px] relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 opacity-10"><svg viewBox="0 0 20 20" class="w-full h-full"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="0.5"/><path d="M10 1 A9 9 0 0 1 19 10" fill="none" stroke="currentColor" stroke-width="0.5"/></svg></div>
+        <div class="caps opacity-40">Awards — Quiet</div>
+        <div class="mt-auto">
+          <div class="font-serif text-[22px] leading-[1.1]">No awards submitted.<br><span class="italic opacity-60">We were busy fixing shutters.</span></div>
+          <div class="mt-6 caps opacity-30">2022 — 2025 — Conca dei Marini</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Craft strip -->
+    <div class="mt-12 grid lg:grid-cols-[1.2fr_0.8fr] gap-6 md:gap-8">
+      <div class="grid grid-cols-12 gap-3 md:gap-4">
+        <div class="col-span-5 aspect-[3/4] overflow-hidden bg-stone img-reveal">
+          <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800&auto=format&fit=crop" alt="Craft" class="w-full h-full object-cover">
+        </div>
+        <div class="col-span-7 bg-paper p-8 border border-[rgba(26,25,23,0.06)] flex flex-col justify-between img-reveal reveal-delay-1">
+          <div class="caps opacity-40">Craft — Lime wash recipe — 7 layers</div>
+          <p class="font-serif text-[19px] leading-[1.4] mt-8">Layer 1: slaked lime + pozzolana.<br>Layer 2-4: lime + marble dust.<br>Layer 5-7: lime milk + sea salt — hand-burnished with olive stone.<br><br><span class="italic opacity-60">Walls that dry slower breathe better. 14 days between coats. No rush.</span></p>
+          <div class="mt-8 flex gap-3">
+            <span class="w-6 h-6 rounded-full bg-[#eae6df] border border-ink/10"></span>
+            <span class="w-6 h-6 rounded-full bg-[#ddd6c9] border border-ink/10"></span>
+            <span class="w-6 h-6 rounded-full bg-[#f6f1ea] border border-ink/10"></span>
+            <span class="w-6 h-6 rounded-full bg-[#c4b8a8] border border-ink/10"></span>
+            <span class="caps ml-4 opacity-40 self-center">Our palette — only earth</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-warm border border-[rgba(26,25,23,0.08)] p-8 flex flex-col justify-between">
+        <div class="flex justify-between caps opacity-40"><span>Materials ledger — 2019-22</span><span>Archived</span></div>
+        <div class="mt-12 space-y-5">
+          <div class="flex justify-between"><span class="caps opacity-60">Stone moved by hand</span><span class="font-serif text-[18px]">47 tons</span></div>
+          <div class="hairline"></div>
+          <div class="flex justify-between"><span class="caps opacity-60">Cement removed</span><span class="font-serif text-[18px]">12.3 tons</span></div>
+          <div class="hairline"></div>
+          <div class="flex justify-between"><span class="caps opacity-60">Oak beams — Agerola forest</span><span class="font-serif text-[18px]">83 pieces</span></div>
+          <div class="hairline"></div>
+          <div class="flex justify-between"><span class="caps opacity-60">Days without power tools</span><span class="font-serif text-[18px]">211</span></div>
+        </div>
+        <div class="mt-12 caps opacity-30">Documented by Mara Nivola — site notebook No. 7</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICES -->
+<section id="voices" class="bg-[#f6f1ea] py-24 md:py-32">
+  <div class="mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14">
+    <div class="caps opacity-40 mb-12">Voices — unedited, no incentive</div>
+    <div class="grid lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-5">
+        <h2 class="font-serif text-[38px] md:text-[48px] leading-[0.95] font-light">What people wrote<br><span class="italic">when they left</span></h2>
+        <div class="mt-10 p-6 bg-warm border border-[rgba(26,25,23,0.08)]">
+          <div class="caps opacity-40">Average stay</div><div class="font-serif text-[48px] leading-none mt-2">5.4 <span class="text-[18px]">nights</span></div><div class="mt-4 hairline"></div><div class="mt-4 flex justify-between caps opacity-60"><span>Returning guests</span><span>38%</span></div>
+        </div>
+      </div>
+      <div class="lg:col-span-7">
+        <div class="space-y-[1px] bg-[rgba(26,25,23,0.08)] border border-[rgba(26,25,23,0.08)]">
+          <div class="bg-warm p-8 md:p-10 reveal"><p class="font-serif text-[20px] md:text-[24px] leading-[1.35]">"We came for three nights, stayed eight. I read seven books. I didn't check my phone because there was nothing to check. The boat captain knew I liked coffee without saying."</p><div class="mt-6 flex items-center justify-between"><span class="caps opacity-60">— Sarah K. — Toronto — Oct 2024 — Suite Torre</span><span class="caps">★★★★★</span></div></div>
+          <div class="bg-warm p-8 md:p-10 reveal reveal-delay-1"><p class="font-serif text-[20px] md:text-[24px] leading-[1.35]">"Finally a luxury place that doesn't feel like it's trying to impress you. The floor is uneven. The shutters squeak. It's perfect."</p><div class="mt-6 flex items-center justify-between"><span class="caps opacity-60">— Julien D. — Paris — Jun 2024 — Limonaia</span><span class="caps">★★★★★</span></div></div>
+          <div class="bg-warm p-8 md:p-10 reveal reveal-delay-2"><p class="font-serif text-[20px] md:text-[24px] leading-[1.35]">"My kids stopped asking for Wi-Fi after day two. They started collecting stones and asking what rock this is. That is worth more than any kids club."</p><div class="mt-6 flex items-center justify-between"><span class="caps opacity-60">— Family L. — Berlin — Aug 2024 — Mare + Caletta</span><span class="caps">★★★★★</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESERVE / FOOTER -->
+<footer id="reserve" class="bg-ink text-warm relative overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.04]"><img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover"></div>
+  <div class="relative mx-auto max-w-[1920px] px-6 md:px-10 lg:px-14 pt-24 md:pt-32 pb-10">
+    <div class="grid lg:grid-cols-12 gap-16">
+      <div class="lg:col-span-6">
+        <div class="caps text-white/40 mb-10">Reserve — 06 / Private house — 11 rooms</div>
+        <h2 class="font-serif text-[54px] md:text-[84px] lg:text-[92px] leading-[0.85] tracking-[-0.03em] font-light">Come<br><span class="italic text-[#c4b8a8]">when the</span><br>light is low.</h2>
+        <p class="mt-10 font-serif text-[18px] leading-[1.6] text-white/60 max-w-[40ch]">Low season is high season here. October — April the sea empties, sun stays low all day, lemons are heaviest. Best light for reading.</p>
+
+        <!-- Minimal booking -->
+        <div class="mt-16 grid md:grid-cols-[1fr_1fr_auto] gap-[1px] bg-white/10 p-[1px] max-w-[560px]">
+          <div class="bg-ink p-5"><div class="caps text-white/40">Check — in</div><input type="text" placeholder="DD / MM" class="w-full mt-3 bg-transparent font-serif text-[20px] outline-none placeholder:text-white/20"></div>
+          <div class="bg-ink p-5"><div class="caps text-white/40">Check — out</div><input type="text" placeholder="DD / MM" class="w-full mt-3 bg-transparent font-serif text-[20px] outline-none placeholder:text-white/20"></div>
+          <button class="bg-warm text-ink px-8 flex items-center justify-center caps hover:bg-white transition-colors">Check availability →</button>
+        </div>
+        <div class="mt-6 caps text-white/30 max-w-[560px]">We respond within 2 hours — no instant booking. We read each request to ensure the house fits. • No deposit for direct booking.</div>
+      </div>
+
+      <div class="lg:col-span-6 lg:pl-16 flex flex-col justify-between">
+        <div class="grid md:grid-cols-2 gap-12">
+          <div><div class="caps text-white/40 mb-6">Location</div><p class="font-serif text-[18px] leading-[1.4]">Via Torre di Milo 47<br>84010 Conca dei Marini (SA)<br>Italy — Amalfi Coast</p><p class="mt-6 text-[13px] leading-[1.6] text-white/40">No road signage. Coordinates sent after booking. Park at Amalfi, boat to us.</p><a href="#" class="inline-block mt-6 caps border-b border-white/20 pb-1 hover:border-white/40 transition-colors text-white/70">Open in maps ↗</a></div>
+          <div><div class="caps text-white/40 mb-6">Contact</div><p class="text-[14px] leading-[1.8] text-white/70">ciao@casanivola.com<br>+39 089 831 123 (WhatsApp)<br><br>Press: press@casanivola.com<br>Jobs: We hire only by staying here first.</p><div class="mt-10 caps text-white/40">Social — selective</div><div class="flex gap-4 mt-3 caps text-white/60"><a href="#" class="hover:text-white transition-colors">Instagram — journal</a><a href="#" class="hover:text-white transition-colors">Are.na</a></div></div>
+        </div>
+
+        <div class="mt-20 md:mt-0">
+          <div class="hairline bg-white/10 !h-[1px] !bg-white/10"></div>
+          <div class="mt-10 flex flex-col md:flex-row justify-between gap-8">
+            <div class="font-serif text-[52px] leading-none tracking-[0.08em]">CASA<br>NIVOLA</div>
+            <div class="flex flex-col justify-between text-right md:text-left">
+              <div class="caps text-white/30">© 2025 Casa Nivola S.r.l.<br>P.IVA 01234567890<br>Built with local stone — hosted locally too.</div>
+              <div class="mt-8 md:mt-0 flex flex-wrap gap-6 caps text-white/30 justify-end md:justify-start"><a href="#" class="hover:text-white/60">Privacy — no tracking</a><a href="#" class="hover:text-white/60">Terms — one page</a><a href="#" class="hover:text-white/60">Impressum</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Huge background word -->
+    <div class="mt-24 md:mt-32 -mx-6 md:-mx-14 overflow-hidden pointer-events-none select-none">
+      <div class="font-serif text-[28vw] leading-[0.8] tracking-[-0.05em] text-white/[0.04] whitespace-nowrap">casa nivola</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Progress
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    if(progress) progress.style.width = scrolled + '%';
+    const nav = document.getElementById('nav');
+    if(h.scrollTop > 20) nav.classList.add('shadow-[0_1px_0_0_rgba(0,0,0,0.06)]');
+    else nav.classList.remove('shadow-[0_1px_0_0_rgba(0,0,0,0.06)]');
+  });
+
+  // Intersection reveals
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal, .img-reveal, .line-reveal').forEach(el => obs.observe(el));
+
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const cursorFollow = document.getElementById('cursorFollow');
+  let mouseX = 0, mouseY = 0, followX = 0, followY = 0;
+  if(window.matchMedia('(min-width: 1024px)').matches){
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; if(cursor){ cursor.style.transform = `translate3d(${e.clientX - 6}px, ${e.clientY - 6}px, 0)`; } });
+    (function animateFollow(){
+      followX += (mouseX - followX) * 0.12;
+      followY += (mouseY - followY) * 0.12;
+      if(cursorFollow) cursorFollow.style.transform = `translate3d(${followX - 20}px, ${followY - 20}px, 0)`;
+      requestAnimationFrame(animateFollow);
+    })();
+    document.querySelectorAll('a, button, .suite-card').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor?.classList.add('hover'); cursorFollow?.classList.add('hover'); });
+      el.addEventListener('mouseleave', () => { cursor?.classList.remove('hover'); cursorFollow?.classList.remove('hover'); });
+    });
+  }
+
+  // Magnetic buttons
+  document.querySelectorAll('.magnet-wrap').forEach(wrap => {
+    const btn = wrap.querySelector('.magnetic-btn');
+    if(!btn) return;
+    wrap.addEventListener('mousemove', (e) => {
+      const r = wrap.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width/2) * 0.35;
+      const y = (e.clientY - r.top - r.height/2) * 0.5;
+      btn.style.transform = `translate(${x}px, ${y}px)`;
+      wrap.style.transform = `translate(${x*0.15}px, ${y*0.15}px)`;
+    });
+    wrap.addEventListener('mouseleave', () => {
+      btn.style.transform = `translate(0,0)`;
+      wrap.style.transform = `translate(0,0)`;
+    });
+  });
+
+  // Menu
+  const toggle = document.getElementById('menuToggle');
+  const overlay = document.getElementById('menuOverlay');
+  let menuOpen = false;
+  function setMenu(open){
+    menuOpen = open;
+    if(open){ overlay.style.transform = 'translateY(0)'; toggle.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    else { overlay.style.transform = 'translateY(-100%)'; toggle.classList.remove('open'); document.body.style.overflow = ''; }
+  }
+  toggle.addEventListener('click', () => setMenu(!menuOpen));
+  document.querySelectorAll('.menu-link').forEach(a => a.addEventListener('click', () => setMenu(false)));
+
+  // Smooth slow parallax for hero image (subtle)
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if(!ticking){ requestAnimationFrame(() => {
+      const sc = window.scrollY;
+      const heroImg = document.querySelector('#hero img.slow-zoom');
+      if(heroImg && sc < window.innerHeight) heroImg.style.transform = `scale(${1 + sc*0.00008}) translateY(${sc*0.08}px)`;
+      ticking = false;
+    }); ticking = true; }
+  });
+
+  // Line reveal stagger in hero
+  setTimeout(() => {
+    document.querySelectorAll('#hero .line-reveal').forEach((el,i) => setTimeout(()=>el.classList.add('in'), 180*i + 200));
+  }, 300);
+</script>
+</body>
+</html>

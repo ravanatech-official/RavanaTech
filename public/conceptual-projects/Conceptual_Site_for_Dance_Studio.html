@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Dance Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700&family=Geist+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        blush: '#f8d7da',
+        blushDeep: '#efb3b9',
+        ink: '#0a0a0b',
+        bone: '#fef9f6',
+        stone: '#e8ddd6',
+        fog: '#f3ece8'
+      },
+      fontFamily: {
+        serif: ['"Instrument Serif"', 'serif'],
+        cormorant: ['"Cormorant Garamond"', 'serif'],
+        sans: ['"Syne"', 'sans-serif'],
+        mono: ['"Geist Mono"', 'monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{ -webkit-font-smoothing: antialiased; }
+  html{ scroll-behavior: smooth; }
+  body{ background:#fef9f6; color:#0a0a0b; overflow-x:hidden; }
+  ::selection{ background:#f8d7da; color:#0a0a0b; }
+  /* Grain */
+  #grain {
+    position: fixed; inset:0; pointer-events:none; z-index: 9999; opacity:0.045; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  /* Custom cursor */
+  .cursor-dot, .cursor-ring {
+    position: fixed; top:0; left:0; pointer-events:none; border-radius:50%; z-index:10000; mix-blend-mode: difference;
+    transform: translate(-50%,-50%);
+  }
+  .cursor-dot{ width:6px; height:6px; background:#fff; transition: transform .15s ease; }
+  .cursor-ring{ width:38px; height:38px; border:1px solid rgba(255,255,255,.8); transition: width .3s, height .3s, border-color .3s, transform .2s cubic-bezier(.16,1,.3,1); }
+  .cursor-ring.hover{ width:72px; height:72px; border-color: #f8d7da; background: rgba(248,215,218,.15); }
+  @media (max-width:1024px){ .cursor-dot,.cursor-ring{ display:none; } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{ width:6px; } ::-webkit-scrollbar-thumb{ background:#0a0a0b; }
+  ::-webkit-scrollbar-track{ background:#f3ece8; }
+
+  .text-blur { filter: blur(0px); transition: filter .8s cubic-bezier(.16,1,.3,1); }
+  .text-blur:hover { filter: blur(.6px); }
+
+  .reveal { opacity:0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
+  .reveal.in{ opacity:1; transform: translateY(0); }
+  .reveal-delay-1{ transition-delay:.1s } .reveal-delay-2{ transition-delay:.22s } .reveal-delay-3{ transition-delay:.36s }
+
+  .img-parallax { will-change: transform; transition: transform .1s linear; }
+
+  .magnetic { transition: transform .4s cubic-bezier(.16,1,.3,1); will-change: transform; }
+
+  .marquee { overflow:hidden; white-space:nowrap; border-top:1px solid #0a0a0b; border-bottom:1px solid #0a0a0b; }
+  .marquee-track { display:inline-flex; animation: marquee 28s linear infinite; }
+  @keyframes marquee { 0%{ transform:translateX(0) } 100%{ transform:translateX(-50%) } }
+
+  .stroke-text{
+    -webkit-text-stroke: 1px #0a0a0b;
+    color: transparent;
+  }
+  .stroke-blush{
+    -webkit-text-stroke: 1px #f8d7da;
+    color: transparent;
+  }
+
+  .soft-blur{ filter: blur(18px); }
+
+  /* Motion trail for hero dancer */
+  .motion-trail{
+    position:absolute; inset:0; opacity:.22; mix-blend-mode: multiply; pointer-events:none;
+    background: linear-gradient(to right, transparent 0%, rgba(248,215,218,.6) 50%, transparent 100%);
+    transform: skewX(-12deg);
+  }
+
+  .barre-line{
+    height:1px; background: linear-gradient(90deg, transparent, #0a0a0b 12%, #0a0a0b 88%, transparent); opacity:.15;
+  }
+
+  .service-card{
+    border: 1px solid rgba(10,10,11,.08);
+    transition: all .6s cubic-bezier(.16,1,.3,1);
+  }
+  .service-card:hover{ border-color:#0a0a0b; transform: translateY(-4px); background:#fff; box-shadow: 0 24px 48px rgba(10,10,11,.06); }
+
+  .filter-blur-hover{ transition: filter .6s ease, transform .8s cubic-bezier(.16,1,.3,1); }
+  .filter-blur-hover:hover{ filter: blur(0px); }
+  .filter-blur-hover{ filter: blur(.5px); }
+
+  /* Vertical text */
+  .vertical{
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  /* Custom focus */
+  input, textarea, button:focus-visible{ outline: 1px solid #0a0a0b; outline-offset:2px; }
+
+  /* ——— EXTENDED PREMIUM MICRO ——— */
+  .fluid-line{ stroke-dasharray: 800; stroke-dashoffset: 800; animation: draw 2.4s cubic-bezier(.16,1,.3,1) forwards .6s; }
+  @keyframes draw{ to{ stroke-dashoffset:0 } }
+  .blur-in{ animation: blurIn 1.4s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes blurIn{ from{ filter: blur(12px); opacity:0; transform: translateY(20px)} to{ filter: blur(0); opacity:1; transform: translateY(0)} }
+  .noise-card{ position:relative; }
+  .noise-card:after{ content:''; position:absolute; inset:0; opacity:.03; pointer-events:none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.95'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .ink-underline{ position:relative; }
+  .ink-underline:after{ content:''; position:absolute; left:0; right:0; bottom:-2px; height:1px; background:#0a0a0b; transform: scaleX(0); transform-origin:left; transition: transform .6s cubic-bezier(.16,1,.3,1); }
+  .ink-underline:hover:after{ transform: scaleX(1); }
+  .hover-lift{ transition: transform .6s cubic-bezier(.16,1,.3,1); }
+  .hover-lift:hover{ transform: translateY(-2px); }
+  .shimmer{ position:relative; overflow:hidden; }
+  .shimmer:before{ content:''; position:absolute; inset:0; background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.4) 50%, transparent 80%); transform: translateX(-100%); transition: transform .9s; }
+  .shimmer:hover:before{ transform: translateX(100%); }
+  /* Motion blur text layers */
+  .motion-text{ position:relative; display:inline-block; }
+  .motion-text:before, .motion-text:after{ content: attr(data-text); position:absolute; inset:0; opacity:.35; pointer-events:none; }
+  .motion-text:before{ transform: translateX(-1px); filter: blur(.8px); color:#f8d7da; }
+  .motion-text:after{ transform: translateX(1px); filter: blur(.8px); }
+  /* Soft vignette */
+  .vignette{ position:absolute; inset:0; background: radial-gradient(80% 120% at 50% 0%, transparent 60%, rgba(10,10,11,.06)); pointer-events:none; }
+  /* Barre ticks */
+  .tick{ width:1px; height:12px; background:#0a0a0b; opacity:.15; display:inline-block; margin-right:6px; }
+  /* Custom range looks */
+  .range-dot{ width:6px; height:6px; border-radius:50%; background:#0a0a0b; display:inline-block; animation: pulseDot 2s infinite; }
+  @keyframes pulseDot{ 0%,100%{ transform:scale(1); opacity:1 } 50%{ transform:scale(1.4); opacity:.6 } }
+  /* Flowing border */
+  .flowing-border{ border:1px solid transparent; border-image: linear-gradient(90deg, #0a0a0b, #f8d7da, #0a0a0b) 1; }
+
+</style>
+</head>
+<body class="font-sans selection:bg-blush">
+  <div id="grain"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Progress -->
+  <div id="progress" class="fixed top-0 left-0 h-[2px] bg-ink z-[60] transition-[width] duration-150" style="width:0%"></div>
+
+  <!-- NAV -->
+  <nav id="nav" class="fixed top-0 left-0 right-0 z-50 mix-blend-normal bg-bone/80 backdrop-blur-xl border-b border-ink/5">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 h-[72px] flex items-center justify-between">
+      <div class="flex items-center gap-12">
+        <a href="#" class="group flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-ink text-bone grid place-items-center font-serif text-[18px] leading-none">f</span>
+          <span class="font-serif text-[22px] tracking-[-0.02em] leading-none">flūid</span>
+          <span class="font-mono text-[10px] tracking-[0.18em] uppercase mt-1 hidden md:inline opacity-60">CONTEMPORARY ATELIER</span>
+        </a>
+        <div class="hidden lg:flex items-center gap-8 font-mono text-[11px] tracking-[0.14em] uppercase">
+          <a href="#story" class="hover:opacity-50 transition-opacity relative nav-link">Studio</a>
+          <a href="#practice" class="hover:opacity-50 transition-opacity nav-link">Practice</a>
+          <a href="#gallery" class="hover:opacity-50 transition-opacity nav-link">Residency</a>
+          <a href="#schedule" class="hover:opacity-50 transition-opacity nav-link">Schedule</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="hidden md:flex font-mono text-[11px] tracking-widest items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> OPEN FOR FALL SESSION
+        </span>
+        <a href="#contact" class="magnetic bg-ink text-bone px-6 py-[13px] rounded-full font-mono text-[11px] tracking-[0.14em] uppercase hover:bg-black transition-colors">Book a Visit</a>
+        <button id="menuBtn" class="lg:hidden w-10 h-10 grid place-items-center border border-ink/10 rounded-full">
+          <span class="w-4 h-[1px] bg-ink block"></span>
+          <span class="w-4 h-[1px] bg-ink block mt-1"></span>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="lg:hidden hidden border-t border-ink/10 bg-bone px-6 py-8">
+      <div class="flex flex-col gap-6 font-serif text-4xl">
+        <a href="#story">Studio</a>
+        <a href="#practice">Practice</a>
+        <a href="#gallery">Residency</a>
+        <a href="#schedule">Schedule</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="relative pt-[72px] overflow-hidden bg-bone">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+      <div class="grid grid-cols-12 gap-0 md:gap-6 pt-10 md:pt-16 pb-10">
+        <!-- Left Eyebrow & Title -->
+        <div class="col-span-12 lg:col-span-7 relative z-10">
+          <div class="flex items-center gap-4 reveal">
+            <span class="font-mono text-[11px] tracking-[0.2em] uppercase">EST. 2018 — BRKLN / LISBON</span>
+            <span class="h-[1px] w-12 bg-ink/20"></span>
+            <span class="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60">CONCEPT NO. 24</span>
+          </div>
+
+          <h1 class="mt-8 font-serif leading-[0.85] tracking-[-0.05em] text-[17vw] md:text-[11vw] lg:text-[9.5vw] xl:text-[152px]">
+            <span class="block reveal">move—</span>
+            <span class="block reveal reveal-delay-1 font-cormorant italic font-light tracking-[-0.04em] ml-[0.15em]">ment as</span>
+            <span class="block reveal reveal-delay-2 ml-[-0.02em] flex items-baseline gap-4">
+              <span class="stroke-text text-blur">language</span>
+              <span class="w-10 h-10 md:w-16 md:h-16 rounded-full bg-blush grid place-items-center ml-2">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 4L14 10L7 16" stroke="#0a0a0b" stroke-width="1.2"/></svg>
+              </span>
+            </span>
+          </h1>
+
+          <div class="mt-10 md:mt-16 grid grid-cols-12 gap-6 items-end">
+            <div class="col-span-12 md:col-span-7">
+              <p class="font-cormorant text-[22px] md:text-[26px] leading-[1.25] tracking-[-0.01em] max-w-[38ch] reveal reveal-delay-3">
+                A rehearsal atelier for bodies in research. We work with <em class="font-serif">weight, breath, and momentum</em> — not perfection. Bare floors, northern light, ink-black barres.
+              </p>
+            </div>
+            <div class="col-span-12 md:col-span-5 flex gap-6 font-mono text-[11px] leading-[1.6] tracking-[0.04em] reveal reveal-delay-3">
+              <div class="w-[1px] self-stretch bg-ink/10 hidden md:block"></div>
+              <div class="space-y-3">
+                <p class="uppercase tracking-[0.14em] opacity-60">Location</p>
+                <p>187 Grand St, 4F<br>Brooklyn Navy Yard<br>Winter light, 6:30—20:30</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Visual -->
+        <div class="col-span-12 lg:col-span-5 mt-10 lg:mt-0 relative">
+          <div class="relative aspect-[4/5.2] lg:aspect-[4/5.6] overflow-hidden bg-fog rounded-[1.5rem] lg:rounded-[2rem] reveal">
+            <img src="https://images.unsplash.com/photo-1518834107812-67b0b288f498?q=80&w=1200&auto=format&fit=crop" alt="Contemporary dancer motion blur" class="absolute inset-0 w-full h-full object-cover filter-blur-hover scale-[1.06]">
+            <div class="motion-trail"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent"></div>
+            <!-- Floating info -->
+            <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+              <div class="bg-bone/90 backdrop-blur-md rounded-full px-4 py-2 font-mono text-[10px] tracking-[0.14em] uppercase flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blushDeep"></span> REHEARSAL MODE
+              </div>
+              <div class="bg-ink text-bone rounded-full w-12 h-12 grid place-items-center">
+                <span class="font-mono text-[10px]">4K</span>
+              </div>
+            </div>
+            <!-- Vertical label -->
+            <div class="absolute top-6 left-6 vertical font-mono text-[10px] tracking-[0.4em] uppercase opacity-80 hidden md:block mix-blend-difference text-white">
+              FIGURE STUDY — 001 / MOTION CAPTURE
+            </div>
+          </div>
+
+          <!-- Blush blob behind -->
+          <div class="absolute -z-10 top-10 -right-10 w-[110%] h-[80%] bg-blush rounded-[2.5rem] soft-blur opacity-80 hidden lg:block"></div>
+
+          <!-- Second tiny image -->
+          <div class="absolute -bottom-12 -left-12 w-[168px] h-[210px] overflow-hidden rounded-[1.2rem] bg-stone hidden lg:block reveal reveal-delay-2 shadow-[0_20px_60px_rgba(0,0,0,.12)]">
+            <img src="https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Barre detail">
+            <div class="absolute inset-0 bg-ink/10"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marquee -->
+    <div class="marquee bg-ink text-bone py-4 mt-6 md:mt-2">
+      <div class="marquee-track">
+        <span class="font-serif text-[22px] md:text-[28px] tracking-[-0.02em] flex items-center gap-6 md:gap-10 px-6">
+          <em class="font-cormorant italic">release technique</em> <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          contact improvisation <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          <em class="font-cormorant italic">floor work</em> <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          countertechnique <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          gaga <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          falling <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          suspension <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+        </span>
+        <span class="font-serif text-[22px] md:text-[28px] tracking-[-0.02em] flex items-center gap-6 md:gap-10 px-6">
+          <em class="font-cormorant italic">release technique</em> <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          contact improvisation <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          <em class="font-cormorant italic">floor work</em> <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          countertechnique <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          gaga <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          falling <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+          suspension <span class="w-1 h-1 rounded-full bg-blush inline-block"></span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY / MANIFESTO -->
+  <section id="story" class="relative bg-bone border-t border-ink/5">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-32">
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-4">
+          <div class="sticky top-[120px]">
+            <span class="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60">01 / Philosophy</span>
+            <h2 class="mt-6 font-serif text-[48px] md:text-[64px] leading-[0.9] tracking-[-0.04em] reveal">
+              We don't teach<br><em class="font-cormorant italic font-light">steps.</em> We<br>research <span class="stroke-text">weight.</span>
+            </h2>
+            <div class="mt-10 barre-line"></div>
+            <div class="mt-8 flex gap-8 font-mono text-[11px] tracking-[0.06em] leading-[1.6]">
+              <div>
+                <p class="opacity-40 uppercase">Capacity</p>
+                <p class="mt-1 text-[13px]">22 dancers<br>2 studios<br>1 rooftop</p>
+              </div>
+              <div>
+                <p class="opacity-40 uppercase">Method</p>
+                <p class="mt-1 text-[13px]">Observation<br>Repetition<br>Letting go</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-8">
+          <div class="grid grid-cols-12 gap-6">
+            <!-- Large text -->
+            <div class="col-span-12">
+              <p class="font-cormorant text-[28px] md:text-[36px] leading-[1.15] tracking-[-0.01em] reveal">
+                flūid began as a winter sublet. A 900 sq ft room with cracked mirrors and a single barre. No logo. No schedule. Just a group message: <span class="bg-blush px-1">“floor is warm, who’s coming?”</span>
+              </p>
+            </div>
+
+            <div class="col-span-12 md:col-span-6 mt-8 md:mt-12 reveal reveal-delay-1">
+              <div class="aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-fog">
+                <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1000&auto=format&fit=crop" alt="Rehearsal space" class="w-full h-full object-cover img-parallax">
+              </div>
+              <div class="mt-6 flex gap-4">
+                <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-50">Fig.02 — Northern Light</span>
+                <span class="font-mono text-[11px] tracking-[0.14em] uppercase">BARRE STUDY</span>
+              </div>
+              <p class="mt-4 font-sans text-[15px] leading-[1.6] opacity-70 max-w-[36ch]">
+                The studio keeps its original maple. Sanded once a year. We mop with cold water only. The ink-black barres were salvaged from a closed ballet school in Queens — 1972, still solid.
+              </p>
+            </div>
+
+            <div class="col-span-12 md:col-span-6 mt-2 md:mt-32 reveal reveal-delay-2">
+              <p class="font-sans text-[15px] leading-[1.7] opacity-80">
+                Contemporary is often taught as choreography. We start with physics. How does your scapula slide when you reach? What happens to your breath if you suspend a fall three counts longer? The answer is never in the mirror. It's in the floor, in the other body, in the sound of weight shifting.
+                <br><br>
+                Classes are 90 minutes. No levels, but clear invitations. Beginners work next to professionals because curiosity is not hierarchical.
+              </p>
+              <div class="mt-8 grid grid-cols-2 gap-6 border-t border-ink/10 pt-6">
+                <div>
+                  <p class="font-serif text-[42px] leading-none">7k+</p>
+                  <p class="font-mono text-[10px] tracking-[0.14em] uppercase opacity-60 mt-2">Hours Logged Since 2018</p>
+                </div>
+                <div>
+                  <p class="font-serif text-[42px] leading-none">0</p>
+                  <p class="font-mono text-[10px] tracking-[0.14em] uppercase opacity-60 mt-2">Mirrors Facing Barre B</p>
+                </div>
+              </div>
+
+              <div class="mt-10 bg-ink text-bone rounded-[1.2rem] p-6 md:p-8">
+                <p class="font-mono text-[11px] tracking-[0.16em] uppercase opacity-60">Note from Founder, Mina L.</p>
+                <p class="mt-4 font-cormorant italic text-[20px] leading-[1.3]">“I wanted a place where we could be tired. Where falling wasn’t failure footage. Where we could research softness without apologizing for it.”</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRACTICE / SERVICES -->
+  <section id="practice" class="relative bg-ink text-bone overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28 relative">
+      <div class="flex flex-col md:flex-row justify-between items-start gap-6">
+        <div>
+          <span class="font-mono text-[11px] tracking-[0.2em] uppercase text-blush">02 / Practice</span>
+          <h2 class="mt-4 font-serif text-[56px] md:text-[88px] leading-[0.85] tracking-[-0.05em]">Four ways<br><em class="font-cormorant italic font-light text-blush">to fall.</em></h2>
+        </div>
+        <p class="max-w-[34ch] font-cormorant text-[18px] leading-[1.4] opacity-70 md:text-right">All practices begin with 20 min arriving. No music. Just breath and floor. Phones stay in the cubbies.</p>
+      </div>
+
+      <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[1px] bg-bone/10 border border-bone/10 rounded-[1.5rem] overflow-hidden">
+        <!-- Card 1 -->
+        <div class="service-card bg-ink group p-8 md:p-10 flex flex-col min-h-[520px]">
+          <div class="flex justify-between items-start">
+            <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-50">01</span>
+            <span class="w-8 h-8 rounded-full border border-bone/20 grid place-items-center group-hover:bg-blush group-hover:border-blush transition-colors">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M7 3V11" stroke="#0a0a0b" class="group-hover:stroke-ink stroke-bone" stroke-width="1"/></svg>
+            </span>
+          </div>
+          <h3 class="mt-12 font-serif text-[32px] leading-[0.9] tracking-[-0.03em]">Contemporary<br><em class="font-cormorant italic text-blush">Foundation</em></h3>
+          <p class="mt-6 font-sans text-[14px] leading-[1.6] opacity-60">Weight, spiral, and sequential initiation. We re-pattern standing before jumping.</p>
+          <div class="mt-auto pt-10">
+            <div class="aspect-[4/3] rounded-[1rem] overflow-hidden bg-[#1a1a1c]">
+              <img src="https://images.unsplash.com/photo-1508807526345-15e9b5f4eaff?q=80&w=800&auto=format&fit=crop" alt="Foundation" class="w-full h-full object-cover opacity-80 group-hover:scale-[1.04] transition-transform duration-700">
+            </div>
+            <div class="mt-6 flex flex-wrap gap-2">
+              <span class="px-3 py-1 rounded-full bg-bone/10 font-mono text-[10px] tracking-[0.12em] uppercase">TUE / THU 9:30</span>
+              <span class="px-3 py-1 rounded-full bg-bone/10 font-mono text-[10px] tracking-[0.12em] uppercase">90 MIN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="service-card bg-[#121214] group p-8 md:p-10 flex flex-col min-h-[520px]">
+          <div class="flex justify-between items-start">
+            <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-50">02</span>
+            <span class="w-8 h-8 rounded-full border border-bone/20 grid place-items-center group-hover:bg-blush group-hover:border-blush transition-colors">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M7 3V11" stroke="#0a0a0b" class="group-hover:stroke-ink stroke-bone" stroke-width="1"/></svg>
+            </span>
+          </div>
+          <h3 class="mt-12 font-serif text-[32px] leading-[0.9] tracking-[-0.03em]">Improvisation<br><em class="font-cormorant italic text-blush">Lab</em></h3>
+          <p class="mt-6 font-sans text-[14px] leading-[1.6] opacity-60">Scores, constraints, and watching. Learning to be seen while moving.</p>
+          <div class="mt-auto pt-10">
+            <div class="aspect-[4/3] rounded-[1rem] overflow-hidden bg-[#1a1a1c]">
+              <img src="https://images.unsplash.com/photo-1598550476439-6847785fcea6?q=80&w=800&auto=format&fit=crop" alt="Lab" class="w-full h-full object-cover opacity-80 group-hover:scale-[1.04] transition-transform duration-700">
+            </div>
+            <div class="mt-6 flex flex-wrap gap-2">
+              <span class="px-3 py-1 rounded-full bg-bone/10 font-mono text-[10px] tracking-[0.12em] uppercase">WED 18:30</span>
+              <span class="px-3 py-1 rounded-full bg-bone/10 font-mono text-[10px] tracking-[0.12em] uppercase">OPEN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="service-card bg-ink group p-8 md:p-10 flex flex-col min-h-[520px]">
+          <div class="flex justify-between items-start">
+            <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-50">03</span>
+            <span class="w-8 h-8 rounded-full border border-bone/20 grid place-items-center group-hover:bg-blush group-hover:border-blush transition-colors">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M7 3V11" stroke="#0a0a0b" class="group-hover:stroke-ink stroke-bone" stroke-width="1"/></svg>
+            </span>
+          </div>
+          <h3 class="mt-12 font-serif text-[32px] leading-[0.9] tracking-[-0.03em]">Partnering<br><em class="font-cormorant italic text-blush">& Weight</em></h3>
+          <p class="mt-6 font-sans text-[14px] leading-[1.6] opacity-60">How to give 120% and take 0%. Safety, listening, and shared center.</p>
+          <div class="mt-auto pt-10">
+            <div class="aspect-[4/3] rounded-[1rem] overflow-hidden bg-[#1a1a1c]">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop" alt="Partnering" class="w-full h-full object-cover opacity-80 group-hover:scale-[1.04] transition-transform duration-700">
+            </div>
+            <div class="mt-6 flex flex-wrap gap-2">
+              <span class="px-3 py-1 rounded-full bg-bone/10 font-mono text-[10px] tracking-[0.12em] uppercase">FRI 11:00</span>
+              <span class="px-3 py-1 rounded-full bg-blush text-ink font-mono text-[10px] tracking-[0.12em] uppercase">LIMITED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="service-card bg-[#121214] group p-8 md:p-10 flex flex-col min-h-[520px]">
+          <div class="flex justify-between items-start">
+            <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-50">04</span>
+            <span class="w-8 h-8 rounded-full border border-bone/20 grid place-items-center group-hover:bg-blush group-hover:border-blush transition-colors">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M7 3V11" stroke="#0a0a0b" class="group-hover:stroke-ink stroke-bone" stroke-width="1"/></svg>
+            </span>
+          </div>
+          <h3 class="mt-12 font-serif text-[32px] leading-[0.9] tracking-[-0.03em]">Choreographic<br><em class="font-cormorant italic text-blush">Practice</em></h3>
+          <p class="mt-6 font-sans text-[14px] leading-[1.6] opacity-60">Making. For those developing a piece. Mentorship + shared showing.</p>
+          <div class="mt-auto pt-10">
+            <div class="aspect-[4/3] rounded-[1rem] overflow-hidden bg-[#1a1a1c]">
+              <img src="https://images.unsplash.com/photo-1535525153412-5a42439a210d?q=80&w=800&auto=format&fit=crop" alt="Choreographic" class="w-full h-full object-cover opacity-80 group-hover:scale-[1.04] transition-transform duration-700">
+            </div>
+            <div class="mt-6 flex flex-wrap gap-2">
+              <span class="px-3 py-1 rounded-full bg-bone/10 font-mono text-[10px] tracking-[0.12em] uppercase">SAT 14:00</span>
+              <span class="px-3 py-1 rounded-full bg-bone/10 font-mono text-[10px] tracking-[0.12em] uppercase">BY APP.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price strip -->
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-bone/10 rounded-[1rem] overflow-hidden border border-bone/10">
+        <div class="bg-ink p-6 flex justify-between items-center">
+          <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-60">Drop-in</span>
+          <span class="font-serif text-[20px]">$28 / class</span>
+        </div>
+        <div class="bg-ink p-6 flex justify-between items-center">
+          <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-60">Research Pass</span>
+          <span class="font-serif text-[20px]">$220 / 10</span>
+        </div>
+        <div class="bg-blush text-ink p-6 flex justify-between items-center">
+          <span class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-70">Residency</span>
+          <span class="font-serif text-[20px]">Application only</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY / RESIDENCY -->
+  <section id="gallery" class="relative bg-bone overflow-hidden">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28">
+      <div class="flex flex-col lg:flex-row justify-between gap-8 items-end">
+        <div>
+          <span class="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60">03 / Residency & Space</span>
+          <h2 class="mt-4 font-serif text-[52px] md:text-[76px] leading-[0.9] tracking-[-0.04em] reveal">Light that<br>moves <em class="font-cormorant italic font-light">with you.</em></h2>
+        </div>
+        <div class="lg:max-w-[360px]">
+          <p class="font-sans text-[14px] leading-[1.6] opacity-70 reveal">We rent by the hour to companies who need silence. No branding shoots. Just makers. The space is 60% of our income — we protect it.</p>
+          <a href="#" class="mt-6 inline-flex items-center gap-3 font-mono text-[11px] tracking-[0.14em] uppercase group">
+            <span class="w-10 h-10 rounded-full bg-ink text-bone grid place-items-center group-hover:bg-black transition-colors">→</span> Space Specs PDF
+          </a>
+        </div>
+      </div>
+
+      <!-- Masonry Gallery -->
+      <div class="mt-16 grid grid-cols-12 gap-4 md:gap-6 auto-rows-[minmax(180px,auto)]">
+        <!-- Large -->
+        <div class="col-span-12 md:col-span-7 row-span-2 relative overflow-hidden rounded-[1.5rem] bg-fog group reveal">
+          <img src="https://images.unsplash.com/photo-1518834107812-67b0b288f498?q=80&w=1600&auto=format&fit=crop" alt="Studio large" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1200ms]">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink/60 via-ink/5 to-transparent"></div>
+          <div class="absolute bottom-0 p-8">
+            <span class="font-mono text-[10px] tracking-[0.2em] uppercase bg-bone px-3 py-1 rounded-full">STUDIO A — 900 SQ FT</span>
+            <h3 class="mt-4 font-serif text-[28px] leading-[1] text-bone">Maple, northern windows,<br>spring floor.</h3>
+          </div>
+        </div>
+
+        <div class="col-span-6 md:col-span-5 row-span-1 relative overflow-hidden rounded-[1.5rem] bg-fog group reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=800&auto=format&fit=crop" alt="Dancer silhouette" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700">
+          <div class="absolute bottom-4 left-4 right-4 flex justify-between">
+            <span class="font-mono text-[10px] tracking-[0.14em] uppercase bg-ink text-bone px-3 py-1 rounded-full">BARRE B — NO MIRROR</span>
+          </div>
+        </div>
+
+        <div class="col-span-6 md:col-span-5 row-span-1 relative overflow-hidden rounded-[1.5rem] bg-blush group reveal reveal-delay-2">
+          <div class="absolute inset-0 grid place-items-center p-8">
+            <p class="font-serif text-[32px] md:text-[42px] leading-[0.9] tracking-[-0.03em] text-ink text-center">“The floor is a<br><em class="font-cormorant italic">partner, not<br>a surface.”</em></p>
+          </div>
+          <div class="absolute top-6 right-6 font-mono text-[10px] tracking-[0.14em] uppercase opacity-50">NOTE 019</div>
+        </div>
+
+        <!-- Bottom row -->
+        <div class="col-span-12 md:col-span-5 relative overflow-hidden rounded-[1.5rem] bg-fog group reveal">
+          <img src="https://images.unsplash.com/photo-1598550476439-6847785fcea6?q=80&w=800&auto=format&fit=crop" alt="Flowing fabric" class="absolute inset-0 w-full h-full object-cover">
+          <div class="absolute inset-0 bg-ink/20"></div>
+        </div>
+
+        <div class="col-span-12 md:col-span-7 relative overflow-hidden rounded-[1.5rem] bg-ink group min-h-[360px] reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1200&auto=format&fit=crop" alt="Rehearsal" class="absolute inset-0 w-full h-full object-cover opacity-60">
+          <div class="absolute inset-0 bg-gradient-to-r from-ink via-ink/40 to-transparent"></div>
+          <div class="relative p-8 md:p-10 h-full flex flex-col justify-between">
+            <div class="flex gap-3">
+              <span class="w-2 h-2 rounded-full bg-blush mt-1"></span>
+              <p class="font-mono text-[11px] tracking-[0.1em] uppercase text-bone/70 max-w-[28ch]">Residency 2024 — 12 artists, 3 showings, 1 publication. Archive on request.</p>
+            </div>
+            <div>
+              <h3 class="font-serif text-[28px] md:text-[36px] leading-[0.9] text-bone">Upcoming showing:<br><em class="font-cormorant italic text-blush">Soft Edges,</em><br>Dec 14, 19:30</h3>
+              <a href="#" class="mt-6 inline-flex bg-bone text-ink px-5 py-2 rounded-full font-mono text-[11px] tracking-[0.14em] uppercase">Reserve — Free</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="relative bg-fog border-y border-ink/5">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-24">
+      <div class="flex items-center gap-4">
+        <span class="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60">04 / Voices</span>
+        <div class="h-[1px] flex-1 bg-ink/10"></div>
+        <span class="font-mono text-[11px] tracking-[0.14em] uppercase">NOT REVIEWS — FIELD NOTES</span>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-[1px] bg-ink/10 border border-ink/10 rounded-[1.5rem] overflow-hidden">
+        <div class="bg-bone p-8 md:p-10 reveal">
+          <div class="flex gap-1 text-blushDeep">★★★★★</div>
+          <p class="mt-6 font-cormorant text-[20px] leading-[1.35]">“I came after injury. They didn’t ask what I couldn’t do. They asked how I wanted to fall now.”</p>
+          <div class="mt-8 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover" alt="">
+            <div>
+              <p class="font-sans text-[13px] font-semibold">Lena Park</p>
+              <p class="font-mono text-[10px] tracking-[0.12em] uppercase opacity-60">Choreographer — Berlin</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-bone p-8 md:p-10 reveal reveal-delay-1">
+          <div class="flex gap-1 text-blushDeep">★★★★★</div>
+          <p class="mt-6 font-cormorant text-[20px] leading-[1.35]">“No counts. No mirrors for two weeks. I finally heard my own weight drop. It changed everything.”</p>
+          <div class="mt-8 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover" alt="">
+            <div>
+              <p class="font-sans text-[13px] font-semibold">Marcus Doe</p>
+              <p class="font-mono text-[10px] tracking-[0.12em] uppercase opacity-60">Dancer — Gibney</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-blush p-8 md:p-10 reveal reveal-delay-2">
+          <div class="flex gap-1 text-ink">★★★★★</div>
+          <p class="mt-6 font-cormorant text-[20px] leading-[1.35]">“It’s the only place where I’m allowed to be research, not product. I rent it when I need to remember why I move.”</p>
+          <div class="mt-8 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover" alt="">
+            <div>
+              <p class="font-sans text-[13px] font-semibold">Sofia R.</p>
+              <p class="font-mono text-[10px] tracking-[0.12em] uppercase opacity-60">Independent Artist</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCHEDULE -->
+  <section id="schedule" class="relative bg-bone">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28">
+      <div class="grid grid-cols-12 gap-8">
+        <div class="col-span-12 lg:col-span-5">
+          <span class="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60">05 / Weekly</span>
+          <h2 class="mt-4 font-serif text-[48px] md:text-[64px] leading-[0.9] tracking-[-0.04em]">Arrive as<br>you <em class="font-cormorant italic">are.</em></h2>
+          <p class="mt-6 font-sans text-[14px] leading-[1.6] opacity-70 max-w-[34ch]">We keep class sizes small. 16 max. Waitlist opens 24h before. Late entry up to 10 min — we’ll catch you on the floor.</p>
+
+          <div class="mt-10 bg-ink text-bone rounded-[1.2rem] p-6 flex gap-4">
+            <div class="w-10 h-10 rounded-full bg-blush text-ink grid place-items-center shrink-0 font-serif text-[18px]">!</div>
+            <p class="font-mono text-[11px] leading-[1.5] tracking-[0.02em] opacity-80">SCENT-FREE SPACE. Studio is kept at 21°C. Bring water, socks optional, knees optional too. All gender changing corner, not room.</p>
+          </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-7">
+          <div class="border border-ink/10 rounded-[1.5rem] overflow-hidden bg-white">
+            <div class="grid grid-cols-12 bg-fog px-6 py-4 font-mono text-[11px] tracking-[0.14em] uppercase opacity-60">
+              <span class="col-span-3">DAY</span>
+              <span class="col-span-5">PRACTICE</span>
+              <span class="col-span-2">TIME</span>
+              <span class="col-span-2 text-right">LEAD</span>
+            </div>
+            <div class="divide-y divide-ink/5">
+              <div class="grid grid-cols-12 px-6 py-5 items-center hover:bg-blush/40 transition-colors group">
+                <span class="col-span-3 font-mono text-[12px]">MONDAY</span>
+                <span class="col-span-5 font-serif text-[18px] tracking-[-0.01em]">Foundation — Slow</span>
+                <span class="col-span-2 font-mono text-[12px]">09:30—11:00</span>
+                <span class="col-span-2 text-right font-mono text-[11px] opacity-60">Mina</span>
+              </div>
+              <div class="grid grid-cols-12 px-6 py-5 items-center hover:bg-blush/40 transition-colors">
+                <span class="col-span-3 font-mono text-[12px]">TUESDAY</span>
+                <span class="col-span-5 font-serif text-[18px]">Foundation + Floor</span>
+                <span class="col-span-2 font-mono text-[12px]">09:30—11:00</span>
+                <span class="col-span-2 text-right font-mono text-[11px] opacity-60">Jae</span>
+              </div>
+              <div class="grid grid-cols-12 px-6 py-5 items-center hover:bg-blush/40 transition-colors bg-blush/20">
+                <span class="col-span-3 font-mono text-[12px] relative">WED ▸ <span class="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-ink"></span></span>
+                <span class="col-span-5 font-serif text-[18px]">Improvisation Lab <em class="font-cormorant italic text-[16px] bg-ink text-bone px-2 py-0.5 rounded-full ml-2">open</em></span>
+                <span class="col-span-2 font-mono text-[12px]">18:30—20:00</span>
+                <span class="col-span-2 text-right font-mono text-[11px] opacity-60">Mina + Guest</span>
+              </div>
+              <div class="grid grid-cols-12 px-6 py-5 items-center hover:bg-blush/40 transition-colors">
+                <span class="col-span-3 font-mono text-[12px]">THU</span>
+                <span class="col-span-5 font-serif text-[18px]">Foundation — Momentum</span>
+                <span class="col-span-2 font-mono text-[12px]">09:30—11:00</span>
+                <span class="col-span-2 text-right font-mono text-[11px] opacity-60">Jae</span>
+              </div>
+              <div class="grid grid-cols-12 px-6 py-5 items-center hover:bg-blush/40 transition-colors">
+                <span class="col-span-3 font-mono text-[12px]">FRI</span>
+                <span class="col-span-5 font-serif text-[18px]">Partnering & Weight</span>
+                <span class="col-span-2 font-mono text-[12px]">11:00—12:30</span>
+                <span class="col-span-2 text-right font-mono text-[11px] opacity-60">Lee / Park</span>
+              </div>
+              <div class="grid grid-cols-12 px-6 py-5 items-center hover:bg-blush/40 transition-colors">
+                <span class="col-span-3 font-mono text-[12px]">SAT</span>
+                <span class="col-span-5 font-serif text-[18px]">Choreographic Practice</span>
+                <span class="col-span-2 font-mono text-[12px]">14:00—17:00</span>
+                <span class="col-span-2 text-right font-mono text-[11px] opacity-60">Invite</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 flex gap-3">
+            <a href="#" class="flex-1 bg-ink text-bone rounded-full py-4 font-mono text-[11px] tracking-[0.16em] uppercase text-center hover:bg-black transition-colors">Download Schedule — Autumn PDF</a>
+            <a href="#" class="w-14 h-14 rounded-full border border-ink/15 grid place-items-center hover:bg-ink hover:text-bone transition-colors">↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="relative bg-blush overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.05]" style="background-image: url('https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=100'); mix-blend-mode: multiply;"></div>
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28 relative">
+      <div class="grid grid-cols-12 gap-8">
+        <div class="col-span-12 lg:col-span-6">
+          <span class="font-mono text-[11px] tracking-[0.2em] uppercase opacity-60">06 / Visit</span>
+          <h2 class="mt-4 font-serif text-[52px] md:text-[72px] leading-[0.85] tracking-[-0.05em]">Come with<br><em class="font-cormorant italic">socks.</em><br>Leave with<br>questions.</h2>
+
+          <div class="mt-12 grid grid-cols-2 gap-8 font-mono text-[11px] leading-[1.6]">
+            <div>
+              <p class="uppercase tracking-[0.14em] opacity-50">Address</p>
+              <p class="mt-2 text-[13px] leading-[1.5]">187 Grand Street, 4th Floor<br>Brooklyn, NY 11249<br>Navy Yard — Bldg 77</p>
+            </div>
+            <div>
+              <p class="uppercase tracking-[0.14em] opacity-50">Contact</p>
+              <p class="mt-2 text-[13px] leading-[1.5]">hello@fluid.dance<br>@fluid.atelier<br>(347) 555-0142</p>
+            </div>
+          </div>
+
+          <div class="mt-12 aspect-[16/10] rounded-[1.5rem] overflow-hidden bg-ink relative">
+            <img src="https://images.unsplash.com/photo-1504609813442-a8924e83f76e?q=80&w=1200&auto=format&fit=crop" alt="Map / studio" class="absolute inset-0 w-full h-full object-cover opacity-80">
+            <div class="absolute bottom-4 left-4 bg-bone rounded-full px-4 py-2 font-mono text-[10px] tracking-[0.14em] uppercase flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> B/C TRAIN — YORK ST, 7 MIN WALK
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-6">
+          <form class="bg-bone rounded-[1.75rem] p-8 md:p-10 border border-ink/5 shadow-[0_24px_80px_rgba(10,10,11,.08)]">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-serif text-[28px] leading-[0.9] tracking-[-0.02em]">Book a first visit</h3>
+                <p class="mt-2 font-mono text-[11px] tracking-[0.06em] leading-[1.5] opacity-60 max-w-[32ch]">One free research class. No pitch. We’ll just move. If it’s not your place, that’s data too.</p>
+              </div>
+              <span class="font-mono text-[10px] tracking-[0.14em] uppercase bg-ink text-bone px-3 py-1 rounded-full">3 SPOTS LEFT THIS WEEK</span>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label class="block">
+                <span class="font-mono text-[10px] tracking-[0.14em] uppercase opacity-60">Name</span>
+                <input type="text" placeholder="How should we call you?" class="mt-2 w-full bg-fog border border-ink/5 rounded-full px-5 py-4 font-sans text-[14px] placeholder:opacity-40 focus:border-ink/30 transition-colors">
+              </label>
+              <label class="block">
+                <span class="font-mono text-[10px] tracking-[0.14em] uppercase opacity-60">Pronouns / Body notes (optional)</span>
+                <input type="text" placeholder="she/they, knee injury, etc." class="mt-2 w-full bg-fog border border-ink/5 rounded-full px-5 py-4 font-sans text-[14px] placeholder:opacity-40 focus:border-ink/30 transition-colors">
+              </label>
+              <label class="block md:col-span-2">
+                <span class="font-mono text-[10px] tracking-[0.14em] uppercase opacity-60">Email</span>
+                <input type="email" placeholder="you@email.com" class="mt-2 w-full bg-fog border border-ink/5 rounded-full px-5 py-4 font-sans text-[14px] placeholder:opacity-40 focus:border-ink/30 transition-colors">
+              </label>
+              <label class="block md:col-span-2">
+                <span class="font-mono text-[10px] tracking-[0.14em] uppercase opacity-60">What are you curious about right now?</span>
+                <textarea rows="4" placeholder="One sentence is enough. Or one word." class="mt-2 w-full bg-fog border border-ink/5 rounded-[1.25rem] px-5 py-4 font-sans text-[14px] placeholder:opacity-40 focus:border-ink/30 transition-colors resize-none"></textarea>
+              </label>
+            </div>
+
+            <div class="mt-6 flex items-center gap-3">
+              <input type="checkbox" id="agree" class="rounded">
+              <label for="agree" class="font-mono text-[10px] tracking-[0.02em] leading-[1.4] opacity-60">I understand this is a scent-free, consent-forward space. I can leave any score at any time.</label>
+            </div>
+
+            <button type="submit" class="mt-8 w-full bg-ink text-bone rounded-full py-4 font-mono text-[11px] tracking-[0.16em] uppercase flex items-center justify-center gap-3 hover:bg-black transition-colors group">
+              Request Visit — No Charge
+              <span class="w-6 h-6 rounded-full bg-bone text-ink grid place-items-center group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+
+            <p class="mt-4 text-center font-mono text-[10px] tracking-[0.06em] opacity-40">We reply within 6 hours. Usually from the floor.</p>
+          </form>
+
+          <div class="mt-6 bg-ink text-bone rounded-[1.25rem] p-6 flex items-center justify-between">
+            <span class="font-mono text-[11px] tracking-[0.14em] uppercase">Residency Applications — Spring '25</span>
+            <span class="font-serif text-[15px]">Open until Jan 10</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-ink text-bone border-t border-bone/5">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+      <div class="py-16 md:py-20 grid grid-cols-12 gap-8 items-start">
+        <div class="col-span-12 md:col-span-5">
+          <p class="font-serif text-[52px] md:text-[72px] leading-[0.85] tracking-[-0.04em]">flūid</p>
+          <p class="mt-6 font-cormorant text-[18px] leading-[1.4] opacity-60 max-w-[30ch]">Contemporary dance research atelier. No recitals. No competitions. Just practice and a very warm floor.</p>
+          <div class="mt-8 flex gap-3">
+            <a href="#" class="w-10 h-10 rounded-full bg-bone/10 grid place-items-center hover:bg-blush hover:text-ink transition-colors text-[12px]">IG</a>
+            <a href="#" class="w-10 h-10 rounded-full bg-bone/10 grid place-items-center hover:bg-blush hover:text-ink transition-colors text-[12px]">AR</a>
+            <a href="#" class="w-10 h-10 rounded-full bg-bone/10 grid place-items-center hover:bg-blush hover:text-ink transition-colors text-[12px]">YT</a>
+          </div>
+        </div>
+
+        <div class="col-span-6 md:col-span-2">
+          <p class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-40">Practice</p>
+          <ul class="mt-4 space-y-2 font-sans text-[14px] opacity-70">
+            <li><a href="#" class="hover:text-blush transition-colors">Foundation</a></li>
+            <li><a href="#" class="hover:text-blush transition-colors">Improv Lab</a></li>
+            <li><a href="#" class="hover:text-blush transition-colors">Partnering</a></li>
+            <li><a href="#" class="hover:text-blush transition-colors">Choreographic</a></li>
+          </ul>
+        </div>
+
+        <div class="col-span-6 md:col-span-2">
+          <p class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-40">Space</p>
+          <ul class="mt-4 space-y-2 font-sans text-[14px] opacity-70">
+            <li><a href="#" class="hover:text-blush transition-colors">Rentals</a></li>
+            <li><a href="#" class="hover:text-blush transition-colors">Residency</a></li>
+            <li><a href="#" class="hover:text-blush transition-colors">Showings</a></li>
+            <li><a href="#" class="hover:text-blush transition-colors">Publication</a></li>
+          </ul>
+        </div>
+
+        <div class="col-span-12 md:col-span-3">
+          <p class="font-mono text-[11px] tracking-[0.14em] uppercase opacity-40">Newsletter — No spam, just scores</p>
+          <div class="mt-4 flex">
+            <input type="email" placeholder="email" class="flex-1 bg-bone/5 border border-bone/10 rounded-l-full px-5 py-3 font-mono text-[12px] placeholder:opacity-40">
+            <button class="bg-blush text-ink px-6 rounded-r-full font-mono text-[11px] tracking-[0.14em] uppercase">Join</button>
+          </div>
+          <p class="mt-3 font-mono text-[10px] opacity-30">Monthly. With a movement score you can do at home.</p>
+        </div>
+      </div>
+
+      <div class="border-t border-bone/5 py-6 flex flex-col md:flex-row justify-between gap-4 font-mono text-[10px] tracking-[0.12em] uppercase opacity-40">
+        <span>© 2025 FLŪID ATELIER — BUILT FOR BODIES IN RESEARCH</span>
+        <span class="flex gap-6">
+          <span>BRKLN 40.7031° N</span>
+          <span>Privacy — No cookies</span>
+          <span>Colophon</span>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  // Progress bar
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progress.style.width = scrolled + '%';
+  }, {passive:true});
+
+  // Reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold: 0.12});
+  document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+
+  // Custom cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mouseX=0, mouseY=0, ringX=0, ringY=0;
+  window.addEventListener('mousemove', (e)=>{
+    mouseX = e.clientX; mouseY = e.clientY;
+    dot.style.left = mouseX + 'px'; dot.style.top = mouseY + 'px';
+  });
+  (function animateRing(){
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    ring.style.left = ringX + 'px'; ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  })();
+  document.querySelectorAll('a, button, .service-card, input, textarea').forEach(el=>{
+    el.addEventListener('mouseenter', ()=> ring.classList.add('hover'));
+    el.addEventListener('mouseleave', ()=> ring.classList.remove('hover'));
+  });
+
+  // Magnetic buttons
+  document.querySelectorAll('.magnetic').forEach(btn=>{
+    btn.addEventListener('mousemove', (e)=>{
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top - r.height/2;
+      btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+    });
+    btn.addEventListener('mouseleave', ()=>{ btn.style.transform = 'translate(0,0)'; });
+  });
+
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn?.addEventListener('click', ()=>{ mobileMenu.classList.toggle('hidden'); });
+
+  // Parallax images
+  const parallaxImgs = document.querySelectorAll('.img-parallax');
+  window.addEventListener('scroll', ()=>{
+    const sy = window.scrollY;
+    parallaxImgs.forEach(img=>{
+      const rect = img.parentElement.getBoundingClientRect();
+      if(rect.top < window.innerHeight && rect.bottom > 0){
+        const speed = 0.08;
+        const y = (rect.top - window.innerHeight/2) * speed;
+        img.style.transform = `translateY(${y}px) scale(1.08)`;
+      }
+    });
+  }, {passive:true});
+
+  // Form fake submit
+  document.querySelector('form')?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type=submit]');
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Sending...';
+    setTimeout(()=>{
+      btn.innerHTML = '✓ We got you — check email in 6h';
+      btn.classList.add('bg-blushDeep');
+      setTimeout(()=>{ btn.innerHTML = original; }, 3000);
+    }, 900);
+  });
+
+  // Ink nav shrink
+  const nav = document.getElementById('nav');
+  let lastY = 0;
+  window.addEventListener('scroll', ()=>{
+    const y = window.scrollY;
+    if(y > 120){ nav.classList.add('shadow-[0_10px_30px_rgba(0,0,0,.06)]'); } else { nav.classList.remove('shadow-[0_10px_30px_rgba(0,0,0,.06)]'); }
+    lastY = y;
+  }, {passive:true});
+
+  
+  // ——— Extended interactions for premium feel ———
+  // Smooth anchor offset for sticky nav
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', function(e){
+      const id = this.getAttribute('href');
+      if(id.length>1){
+        const target = document.querySelector(id);
+        if(target){
+          e.preventDefault();
+          const top = target.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({top, behavior:'smooth'});
+          if(mobileMenu && !mobileMenu.classList.contains('hidden')) mobileMenu.classList.add('hidden');
+        }
+      }
+    });
+  });
+
+  // Randomize tick opacity for organic barre
+  document.querySelectorAll('.tick').forEach((t,i)=>{
+    t.style.opacity = (0.08 + Math.random()*0.18).toFixed(2);
+    t.style.height = (8 + Math.random()*10) + 'px';
+  });
+
+  // Motion blur intensity on scroll for hero
+  const heroBlur = document.querySelector('.text-blur');
+  if(heroBlur){
+    window.addEventListener('scroll', ()=>{
+      const r = Math.min(window.scrollY / 600, 1);
+      heroBlur.style.filter = `blur(${r*2}px)`;
+      heroBlur.style.transform = `translateY(${r*12}px) skewX(${r*-2}deg)`;
+    }, {passive:true});
+  }
+
+  // Idle cursor breathing
+  let idleTimer;
+  function startIdle(){
+    clearTimeout(idleTimer);
+    ring.style.transition = 'width .6s, height .6s, border-color .6s, transform .4s';
+    idleTimer = setTimeout(()=>{
+      ring.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:'translate(-50%,-50%) scale(1.15)'},{transform:'translate(-50%,-50%) scale(1)'}], {duration:1200, iterations: Infinity});
+    }, 3000);
+  }
+  window.addEventListener('mousemove', startIdle, {passive:true});
+
+  // Lazy load enhancement
+  const observerImg = new IntersectionObserver((ents)=>{
+    ents.forEach(ent=>{
+      if(ent.isIntersecting){
+        ent.target.classList.add('blur-in');
+        observerImg.unobserve(ent.target);
+      }
+    });
+  }, {threshold:0.1});
+  document.querySelectorAll('img').forEach(img=> observerImg.observe(img));
+
+  // Konami style: press B for blush mode shift
+  let blushMode = false;
+  window.addEventListener('keydown', (e)=>{
+    if(e.key.toLowerCase()==='b' && e.shiftKey){
+      blushMode = !blushMode;
+      document.body.style.transition = 'background .6s ease';
+      document.body.style.background = blushMode ? '#f8d7da' : '#fef9f6';
+    }
+  });
+
+  console.log('%cflūid — conceptual site','font-family:serif; font-size:18px; color:#0a0a0b; background:#f8d7da; padding:6px 12px; border-radius:20px;');
+
+  // Keyboard nav focus ring enhancement
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='Tab'){ document.body.classList.add('keyboard'); }
+  });
+</script>
+</body>
+</html>

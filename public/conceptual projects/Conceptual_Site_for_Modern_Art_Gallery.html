@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Modern Art Gallery</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        helvetica: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        instrument: ['Instrument Sans', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+        serif: ['Newsreader', 'serif'],
+      },
+      colors: {
+        'dot-red': '#FF0000',
+        'off-white': '#FFFFFF',
+        'ink': '#000000',
+      }
+    }
+  }
+}
+</script>
+<style>
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #fff; color: #000; overflow-x: hidden; }
+::selection { background: #000; color: #fff; }
+
+/* Grain */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+  animation: grainMove 8s steps(10) infinite;
+}
+@keyframes grainMove {
+  0%,100% { transform: translate(0,0); }
+  10% { transform: translate(-5%,-10%); }
+  20% { transform: translate(-15%,5%); }
+  30% { transform: translate(7%,-25%); }
+  40% { transform: translate(-5%,25%); }
+  50% { transform: translate(-15%,10%); }
+  60% { transform: translate(15%,0); }
+  70% { transform: translate(0,15%); }
+  80% { transform: translate(3%,35%); }
+  90% { transform: translate(-10%,10%); }
+}
+
+/* Custom Cursor */
+.cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 12px; height: 12px;
+  background: #FF0000;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  mix-blend-mode: normal;
+  transition: transform 0.15s cubic-bezier(0.16,1,0.3,1), opacity 0.2s;
+}
+.cursor-cross {
+  position: fixed;
+  top: 0; left: 0;
+  width: 40px; height: 40px;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+}
+.cursor-cross::before, .cursor-cross::after {
+  content: "";
+  position: absolute;
+  background: white;
+}
+.cursor-cross::before { width: 1px; height: 40px; left: 20px; top: 0; }
+.cursor-cross::after { width: 40px; height: 1px; top: 20px; left: 0; }
+
+/* Grid Lines */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+}
+.grid-lines span {
+  flex: 1;
+  border-left: 1px solid rgba(0,0,0,0.06);
+}
+.grid-lines span:first-child { border-left: none; }
+@media (max-width: 1024px) { .grid-lines span:nth-child(n+3) { display: none; } }
+
+/* Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 30s linear infinite; }
+
+/* Reveal */
+.reveal-line { overflow: hidden; }
+.reveal-line span { display: block; transform: translateY(105%); transition: transform 1.2s cubic-bezier(0.16,1,0.3,1); }
+.reveal-line.active span { transform: translateY(0); }
+
+.exhibition-row { position: relative; transition: background 0.2s; }
+.exhibition-row:hover { background: #000; color: #fff; }
+.exhibition-row:hover .mono-muted { color: rgba(255,255,255,0.5); }
+
+/* Image hover preview */
+.preview-img {
+  position: fixed;
+  width: 360px;
+  height: 480px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.9) rotate(-2deg);
+  transition: opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  z-index: 50;
+  overflow: hidden;
+  border: 1px solid #000;
+}
+.preview-img.active { opacity: 1; transform: scale(1) rotate(0deg); }
+.preview-img img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+
+.line-draw { height: 1px; background: #000; transform-origin: left; transform: scaleX(0); transition: transform 1.2s cubic-bezier(0.16,1,0.3,1); }
+.line-draw.active { transform: scaleX(1); }
+
+.sticky-title { position: sticky; top: 96px; }
+
+@media (max-width: 768px) {
+  .cursor-dot, .cursor-cross, .preview-img { display: none !important; }
+}
+</style>
+</head>
+<body class="grain bg-white text-black">
+
+<!-- Custom Cursor -->
+<div id="cursorDot" class="cursor-dot"></div>
+<div id="cursorCross" class="cursor-cross"></div>
+<div id="previewImg" class="preview-img">
+  <img id="previewImgEl" src="" alt="">
+</div>
+
+<!-- Grid Lines Overlay -->
+<div class="grid-lines">
+  <span></span><span></span><span></span><span></span>
+</div>
+
+<!-- Loader -->
+<div id="loader" class="fixed inset-0 z-[9998] bg-white flex flex-col justify-between p-6 lg:p-10 transition-transform duration-[1.2s] cubic-bezier(0.16,1,0.3,1)">
+  <div class="flex justify-between font-mono text-[10px] tracking-widest uppercase">
+    <span>DOT — Contemporary Art Institution</span>
+    <span id="loaderCounter">00%</span>
+  </div>
+  <div class="flex-1 flex items-center">
+    <h1 class="text-[22vw] lg:text-[18vw] leading-[0.8] tracking-[-0.08em] font-black">DOT<span class="inline-block w-[0.15em] h-[0.15em] bg-dot-red rounded-full ml-[0.05em] translate-y-[-0.15em]"></span></h1>
+  </div>
+  <div class="flex justify-between items-end">
+    <div class="font-mono text-[10px] leading-[1.4] uppercase max-w-[200px]">
+      47 Walker Street<br>New York, NY 10013<br>— EST 2021
+    </div>
+    <div class="h-[1px] flex-1 mx-10 bg-black origin-left scale-x-0" id="loaderLine"></div>
+    <div class="font-mono text-[10px] uppercase">Loading Archive</div>
+  </div>
+</div>
+
+<!-- Top Info Bar -->
+<div class="relative z-20 border-b border-black bg-white">
+  <div class="flex flex-wrap justify-between items-center px-6 lg:px-10 h-[40px] text-[10px] font-mono tracking-widest uppercase">
+    <div class="flex gap-6 lg:gap-10">
+      <span class="flex items-center gap-2"><i class="w-[6px] h-[6px] bg-dot-red rounded-full animate-pulse inline-block"></i> Open Today 11AM—6PM</span>
+      <span class="hidden md:inline">47 Walker St, Tribeca</span>
+      <span class="hidden lg:inline">Capacity: 87 / 120</span>
+    </div>
+    <div class="flex gap-6 lg:gap-10">
+      <span id="liveClock">00:00:00 NY</span>
+      <span class="hidden md:inline">© 2025 DOT Archive</span>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<header class="relative z-20 bg-white border-b border-black sticky top-0 mix-blend-normal">
+  <div class="flex justify-between items-stretch px-6 lg:px-10 h-[72px] lg:h-[84px]">
+    <div class="flex items-center gap-8">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="text-[28px] lg:text-[32px] font-black tracking-[-0.05em] leading-none">DOT</div>
+        <div class="w-[8px] h-[8px] bg-dot-red rounded-full group-hover:scale-[2.5] transition-transform duration-500"></div>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 ml-10 font-mono text-[10px] uppercase tracking-widest">
+        <span class="px-3 py-1 border border-black rounded-full">Index</span>
+        <span class="px-3 py-1 opacity-40">— Contemporary Institution for Radical Form</span>
+      </div>
+    </div>
+    <div class="flex items-stretch">
+      <nav class="hidden lg:flex items-stretch font-mono text-[11px] uppercase tracking-widest">
+        <a href="#exhibitions" class="flex items-center px-6 border-l border-black hover:bg-black hover:text-white transition-colors"><span class="mr-2 opacity-40">(01)</span> Exhibitions</a>
+        <a href="#information" class="flex items-center px-6 border-l border-black hover:bg-black hover:text-white transition-colors"><span class="mr-2 opacity-40">(02)</span> Information</a>
+        <a href="#archive" class="flex items-center px-6 border-l border-black hover:bg-black hover:text-white transition-colors"><span class="mr-2 opacity-40">(03)</span> Archive</a>
+        <a href="#visit" class="flex items-center px-6 border-l border-r border-black hover:bg-black hover:text-white transition-colors"><span class="mr-2 opacity-40">(04)</span> Visit</a>
+      </nav>
+      <button id="menuBtn" class="lg:hidden flex items-center px-4 border-l border-black font-mono text-[11px] uppercase">
+        <span class="mr-2">Menu</span><span class="text-[14px]">—</span>
+      </button>
+      <button class="hidden lg:flex items-center px-6 bg-black text-white font-mono text-[11px] uppercase tracking-widest hover:bg-dot-red transition-colors">
+        Tickets →
+      </button>
+    </div>
+  </div>
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="lg:hidden border-t border-black bg-white hidden">
+    <a href="#exhibitions" class="flex justify-between p-6 border-b border-black font-mono text-[12px] uppercase"><span>Exhibitions</span><span class="opacity-40">(01)</span></a>
+    <a href="#information" class="flex justify-between p-6 border-b border-black font-mono text-[12px] uppercase"><span>Information</span><span class="opacity-40">(02)</span></a>
+    <a href="#archive" class="flex justify-between p-6 border-b border-black font-mono text-[12px] uppercase"><span>Archive</span><span class="opacity-40">(03)</span></a>
+    <a href="#visit" class="flex justify-between p-6 font-mono text-[12px] uppercase"><span>Visit</span><span class="opacity-40">(04)</span></a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="relative z-10 bg-white">
+  <div class="px-6 lg:px-10 pt-10 lg:pt-16 pb-8 flex justify-between font-mono text-[10px] uppercase tracking-widest">
+    <div class="flex gap-10">
+      <span>[01-05]</span>
+      <span class="hidden md:inline max-w-[240px] leading-[1.4] opacity-60">A white cube institution operating at the intersection of brutalist architecture and radical contemporary practice.</span>
+    </div>
+    <div class="text-right">
+      <div>Season 2024—25</div>
+      <div class="opacity-40">Vol. IV</div>
+    </div>
+  </div>
+
+  <div class="px-6 lg:px-10">
+    <div class="border-t border-black">
+      <h1 class="font-helvetica font-black tracking-[-0.07em] leading-[0.82] text-[18vw] lg:text-[16.5vw] pt-8 lg:pt-10">
+        <div class="reveal-line"><span>WHITE</span></div>
+        <div class="reveal-line flex items-baseline gap-[0.15em]"><span>CUBE</span><span class="w-[0.12em] h-[0.12em] bg-dot-red rounded-full inline-block translate-y-[-0.35em]"></span></div>
+      </h1>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-0 border-y border-black mt-8 lg:mt-12 px-6 lg:px-10">
+    <div class="col-span-12 lg:col-span-3 py-6 lg:py-10 border-b lg:border-b-0 lg:border-r border-black pr-0 lg:pr-10">
+      <div class="font-mono text-[10px] uppercase tracking-widest mb-6 opacity-60">[Manifesto — 001]</div>
+      <p class="font-instrument text-[18px] lg:text-[20px] leading-[1.25] tracking-[-0.01em]">
+        We operate a radical void. 90% nothingness. 10% precise intervention. No decoration. Only presence, light, and the red dot that marks sold, seen, remembered.
+      </p>
+      <div class="mt-8 flex gap-4">
+        <div class="w-[36px] h-[36px] border border-black rounded-full flex items-center justify-center font-mono text-[10px]">→</div>
+        <span class="font-mono text-[10px] uppercase tracking-widest leading-[1.3] pt-1">Read<br>Manifesto</span>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-5 lg:border-r border-black relative overflow-hidden group">
+      <img src="https://images.unsplash.com/photo-1577720643272-265f09367456?q=80&w=2000&auto=format&fit=crop" alt="White cube gallery interior" class="w-full h-[520px] lg:h-[680px] object-cover grayscale group-hover:grayscale-0 transition-all duration-[1.5s] cubic-bezier(0.16,1,0.3,1)">
+      <div class="absolute top-6 left-6 bg-white border border-black px-3 py-1 font-mono text-[9px] uppercase tracking-widest">FIG. 01 — Main Hall / 47 Walker</div>
+      <div class="absolute bottom-6 right-6 w-[72px] h-[72px] bg-white border border-black rounded-full flex items-center justify-center">
+        <div class="w-[8px] h-[8px] bg-dot-red rounded-full animate-pulse"></div>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-4 flex flex-col">
+      <div class="flex-1 p-6 lg:p-10 border-b border-black">
+        <div class="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-10">
+          <span>Now Showing</span>
+          <span class="flex items-center gap-2"><span class="w-[5px] h-[5px] bg-dot-red rounded-full"></span> Live</span>
+        </div>
+        <h2 class="font-helvetica font-bold text-[40px] lg:text-[52px] leading-[0.9] tracking-[-0.04em]">MONO<br>CHROME</h2>
+        <div class="mt-4 font-mono text-[11px] uppercase tracking-widest opacity-60">Hito Steyerl — Sep 12 → Jan 04</div>
+        <p class="mt-6 font-instrument text-[15px] leading-[1.5]">An exhaustive study of absence through digital debris and concrete. The image after the image.</p>
+      </div>
+      <div class="p-6 lg:p-10 bg-black text-white flex justify-between items-center group cursor-pointer">
+        <div class="font-mono text-[11px] uppercase tracking-widest">Enter Exhibition — View Works (24)</div>
+        <div class="w-[32px] h-[32px] border border-white rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">→</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="relative z-10 bg-dot-red text-white border-b border-black overflow-hidden h-[44px] flex items-center">
+  <div class="marquee-track flex whitespace-nowrap will-change-transform">
+    <div class="flex items-center gap-10 px-6 font-mono text-[11px] uppercase tracking-widest">
+      <span>Current: Monochrome — Hito Steyerl</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>Upcoming: Concrete Poetry — 11.15</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>Archive Open Daily 11—6</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>DOT Editions Available</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>No Photography Beyond This Point</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+    </div>
+    <div class="flex items-center gap-10 px-6 font-mono text-[11px] uppercase tracking-widest" aria-hidden="true">
+      <span>Current: Monochrome — Hito Steyerl</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>Upcoming: Concrete Poetry — 11.15</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>Archive Open Daily 11—6</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>DOT Editions Available</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+      <span>No Photography Beyond This Point</span><span class="w-[4px] h-[4px] bg-white rounded-full"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Exhibitions List -->
+<section id="exhibitions" class="relative z-10 bg-white">
+  <div class="px-6 lg:px-10 py-10 lg:py-16 border-b border-black flex justify-between items-end">
+    <h2 class="font-helvetica font-black text-[12vw] lg:text-[8vw] leading-[0.85] tracking-[-0.06em]">EXHIBITIONS<span class="text-dot-red">.</span></h2>
+    <div class="hidden lg:block font-mono text-[10px] uppercase tracking-widest text-right leading-[1.4]">
+      2021—2025<br>Archive of 47 Shows<br>View Full Index ↓
+    </div>
+  </div>
+
+  <div class="border-b border-black">
+    <!-- Header -->
+    <div class="hidden lg:grid grid-cols-12 gap-0 px-6 lg:px-10 py-4 font-mono text-[10px] uppercase tracking-widest opacity-40 border-b border-black">
+      <div class="col-span-1">No.</div>
+      <div class="col-span-5">Title / Artist</div>
+      <div class="col-span-2">Discipline</div>
+      <div class="col-span-2">Duration</div>
+      <div class="col-span-2 text-right">Status</div>
+    </div>
+
+    <!-- Rows -->
+    <div class="exhibition-row group grid grid-cols-12 gap-0 px-6 lg:px-10 py-6 lg:py-8 border-b border-black last:border-b-0 cursor-none" data-img="https://images.unsplash.com/photo-1577083165633-14ebcdb0f658?q=80&w=800&auto=format&fit=crop">
+      <div class="col-span-12 lg:col-span-1 font-mono text-[11px] flex lg:block justify-between"><span>001</span><span class="lg:hidden">— Now</span></div>
+      <div class="col-span-12 lg:col-span-5 mt-2 lg:mt-0">
+        <div class="font-helvetica font-bold text-[28px] lg:text-[42px] leading-[0.95] tracking-[-0.03em]">MONOCHROME</div>
+        <div class="font-serif italic text-[16px] lg:text-[18px] mt-1">Hito Steyerl</div>
+      </div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] uppercase"><span class="inline-block border border-current px-2 py-1 rounded-full">Film / Essay</span></div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] leading-[1.4] mono-muted transition-colors">Sep 12, 2024<br>→ Jan 04, 2025</div>
+      <div class="col-span-12 lg:col-span-2 mt-4 lg:mt-0 flex lg:justify-end items-start font-mono text-[11px] uppercase gap-2"><span class="w-[6px] h-[6px] bg-dot-red rounded-full mt-[4px]"></span> Now Open</div>
+    </div>
+
+    <div class="exhibition-row group grid grid-cols-12 gap-0 px-6 lg:px-10 py-6 lg:py-8 border-b border-black cursor-none" data-img="https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=800&auto=format&fit=crop">
+      <div class="col-span-12 lg:col-span-1 font-mono text-[11px] flex lg:block justify-between"><span>002</span><span class="lg:hidden">— Past</span></div>
+      <div class="col-span-12 lg:col-span-5 mt-2 lg:mt-0">
+        <div class="font-helvetica font-bold text-[28px] lg:text-[42px] leading-[0.95] tracking-[-0.03em]">UNTITLED (VOID)</div>
+        <div class="font-serif italic text-[16px] lg:text-[18px] mt-1">Rirkrit Tiravanija</div>
+      </div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] uppercase"><span class="inline-block border border-current px-2 py-1 rounded-full">Social / Space</span></div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] leading-[1.4] mono-muted">May 02 → Aug 19, 2024</div>
+      <div class="col-span-12 lg:col-span-2 mt-4 lg:mt-0 flex lg:justify-end font-mono text-[11px] uppercase opacity-40">Archived</div>
+    </div>
+
+    <div class="exhibition-row group grid grid-cols-12 gap-0 px-6 lg:px-10 py-6 lg:py-8 border-b border-black cursor-none" data-img="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=800&auto=format&fit=crop">
+      <div class="col-span-12 lg:col-span-1 font-mono text-[11px]">003</div>
+      <div class="col-span-12 lg:col-span-5 mt-2 lg:mt-0">
+        <div class="font-helvetica font-bold text-[28px] lg:text-[42px] leading-[0.95] tracking-[-0.03em]">CONCRETE<br>POETRY</div>
+        <div class="font-serif italic text-[16px] lg:text-[18px] mt-1">Group Show — 12 Artists</div>
+      </div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] uppercase"><span class="inline-block border border-current px-2 py-1 rounded-full">Text / Form</span></div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] leading-[1.4] mono-muted">Nov 15, 2024<br>→ Feb 28, 2025</div>
+      <div class="col-span-12 lg:col-span-2 mt-4 lg:mt-0 flex lg:justify-end font-mono text-[11px] uppercase"><span class="border border-current px-2 py-1">Upcoming</span></div>
+    </div>
+
+    <div class="exhibition-row group grid grid-cols-12 gap-0 px-6 lg:px-10 py-6 lg:py-8 border-b border-black cursor-none" data-img="https://images.unsplash.com/photo-1554907984-15263bfd63bd?q=80&w=800&auto=format&fit=crop">
+      <div class="col-span-12 lg:col-span-1 font-mono text-[11px]">004</div>
+      <div class="col-span-12 lg:col-span-5 mt-2 lg:mt-0">
+        <div class="font-helvetica font-bold text-[28px] lg:text-[42px] leading-[0.95] tracking-[-0.03em]">WHITE CUBE<br>AFTERLIFE</div>
+        <div class="font-serif italic text-[16px] lg:text-[18px] mt-1">Forensic Architecture</div>
+      </div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] uppercase"><span class="inline-block border border-current px-2 py-1 rounded-full">Research</span></div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] leading-[1.4] mono-muted">Jan 10 → Apr 03, 2024</div>
+      <div class="col-span-12 lg:col-span-2 mt-4 lg:mt-0 flex lg:justify-end font-mono text-[11px] uppercase opacity-40">Archived</div>
+    </div>
+
+    <div class="exhibition-row group grid grid-cols-12 gap-0 px-6 lg:px-10 py-6 lg:py-8 cursor-none" data-img="https://images.unsplash.com/photo-1561214115-f2f134cc4912?q=80&w=800&auto=format&fit=crop">
+      <div class="col-span-12 lg:col-span-1 font-mono text-[11px]">005</div>
+      <div class="col-span-12 lg:col-span-5 mt-2 lg:mt-0">
+        <div class="font-helvetica font-bold text-[28px] lg:text-[42px] leading-[0.95] tracking-[-0.03em]">STANDARD</div>
+        <div class="font-serif italic text-[16px] lg:text-[18px] mt-1">Charlotte Posenenske — Estate</div>
+      </div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] uppercase"><span class="inline-block border border-current px-2 py-1 rounded-full">Sculpture</span></div>
+      <div class="col-span-6 lg:col-span-2 mt-4 lg:mt-0 font-mono text-[11px] leading-[1.4] mono-muted">Mar 08 → Jul 21, 2023</div>
+      <div class="col-span-12 lg:col-span-2 mt-4 lg:mt-0 flex lg:justify-end font-mono text-[11px] uppercase opacity-40">Sold Out — Editions Archived</div>
+    </div>
+  </div>
+
+  <div class="px-6 lg:px-10 py-6 flex justify-between font-mono text-[10px] uppercase tracking-widest">
+    <span class="opacity-60">Show All 47 Exhibitions — Full Archive PDF (12MB)</span>
+    <span>↓</span>
+  </div>
+</section>
+
+<!-- About / Information - Brutalist manifesto -->
+<section id="information" class="relative z-10 bg-white border-t border-black">
+  <div class="grid grid-cols-12 gap-0">
+    <div class="col-span-12 lg:col-span-4 px-6 lg:px-10 py-10 lg:py-20 border-b lg:border-b-0 lg:border-r border-black">
+      <div class="sticky-title">
+        <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-10">[02] — Information</div>
+        <h2 class="font-helvetica font-black text-[60px] lg:text-[84px] leading-[0.85] tracking-[-0.05em]">DOT<br>IS A<br>METHOD<span class="text-dot-red">.</span></h2>
+        <div class="mt-12 w-full h-[1px] bg-black line-draw"></div>
+        <div class="mt-8 font-mono text-[11px] leading-[1.6] max-w-[320px]">
+          An institution dedicated to removing everything that is not essential. Founded Tribeca, 2021. Non-collecting. Non-profit. Radical hospitality.
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-8">
+      <div class="px-6 lg:px-16 py-10 lg:py-20 border-b border-black">
+        <div class="max-w-[720px]">
+          <p class="font-instrument text-[26px] lg:text-[36px] leading-[1.15] tracking-[-0.02em]">
+            The white cube is not neutral. It is a technology. A filter. An ideology cast in gypsum and LED. DOT exposes this apparatus — we leave the walls bare, the grid visible, the labor unhidden.
+          </p>
+          <div class="grid grid-cols-12 gap-6 lg:gap-10 mt-16">
+            <div class="col-span-12 lg:col-span-6">
+              <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-4">[The Protocol]</div>
+              <p class="font-instrument text-[16px] leading-[1.6] opacity-80">
+                Every exhibition begins with subtraction. No plinths unless structurally required. No vinyl unless it carries information. No color on walls — only RAL 9016 pure white, matte, 2% sheen. Natural light only from north-facing clerestory. Artificial light at 4000K, CRI 98.
+                <br><br>
+                The red dot is not decorative. It is a data point. Sold. Reserved. Archived. It marks where capital meets contemplation.
+              </p>
+            </div>
+            <div class="col-span-12 lg:col-span-6">
+              <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-4">[Statistics]</div>
+              <div class="border-t border-black">
+                <div class="flex justify-between py-3 border-b border-black/10 font-mono text-[11px]"><span>Total Sqft</span><span class="font-bold">4,200</span></div>
+                <div class="flex justify-between py-3 border-b border-black/10 font-mono text-[11px]"><span>Wall Height</span><span class="font-bold">14 FT</span></div>
+                <div class="flex justify-between py-3 border-b border-black/10 font-mono text-[11px]"><span>Grid Module</span><span class="font-bold">1200 MM</span></div>
+                <div class="flex justify-between py-3 border-b border-black/10 font-mono text-[11px]"><span>Annual Visitors</span><span class="font-bold">18,439</span></div>
+                <div class="flex justify-between py-3 font-mono text-[11px]"><span>Red Dots Issued</span><span class="font-bold text-dot-red">892</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2">
+        <div class="px-6 lg:px-10 py-10 border-r border-b border-black">
+          <div class="font-mono text-[100px] lg:text-[140px] leading-[0.85] font-black tracking-[-0.08em]">90%</div>
+          <div class="font-mono text-[10px] uppercase tracking-widest mt-4">Whitespace<br>By Design</div>
+        </div>
+        <div class="px-6 lg:px-10 py-10 border-b border-black bg-black text-white">
+          <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-10">[Principle]</div>
+          <div class="font-helvetica text-[22px] lg:text-[28px] leading-[1.1] tracking-[-0.03em]">If it does not need to exist, it does not exist here.</div>
+          <div class="mt-6 w-[24px] h-[24px] rounded-full bg-dot-red"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Space -->
+<section id="archive" class="relative z-10 bg-white border-t border-black">
+  <div class="px-6 lg:px-10 py-6 flex justify-between items-center font-mono text-[10px] uppercase tracking-widest border-b border-black">
+    <span>Space Survey — Photography: Camille Vivier</span>
+    <span>[03] — 6 Views</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-0">
+    <div class="col-span-12 lg:col-span-8 border-b lg:border-b-0 lg:border-r border-black">
+      <div class="relative overflow-hidden group h-[60vh] lg:h-[90vh]">
+        <img src="https://images.unsplash.com/photo-1574169208507-84376144848b?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-[1.03]" alt="Gallery">
+        <div class="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 lg:p-10 flex justify-between items-end text-white mix-blend-difference">
+          <div class="font-helvetica font-bold text-[32px] lg:text-[48px] leading-[0.9]">NORTH LIGHT<br>HALL</div>
+          <div class="font-mono text-[10px] uppercase">1200mm Grid — Visible Structure</div>
+        </div>
+        <div class="absolute top-6 left-6 lg:top-10 lg:left-10 w-[1px] h-[40px] bg-white/80"></div>
+        <div class="absolute top-6 left-6 lg:top-10 lg:left-10 w-[40px] h-[1px] bg-white/80"></div>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-4 flex flex-col">
+      <div class="grid grid-cols-2 lg:grid-cols-1 flex-1">
+        <div class="relative overflow-hidden group aspect-square border-r lg:border-r-0 lg:border-b border-black">
+          <img src="https://images.unsplash.com/photo-1594122230689-45899d9e6f69?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="">
+          <div class="absolute bottom-2 left-2 bg-white border border-black px-2 py-1 font-mono text-[8px] uppercase">Corner Detail</div>
+        </div>
+        <div class="relative overflow-hidden group aspect-square border-b lg:border-b-0 border-black">
+          <img src="https://images.unsplash.com/photo-1561214115-f2f134cc4912?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="">
+          <div class="absolute bottom-2 left-2 bg-white border border-black px-2 py-1 font-mono text-[8px] uppercase">Floor / Joint</div>
+        </div>
+      </div>
+      <div class="p-6 lg:p-10 bg-[#F5F5F5] border-t lg:border-t-0 border-black">
+        <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-6">Technical</div>
+        <div class="font-instrument text-[15px] leading-[1.5]">Walls: Two coats RAL 9016, matte. No touch-ups during exhibitions — patina is archive. Floor: Poured concrete, ground 7 times, sealed with matte lithium.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-0 border-t border-black">
+    <div class="col-span-6 lg:col-span-3 border-r border-black p-6 lg:p-10 aspect-[4/3] lg:aspect-square flex flex-col justify-between group hover:bg-black hover:text-white transition-colors cursor-pointer">
+      <div class="flex justify-between font-mono text-[10px] uppercase"><span>Shop — Editions</span><span>→</span></div>
+      <div><div class="font-helvetica font-bold text-[28px] leading-[0.9] tracking-[-0.04em]">PRINTED<br>MATTER</div><div class="font-mono text-[10px] uppercase mt-3 opacity-60 group-hover:opacity-40">23 Publications — From $40</div></div>
+    </div>
+    <div class="col-span-6 lg:col-span-3 border-r border-black p-6 lg:p-10 aspect-[4/3] lg:aspect-square flex flex-col justify-between relative overflow-hidden group cursor-pointer">
+      <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb52a?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity grayscale" alt="">
+      <div class="relative flex justify-between font-mono text-[10px] uppercase"><span>Object</span><span>[Red Dot]</span></div>
+      <div class="relative"><div class="font-helvetica font-bold text-[28px] leading-[0.9] tracking-[-0.04em]">DOT<br>CHAIR 01</div><div class="font-mono text-[10px] uppercase mt-3 opacity-60">Edition of 50 — Steel, White</div></div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 p-6 lg:p-10 flex flex-col justify-between bg-dot-red text-white">
+      <div class="flex justify-between font-mono text-[10px] uppercase"><span>New In — Archive</span><span class="border border-white px-2 py-1 rounded-full">Available Now</span></div>
+      <div class="mt-10 lg:mt-0">
+        <div class="font-helvetica font-black text-[48px] lg:text-[72px] leading-[0.85] tracking-[-0.05em]">THE VOID<br>READER</div>
+        <div class="flex gap-6 mt-6 font-mono text-[11px] uppercase"><span>256 Pages</span><span>•</span><span>Soft Touch White</span><span>•</span><span>Essays by 12</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Press / Testimonials as brutal editorial -->
+<section class="relative z-10 bg-white border-t border-black">
+  <div class="px-6 lg:px-10 py-10 border-b border-black flex gap-4 items-center">
+    <div class="w-[8px] h-[8px] bg-dot-red rounded-full"></div>
+    <span class="font-mono text-[10px] uppercase tracking-widest">Critical Reception — Selected Press</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-0">
+    <div class="col-span-12 lg:col-span-4 p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-black">
+      <div class="font-helvetica text-[56px] leading-[0.9]">“</div>
+      <blockquote class="font-instrument text-[22px] lg:text-[26px] leading-[1.25] tracking-[-0.01em] -mt-4">
+        The most uncompromising white cube in New York. DOT makes MoMA look baroque. You feel the air conditioning as curatorial intent.
+      </blockquote>
+      <div class="mt-10 font-mono text-[10px] uppercase leading-[1.5]"><span class="font-bold">The New York Times</span><br>Jason Farago — Dec 2023</div>
+    </div>
+    <div class="col-span-12 lg:col-span-4 p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-black flex flex-col justify-between">
+      <div>
+        <div class="flex gap-1 mb-8">
+          <span class="w-[8px] h-[8px] bg-black rounded-full"></span><span class="w-[8px] h-[8px] bg-black rounded-full"></span><span class="w-[8px] h-[8px] bg-black rounded-full"></span><span class="w-[8px] h-[8px] bg-black rounded-full"></span><span class="w-[8px] h-[8px] bg-black rounded-full"></span>
+        </div>
+        <blockquote class="font-helvetica font-bold text-[18px] lg:text-[20px] leading-[1.2] tracking-[-0.02em]">
+          A brutalist meditation on what a gallery can refuse to do. No cafe. No gift shop labyrinth. Only the work and the red dot.
+        </blockquote>
+      </div>
+      <div class="mt-10 font-mono text-[10px] uppercase"><span class="font-bold">Artforum</span> — Critics' Pick — 2024</div>
+    </div>
+    <div class="col-span-12 lg:col-span-4 p-6 lg:p-10 bg-black text-white">
+      <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-20">[Visitor Log — 018]</div>
+      <blockquote class="font-serif italic text-[20px] leading-[1.4]">
+        "I came for fifteen minutes. Stayed three hours. There is nothing to look at except everything."
+      </blockquote>
+      <div class="mt-8 font-mono text-[10px] uppercase opacity-60">— Anonymous, Berlin<br>Visited 04.02.24 / 2:34PM / 147 min</div>
+      <div class="mt-12 h-[1px] bg-white/20"></div>
+      <div class="mt-6 flex justify-between font-mono text-[10px] uppercase"><span>Average Dwell Time</span><span>94 Minutes</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Visit / Contact - Stark -->
+<section id="visit" class="relative z-10 bg-white border-t border-black">
+  <div class="grid grid-cols-12 gap-0">
+    <div class="col-span-12 lg:col-span-7 px-6 lg:px-10 py-12 lg:py-20 border-b lg:border-b-0 lg:border-r border-black">
+      <div class="font-mono text-[10px] uppercase tracking-widest mb-8 opacity-60">[04] — Visit</div>
+      <h2 class="font-helvetica font-black text-[16vw] lg:text-[10vw] leading-[0.8] tracking-[-0.06em]">COME<br>SIT<span class="inline-block w-[0.13em] h-[0.13em] bg-dot-red rounded-full ml-[0.08em] translate-y-[-0.2em]"></span><br>IN THE<br>VOID<span class="text-dot-red">.</span></h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-16 lg:mt-24 max-w-[680px]">
+        <div>
+          <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-4">Address</div>
+          <div class="font-helvetica font-bold text-[18px] leading-[1.2]">47 Walker Street<br>Tribeca<br>New York, NY 10013</div>
+          <div class="mt-6 font-mono text-[11px] leading-[1.5]">Subway: A/C/E to Canal<br>Open: Tue—Sun 11AM—6PM<br>Closed Monday, but doorbell works.</div>
+        </div>
+        <div>
+          <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-4">Contact</div>
+          <div class="font-mono text-[12px] leading-[1.8]"><a href="#" class="underline decoration-1 underline-offset-4 hover:decoration-dot-red">hello@dot.nyc</a><br><a href="#" class="underline decoration-1 underline-offset-4 hover:decoration-dot-red">+1 212 555 0147</a><br>@dot.gallerynyc</div>
+          <div class="mt-8 border border-black inline-flex">
+            <a href="#" class="px-5 py-3 font-mono text-[11px] uppercase tracking-widest hover:bg-black hover:text-white transition-colors">Get Directions</a>
+            <a href="#" class="px-5 py-3 font-mono text-[11px] uppercase tracking-widest border-l border-black bg-black text-white hover:bg-dot-red transition-colors">Buy Ticket — $12</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-12 lg:col-span-5 bg-[#F5F5F5]">
+      <div class="p-6 lg:p-10 border-b border-black">
+        <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-8">Newsletter — No Spam, Only Openings</div>
+        <div class="flex gap-0 border-b border-black">
+          <input type="email" placeholder="EMAIL ADDRESS" class="flex-1 bg-transparent font-mono text-[12px] uppercase tracking-widest py-4 outline-none placeholder:opacity-40">
+          <button class="font-mono text-[11px] uppercase tracking-widest px-6 hover:bg-black hover:text-white transition-colors">Join →</button>
+        </div>
+        <div class="mt-4 font-mono text-[9px] uppercase opacity-40 leading-[1.4]">By joining you agree to receive 1 email per exhibition. No marketing. We delete your data if you don't open 3 times. GDPR, but make it ethical.</div>
+      </div>
+
+      <div class="p-6 lg:p-10">
+        <div class="font-mono text-[10px] uppercase tracking-widest opacity-60 mb-6">Opening Hours — This Week</div>
+        <div class="space-y-0 font-mono text-[12px] uppercase">
+          <div class="flex justify-between py-3 border-b border-black/10"><span class="opacity-60">Mon</span><span class="line-through opacity-40">Closed — Installation</span></div>
+          <div class="flex justify-between py-3 border-b border-black/10"><span>Tue</span><span>11:00 — 18:00</span></div>
+          <div class="flex justify-between py-3 border-b border-black/10"><span>Wed</span><span>11:00 — 18:00</span></div>
+          <div class="flex justify-between py-3 border-b border-black/10"><span>Thu</span><span class="font-bold">11:00 — 20:00 — Late</span></div>
+          <div class="flex justify-between py-3 border-b border-black/10"><span>Fri</span><span>11:00 — 18:00</span></div>
+          <div class="flex justify-between py-3 border-b border-black/10"><span>Sat</span><span>11:00 — 18:00</span></div>
+          <div class="flex justify-between py-3"><span>Sun</span><span>12:00 — 17:00</span></div>
+        </div>
+
+        <div class="mt-12 aspect-[4/3] bg-white border border-black relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1577720643272-265f09367456?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale" alt="Map placeholder">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="bg-white border border-black px-4 py-2 font-mono text-[10px] uppercase tracking-widest">47 Walker — Tribeca Map — N↑</div>
+          </div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] bg-dot-red rounded-full border-2 border-white"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer - Brutalist -->
+<footer class="relative z-10 bg-black text-white border-t border-black">
+  <div class="px-6 lg:px-10 py-10 lg:py-16">
+    <div class="flex flex-col lg:flex-row justify-between gap-10">
+      <div class="flex items-start gap-4">
+        <h3 class="font-helvetica font-black text-[48px] lg:text-[72px] leading-[0.85] tracking-[-0.06em]">DOT<span class="inline-block w-[0.14em] h-[0.14em] bg-dot-red rounded-full ml-[0.06em] translate-y-[-0.2em]"></span></h3>
+        <div class="font-mono text-[10px] uppercase leading-[1.4] pt-2 opacity-60">Est. 2021<br>Non-Collecting<br>Tribeca, NYC</div>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-20 font-mono text-[11px] uppercase tracking-widest">
+        <div class="space-y-2">
+          <div class="opacity-40 mb-4">Instagram</div>
+          <a href="#" class="block hover:text-dot-red transition-colors">@dot.gallerynyc</a>
+          <a href="#" class="block opacity-60">Are.na / DOT</a>
+        </div>
+        <div class="space-y-2">
+          <div class="opacity-40 mb-4">Information</div>
+          <a href="#" class="block hover:text-dot-red"> Press Kit</a>
+          <a href="#" class="block hover:text-dot-red"> Accessibility</a>
+          <a href="#" class="block hover:text-dot-red"> Jobs — 1 Open</a>
+        </div>
+        <div class="space-y-2">
+          <div class="opacity-40 mb-4">Legal</div>
+          <a href="#" class="block opacity-60"> Privacy — No Cookies</a>
+          <a href="#" class="block opacity-60"> Terms — Radical</a>
+          <a href="#" class="block opacity-60"> Imprint</a>
+        </div>
+        <div class="space-y-2">
+          <div class="opacity-40 mb-4">Support</div>
+          <div class="leading-[1.6] opacity-60 normal-case">DOT is funded by visitors, editions, and 12 private patrons who wish to remain absent. No corporate sponsors. No board. Just the void.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 lg:mt-24 pt-8 border-t border-white/20 flex flex-col lg:flex-row justify-between gap-4 font-mono text-[10px] uppercase tracking-widest opacity-40">
+      <span>© 2025 DOT — Contemporary Art Institution — 47 Walker St — Site built with 90% whitespace</span>
+      <span class="flex items-center gap-2">Pure White RAL 9016 <span class="w-[10px] h-[10px] bg-white border border-white/20 inline-block"></span> + Red Dot <span class="w-[10px] h-[10px] bg-dot-red rounded-full inline-block"></span></span>
+    </div>
+  </div>
+
+  <div class="h-[12px] bg-dot-red"></div>
+</footer>
+
+<!-- Scroll Progress -->
+<div class="fixed bottom-0 left-0 h-[2px] bg-dot-red z-[100] origin-left scale-x-0" id="scrollProgress"></div>
+
+<script>
+// Loader
+let count = 0;
+const counterEl = document.getElementById('loaderCounter');
+const loaderLine = document.getElementById('loaderLine');
+const loader = document.getElementById('loader');
+function animateLoader() {
+  const interval = setInterval(() => {
+    count += Math.floor(Math.random()*12)+4;
+    if(count > 100) count = 100;
+    counterEl.textContent = String(count).padStart(2,'0') + '%';
+    loaderLine.style.transform = `scaleX(${count/100})`;
+    if(count===100){
+      clearInterval(interval);
+      setTimeout(()=>{
+        loader.style.transform = 'translateY(-100%)';
+        document.querySelectorAll('.reveal-line').forEach((el,i)=>{
+          setTimeout(()=> el.classList.add('active'), i*120+200);
+        });
+        document.querySelectorAll('.line-draw').forEach(el=> el.classList.add('active'));
+      }, 400);
+    }
+  }, 70);
+}
+animateLoader();
+
+// Clock
+function updateClock(){
+  const now = new Date();
+  const ny = new Date(now.toLocaleString('en-US',{timeZone:'America/New_York'}));
+  const h = String(ny.getHours()).padStart(2,'0');
+  const m = String(ny.getMinutes()).padStart(2,'0');
+  const s = String(ny.getSeconds()).padStart(2,'0');
+  document.getElementById('liveClock').textContent = `${h}:${m}:${s} NY`;
+}
+setInterval(updateClock,1000); updateClock();
+
+// Custom cursor
+const dot = document.getElementById('cursorDot');
+const cross = document.getElementById('cursorCross');
+const preview = document.getElementById('previewImg');
+const previewImgEl = document.getElementById('previewImgEl');
+let mouseX=0, mouseY=0, dotX=0, dotY=0, crossX=0, crossY=0;
+
+document.addEventListener('mousemove',(e)=>{
+  mouseX=e.clientX; mouseY=e.clientY;
+  // preview follows with offset
+  if(preview.classList.contains('active')){
+    preview.style.left = (e.clientX + 24) + 'px';
+    preview.style.top = (e.clientY - 160) + 'px';
+  }
+});
+function animateCursor(){
+  dotX += (mouseX - dotX) * 0.2;
+  dotY += (mouseY - dotY) * 0.2;
+  crossX += (mouseX - crossX) * 0.08;
+  crossY += (mouseY - crossY) * 0.08;
+  dot.style.transform = `translate3d(${dotX -6}px,${dotY -6}px,0)`;
+  cross.style.transform = `translate3d(${crossX -20}px,${crossY -20}px,0)`;
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// Exhibition hover preview
+document.querySelectorAll('.exhibition-row').forEach(row=>{
+  row.addEventListener('mouseenter', ()=>{
+    const src = row.dataset.img;
+    if(src){
+      previewImgEl.src = src;
+      preview.classList.add('active');
+    }
+    dot.style.transform += ' scale(3)';
+    dot.style.opacity = '0.8';
+  });
+  row.addEventListener('mouseleave', ()=>{
+    preview.classList.remove('active');
+    dot.style.opacity = '1';
+  });
+});
+
+// Scroll progress
+const prog = document.getElementById('scrollProgress');
+window.addEventListener('scroll',()=>{
+  const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+  prog.style.transform = `scaleX(${scrolled})`;
+});
+
+// Reveal on scroll
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('active');
+    }
+  });
+},{threshold:0.1});
+document.querySelectorAll('.reveal-line, .line-draw').forEach(el=> observer.observe(el));
+
+// Mobile menu
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+menuBtn.addEventListener('click',()=>{
+  mobileMenu.classList.toggle('hidden');
+});
+
+// Hide preview on scroll
+window.addEventListener('scroll',()=> preview.classList.remove('active'), {passive:true});
+
+// Parallax subtle for hero image
+window.addEventListener('scroll',()=>{
+  const img = document.querySelector('#archive img');
+  if(!img) return;
+  const y = window.scrollY * 0.06;
+  if(y<200) img.style.transform = `translateY(${y}px) scale(1.03)`;
+},{passive:true});
+
+// Easter egg red dot expands on click anywhere
+document.addEventListener('click',(e)=>{
+  if(e.target.closest('a, button, input')) return;
+  const burst = document.createElement('div');
+  burst.style.position='fixed';
+  burst.style.left = e.clientX+'px';
+  burst.style.top = e.clientY+'px';
+  burst.style.width='12px'; burst.style.height='12px';
+  burst.style.background='#FF0000';
+  burst.style.borderRadius='50%';
+  burst.style.pointerEvents='none';
+  burst.style.zIndex='9999';
+  burst.style.transform='translate(-50%,-50%) scale(1)';
+  burst.style.transition='transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.8s';
+  document.body.appendChild(burst);
+  requestAnimationFrame(()=>{
+    burst.style.transform='translate(-50%,-50%) scale(40)';
+    burst.style.opacity='0';
+  });
+  setTimeout(()=> burst.remove(), 850);
+});
+
+// Extra brutality - keyboard navigation for exhibitions list
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='Escape'){ preview.classList.remove('active'); mobileMenu.classList.add('hidden'); }
+});
+
+// Preload brutality - ensure grid lines stay crisp on resize
+window.addEventListener('resize',()=>{
+  document.querySelectorAll('.grid-lines span').forEach(el=>{
+    el.style.opacity = Math.random()*0.1+0.03;
+  });
+});
+
+// DOT Console Signature
+console.log('%c DOT — White Cube Institution %c 47 Walker St, NY', 'background:#000;color:#fff;padding:4px 8px;font-family:monospace;', 'background:#FF0000;color:#fff;padding:4px 8px;font-family:monospace;');
+console.log('%c 90% whitespace by design. ', 'font-family:Helvetica;font-size:20px;font-weight:900;');
+
+// Micro-interaction: exhibition rows magnetic tilt
+document.querySelectorAll('.exhibition-row').forEach(row=>{
+  row.addEventListener('mousemove',(e)=>{
+    const rect=row.getBoundingClientRect();
+    const x=((e.clientX-rect.left)/rect.width - 0.5)*4;
+    row.style.transform=`translateX(${x}px)`;
+  });
+  row.addEventListener('mouseleave',()=>{
+    row.style.transform='translateX(0)';
+  });
+});
+
+// Intersection line draw trigger
+const lineObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting) en.target.classList.add('active');
+  });
+});
+document.querySelectorAll('.line-draw').forEach(l=> lineObserver.observe(l));
+</script>
+</body>
+</html>

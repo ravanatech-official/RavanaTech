@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Ramen Bar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@300;400;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;700;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink: '#0a0a0a',
+        ink2: '#141414',
+        ink3: '#1e1e1e',
+        bone: '#F5F1E8',
+        boneDim: '#CFC8B8',
+        chashu: '#c41e1e',
+        chashuDark: '#7a1212',
+        steam: '#8a8a84',
+      },
+      fontFamily: {
+        sans: ['Inter','Zen Kaku Gothic New','Noto Sans JP','sans-serif'],
+        jp: ['Noto Sans JP','Zen Kaku Gothic New','sans-serif'],
+        serifjp: ['Noto Serif JP','serif'],
+        kaku: ['Zen Kaku Gothic New','sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+:root{
+  --ink:#0a0a0a;
+  --bone:#F5F1E8;
+  --chashu:#c41e1e;
+}
+*{cursor:none !important;}
+@media (pointer:coarse){*{cursor:auto !important;} #cursor,#cursor-follower{display:none !important;}}
+html{scroll-behavior:smooth; background:var(--ink);}
+body{background:var(--ink); color:var(--bone); overscroll-behavior:none; font-family:'Inter','Zen Kaku Gothic New','Noto Sans JP',sans-serif; -webkit-font-smoothing:antialiased;}
+
+/* Grain */
+.grain{
+  position:fixed; inset:0; pointer-events:none; z-index:9998; opacity:0.07; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Custom Cursor */
+#cursor{position:fixed; width:8px; height:8px; background:var(--bone); border-radius:999px; z-index:10000; pointer-events:none; transform:translate(-50%,-50%); mix-blend-mode:difference; transition:width .2s,height .2s,background .2s;}
+#cursor-follower{position:fixed; width:40px; height:40px; border:1px solid rgba(245,241,232,0.25); border-radius:999px; z-index:9999; pointer-events:none; transform:translate(-50%,-50%); transition:width .35s cubic-bezier(.23,1,.32,1),height .35s,border-color .35s,background .35s; mix-blend-mode:difference;}
+body.hovering #cursor{width:60px; height:60px; background:var(--chashu); mix-blend-mode:normal; opacity:0.9;}
+body.hovering #cursor-follower{width:80px; height:80px; border-color:var(--chashu); background:rgba(196,30,30,0.1);}
+
+/* Noren Curtains */
+.noren-strip{
+  background:var(--bone);
+  color:var(--ink);
+  position:relative;
+  box-shadow:inset 0 -12px 20px rgba(0,0,0,0.15);
+}
+.noren-strip::after{
+  content:'';
+  position:absolute; bottom:-18px; left:0; right:0; height:20px;
+  background:radial-gradient(ellipse at top, transparent 70%, var(--bone) 72%) 0 0/22px 20px repeat-x;
+}
+
+/* Vertical Text */
+.vertical-jp{
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  letter-spacing:0.2em;
+}
+
+/* Steam Animation */
+@keyframes steamRise{
+  0%{transform:translateY(0) translateX(0) scaleX(1) scaleY(1); opacity:0;}
+  10%{opacity:0.35;}
+  50%{transform:translateY(-35vh) translateX(20px) scaleX(1.3) scaleY(1.8); opacity:0.18;}
+  100%{transform:translateY(-85vh) translateX(-10px) scaleX(0.8) scaleY(2.5); opacity:0;}
+}
+.steam{
+  position:absolute; bottom:0; width:120px; height:60vh; background:radial-gradient(ellipse at center, rgba(245,241,232,0.22) 0%, rgba(245,241,232,0) 70%);
+  filter:blur(18px); animation:steamRise linear infinite; pointer-events:none;
+}
+.steam:nth-child(2){animation-duration:11s; animation-delay:-2s; left:20%; width:180px;}
+.steam:nth-child(3){animation-duration:14s; animation-delay:-5s; left:45%; width:140px;}
+.steam:nth-child(1){animation-duration:9s; left:5%;}
+.steam:nth-child(4){animation-duration:13s; animation-delay:-7s; left:68%; width:200px;}
+.steam:nth-child(5){animation-duration:16s; animation-delay:-3s; left:82%;}
+
+/* Marquee */
+.marquee{overflow:hidden; white-space:nowrap; border-top:1px solid rgba(245,241,232,0.12); border-bottom:1px solid rgba(245,241,232,0.12);}
+.marquee-track{display:flex; animation:marquee 38s linear infinite; width:max-content;}
+@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* Reveal */
+.reveal{opacity:0; transform:translateY(32px); transition:opacity .9s cubic-bezier(.23,1,.32,1), transform .9s cubic-bezier(.23,1,.32,1);}
+.reveal.in{opacity:1; transform:translateY(0);}
+
+/* Ink bleed hover */
+.ink-bleed{position:relative; overflow:hidden;}
+.ink-bleed::before{
+  content:''; position:absolute; inset:0; background:var(--chashu); transform:scaleY(0); transform-origin:bottom; transition:transform .6s cubic-bezier(.77,0,.175,1); z-index:0;
+}
+.ink-bleed:hover::before{transform:scaleY(1);}
+.ink-bleed > *{position:relative; z-index:1;}
+
+/* Menu image follow */
+.menu-preview{position:fixed; width:280px; height:360px; pointer-events:none; z-index:50; opacity:0; transform:translate(-50%,-50%) scale(.8) rotate(-3deg); transition:opacity .35s,transform .5s cubic-bezier(.23,1,.32,1); overflow:hidden; border:1px solid rgba(245,241,232,0.15);}
+.menu-preview.active{opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+.menu-preview img{width:100%; height:100%; object-fit:cover; filter:contrast(1.05) saturate(0.85) brightness(0.95);}
+
+/* Chopstick divider */
+.chop-divider{height:1px; background:linear-gradient(90deg, transparent, rgba(245,241,232,0.18) 20%, rgba(245,241,232,0.18) 80%, transparent); position:relative;}
+.chop-divider::after{content:'◍'; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:var(--ink); padding:0 12px; color:rgba(245,241,232,0.35); font-size:10px;}
+
+/* Counter seats */
+.seat{width:34px; height:34px; border:1px solid rgba(245,241,232,0.2); border-radius:50%; display:grid; place-items:center; font-size:10px; color:rgba(245,241,232,0.5); transition:all .3s;}
+.seat.filled{background:rgba(245,241,232,0.08); border-color:rgba(245,241,232,0.4); color:var(--bone);}
+.seat.reserved{border-color:var(--chashu); color:var(--chashu); background:rgba(196,30,30,0.12);}
+
+/* Scrollbar hide */
+.no-scrollbar::-webkit-scrollbar{display:none;}
+.no-scrollbar{-ms-overflow-style:none; scrollbar-width:none;}
+
+/* Magnetic */
+.magnetic{transition:transform .2s cubic-bezier(.23,1,.32,1);}
+
+/* Linen texture */
+.linen{background-image:repeating-linear-gradient(0deg, rgba(245,241,232,0.02) 0 1px, transparent 1px 6px), repeating-linear-gradient(90deg, rgba(245,241,232,0.02) 0 1px, transparent 1px 6px);}
+
+/* Red stamp */
+.stamp{border:2px solid var(--chashu); color:var(--chashu); display:inline-flex; align-items:center; justify-content:center; font-weight:900; letter-spacing:0.05em; transform:rotate(-6deg);}
+
+/* Input underline ink */
+.ink-input{border:none; border-bottom:1px solid rgba(245,241,232,0.2); background:transparent; padding:14px 0 14px 0; width:100%; color:var(--bone); outline:none; transition:border-color .3s;}
+.ink-input:focus{border-color:var(--bone);}
+
+/* Parallax img */
+.parallax-img{will-change:transform; transform:translateZ(0);}
+</style>
+</head>
+<body class="relative">
+<div class="grain"></div>
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+<div id="menu-preview" class="menu-preview"><img id="menu-preview-img" src="" alt=""></div>
+
+<!-- Top Noren Navigation -->
+<header class="sticky top-0 z-[60] w-full">
+  <div class="flex w-full">
+    <div class="noren-strip flex-1 flex items-center justify-between px-5 md:px-10 py-4 md:py-5">
+      <div class="flex items-center gap-6">
+        <div class="flex items-baseline gap-3">
+          <span class="font-kaku font-black text-[22px] md:text-[26px] tracking-[-0.02em] leading-none">YASHIN</span>
+          <span class="font-jp text-[14px] font-bold tracking-widest">夜深</span>
+          <span class="hidden md:inline text-[10px] tracking-[0.3em] opacity-60 ml-2">SHINJUKU TOKYO — EST. 2AM</span>
+        </div>
+        <div class="hidden lg:flex items-center gap-2 ml-8">
+          <div class="w-[36px] h-[1px] bg-ink"></div>
+          <span class="text-[10px] tracking-[0.25em]">12 SEATS • NO PHONES • NO GUESTS</span>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center gap-8 text-[11px] tracking-[0.22em] font-medium">
+        <a class="hover:opacity-60 transition nav-link" href="#philosophy">PHILOSOPHY</a>
+        <a class="hover:opacity-60 transition nav-link" href="#menu">BOWLS</a>
+        <a class="hover:opacity-60 transition nav-link" href="#counter">COUNTER</a>
+        <a class="hover:opacity-60 transition nav-link" href="#contact">FIND US</a>
+      </nav>
+    </div>
+    <a href="#contact" class="hidden md:grid place-items-center bg-chashu text-bone px-7 text-[11px] tracking-[0.2em] font-bold hover:bg-chashuDark transition">
+      <span class="vertical-jp py-2">予約 — RESERVE</span>
+    </a>
+  </div>
+  <!-- Mobile second curtain line -->
+  <div class="md:hidden bg-ink text-bone flex items-center justify-between px-5 py-2.5 text-[10px] tracking-[0.2em] border-b border-white/10">
+    <span>OPEN 21:00 — 04:00 / 12 COUNTER SEATS</span>
+    <a href="#menu" class="underline decoration-chashu decoration-2 underline-offset-4">MENU</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="relative min-h-[92vh] flex overflow-hidden bg-ink">
+  <!-- Vertical JP side -->
+  <div class="hidden lg:flex w-[72px] shrink-0 border-r border-white/10 flex-col items-center justify-between py-10">
+    <div class="vertical-jp font-jp text-[12px] tracking-[0.45em] opacity-60 font-light">
+      東京・新宿・夜深ラーメン・二時・湯気・豚骨
+    </div>
+    <div class="flex flex-col items-center gap-6">
+      <div class="stamp w-[48px] h-[48px] text-[18px]">夜深</div>
+      <div class="vertical-jp text-[10px] tracking-[0.3em] opacity-40">EST. SHINJUKU 2019 — TONKOTSU 18H</div>
+    </div>
+    <div class="w-[1px] h-[120px] bg-gradient-to-b from-transparent via-bone/20 to-transparent"></div>
+  </div>
+
+  <!-- Main hero content -->
+  <div class="flex-1 relative flex flex-col">
+    <!-- Background -->
+    <div class="absolute inset-0">
+      <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover opacity-[0.38] parallax-img" data-parallax="0.25" alt="ramen bar noir">
+      <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/30"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-ink via-ink/20 to-transparent"></div>
+      <!-- Steam container -->
+      <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="steam"></div><div class="steam"></div><div class="steam"></div><div class="steam"></div><div class="steam"></div>
+      </div>
+    </div>
+
+    <div class="relative z-10 flex-1 flex flex-col justify-end px-6 md:px-12 lg:px-20 py-12 md:py-16">
+      <div class="max-w-[1200px] w-full">
+        <div class="flex items-start gap-6 mb-8 reveal">
+          <div class="hidden md:block w-[84px] h-[84px] rounded-full border border-bone/15 grid place-items-center shrink-0">
+            <div class="text-center leading-none">
+              <div class="font-kaku font-black text-[10px] tracking-[0.2em]">2</div>
+              <div class="font-serifjp font-black text-[28px] -mt-1">AM</div>
+            </div>
+          </div>
+          <p class="font-jp text-[13px] md:text-[14px] leading-[1.9] tracking-wide max-w-[380px] text-boneDim">
+            街が寝静まる頃、仕込みは終わる。<br>
+            国分寺の豚骨、地鶏、煮干し。18時間、火を絶やさず。<br>
+            <span class="text-bone/60">When the city sleeps, the broth wakes. No menu online. No photos of the chef.</span>
+          </p>
+        </div>
+
+        <h1 class="font-kaku font-[900] leading-[0.85] tracking-[-0.04em] text-[15vw] md:text-[11vw] lg:text-[132px] reveal" style="transition-delay:0.1s">
+          <span class="block text-bone">THE BROTH</span>
+          <span class="block text-bone/20 -mt-2 md:-mt-6 flex items-baseline gap-4 md:gap-8">
+            NEVER <span class="text-chashu text-[12vw] md:text-[9vw] lg:text-[116px] font-serifjp italic">sleeps</span>
+          </span>
+        </h1>
+
+        <div class="mt-10 md:mt-14 grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-end reveal" style="transition-delay:0.2s">
+          <div class="flex flex-wrap gap-4">
+            <div class="border border-bone/20 px-6 py-5 min-w-[200px] bg-ink/60 backdrop-blur">
+              <div class="text-[10px] tracking-[0.3em] opacity-50 mb-3">TONIGHT'S BROTH</div>
+              <div class="flex items-baseline gap-3">
+                <div class="text-[44px] font-kaku font-black leading-none">18</div>
+                <div class="text-[12px] leading-[1.2]">HOURS<br>SIMMERED<br><span class="text-chashu">TONKOTSU</span></div>
+              </div>
+              <div class="mt-4 w-full h-[1px] bg-bone/15"></div>
+              <div class="mt-3 text-[10px] tracking-widest opacity-60">PORK MARROW • CHICKEN FEET • NIBOSHI • KOMBU</div>
+            </div>
+            <div class="flex flex-col gap-3">
+              <a href="#menu" class="magnetic ink-bleed border border-bone/15 px-8 py-5 text-[11px] tracking-[0.25em] font-bold bg-bone text-ink hover:text-bone transition group">
+                <span class="flex items-center gap-3">VIEW BOWLS <span class="group-hover:translate-x-1 transition">→</span></span>
+              </a>
+              <div class="px-2 text-[10px] leading-[1.6] tracking-[0.15em] opacity-40 max-w-[220px]">
+                12 counter seats. First come, first served after midnight. No reservations after 23:30.
+              </div>
+            </div>
+          </div>
+
+          <div class="hidden md:flex justify-end">
+            <div class="text-right">
+              <div class="font-jp text-[11px] tracking-[0.2em] opacity-40">今夜の客 / TONIGHT</div>
+              <div class="mt-4 flex gap-[6px] justify-end" id="hero-seats">
+                <!-- seats injected -->
+              </div>
+              <div class="mt-3 text-[10px] tracking-widest opacity-30">7 SEATS TAKEN • 5 REMAINING • 02:14 JST</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom ticker -->
+    <div class="relative z-20 marquee bg-ink2 py-3">
+      <div class="marquee-track">
+        <div class="flex items-center gap-10 text-[11px] tracking-[0.3em] font-kaku">
+          <span>夜深ラーメン</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>18H TONKOTSU — NO MSG — NO SHORTCUTS</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>現金のみ / CASH ONLY</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>12 SEATS • SHINJUKU GOLDEN GAI 1-CHOME</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>替え玉 ¥200 / KAEDAMA</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>夜深ラーメン</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>18H TONKOTSU — NO MSG — NO SHORTCUTS</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>現金のみ / CASH ONLY</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>12 SEATS • SHINJUKU GOLDEN GAI 1-CHOME</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>替え玉 ¥200 / KAEDAMA</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+        </div>
+        <div class="flex items-center gap-10 text-[11px] tracking-[0.3em] font-kaku ml-10" aria-hidden="true">
+          <span>夜深ラーメン</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>18H TONKOTSU — NO MSG — NO SHORTCUTS</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>現金のみ / CASH ONLY</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>12 SEATS • SHINJUKU GOLDEN GAI 1-CHOME</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>替え玉 ¥200 / KAEDAMA</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>夜深ラーメン</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>18H TONKOTSU — NO MSG — NO SHORTCUTS</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>現金のみ / CASH ONLY</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+          <span>12 SEATS • SHINJUKU GOLDEN GAI 1-CHOME</span><span class="w-1 h-1 bg-bone/20 rounded-full inline-block"></span>
+          <span>替え玉 ¥200 / KAEDAMA</span><span class="w-1 h-1 bg-chashu rounded-full inline-block"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHILOSOPHY / STORY -->
+  <section id="philosophy" class="relative bg-bone text-ink overflow-hidden">
+    <div class="absolute top-0 right-[-10vw] text-[38vw] font-serifjp font-black leading-none opacity-[0.04] select-none pointer-events-none">湯</div>
+    
+    <div class="grid lg:grid-cols-[1.15fr_0.85fr] min-h-[90vh]">
+      <div class="px-6 md:px-12 lg:px-20 py-16 md:py-24 flex flex-col justify-center">
+        <div class="flex items-center gap-4 mb-12 reveal">
+          <span class="font-kaku font-black text-[12px] tracking-[0.2em]">01 / PHILOSOPHY</span>
+          <div class="h-[1px] w-[64px] bg-ink/20"></div>
+          <span class="font-jp text-[11px] tracking-widest opacity-60">哲学 — なぜ夜にラーメンか</span>
+        </div>
+
+        <h2 class="font-serifjp font-[900] text-[10vw] md:text-[72px] lg:text-[84px] leading-[0.9] tracking-[-0.03em] reveal">
+          WE DON'T<br>
+          SERVE<br>
+          <span class="font-kaku font-black inline-flex items-center gap-4">LUNCH <span class="stamp px-3 py-1 text-[14px] bg-transparent">不可</span></span>
+        </h2>
+
+        <div class="mt-10 grid md:grid-cols-2 gap-10 reveal" style="transition-delay:0.1s">
+          <div class="space-y-5 text-[14px] md:text-[15px] leading-[1.9] font-light">
+            <p class="font-medium tracking-wide">The broth starts at 5am. The shop opens at 9pm. There is no lunch service. No delivery. No Instagram menu. If you want it, you come after the last train.</p>
+            <p class="opacity-70">Tokuno-san spent 11 years at Fuunji, 4 at Menya Musashi. He doesn't believe in "fusion." Pork bones from Saitama, water from Tanzawa. 18 hours, never boiling, never still. The fat is skimmed at 3am, 7am, 2pm. Chashu is rolled, tied by hand, low-temp 6 hours. Ajitama 62.5°C for exactly 6h15m.</p>
+          </div>
+          <div class="space-y-6">
+            <div class="border-l-2 border-chashu pl-6 py-2">
+              <div class="font-serifjp italic text-[18px] leading-[1.4]">"Ramen after midnight is not food. It's a place to put your night down for ten minutes."</div>
+              <div class="mt-3 text-[10px] tracking-[0.2em]">TOKU — OWNER / 2ND GEN</div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-[11px]">
+              <div class="bg-ink text-bone p-4">
+                <div class="text-[24px] font-black leading-none">18h</div>
+                <div class="mt-2 tracking-widest opacity-60">TONKOTSU</div>
+              </div>
+              <div class="border border-ink/15 p-4">
+                <div class="text-[24px] font-black leading-none">62.5°</div>
+                <div class="mt-2 tracking-widest opacity-60">AJITAMA</div>
+              </div>
+              <div class="bg-chashu text-bone p-4">
+                <div class="text-[24px] font-black leading-none">12</div>
+                <div class="mt-2 tracking-widest">SEATS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-14 flex items-center gap-8 reveal">
+          <img src="https://images.unsplash.com/photo-1552611052-33e04de081de?q=80&w=300&auto=format&fit=crop" class="w-[96px] h-[96px] object-cover grayscale contrast-125" alt="tonkotsu">
+          <div class="text-[11px] leading-[1.8] tracking-[0.15em] opacity-60 max-w-[420px]">
+            NO PORK = NO TONKOTSU. NO EXCEPTIONS. WE DO NOT MAKE VEGAN BROTH. WE RESPECT THOSE WHO DO. THEY WORK ELSEWHERE.<br>
+            <span class="font-jp">豚骨以外は豚骨ではない。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative bg-ink min-h-[560px] overflow-hidden reveal">
+        <img src="https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-90 parallax-img" data-parallax="0.15" alt="ramen chef">
+        <div class="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-8 md:p-10 bg-gradient-to-t from-ink to-transparent">
+          <div class="flex items-end justify-between">
+            <div>
+              <div class="text-bone text-[11px] tracking-[0.3em] opacity-60">COUNTER VIEW • 02:31 AM</div>
+              <div class="mt-3 font-kaku font-black text-bone text-[22px] tracking-tight">KITCHEN IS THE DINING ROOM.</div>
+            </div>
+            <div class="hidden md:block w-[72px] h-[72px] rounded-full border border-bone/20 grid place-items-center text-bone text-[10px] tracking-widest">湯気<br>STEAM</div>
+          </div>
+        </div>
+        <!-- vertical label on image -->
+        <div class="absolute top-10 right-6 vertical-jp bg-bone text-ink px-2 py-6 text-[11px] tracking-[0.3em] font-bold">仕込み中 — 準備中 — 夜深</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menu" class="relative bg-ink3 border-t border-white/5">
+    <div class="px-6 md:px-12 lg:px-20 py-16 md:py-24">
+      <div class="flex flex-wrap items-baseline justify-between gap-6 mb-14 reveal">
+        <h2 class="font-kaku font-black text-[14vw] md:text-[92px] leading-[0.85] tracking-[-0.04em] text-bone">BOWLS<span class="text-chashu">.</span></h2>
+        <div class="max-w-[360px] text-[12px] leading-[1.8] tracking-wide text-boneDim">
+          Four bowls only. No customizations except kaedama and noodle firmness. We decide the rest. Served in 1400°C Mino ware.
+          <div class="mt-3 inline-flex items-center gap-2 text-[10px] tracking-[0.25em] px-3 py-1.5 border border-white/10">ALL BOWLS ¥1,200 — CASH ONLY</div>
+        </div>
+      </div>
+
+      <!-- Menu List -->
+      <div class="border-t border-white/10">
+        <!-- Item 1 -->
+        <div class="menu-item group grid md:grid-cols-[88px_1fr_180px_120px] gap-6 md:gap-8 py-10 md:py-12 border-b border-white/10 hover:bg-white/[0.02] transition-colors cursor-pointer reveal" data-img="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=800&auto=format&fit=crop" data-name="BLACK TONKOTSU">
+          <div class="flex items-start gap-4">
+            <span class="font-kaku font-black text-chashu text-[14px]">01</span>
+            <div class="w-[44px] h-[44px] bg-bone text-ink grid place-items-center font-serifjp font-black text-[18px]">黒</div>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-baseline gap-4">
+              <h3 class="font-kaku font-black text-[28px] md:text-[36px] leading-none tracking-tight">TONKOTSU BLACK</h3>
+              <span class="font-jp text-[14px] tracking-widest opacity-60">黒豚骨</span>
+              <span class="hidden md:inline-flex text-[10px] px-2 py-1 bg-chashu text-bone tracking-widest">SIGNATURE</span>
+            </div>
+            <p class="mt-4 text-[13px] md:text-[14px] leading-[1.7] text-boneDim max-w-[520px]">18h pork marrow, black garlic mayu, chashu 2pc, ajitama, kikurage, negi, low-hydration noodle 130g. The broth that built this shop.</p>
+            <div class="mt-4 flex flex-wrap gap-2 text-[10px] tracking-[0.15em]">
+              <span class="px-2.5 py-1 border border-white/10">PORK BELLY CHASHU</span>
+              <span class="px-2.5 py-1 border border-white/10">MAYU OIL</span>
+              <span class="px-2.5 py-1 border border-white/10">KATA NOODLE</span>
+            </div>
+          </div>
+          <div class="hidden md:block">
+            <div class="text-[10px] tracking-[0.2em] opacity-40">NOODLE</div>
+            <div class="mt-2 font-kaku font-bold text-[13px] leading-[1.4]">LOW 38% HYDRATION<br>1.2MM CUT • TOKYO MIZU</div>
+          </div>
+          <div class="flex md:flex-col justify-between md:justify-start items-end md:items-start gap-4">
+            <div class="font-kaku font-black text-[24px]">¥1,200</div>
+            <div class="text-[10px] tracking-widest opacity-30">SERVED UNTIL BROTH ENDS</div>
+          </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="menu-item group grid md:grid-cols-[88px_1fr_180px_120px] gap-6 md:gap-8 py-10 md:py-12 border-b border-white/10 hover:bg-white/[0.02] transition-colors reveal" data-img="https://images.unsplash.com/photo-1591815302525-756a9bcc3425?q=80&w=800&auto=format&fit=crop" data-name="SHOYU" style="transition-delay:0.05s">
+          <div class="flex items-start gap-4">
+            <span class="font-kaku font-black text-bone/40 text-[14px]">02</span>
+            <div class="w-[44px] h-[44px] border border-bone/20 text-bone grid place-items-center font-serifjp font-black text-[18px]">醤</div>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-baseline gap-4">
+              <h3 class="font-kaku font-black text-[28px] md:text-[36px] leading-none tracking-tight">SHOYU KATSUO</h3>
+              <span class="font-jp text-[14px] tracking-widest opacity-60">鰹醤油</span>
+            </div>
+            <p class="mt-4 text-[13px] md:text-[14px] leading-[1.7] text-boneDim max-w-[520px]">Tonkotsu gyokai: pork + 3yr katsuobushi, shoyu from Yuasa. Lighter, smoke. For the second bowl of the night.</p>
+            <div class="mt-4 flex flex-wrap gap-2 text-[10px] tracking-[0.15em]">
+              <span class="px-2.5 py-1 border border-white/10">KAI-KAE KATSUOBUSHI</span>
+              <span class="px-2.5 py-1 border border-white/10">YUASA SHOYU</span>
+            </div>
+          </div>
+          <div class="hidden md:block"><div class="text-[10px] tracking-[0.2em] opacity-40">TASTE</div><div class="mt-2 text-[13px]">SMOKE / SALT / UMAMI<br><span class="opacity-50">No niboshi</span></div></div>
+          <div class="font-kaku font-black text-[24px]">¥1,200</div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="menu-item group grid md:grid-cols-[88px_1fr_180px_120px] gap-6 md:gap-8 py-10 md:py-12 border-b border-white/10 hover:bg-white/[0.02] transition-colors reveal" data-img="https://images.unsplash.com/photo-1547928576-a2d2a8fa2f8a?q=80&w=800&auto=format&fit=crop" data-name="TANTAN" style="transition-delay:0.1s">
+          <div class="flex items-start gap-4">
+            <span class="font-kaku font-black text-bone/40 text-[14px]">03</span>
+            <div class="w-[44px] h-[44px] border border-bone/20 text-bone grid place-items-center font-serifjp font-black text-[18px]">担</div>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-baseline gap-4">
+              <h3 class="font-kaku font-black text-[28px] md:text-[36px] leading-none tracking-tight">TANTAN COLD</h3>
+              <span class="font-jp text-[14px] tracking-widest opacity-60">冷やし担々</span>
+              <span class="text-[10px] px-2 py-1 border border-chashu text-chashu tracking-widest">SUMMER • COLD</span>
+            </div>
+            <p class="mt-4 text-[13px] md:text-[14px] leading-[1.7] text-boneDim max-w-[520px]">Sesame tonkotsu chilled, sansho oil, minced pork + kinako. Only June-Sept, only after 1am, only 15 bowls/night.</p>
+          </div>
+          <div class="hidden md:block"><div class="text-[10px] tracking-[0.2em] opacity-40">HEAT</div><div class="mt-2 text-[13px]">SESAME / SANSHO<br>NUMBING +++</div></div>
+          <div class="font-kaku font-black text-[24px]">¥1,350</div>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="menu-item group grid md:grid-cols-[88px_1fr_180px_120px] gap-6 md:gap-8 py-10 md:py-12 border-b border-white/10 hover:bg-white/[0.02] transition-colors reveal" data-img="https://images.unsplash.com/photo-1555126634-323283e090fa?q=80&w=800&auto=format&fit=crop" data-name="SHIO" style="transition-delay:0.15s">
+          <div class="flex items-start gap-4">
+            <span class="font-kaku font-black text-bone/40 text-[14px]">04</span>
+            <div class="w-[44px] h-[44px] border border-bone/20 text-bone grid place-items-center font-serifjp font-black text-[18px]">塩</div>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-baseline gap-4">
+              <h3 class="font-kaku font-black text-[28px] md:text-[36px] leading-none tracking-tight">SHIO YUZU</h3>
+              <span class="font-jp text-[14px] tracking-widest opacity-60">塩柚子</span>
+            </div>
+            <p class="mt-4 text-[13px] md:text-[14px] leading-[1.7] text-boneDim max-w-[520px]">Clear tonkotsu + yuzu kosho + sea salt from Noto. For those who ask for "light." We hear you, rarely.</p>
+          </div>
+          <div class="hidden md:block"><div class="text-[10px] tracking-[0.2em] opacity-40">FINISH</div><div class="mt-2 text-[13px]">YUZU KOSHO<br>CITRUS / SALT</div></div>
+          <div class="font-kaku font-black text-[24px]">¥1,200</div>
+        </div>
+      </div>
+
+      <!-- Kaedama strip -->
+      <div class="mt-8 grid md:grid-cols-3 gap-3 reveal">
+        <div class="border border-white/10 px-5 py-4 flex justify-between items-center bg-white/[0.01]">
+          <div><div class="text-[10px] tracking-[0.2em] opacity-50">KAEDAMA / 替え玉</div><div class="font-kaku font-bold text-[13px] mt-1">Extra noodle 130g — 90 sec</div></div>
+          <div class="font-black text-[16px]">¥200</div>
+        </div>
+        <div class="border border-white/10 px-5 py-4 flex justify-between items-center bg-white/[0.01]">
+          <div><div class="text-[10px] tracking-[0.2em] opacity-50">AJITAMA / 味玉</div><div class="font-kaku font-bold text-[13px] mt-1">+1 egg, 62.5°C 6h15m</div></div>
+          <div class="font-black text-[16px]">¥150</div>
+        </div>
+        <div class="border border-chashu/30 px-5 py-4 flex justify-between items-center bg-chashu/10">
+          <div><div class="text-[10px] tracking-[0.2em] text-chashu">CHASHU 3PC / チャーシュー</div><div class="font-kaku font-bold text-[13px] mt-1 text-bone">Low-temp rolled pork</div></div>
+          <div class="font-black text-[16px] text-bone">¥400</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COUNTER EXPERIENCE -->
+  <section id="counter" class="relative bg-bone text-ink py-16 md:py-24 overflow-hidden linen">
+    <div class="px-6 md:px-12 lg:px-20">
+      <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-20 items-start">
+        <div class="reveal">
+          <div class="flex items-center gap-3 mb-8">
+            <div class="w-8 h-[1px] bg-ink"></div>
+            <span class="text-[11px] tracking-[0.3em] font-bold">02 / COUNTER</span>
+            <span class="font-jp text-[11px] opacity-60">カウンター十二席</span>
+          </div>
+          <h2 class="font-serifjp font-black text-[56px] md:text-[72px] leading-[0.9] tracking-[-0.02em]">12 SEATS.<br>NO MENU<br>OUTSIDE.</h2>
+          <div class="mt-8 space-y-5 text-[14px] leading-[1.8]">
+            <p>There is no waiting list app. You write your name on the washi paper outside. We call you. If you miss it, we cross it out. No hard feelings.</p>
+            <p class="opacity-70">Counter is hinoki, 6 years old, oiled nightly. You sit elbow-to-elbow. No phones at the counter — not a rule, just understood. Eat first. Talk after. The chef watches your pace and times your kaedama before you ask.</p>
+          </div>
+
+          <div class="mt-10 border border-ink/15 p-6 bg-white/40">
+            <div class="grid grid-cols-12 gap-[6px]" id="counter-map">
+              <!-- seats injected via JS -->
+            </div>
+            <div class="mt-6 flex items-center justify-between text-[10px] tracking-[0.2em]">
+              <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-ink inline-block"></span> OCCUPIED</span>
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full border border-ink/30 inline-block"></span> FREE</span>
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-chashu inline-block"></span> RESERVED 22-23H</span>
+              </div>
+              <span class="opacity-50">LIVE • TOKYO 02:47</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative reveal" style="transition-delay:0.12s">
+          <div class="relative aspect-[4/3] bg-ink overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover opacity-[0.9]" alt="counter">
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between text-bone">
+              <div class="text-[11px] tracking-[0.2em]"><span class="opacity-60">RULE 01</span><br><span class="font-kaku font-black text-[14px] tracking-wide">SLURP LOUD. LEAVE QUIET.</span></div>
+              <div class="w-10 h-10 border border-bone/20 grid place-items-center text-[10px]">夜深</div>
+            </div>
+            <!-- steam on this image too -->
+            <div class="absolute bottom-0 left-[20%] w-[100px] h-[60%] bg-gradient-to-t from-white/20 to-transparent blur-[16px] opacity-60 pointer-events-none"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <div class="bg-ink text-bone p-5">
+              <div class="text-[10px] tracking-[0.25em] opacity-50">WAIT TONIGHT</div>
+              <div class="mt-3 flex items-baseline gap-2"><span class="text-[36px] font-black leading-none">~28</span><span class="text-[11px] tracking-widest">MIN / 4 NAMES AHEAD</span></div>
+              <div class="mt-3 h-[2px] bg-white/10"><div class="h-full bg-chashu w-[62%]"></div></div>
+            </div>
+            <div class="border border-ink/20 p-5 bg-white">
+              <div class="text-[10px] tracking-[0.25em] opacity-60">ETIQUETTE / 作法</div>
+              <ul class="mt-3 space-y-1.5 text-[11px] leading-[1.5]">
+                <li>• No laptops, no calls</li>
+                <li>• Soup first, then noodle</li>
+                <li>• Finish in 20min if queue</li>
+                <li>• Cash only, eat and go</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="relative bg-ink border-t border-white/5">
+    <div class="flex items-center justify-between px-6 md:px-12 lg:px-20 py-10 border-b border-white/10">
+      <div class="flex items-center gap-4">
+        <span class="text-[10px] tracking-[0.3em] text-bone/60">GALLERY / 湯気写真</span>
+        <div class="hidden md:flex items-center gap-2 text-[10px] tracking-widest text-bone/30">SCROLL → DRAG → HOLD</div>
+      </div>
+      <div class="text-[10px] tracking-[0.2em] text-bone/40">NO FLASH • NO TRIPOD • FILM ONLY AFTER 1AM</div>
+    </div>
+
+    <div class="overflow-x-auto no-scrollbar flex gap-[1px] bg-white/10 p-[1px]" id="gallery-track">
+      <div class="shrink-0 w-[72vw] md:w-[36vw] aspect-[4/5] bg-ink relative overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-[1.2s]" alt="">
+        <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-ink to-transparent"><div class="text-[11px] tracking-widest text-bone/70">02:14 AM • BOWL 47 TONIGHT</div></div>
+      </div>
+      <div class="shrink-0 w-[72vw] md:w-[28vw] aspect-[4/5] bg-ink relative overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1552611052-33e04de081de?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-[1.2s]" alt="">
+        <div class="absolute top-5 left-5 bg-bone text-ink text-[10px] tracking-[0.2em] px-3 py-1.5 font-bold">NIBOSHI ROAST • 180°C</div>
+      </div>
+      <div class="shrink-0 w-[72vw] md:w-[28vw] aspect-[4/5] bg-ink relative overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.04] transition duration-[1.2s]" alt="">
+      </div>
+      <div class="shrink-0 w-[72vw] md:w-[36vw] aspect-[4/5] bg-ink relative overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1591815302525-756a9bcc3425?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-[1.2s]" alt="">
+        <div class="absolute inset-0 grid place-items-center"><div class="w-[120px] h-[120px] rounded-full border border-bone/20 grid place-items-center backdrop-blur-[2px]"><span class="font-serifjp italic text-bone text-[13px]">湯気は<br>味だ</span></div></div>
+      </div>
+      <div class="shrink-0 w-[72vw] md:w-[24vw] aspect-[4/5] bg-ink relative overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.04] transition duration-[1.2s]" alt="">
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS - overheard at counter -->
+  <section class="relative bg-ink2 border-t border-white/5 py-16 md:py-24">
+    <div class="px-6 md:px-12 lg:px-20">
+      <div class="flex items-center gap-4 mb-12 reveal">
+        <span class="font-kaku font-black text-[12px] tracking-[0.2em] text-bone">03 / OVERHEARD</span>
+        <div class="h-[1px] w-[120px] bg-white/10"></div>
+        <span class="font-jp text-[11px] text-bone/40">カウンターで聞いた話</span>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-[1px] bg-white/10 border border-white/10 reveal">
+        <div class="bg-ink p-8 md:p-10 group hover:bg-ink3 transition">
+          <div class="flex justify-between items-start">
+            <div class="text-[10px] tracking-[0.2em] text-bone/40">02:48 AM • TUESDAY</div>
+            <div class="w-6 h-6 rounded-full bg-bone/10 grid place-items-center text-[10px]">02</div>
+          </div>
+          <p class="mt-8 font-serifjp text-[18px] md:text-[20px] leading-[1.6] text-bone">“Came after last train missed. Thought I’d kill time. Left with a reason to miss it again next week.”</p>
+          <div class="mt-10 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover grayscale" alt="">
+            <div><div class="text-[11px] tracking-wide font-bold">KENJI — SHINJUKU, 11 VISITS</div><div class="text-[10px] opacity-40 tracking-widest">TAXI DRIVER / ORDERS KATA + AJITAMA</div></div>
+          </div>
+        </div>
+        <div class="bg-ink p-8 md:p-10 group hover:bg-ink3 transition">
+          <div class="flex justify-between items-start">
+            <div class="text-[10px] tracking-[0.2em] text-bone/40">01:19 AM • FRIDAY</div>
+            <div class="w-6 h-6 rounded-full bg-chashu/20 text-chashu grid place-items-center text-[10px] font-bold">★</div>
+          </div>
+          <p class="mt-8 font-serifjp text-[18px] md:text-[20px] leading-[1.6] text-bone">“No English menu. Chef pointed to his own bowl. I ate what he ate. Best pork I’ve had in 4 years in Tokyo.”</p>
+          <div class="mt-10 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover grayscale" alt="">
+            <div><div class="text-[11px] tracking-wide font-bold">AMARA — NAKAMEGURO, FIRST TIME</div><div class="text-[10px] opacity-40 tracking-widest">VISITING FROM BERLIN</div></div>
+          </div>
+        </div>
+        <div class="bg-ink p-8 md:p-10 group hover:bg-ink3 transition">
+          <div class="flex justify-between items-start">
+            <div class="text-[10px] tracking-[0.2em] text-bone/40">03:33 AM • SUNDAY</div>
+            <div class="w-6 h-6 rounded-full bg-bone/10 grid place-items-center text-[10px]">09</div>
+          </div>
+          <p class="mt-8 font-serifjp text-[18px] md:text-[20px] leading-[1.6] text-bone">“You don’t come here to be seen. You come here because no one can see you at 3am. Broth doesn’t judge.”</p>
+          <div class="mt-10 flex items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover grayscale" alt="">
+            <div><div class="text-[11px] tracking-wide font-bold">RUI — KOENJI, REGULAR</div><div class="text-[10px] opacity-40 tracking-widest">MUSICIAN / 37 BOWLS SINCE 2022</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 grid md:grid-cols-[1.2fr_0.8fr] gap-[1px] bg-white/10 border border-white/10 reveal">
+        <div class="bg-chashu text-bone px-6 md:px-8 py-4 flex items-center justify-between">
+          <span class="text-[11px] tracking-[0.25em] font-bold">NO PHOTOS OF STAFF. NO REVIEWS PLEASE. JUST EAT.</span>
+          <span class="font-jp text-[12px]">写真禁止</span>
+        </div>
+        <div class="bg-ink text-bone/60 px-6 md:px-8 py-4 text-[11px] tracking-wide">We don't answer DMs about broth recipe. We answer if you missed your train at 2am and need directions.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT / BOOKING -->
+  <section id="contact" class="relative bg-bone text-ink">
+    <div class="grid lg:grid-cols-[1.05fr_0.95fr]">
+      <div class="px-6 md:px-12 lg:px-20 py-16 md:py-24 border-r border-ink/10">
+        <div class="flex items-center gap-3 mb-10 reveal">
+          <div class="w-8 h-[1px] bg-ink"></div>
+          <span class="text-[11px] tracking-[0.3em] font-black">04 / FIND US</span>
+          <span class="font-jp text-[11px] opacity-60">地図 — 来店方法</span>
+        </div>
+        <h2 class="font-kaku font-black text-[48px] md:text-[64px] leading-[0.9] tracking-[-0.02em] reveal">DON'T GOOGLE<br>IT. ASK A<br>TAXI DRIVER.</h2>
+        
+        <div class="mt-10 grid grid-cols-2 gap-8 text-[12px] leading-[1.7] reveal">
+          <div>
+            <div class="font-bold tracking-[0.2em] text-[10px] mb-3 opacity-60">ADDRESS / 住所</div>
+            <p>1-2-10 Kabukicho, Shinjuku<br>Golden Gai 6th Ave, B1<br>Tokyo 160-0021<br><span class="font-jp">新宿区歌舞伎町1-2-10 B1</span></p>
+            <div class="mt-4 inline-flex border border-ink px-3 py-1 text-[10px] tracking-widest font-bold">2 MIN FROM SHINJUKU S.E.</div>
+          </div>
+          <div>
+            <div class="font-bold tracking-[0.2em] text-[10px] mb-3 opacity-60">HOURS / 営業時間</div>
+            <p class="font-kaku font-bold">21:00 — 04:00<br><span class="font-normal opacity-70">Last order 03:30 / L.O. 03:30<br>Closed Monday / 月曜定休<br>Cash only / 現金のみ</span></p>
+            <div class="mt-4 text-[11px]"><span class="bg-ink text-bone px-2 py-1">TONIGHT: OPEN • BROTH 87% LEFT</span></div>
+          </div>
+        </div>
+
+        <div class="mt-12 aspect-[16/10] bg-ink relative overflow-hidden reveal">
+          <!-- Fake ink map -->
+          <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-30 grayscale contrast-125" alt="tokyo alley">
+          <div class="absolute inset-0 p-6 flex flex-col justify-between">
+            <div class="flex justify-between">
+              <div class="bg-bone text-ink px-3 py-2 text-[10px] font-bold tracking-widest">SHINJUKU GOLDEN GAI MAP — NOT TO SCALE</div>
+              <div class="w-8 h-8 bg-chashu text-bone grid place-items-center font-black text-[12px]">夜</div>
+            </div>
+            <div class="flex items-end justify-between">
+              <div class="bg-ink text-bone px-4 py-3 text-[11px] leading-[1.4]">
+                <div class="font-bold tracking-widest">YASHIN • 夜深</div>
+                <div class="opacity-60">Look for noren with no logo.<br>White fabric, ink stain bottom right.</div>
+              </div>
+              <div class="bg-bone text-ink px-3 py-2 text-[10px] font-bold">YOU ARE HERE ↓ 200M</div>
+            </div>
+          </div>
+          <!-- pin -->
+          <div class="absolute left-[58%] top-[52%] -translate-x-1/2 -translate-y-1/2">
+            <div class="w-3 h-3 bg-chashu rounded-full animate-ping absolute"></div>
+            <div class="w-3 h-3 bg-chashu rounded-full relative"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 md:px-12 lg:px-20 py-16 md:py-24 bg-ink text-bone relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[300px] h-[300px] bg-chashu/15 blur-[80px] rounded-full pointer-events-none"></div>
+        <div class="relative reveal">
+          <div class="flex items-center gap-3 mb-10">
+            <span class="text-[11px] tracking-[0.3em] font-bold text-bone/60">RESERVE COUNTER — 22:00 ONLY</span>
+            <div class="h-[1px] w-[40px] bg-white/15"></div>
+          </div>
+          <h3 class="font-kaku font-black text-[36px] md:text-[44px] leading-[0.9] tracking-tight">AFTER 23:30,<br>IT'S FIRST COME.</h3>
+          <p class="mt-4 text-[12px] leading-[1.7] text-boneDim max-w-[360px]">We hold 5 seats for 22:00 reservation, once. After 23:30, it's washi paper and wait. No parties larger than 2. No kids after 23:00. This is not unfriendly — it's 12 seats.</p>
+
+          <form class="mt-10 space-y-6" onsubmit="event.preventDefault(); this.innerHTML='<div class=\'border border-bone/20 p-8 text-center\'><div class=\'font-kaku font-black text-[24px]\'>WASHI PAPER READY.</div><div class=\'mt-3 text-[12px] text-boneDim tracking-wide\'>We will text you if a seat opens after 21:30. Don\'t be late. We cross out names after 5 min.<br><span class=\'font-jp\'>5分遅刻で名前を消します。</span></div></div>';">
+            <div class="grid grid-cols-2 gap-6">
+              <div>
+                <label class="text-[10px] tracking-[0.25em] opacity-60">NAME / 名前</label>
+                <input required class="ink-input text-[14px] placeholder:text-bone/30" placeholder="SURNAME ONLY">
+              </div>
+              <div>
+                <label class="text-[10px] tracking-[0.25em] opacity-60">PARTY / 人数</label>
+                <select class="ink-input text-[14px] bg-transparent">
+                  <option class="bg-ink">1 PERSON</option>
+                  <option class="bg-ink">2 PERSONS</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="text-[10px] tracking-[0.25em] opacity-60">PHONE / 電話 — FOR TONIGHT ONLY</label>
+              <input required class="ink-input text-[14px] placeholder:text-bone/30" placeholder="+81 or LINE ID">
+            </div>
+            <div>
+              <label class="text-[10px] tracking-[0.25em] opacity-60">TIME / 時間</label>
+              <div class="grid grid-cols-3 gap-2 mt-3">
+                <label class="cursor-pointer border border-white/15 px-3 py-3 text-center text-[11px] tracking-widest has-[input:checked]:bg-bone has-[input:checked]:text-ink has-[input:checked]:border-bone transition"><input type="radio" name="time" class="sr-only" checked>22:00 — RESERVE</label>
+                <label class="cursor-pointer border border-white/10 px-3 py-3 text-center text-[11px] tracking-widest opacity-50 has-[input:checked]:bg-bone has-[input:checked]:text-ink transition"><input type="radio" name="time" class="sr-only">23:30 — WAITLIST</label>
+                <label class="cursor-pointer border border-white/10 px-3 py-3 text-center text-[11px] tracking-widest opacity-50 has-[input:checked]:bg-bone has-[input:checked]:text-ink transition"><input type="radio" name="time" class="sr-only">01:00 — WALK-IN</label>
+              </div>
+            </div>
+            <div class="pt-4">
+              <button type="submit" class="magnetic w-full bg-bone text-ink py-4 font-kaku font-black tracking-[0.2em] text-[12px] hover:bg-white transition flex items-center justify-center gap-3 group">
+                PUT NAME ON WASHI PAPER <span class="group-hover:translate-x-1 transition">→</span>
+              </button>
+              <div class="mt-3 text-[10px] tracking-wide opacity-40 text-center leading-[1.5]">By submitting you agree to no photos of staff and cash only. We delete your number after tonight.<br><span class="font-jp">スタッフの写真禁止、現金のみ。番号は今夜限りで削除します。</span></div>
+            </div>
+          </form>
+
+          <div class="mt-12 border-t border-white/10 pt-8 flex items-start justify-between gap-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 grid place-items-center text-[10px]">湯</div>
+              <div class="text-[11px] leading-[1.4]"><span class="font-bold tracking-wide">LINE: @yashin-ramen</span><br><span class="opacity-50">Fastest for wait time</span></div>
+            </div>
+            <div class="text-right text-[10px] tracking-widest opacity-40">EST. 2019 / SHINJUKU<br>NO BRANCHES / NO FRANCHISE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-ink border-t border-white/10 relative overflow-hidden">
+    <div class="px-6 md:px-12 lg:px-20 py-12 md:py-16">
+      <div class="flex flex-col lg:flex-row justify-between gap-12">
+        <div>
+          <div class="flex items-baseline gap-4">
+            <span class="font-kaku font-black text-[56px] md:text-[88px] leading-[0.85] tracking-[-0.04em] text-bone">YASHIN</span>
+            <span class="font-serifjp font-black text-[42px] md:text-[64px] text-chashu -ml-2">夜深</span>
+          </div>
+          <div class="mt-6 max-w-[420px] text-[12px] leading-[1.8] text-boneDim">
+            Late-night tonkotsu for those who work late, drink late, think late. We open when others close. Broth never sleeps. 12 seats, 1 broth, no compromises. Shinjuku Golden Gai, Tokyo.
+          </div>
+          <div class="mt-8 flex flex-wrap gap-2 text-[10px] tracking-[0.2em]">
+            <span class="px-3 py-1.5 border border-white/10">CASH ONLY</span>
+            <span class="px-3 py-1.5 border border-white/10">NO DELIVERY</span>
+            <span class="px-3 py-1.5 border border-white/10">NO RESERVATION AFTER 23:30</span>
+            <span class="px-3 py-1.5 bg-chashu border border-chashu text-bone">12 SEATS</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-10 text-[11px]">
+          <div>
+            <div class="tracking-[0.25em] opacity-40 mb-4">MENU</div>
+            <ul class="space-y-2 font-kaku font-bold tracking-wide">
+              <li><a class="hover:text-chashu transition" href="#menu">TONKOTSU BLACK</a></li>
+              <li><a class="hover:text-chashu transition" href="#menu">SHOYU KATSUO</a></li>
+              <li><a class="hover:text-chashu transition" href="#menu">TANTAN COLD</a></li>
+              <li><a class="hover:text-chashu transition" href="#menu">SHIO YUZU</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="tracking-[0.25em] opacity-40 mb-4">SHOP</div>
+            <ul class="space-y-2 tracking-wide text-boneDim">
+              <li>1-2-10 Kabukicho B1</li>
+              <li>Shinjuku-ku, Tokyo</li>
+              <li>21:00 — 04:00</li>
+              <li>Closed Mondays</li>
+            </ul>
+          </div>
+          <div class="hidden md:block">
+            <div class="tracking-[0.25em] opacity-40 mb-4">STAMP</div>
+            <div class="stamp w-[72px] h-[72px] text-[28px]">夜深</div>
+            <div class="mt-4 text-[10px] leading-[1.5] opacity-50">This is not a ramen shop for everyone. That's why it lasts.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-[10px] tracking-[0.2em] text-bone/30">
+        <div class="flex items-center gap-6">
+          <span>© 2025 YASHIN RAMEN — SHINJUKU TOKYO</span>
+          <span class="hidden md:inline w-1 h-1 bg-white/20 rounded-full"></span>
+          <span class="hidden md:inline">PHOTOGRAPHY: NO FLASH AFTER MIDNIGHT</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="opacity-60">DESIGNED BY 湯気 — TOKYO 35.6938°N 139.7034°E — 2:47 AM</span>
+        </div>
+      </div>
+    </div>
+    <!-- giant kanji watermark -->
+    <div class="pointer-events-none absolute -bottom-10 -right-10 text-[40vw] font-serifjp font-black leading-none text-white/[0.02] select-none">夜深</div>
+  </footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursor-follower');
+let mx=0,my=0, fx=0,fy=0;
+window.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+});
+(function loop(){
+  fx+=(mx-fx)*0.12; fy+=(my-fy)*0.12;
+  follower.style.left=fx+'px'; follower.style.top=fy+'px';
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('a,button,.menu-item,.magnetic').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hovering'));
+});
+
+// Magnetic buttons
+document.querySelectorAll('.magnetic').forEach(btn=>{
+  btn.addEventListener('mousemove', e=>{
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX - (r.left+r.width/2);
+    const y=e.clientY - (r.top+r.height/2);
+    btn.style.transform=`translate(${x*0.25}px, ${y*0.35}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{btn.style.transform='translate(0,0)';});
+});
+
+// Reveal on scroll
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting) en.target.classList.add('in');
+  });
+},{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// Parallax
+const pEls = document.querySelectorAll('[data-parallax]');
+window.addEventListener('scroll', ()=>{
+  const sY = window.scrollY;
+  pEls.forEach(el=>{
+    const rect = el.getBoundingClientRect();
+    const speed = parseFloat(el.dataset.parallax);
+    const offset = (rect.top - window.innerHeight/2)*speed;
+    el.style.transform = `translateY(${offset}px) scale(1.08)`;
+  });
+},{passive:true});
+
+// Seats injection hero & counter map
+const heroSeats = document.getElementById('hero-seats');
+const counterMap = document.getElementById('counter-map');
+const seatStates = [1,1,0,1,1,0,1,1,0,1,0,1]; // 1 occupied
+const seatReserved = [2]; // reserved index
+function renderSeats(container, big=false){
+  if(!container) return;
+  container.innerHTML='';
+  for(let i=0;i<12;i++){
+    const d=document.createElement('div');
+    d.className = big ? 'seat ' + (seatStates[i] ? 'filled' : '') + (seatReserved.includes(i) ? ' reserved' : '') : 'seat';
+    if(!big){
+      d.style.width = '28px'; d.style.height='28px'; d.style.fontSize='9px';
+    }
+    d.textContent = i+1;
+    if(big){
+      d.style.width='100%'; d.style.aspectRatio='1'; d.style.display='grid'; d.style.placeItems='center';
+      d.classList.add('border','border-white/15');
+    }
+    if(big){
+      const wrap=document.createElement('div');
+      wrap.className='flex flex-col items-center gap-1';
+      const circle=d;
+      const label=document.createElement('div');
+      label.className='text-[9px] tracking-widest opacity-50';
+      label.textContent = seatReserved.includes(i) ? 'RESV' : (seatStates[i] ? 'FULL' : 'FREE');
+      wrap.appendChild(circle);
+      wrap.appendChild(label);
+      container.appendChild(wrap);
+    }else{
+      if(seatStates[i]) d.classList.add('filled');
+      if(seatReserved.includes(i)) d.classList.add('reserved');
+      container.appendChild(d);
+    }
+  }
+}
+renderSeats(heroSeats,false);
+renderSeats(counterMap,true);
+// Update seats randomly to feel live
+setInterval(()=>{
+  const idx = Math.floor(Math.random()*12);
+  if(!seatReserved.includes(idx)){
+    seatStates[idx] = Math.random()>0.45 ? 1:0;
+    renderSeats(heroSeats,false);
+    renderSeats(counterMap,true);
+  }
+},2800);
+
+// Menu preview follow
+const menuPreview = document.getElementById('menu-preview');
+const menuPreviewImg = document.getElementById('menu-preview-img');
+let previewX=0, previewY=0, pTX=0, pTY=0;
+document.querySelectorAll('.menu-item').forEach(item=>{
+  item.addEventListener('mouseenter', ()=>{
+    const src = item.dataset.img;
+    if(src){ menuPreviewImg.src = src; }
+    menuPreview.classList.add('active');
+  });
+  item.addEventListener('mouseleave', ()=>{ menuPreview.classList.remove('active'); });
+  item.addEventListener('mousemove', e=>{
+    pTX=e.clientX; pTY=e.clientY;
+  });
+});
+(function previewLoop(){
+  previewX+=(pTX-previewX)*0.18;
+  previewY+=(pTY-previewY)*0.18;
+  menuPreview.style.left=previewX+120+'px';
+  menuPreview.style.top=previewY+'px';
+  requestAnimationFrame(previewLoop);
+})();
+
+// Gallery drag scroll
+const track = document.getElementById('gallery-track');
+let isDown=false, startX, scrollLeft;
+track.addEventListener('mousedown', e=>{isDown=true; track.classList.add('cursor-grabbing'); startX=e.pageX-track.offsetLeft; scrollLeft=track.scrollLeft;});
+window.addEventListener('mouseup', ()=>{isDown=false; track.classList.remove('cursor-grabbing');});
+track.addEventListener('mouseleave', ()=>{isDown=false;});
+track.addEventListener('mousemove', e=>{if(!isDown) return; e.preventDefault(); const x=e.pageX-track.offsetLeft; const walk=(x-startX)*1.5; track.scrollLeft=scrollLeft-walk;});
+
+// Time update
+function updateTime(){
+  const now = new Date();
+  const tokyo = new Date(now.toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));
+  const h = String(tokyo.getHours()).padStart(2,'0');
+  const m = String(tokyo.getMinutes()).padStart(2,'0');
+  document.querySelectorAll('[data-tokyo-time]').forEach(el=>el.textContent=`${h}:${m} JST`);
+}
+setInterval(updateTime, 60000);
+</script>
+</body>
+</html>

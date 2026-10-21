@@ -1,34 +1,38 @@
-# RAVANA TECH — Official Platform
-### Web, Software & AI Development
-**By Shanthapriya Silva**
+# RAVANA TECH — Official Platform // React 19 Supercharged Edition
 
-Engineering intelligent digital experiences, resilient software architectures, and AI-driven solutions for the future.
+### Web, Software & AI Development Studio
+**Lead Architect & Founder: Shanthapriya Silva**
 
----
-
-### Core Systems & Domains
-1. **01 // Web Development** — Modern, responsive, high-performance web applications.
-2. **02 // Software Development** — Scalable backend architectures and custom software pipelines.
-3. **03 // Artificial Intelligence** — Intelligent AI experiences, neural models, and autonomous agents.
-4. **04 // UI / UX** — Immersive, intuitive interfaces designed with military precision.
-5. **05 // Automation** — Smart automated workflows and digital process optimization.
-6. **06 // IT Consulting** — Strategic technology advisory and digital transformation.
+High-velocity web architectures, bespoke commercial platforms, and cognitive AI automation systems.
 
 ---
 
-### Communication & Transmission Protocols
-- **WhatsApp**: [+94 78 847 0610](https://wa.me/94788470610)
-- **Direct Email**: [hello.ravanatech@gmail.com](mailto:hello.ravanatech@gmail.com)
-- **Voice / Call**: [+94 78 847 0610](tel:+94788470610)
-- **Google Meet**: [meet.google.com/dmk-sdvr-iin](https://meet.google.com/dmk-sdvr-iin)
+### Architecture & Tech Stack
+
+- **Frontend Runtime**: React 19 + TypeScript + Vite 8
+- **Styling Architecture**: Custom Cyberpunk Zero-Scroll Command Deck HUD CSS
+- **Database & Cloud**: Firebase Firestore & Google Cloud Platform
+- **Cognitive Systems**: Multimodal OCR, Autonomous Agent Swarms, Document Control EDMS
+- **Performance**: Sub-millisecond SPA screen switching, GPU-throttled Matrix Rain Canvas, instant in-memory project filtering
 
 ---
 
-### Verified Networks
-- **GitHub**: [github.com/ravanatech-official](https://github.com/ravanatech-official)
-- **LinkedIn**: [linkedin.com/company/ravanatech-official](https://linkedin.com/company/ravanatech-official)
-- **Facebook**: [facebook.com/ravanatech-official](https://facebook.com/ravanatech-official)
-- **Instagram**: [instagram.com/ravanatech-official](https://instagram.com/ravanatech-official)
-- **YouTube**: [youtube.com/@ravanatech-official](https://youtube.com/@ravanatech-official)
+### Command Deck Screens
+
+1. **HOME** (`/`) — Hero command center, brand mission, live metrics & telemetry.
+2. **ABOUT** (`/about`) — Lead Architect profile, engineering principles & core competency matrix.
+3. **SYSTEMS** (`/systems`) — 6 Architectural services with interactive technical specifications & SLAs.
+4. **PROJECTS** (`/projects`) — Silicon Valley Interactive Bento Gallery featuring 50 ready blueprints with category tabs, keyword search, terminal list view, and responsive device simulator lightbox.
+5. **CONTACT** (`/contact`) — Direct inquiry intake with real-time Firebase Firestore persistence, WhatsApp quick-launch, and SLA guarantee.
+6. **AI LAB** (`/ai-lab`) — Interactive testing laboratory featuring Document Controller OCR simulator, Cognitive Data Pipeline, Autonomous Swarm Console, Tech Radar, and ATS CV generator.
+
+---
+
+### Communication & Channels
+
+- **WhatsApp Direct**: [+94 78 847 0610](https://wa.me/94788470610)
+- **Official Email**: [hello.ravanatech@gmail.com](mailto:hello.ravanatech@gmail.com)
+- **Direct Phone**: [+94 78 847 0610](tel:+94788470610)
+- **Location**: Colombo, Sri Lanka • Global Operations
 
 © 2026 RAVANA TECH. ALL RIGHTS RESERVED.

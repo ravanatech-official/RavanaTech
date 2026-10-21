@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Digital Agency</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        'sans': ['Inter', 'sans-serif'],
+        'display': ['Space Grotesk', 'sans-serif'],
+      },
+      colors: {
+        'midnight': '#0a0f1e',
+        'cyan': '#00f5ff',
+        'violet': '#8b5cf6',
+        'slate-mid': '#131a2f',
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { cursor: none !important; }
+  @media (max-width: 1024px) { * { cursor: auto !important; } .cursor-el { display: none !important; } }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #0a0f1e;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Grain */
+  .grain::after{
+    content:"";
+    position:fixed;
+    inset:-50%;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;
+    z-index:9999;
+    opacity:0.35;
+    animation: grainMove 8s steps(10) infinite;
+  }
+  @keyframes grainMove { 0%{transform:translate(0,0)} 10%{transform:translate(-5%,-5%)} 20%{transform:translate(-10%,5%)} 30%{transform:translate(5%,-10%)} 40%{transform:translate(-5%,15%)} 50%{transform:translate(-10%,-5%)} 60%{transform:translate(15%,0)} 70%{transform:translate(0,10%)} 80%{transform:translate(3%,-15%)} 90%{transform:translate(-10%,10%)} 100%{transform:translate(5%,0)} }
+  
+  .glass {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .glass-strong {
+    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .chrome-bubble {
+    background: radial-gradient(120% 120% at 30% 20%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 25%, rgba(0,245,255,0.15) 45%, rgba(139,92,246,0.25) 75%, rgba(10,15,30,0.2) 100%);
+    box-shadow: inset -20px -20px 60px rgba(0,0,0,0.3), inset 10px 10px 40px rgba(255,255,255,0.6), 0 20px 80px rgba(0,245,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .text-gradient {
+    background: linear-gradient(100deg, #fff 20%, #00f5ff 55%, #8b5cf6 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-v {
+    background: linear-gradient(180deg, #00f5ff 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .brutal-border { border: 1px solid rgba(255,255,255,0.13); }
+  .glow-cyan { box-shadow: 0 0 40px rgba(0,245,255,0.3), 0 0 80px rgba(0,245,255,0.1); }
+  .glow-violet { box-shadow: 0 0 40px rgba(139,92,246,0.35), 0 0 80px rgba(139,92,246,0.12); }
+
+  /* Cursor */
+  .cursor-el {
+    position: fixed;
+    top:0; left:0;
+    pointer-events:none;
+    z-index: 10000;
+    mix-blend-mode: difference;
+  }
+  .cursor-dot {
+    width:6px; height:6px; background:#fff; border-radius:50%; transform: translate(-50%,-50%);
+  }
+  .cursor-ring {
+    width:38px; height:38px; border:1px solid rgba(255,255,255,0.8); border-radius:50%; transform: translate(-50%,-50%); transition: width 0.3s, height 0.3s, background 0.3s;
+  }
+  .cursor-ring.hover { width:72px; height:72px; background: rgba(255,255,255,0.1); border-color: #00f5ff; }
+
+  /* Marquee */
+  @keyframes marquee { 0% { transform: translateX(0)} 100% { transform: translateX(-50%)} }
+  .marquee-track { animation: marquee 28s linear infinite; }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  /* Float */
+  @keyframes float1 { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-24px) rotate(2deg)} }
+  @keyframes float2 { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-18px) rotate(-1.5deg)} }
+  @keyframes float3 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(18px,-18px)} 66%{transform:translate(-12px,12px)} }
+  @keyframes pulseGlow { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+  /* Reveal */
+  .reveal { opacity:0; transform: translateY(30px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.active { opacity:1; transform: translateY(0); }
+  .stagger-1{transition-delay:0.08s} .stagger-2{transition-delay:0.16s} .stagger-3{transition-delay:0.24s} .stagger-4{transition-delay:0.32s}
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:#0a0f1e} ::-webkit-scrollbar-thumb{background:linear-gradient(#00f5ff,#8b5cf6); border-radius:10px}
+
+  /* Magnetic */
+  .magnetic { transition: transform 0.3s cubic-bezier(0.23,1,0.32,1); }
+
+  /* Brutal details */
+  .brutal-grid-lines::before {
+    content:"";
+    position:absolute;
+    inset:0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.03) 80px);
+    pointer-events:none;
+  }
+  .chrome-ring {
+    border: 1px solid transparent;
+    background: linear-gradient(#0a0f1e, #0a0f1e) padding-box, linear-gradient(135deg, #fff, #00f5ff, #8b5cf6) border-box;
+  }
+  .noise-mask {
+    mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) skewX(-12deg); }
+    100% { transform: translateX(200%) skewX(-12deg); }
+  }
+  .shimmer::after {
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:40%; height:100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  .pill-split {
+    background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  }
+  /* Scroll indicator */
+  .scroll-indicator {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+</style>
+</head>
+<body class="grain bg-midnight text-white selection:bg-cyan selection:text-midnight">
+
+<!-- CURSOR -->
+<div id="cursorDot" class="cursor-el cursor-dot"></div>
+<div id="cursorRing" class="cursor-el cursor-ring"></div>
+<div id="cursorTrail"></div>
+
+<!-- BACKGROUND BLOBS - FIXED -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden">
+  <div class="absolute -top-[30%] -left-[20%] w-[80vw] h-[80vw] max-w-[900px] max-h-[900px] rounded-full blur-[120px] opacity-[0.18]" style="background: radial-gradient(circle at center, #00f5ff 0%, transparent 70%);"></div>
+  <div class="absolute top-[10%] -right-[15%] w-[70vw] h-[70vw] max-w-[800px] max-h-[800px] rounded-full blur-[130px] opacity-[0.22]" style="background: radial-gradient(circle at center, #8b5cf6 0%, transparent 70%);"></div>
+  <div class="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] rounded-full blur-[120px] opacity-[0.12]" style="background: radial-gradient(circle at center, #00f5ff 0%, transparent 70%);"></div>
+  <!-- Grid -->
+  <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 80px 80px;"></div>
+</div>
+
+<!-- NAV -->
+<nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[1240px]">
+  <div class="glass-strong rounded-full px-2 md:px-3 py-2 flex items-center justify-between">
+    <div class="flex items-center gap-3 pl-2">
+      <div class="w-8 h-8 rounded-full bg-white text-midnight grid place-items-center font-display font-bold text-[13px] tracking-tighter">N°</div>
+      <span class="font-display font-semibold tracking-[-0.02em] text-[15px] hidden md:inline">NOVA — Atelier Digital</span>
+      <span class="font-display font-semibold tracking-[-0.02em] text-[15px] md:hidden">NOVA</span>
+      <div class="hidden lg:flex items-center gap-1 ml-6">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-[10px] uppercase tracking-[0.2em] opacity-60">Available for new ventures — Q1 2026</span>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-1 bg-[rgba(0,0,0,0.35)] rounded-full p-1">
+      <a href="#work" class="px-5 py-2 rounded-full text-[12px] font-medium tracking-wide hover:bg-white hover:text-midnight transition">WORK</a>
+      <a href="#services" class="px-5 py-2 rounded-full text-[12px] font-medium tracking-wide hover:bg-white hover:text-midnight transition">STUDIO</a>
+      <a href="#manifesto" class="px-5 py-2 rounded-full text-[12px] font-medium tracking-wide hover:bg-white hover:text-midnight transition">MANIFESTO</a>
+      <a href="#contact" class="px-5 py-2 rounded-full text-[12px] font-medium tracking-wide hover:bg-white hover:text-midnight transition">CONTACT</a>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="magnetic group bg-white text-midnight rounded-full px-5 md:px-6 py-2.5 text-[12px] font-bold tracking-[0.08em] flex items-center gap-2 hover:bg-cyan transition-colors">
+        START PROJECT
+        <span class="w-5 h-5 rounded-full bg-midnight text-white grid place-items-center group-hover:rotate-45 transition-transform">↗</span>
+      </button>
+      <button id="menuBtn" class="md:hidden w-10 h-10 rounded-full bg-[rgba(255,255,255,0.08)] grid place-items-center">≡</button>
+    </div>
+  </div>
+  <!-- mobile menu -->
+  <div id="mobileMenu" class="hidden mt-3 glass-strong rounded-[24px] p-2 flex-col gap-1">
+    <a href="#work" class="px-6 py-4 rounded-xl hover:bg-white/10 text-sm font-medium">WORK</a>
+    <a href="#services" class="px-6 py-4 rounded-xl hover:bg-white/10 text-sm font-medium">STUDIO</a>
+    <a href="#manifesto" class="px-6 py-4 rounded-xl hover:bg-white/10 text-sm font-medium">MANIFESTO</a>
+    <a href="#contact" class="px-6 py-4 rounded-xl hover:bg-white/10 text-sm font-medium">CONTACT</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative z-10 pt-[140px] md:pt-[180px] pb-20 px-6 md:px-10 max-w-[1440px] mx-auto">
+  <div class="grid grid-cols-12 gap-6 md:gap-8 items-start">
+    <!-- Left Big Type -->
+    <div class="col-span-12 lg:col-span-7">
+      <div class="reveal flex items-center gap-3 mb-8">
+        <div class="h-px w-12 bg-gradient-to-r from-cyan to-violet"></div>
+        <span class="text-[11px] tracking-[0.35em] uppercase opacity-70 font-medium">[ 001 — Digital Atelier / Since 2019 ]</span>
+      </div>
+      <h1 class="reveal stagger-1 font-display font-[700] leading-[0.85] tracking-[-0.05em] text-[14vw] md:text-[9vw] lg:text-[88px] xl:text-[108px]">
+        <span class="block">WE BUILD</span>
+        <span class="block text-gradient">DIGITAL</span>
+        <span class="block flex items-center gap-4">
+          GODS
+          <span class="inline-flex items-center justify-center w-[0.9em] h-[0.9em] rounded-full chrome-bubble text-[0.25em] font-sans font-bold tracking-widest text-white/90 -translate-y-1">AW</span>
+        </span>
+      </h1>
+      <div class="reveal stagger-2 mt-8 md:mt-12 max-w-[520px]">
+        <p class="text-[16px] md:text-[18px] leading-[1.6] opacity-70 font-light">
+          Award-winning digital product agency. We craft brutal-modern interfaces, immersive brand systems, and high-velocity engineering for founders who refuse to blend in.
+          <span class="text-white font-medium">Midnight blue, chrome, glass.</span>
+        </p>
+      </div>
+      <div class="reveal stagger-3 mt-10 flex flex-wrap gap-3">
+        <a href="#work" class="magnetic group relative overflow-hidden rounded-full bg-gradient-to-br from-cyan to-violet p-[1px] glow-cyan">
+          <span class="block rounded-full bg-midnight px-8 py-4 text-[13px] font-bold tracking-[0.12em] group-hover:bg-transparent transition-all">EXPLORE WORK →</span>
+        </a>
+        <a href="#contact" class="magnetic glass rounded-full px-8 py-4 text-[13px] font-semibold tracking-[0.08em] hover:bg-white/10 transition">BOOK INTRO CALL</a>
+      </div>
+      <!-- Logos / Social proof -->
+      <div class="reveal stagger-4 mt-16 md:mt-24 border-t border-white/10 pt-8">
+        <div class="flex flex-wrap items-center gap-8 opacity-50">
+          <span class="text-[10px] tracking-[0.3em] uppercase">Trusted by hypergrowth teams:</span>
+          <div class="flex items-center gap-8 font-display text-[13px] font-semibold tracking-tight">
+            <span>ARC'TERYX®</span><span class="opacity-40">/</span><span>LINEAR</span><span class="opacity-40">/</span><span>PERPLEXITY</span><span class="opacity-40">/</span><span>RAILWAY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Visual Stack -->
+    <div class="col-span-12 lg:col-span-5 relative mt-8 lg:mt-0">
+      <!-- Chrome bubble cluster -->
+      <div class="relative aspect-[4/5] md:aspect-[5/6] w-full">
+        <!-- Main image glass card -->
+        <div class="absolute inset-0 glass-strong rounded-[32px] overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-luminosity" alt="">
+          <div class="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-br from-cyan/20 via-transparent to-violet/30"></div>
+          
+          <!-- inner floating cards -->
+          <div class="absolute top-6 left-6 right-6 flex justify-between">
+            <div class="glass rounded-full px-3 py-1.5 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Live Case — 2025
+            </div>
+            <div class="w-9 h-9 rounded-full bg-white text-midnight grid place-items-center font-bold">↗</div>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-6">
+            <div class="glass rounded-[20px] p-5">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="text-[11px] tracking-[0.2em] uppercase opacity-50 mb-2">Featured Drop</div>
+                  <div class="font-display font-semibold text-[20px] leading-none tracking-tight">NEBULA OS — Branding + Product</div>
+                </div>
+                <div class="w-10 h-10 rounded-full chrome-bubble grid place-items-center text-midnight font-bold">N</div>
+              </div>
+              <div class="mt-4 flex gap-2">
+                <span class="px-3 py-1 rounded-full bg-white/10 text-[10px] tracking-wide">UI SYSTEM</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 text-[10px] tracking-wide">MOTION</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 text-[10px] tracking-wide">NEXT.JS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating chrome bubbles -->
+        <div class="absolute -top-10 -right-10 w-[120px] h-[120px] rounded-full chrome-bubble hidden md:grid place-items-center" style="animation: float1 6s ease-in-out infinite;">
+          <span class="font-display font-bold text-midnight text-[12px] tracking-[0.2em]">SOTD</span>
+        </div>
+        <div class="absolute -left-12 top-[38%] w-[84px] h-[84px] rounded-full chrome-bubble hidden md:grid place-items-center" style="animation: float2 7s ease-in-out infinite;">
+          <span class="text-[20px]">★</span>
+        </div>
+        <div class="absolute -bottom-6 -right-6 md:right-6 glass-strong rounded-[20px] p-4 w-[200px]" style="animation: float1 5.5s ease-in-out infinite;">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[10px] tracking-[0.2em] uppercase opacity-60">Performance</span>
+            <span class="text-[10px] text-emerald-300">+184%</span>
+          </div>
+          <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+            <div class="h-full w-[84%] bg-gradient-to-r from-cyan to-violet rounded-full"></div>
+          </div>
+          <div class="mt-3 flex -space-x-2">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" class="w-7 h-7 rounded-full border-2 border-midnight object-cover">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100" class="w-7 h-7 rounded-full border-2 border-midnight object-cover">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100" class="w-7 h-7 rounded-full border-2 border-midnight object-cover">
+            <div class="w-7 h-7 rounded-full bg-white text-midnight grid place-items-center text-[10px] font-bold border-2 border-midnight">+12</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="relative z-10 border-y border-white/10 bg-[rgba(255,255,255,0.02)] overflow-hidden">
+  <div class="marquee-track flex w-max">
+    <div class="flex items-center gap-6 py-4 px-6">
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase opacity-70">Product Design</span><span class="w-1 h-1 bg-cyan rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase">Motion Systems</span><span class="w-1 h-1 bg-violet rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase opacity-70">Design Engineering</span><span class="w-1 h-1 bg-cyan rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase">Brand Atelier</span><span class="w-1 h-1 bg-violet rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase opacity-70">AI Prototyping</span><span class="w-1 h-1 bg-cyan rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase">WebGL / Three.js</span><span class="w-1 h-1 bg-violet rounded-full"></span>
+    </div>
+    <div class="flex items-center gap-6 py-4 px-6" aria-hidden="true">
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase opacity-70">Product Design</span><span class="w-1 h-1 bg-cyan rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase">Motion Systems</span><span class="w-1 h-1 bg-violet rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase opacity-70">Design Engineering</span><span class="w-1 h-1 bg-cyan rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase">Brand Atelier</span><span class="w-1 h-1 bg-violet rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase opacity-70">AI Prototyping</span><span class="w-1 h-1 bg-cyan rounded-full"></span>
+      <span class="font-display text-[14px] tracking-[0.2em] uppercase">WebGL / Three.js</span><span class="w-1 h-1 bg-violet rounded-full"></span>
+    </div>
+  </div>
+</div>
+
+<!-- MANIFESTO / ABOUT -->
+<section id="manifesto" class="relative z-10 px-6 md:px-10 max-w-[1440px] mx-auto py-24 md:py-40">
+  <div class="grid grid-cols-12 gap-10">
+    <div class="col-span-12 md:col-span-5">
+      <div class="reveal sticky top-[120px]">
+        <div class="text-[11px] tracking-[0.4em] uppercase opacity-40 mb-6">[ 002 — Manifesto ]</div>
+        <h2 class="font-display font-semibold text-[36px] md:text-[46px] leading-[0.95] tracking-[-0.03em]">
+          We don't chase<br>
+          trends.<br>
+          <span class="text-gradient">We obsolete<br>them.</span>
+        </h2>
+        <div class="mt-10 flex gap-3">
+          <div class="w-px bg-gradient-to-b from-cyan to-violet h-24"></div>
+          <p class="text-[13px] leading-[1.7] opacity-60 max-w-[280px]">Every pixel intentional. Every interaction engineered. We operate at the intersection of brutal modernism and soft futurism.</p>
+        </div>
+        <div class="mt-12 grid grid-cols-2 gap-6 border-t border-white/10 pt-8">
+          <div><div class="font-display text-[32px] font-bold leading-none">47+</div><div class="text-[11px] tracking-widest uppercase opacity-50 mt-2">Awards won</div></div>
+          <div><div class="font-display text-[32px] font-bold leading-none">$2.4B</div><div class="text-[11px] tracking-widest uppercase opacity-50 mt-2">Client valuation</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-7 space-y-20">
+      <!-- Metric cards -->
+      <div class="reveal grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass rounded-[24px] p-6 md:p-7 flex flex-col gap-6 group hover:bg-white/[0.06] transition">
+          <div class="flex justify-between items-start">
+            <div class="w-11 h-11 rounded-full bg-white text-midnight grid place-items-center font-bold">01</div>
+            <div class="w-8 h-8 rounded-full border border-white/15 grid place-items-center group-hover:rotate-45 transition-transform">↗</div>
+          </div>
+          <div>
+            <h3 class="font-display font-semibold text-[20px] leading-tight">Speed is a feature.</h3>
+            <p class="mt-3 text-[13px] leading-[1.6] opacity-60">We ship in 2-week sprints, not quarters. From 0→1 to 100, with taste as the constraint.</p>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-[11px] tracking-widest uppercase opacity-40"><span class="w-4 h-px bg-white/40"></span> Avg. 18 days to MVP</div>
+        </div>
+        <div class="glass rounded-[24px] p-6 md:p-7 flex flex-col gap-6 group hover:bg-white/[0.06] transition md:mt-8">
+          <div class="flex justify-between items-start">
+            <div class="w-11 h-11 rounded-full chrome-bubble grid place-items-center font-bold text-midnight">02</div>
+            <div class="w-8 h-8 rounded-full border border-white/15 grid place-items-center group-hover:rotate-45 transition-transform">↗</div>
+          </div>
+          <div>
+            <h3 class="font-display font-semibold text-[20px] leading-tight">Taste can't be outsourced.</h3>
+            <p class="mt-3 text-[13px] leading-[1.6] opacity-60">Senior-only team. No juniors, no managers. Just makers who have shipped at Stripe, Linear, Figma.</p>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-[11px] tracking-widest uppercase opacity-40"><span class="w-4 h-px bg-white/40"></span> 100% senior craft</div>
+        </div>
+        <div class="glass rounded-[24px] p-6 md:p-7 flex flex-col gap-6 group hover:bg-white/[0.06] transition">
+          <div class="flex justify-between items-start">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-cyan to-violet grid place-items-center font-bold text-midnight">03</div>
+            <div class="w-8 h-8 rounded-full border border-white/15 grid place-items-center group-hover:rotate-45 transition-transform">↗</div>
+          </div>
+          <div>
+            <h3 class="font-display font-semibold text-[20px] leading-tight">Systems over screens.</h3>
+            <p class="mt-3 text-[13px] leading-[1.6] opacity-60">We design tokens, motions, and code as one organism. One source of truth from Figma to prod.</p>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-[11px] tracking-widest uppercase opacity-40"><span class="w-4 h-px bg-white/40"></span> Design → Code parity</div>
+        </div>
+        <div class="glass rounded-[24px] p-6 md:p-7 flex flex-col gap-6 group hover:bg-white/[0.06] transition md:mt-8">
+          <div class="flex justify-between items-start">
+            <div class="w-11 h-11 rounded-full bg-white text-midnight grid place-items-center font-bold">04</div>
+            <div class="w-8 h-8 rounded-full border border-white/15 grid place-items-center group-hover:rotate-45 transition-transform">↗</div>
+          </div>
+          <div>
+            <h3 class="font-display font-semibold text-[20px] leading-tight">Future-proof aesthetics.</h3>
+            <p class="mt-3 text-[13px] leading-[1.6] opacity-60">Y2K nostalgia meets glassmorphism precision. Chrome bubbles, midnight gradients, brutal type.</p>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-[11px] tracking-widest uppercase opacity-40"><span class="w-4 h-px bg-white/40"></span> 2026 visual language</div>
+        </div>
+      </div>
+
+      <!-- Big quote -->
+      <div class="reveal rounded-[28px] glass-strong p-8 md:p-12 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[300px] h-[300px] rounded-full blur-[80px] opacity-20" style="background: radial-gradient(circle, #8b5cf6, transparent)"></div>
+        <div class="relative">
+          <div class="text-[80px] leading-none font-display opacity-10">“</div>
+          <blockquote class="font-display text-[22px] md:text-[28px] leading-[1.15] tracking-[-0.02em] -mt-8 max-w-[560px]">We hired NOVA to kill our previous brand. They didn't redesign it — they <span class="text-gradient">exorcised it and built a cathedral in its place.</span></blockquote>
+          <div class="mt-8 flex items-center gap-4">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=200" class="w-10 h-10 rounded-full object-cover grayscale">
+            <div><div class="text-[13px] font-semibold">Mira Chen</div><div class="text-[11px] opacity-50 uppercase tracking-widest">Founder, Prism AI — Series B</div></div>
+            <div class="ml-auto hidden md:flex items-center gap-2 text-[10px] tracking-widest uppercase opacity-40"><span class="w-1.5 h-1.5 bg-cyan rounded-full"></span> Verified Review</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="relative z-10 border-t border-white/10 bg-[rgba(255,255,255,0.015)]">
+  <div class="px-6 md:px-10 max-w-[1440px] mx-auto py-24 md:py-32">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-14">
+      <div class="reveal">
+        <div class="text-[11px] tracking-[0.4em] uppercase opacity-40 mb-6">[ 003 — Capabilities ]</div>
+        <h2 class="font-display font-semibold text-[38px] md:text-[64px] leading-[0.9] tracking-[-0.04em]">BRUTAL CRAFT,<br><span class="opacity-40">SOFT EXECUTION</span></h2>
+      </div>
+      <div class="reveal stagger-1 max-w-[360px] text-[13px] leading-[1.7] opacity-60">Modular studio pods. Plug us in as your product design co-founders for 8-16 weeks. No handoffs, just shippable systems.</div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-[1px] bg-white/10 rounded-[24px] overflow-hidden border border-white/10">
+      <!-- Service items -->
+      <div class="reveal col-span-12 md:col-span-4 bg-midnight p-8 md:p-10 group hover:bg-[#10182f] transition-colors">
+        <div class="flex justify-between">
+          <div class="w-10 h-10 rounded-full glass grid place-items-center text-[13px]">↗</div>
+          <span class="text-[11px] tracking-widest opacity-30">01 / 06</span>
+        </div>
+        <div class="mt-12">
+          <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-white to-white/60 text-midnight grid place-items-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+          </div>
+          <h3 class="font-display font-semibold mt-6 text-[22px] tracking-tight">Product Strategy</h3>
+          <p class="mt-3 text-[13px] leading-[1.6] opacity-60">Zero-to-one positioning, pricing, and roadmap alchemy. Market maps, not moodboards.</p>
+          <div class="mt-6 flex flex-wrap gap-2">
+            <span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">JTBD</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Pricing</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">GTM</span>
+          </div>
+        </div>
+      </div>
+      <div class="reveal stagger-1 col-span-12 md:col-span-4 bg-midnight p-8 md:p-10 group hover:bg-[#10182f] transition-colors">
+        <div class="flex justify-between"><div class="w-10 h-10 rounded-full glass grid place-items-center text-[13px]">↗</div><span class="text-[11px] tracking-widest opacity-30">02 / 06</span></div>
+        <div class="mt-12">
+          <div class="w-12 h-12 rounded-[14px] chrome-bubble grid place-items-center text-midnight font-bold">A</div>
+          <h3 class="font-display font-semibold mt-6 text-[22px] tracking-tight">Design Systems</h3>
+          <p class="mt-3 text-[13px] leading-[1.6] opacity-60">Tokens, components, motion specs. Figma to code with 1px fidelity. Your last design system.</p>
+          <div class="mt-6 flex flex-wrap gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Tokens</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Figma</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Storybook</span></div>
+        </div>
+      </div>
+      <div class="reveal stagger-2 col-span-12 md:col-span-4 bg-midnight p-8 md:p-10 group hover:bg-[#10182f] transition-colors">
+        <div class="flex justify-between"><div class="w-10 h-10 rounded-full glass grid place-items-center text-[13px]">↗</div><span class="text-[11px] tracking-widest opacity-30">03 / 06</span></div>
+        <div class="mt-12">
+          <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-cyan to-violet grid place-items-center text-midnight">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+          </div>
+          <h3 class="font-display font-semibold mt-6 text-[22px] tracking-tight">Motion & 3D</h3>
+          <p class="mt-3 text-[13px] leading-[1.6] opacity-60">WebGL, Rive, Framer Motion, Spline. Interfaces that breathe, bounce, and seduce.</p>
+          <div class="mt-6 flex flex-wrap gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">WebGL</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Rive</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Lottie</span></div>
+        </div>
+      </div>
+      <div class="reveal col-span-12 md:col-span-4 bg-midnight p-8 md:p-10 group hover:bg-[#10182f] transition-colors">
+        <div class="flex justify-between"><div class="w-10 h-10 rounded-full glass grid place-items-center text-[13px]">↗</div><span class="text-[11px] tracking-widest opacity-30">04 / 06</span></div>
+        <div class="mt-12">
+          <div class="w-12 h-12 rounded-[14px] bg-white text-midnight grid place-items-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+          </div>
+          <h3 class="font-display font-semibold mt-6 text-[22px] tracking-tight">Design Engineering</h3>
+          <p class="mt-3 text-[13px] leading-[1.6] opacity-60">Next.js 14, Tailwind, shadcn, Framer Motion. We ship your frontend, not just Figma frames.</p>
+          <div class="mt-6 flex flex-wrap gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Next.js</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">TS</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Edge</span></div>
+        </div>
+      </div>
+      <div class="reveal stagger-1 col-span-12 md:col-span-4 bg-midnight p-8 md:p-10 group hover:bg-[#10182f] transition-colors">
+        <div class="flex justify-between"><div class="w-10 h-10 rounded-full glass grid place-items-center text-[13px]">↗</div><span class="text-[11px] tracking-widest opacity-30">05 / 06</span></div>
+        <div class="mt-12">
+          <div class="w-12 h-12 rounded-[14px] bg-[rgba(255,255,255,0.08)] border border-white/10 grid place-items-center">◎</div>
+          <h3 class="font-display font-semibold mt-6 text-[22px] tracking-tight">Brand Atelier</h3>
+          <p class="mt-3 text-[13px] leading-[1.6] opacity-60">Wardrobe, voice, and website as one brutal system. Logos that feel like hardware.</p>
+          <div class="mt-6 flex flex-wrap gap-2"><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Identity</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Type</span><span class="text-[10px] px-2.5 py-1 rounded-full bg-white/10">Guidelines</span></div>
+        </div>
+      </div>
+      <div class="reveal stagger-2 col-span-12 md:col-span-4 bg-[#0e1428] p-8 md:p-10 group relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-cyan/20 to-violet/20 opacity-60 group-hover:opacity-80 transition"></div>
+        <div class="relative flex justify-between"><div class="w-10 h-10 rounded-full bg-white text-midnight grid place-items-center text-[13px]">↗</div><span class="text-[11px] tracking-widest opacity-60">06 / 06</span></div>
+        <div class="relative mt-12">
+          <h3 class="font-display font-semibold text-[22px] tracking-tight text-white">Need the whole stack? Let's talk pod.</h3>
+          <p class="mt-3 text-[13px] leading-[1.6] text-white/70">Full product pod: 1 strategist, 2 product designers, 1 motion, 2 engineers. $65k / month.</p>
+          <button class="mt-6 bg-white text-midnight rounded-full px-5 py-2.5 text-[12px] font-bold tracking-wide">CHECK AVAILABILITY →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK GALLERY -->
+<section id="work" class="relative z-10 px-6 md:px-10 max-w-[1440px] mx-auto py-24 md:py-32">
+  <div class="flex items-end justify-between gap-6 mb-12">
+    <div class="reveal">
+      <div class="text-[11px] tracking-[0.4em] uppercase opacity-40 mb-6">[ 004 — Selected Work ]</div>
+      <h2 class="font-display font-semibold text-[42px] md:text-[72px] leading-[0.9] tracking-[-0.04em]">SELECTED<br><span class="text-gradient">REALITIES</span></h2>
+    </div>
+    <div class="reveal hidden md:flex items-center gap-2 text-[11px] tracking-widest uppercase opacity-40"><span>Scroll →</span><div class="w-12 h-px bg-white/30"></div></div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 md:gap-6 auto-rows-[360px] md:auto-rows-[520px]">
+    <!-- Project 1 large -->
+    <div class="reveal col-span-12 md:col-span-8 group relative rounded-[28px] overflow-hidden glass-strong">
+      <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)]">
+      <div class="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/20 to-transparent"></div>
+      <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-br from-cyan/20 to-violet/20 mix-blend-overlay"></div>
+      <div class="absolute top-6 left-6 flex gap-2">
+        <span class="glass rounded-full px-3 py-1 text-[10px] tracking-widest uppercase">AI / SaaS</span>
+        <span class="glass rounded-full px-3 py-1 text-[10px] tracking-widest uppercase">2025</span>
+      </div>
+      <div class="absolute bottom-0 inset-x-0 p-7 md:p-10">
+        <div class="flex items-end justify-between gap-6">
+          <div>
+            <h3 class="font-display text-[28px] md:text-[38px] font-semibold tracking-tight leading-[0.9]">NEBULA OS — The OS for knowledge workers</h3>
+            <p class="mt-3 max-w-[480px] text-[13px] leading-[1.6] opacity-70">Branded AI workspace, design system with 200 components, and fully shipped Next.js platform. 40k MAU in 90 days.</p>
+          </div>
+          <div class="hidden md:grid w-12 h-12 rounded-full bg-white text-midnight place-items-center group-hover:bg-cyan transition">↗</div>
+        </div>
+      </div>
+    </div>
+    <!-- Project 2 -->
+    <div class="reveal stagger-1 col-span-12 md:col-span-4 group relative rounded-[28px] overflow-hidden glass">
+      <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1.2s]">
+      <div class="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/40 to-transparent"></div>
+      <div class="absolute top-6 left-6 glass rounded-full px-3 py-1 text-[10px] tracking-widest uppercase">Fintech</div>
+      <div class="absolute bottom-0 p-7">
+        <h3 class="font-display text-[22px] font-semibold leading-[0.95]">ARC — Wealth ritual app</h3>
+        <p class="mt-2 text-[12px] opacity-60">iOS + Brand. Featured on App Store.</p>
+      </div>
+    </div>
+    <!-- Project 3 -->
+    <div class="reveal col-span-12 md:col-span-4 group relative rounded-[28px] overflow-hidden glass">
+      <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1.2s]">
+      <div class="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/40 to-transparent"></div>
+      <div class="absolute top-6 left-6 glass rounded-full px-3 py-1 text-[10px] tracking-widest uppercase">Commerce</div>
+      <div class="absolute bottom-0 p-7">
+        <h3 class="font-display text-[22px] font-semibold leading-[0.95]">MONO — Headless commerce kit</h3>
+        <p class="mt-2 text-[12px] opacity-60">$12M GMV in first drop.</p>
+      </div>
+    </div>
+    <div class="reveal stagger-1 col-span-12 md:col-span-8 group relative rounded-[28px] overflow-hidden glass-strong md:row-span-1">
+      <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1.2s]">
+      <div class="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/30 to-transparent"></div>
+      <div class="absolute top-6 left-6 flex gap-2">
+        <span class="glass rounded-full px-3 py-1 text-[10px] tracking-widest uppercase">AI Research</span>
+        <span class="glass rounded-full px-3 py-1 text-[10px] tracking-widest uppercase">Brand + Site</span>
+      </div>
+      <div class="absolute bottom-0 inset-x-0 p-7 md:p-10 flex items-end justify-between">
+        <div>
+          <h3 class="font-display text-[28px] md:text-[34px] font-semibold leading-[0.9] tracking-tight">PERPLEXITY LABS — Research portal</h3>
+          <div class="mt-3 flex gap-2"><span class="px-2.5 py-1 rounded-full bg-white/10 text-[10px]">WebGL</span><span class="px-2.5 py-1 rounded-full bg-white/10 text-[10px]">MDX</span><span class="px-2.5 py-1 rounded-full bg-white/10 text-[10px]">RAG</span></div>
+        </div>
+        <div class="hidden md:grid w-12 h-12 rounded-full bg-white text-midnight place-items-center">↗</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 flex justify-center">
+    <a href="#" class="glass rounded-full px-6 py-3 text-[12px] font-semibold tracking-[0.12em] hover:bg-white hover:text-midnight transition">VIEW ALL 47 PROJECTS →</a>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / PROCESS -->
+<section class="relative z-10 border-t border-white/10">
+  <div class="px-6 md:px-10 max-w-[1440px] mx-auto py-24 md:py-28 grid grid-cols-12 gap-10">
+    <div class="col-span-12 md:col-span-4 reveal">
+      <div class="text-[11px] tracking-[0.4em] uppercase opacity-40 mb-6">[ 005 — Process ]</div>
+      <h3 class="font-display font-semibold text-[30px] md:text-[36px] leading-[0.95] tracking-tight">How we<br>cook.</h3>
+      <div class="mt-8 space-y-4">
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full bg-white text-midnight grid place-items-center font-bold text-[11px]">1</div>
+          <div><div class="text-[13px] font-semibold">Immerse — 5 days</div><div class="text-[12px] opacity-50 mt-1 leading-[1.5]">Founder interviews, user shadowing, teardowns, metric autopsy.</div></div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full glass grid place-items-center font-bold text-[11px]">2</div>
+          <div><div class="text-[13px] font-semibold">Prototype — 10 days</div><div class="text-[12px] opacity-50 mt-1 leading-[1.5]">High-fidelity explorations in code, not Figma fantasies.</div></div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full glass grid place-items-center font-bold text-[11px]">3</div>
+          <div><div class="text-[13px] font-semibold">Systemize — 15 days</div><div class="text-[12px] opacity-50 mt-1 leading-[1.5]">Tokens, components, motion language, docs that devs love.</div></div>
+        </div>
+        <div class="flex gap-4">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan to-violet text-midnight grid place-items-center font-bold text-[11px]">4</div>
+          <div><div class="text-[13px] font-semibold">Ship — ∞</div><div class="text-[12px] opacity-50 mt-1 leading-[1.5]">We embed until metrics move. Then we ghost, beautifully.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Reviews -->
+        <div class="reveal glass-strong rounded-[24px] p-7">
+          <div class="flex items-center gap-1 text-cyan">★★★★★</div>
+          <p class="mt-4 font-display text-[16px] leading-[1.4] tracking-tight">"NOVA is the only agency that made our engineers say 'this is actually good code'."</p>
+          <div class="mt-6 flex items-center gap-3"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100" class="w-8 h-8 rounded-full object-cover"><div><div class="text-[12px] font-semibold">Alex Rivera</div><div class="text-[10px] opacity-50 uppercase tracking-widest">CTO, Linear</div></div></div>
+        </div>
+        <div class="reveal stagger-1 glass rounded-[24px] p-7">
+          <div class="flex items-center gap-1 text-violet">★★★★★</div>
+          <p class="mt-4 font-display text-[16px] leading-[1.4] tracking-tight">"They turned our 2010-looking dashboard into something Apple would ship."</p>
+          <div class="mt-6 flex items-center gap-3"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100" class="w-8 h-8 rounded-full object-cover"><div><div class="text-[12px] font-semibold">Sasha Kim</div><div class="text-[10px] opacity-50 uppercase tracking-widest">CEO, Arc</div></div></div>
+        </div>
+        <div class="reveal glass rounded-[24px] p-7 md:col-span-2 flex flex-col md:flex-row gap-6 items-start md:items-center">
+          <div class="flex-1">
+            <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-[10px] tracking-widest uppercase"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> NPS 94 — Last 12 months</div>
+            <p class="mt-4 font-display text-[20px] md:text-[24px] leading-[1.1] tracking-tight">We don't pitch. We audit your product live, for free, and show you where taste is leaking money. If we can't 10x it, we say no.</p>
+          </div>
+          <div class="md:w-[200px] w-full glass-strong rounded-[16px] p-4">
+            <div class="text-[10px] tracking-widest uppercase opacity-50">Avg. Outcome</div>
+            <div class="mt-2 font-display font-bold text-[30px] leading-none">+183%</div>
+            <div class="text-[11px] opacity-60">Activation rate</div>
+            <div class="mt-3 h-1 bg-white/10 rounded-full overflow-hidden"><div class="h-full w-[94%] bg-gradient-to-r from-cyan to-violet"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / FOOTER CTA -->
+<section id="contact" class="relative z-10 px-6 md:px-10 max-w-[1440px] mx-auto pb-10">
+  <div class="reveal glass-strong rounded-[32px] md:rounded-[40px] overflow-hidden relative">
+    <!-- glow -->
+    <div class="absolute -top-[40%] left-[30%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-20 pointer-events-none" style="background: radial-gradient(circle, #00f5ff, transparent)"></div>
+    <div class="absolute -bottom-[30%] right-[10%] w-[500px] h-[500px] rounded-full blur-[110px] opacity-20 pointer-events-none" style="background: radial-gradient(circle, #8b5cf6, transparent)"></div>
+
+    <div class="relative grid grid-cols-12 gap-0">
+      <div class="col-span-12 lg:col-span-7 p-8 md:p-14">
+        <div class="text-[11px] tracking-[0.4em] uppercase opacity-50 mb-6">[ 006 — Start ]</div>
+        <h2 class="font-display font-bold leading-[0.85] tracking-[-0.05em] text-[40px] md:text-[68px]">LET'S BUILD<br><span class="text-gradient">SOMETHING<br>ILLEGAL</span><br>TO IGNORE.</h2>
+        <p class="mt-6 max-w-[420px] text-[14px] leading-[1.7] opacity-60">Pod starts at $65k/mo for 8-16 weeks. We take 2 new clients per month. No RFPs, no pitch decks. Just a 45-min teardown.</p>
+
+        <form class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-[520px]">
+          <input placeholder="Your name" class="bg-[rgba(0,0,0,0.35)] border border-white/10 rounded-full px-5 py-3.5 text-[13px] outline-none focus:border-cyan/50 transition placeholder:opacity-40">
+          <input placeholder="Work email" class="bg-[rgba(0,0,0,0.35)] border border-white/10 rounded-full px-5 py-3.5 text-[13px] outline-none focus:border-cyan/50 transition placeholder:opacity-40">
+          <input placeholder="Company / idea in one line" class="md:col-span-2 bg-[rgba(0,0,0,0.35)] border border-white/10 rounded-full px-5 py-3.5 text-[13px] outline-none focus:border-cyan/50 transition placeholder:opacity-40">
+          <textarea placeholder="What’s broken or missing?" rows="3" class="md:col-span-2 bg-[rgba(0,0,0,0.35)] border border-white/10 rounded-[18px] px-5 py-4 text-[13px] outline-none focus:border-cyan/50 transition placeholder:opacity-40 resize-none"></textarea>
+          <button type="button" class="md:col-span-2 mt-2 bg-white text-midnight rounded-full py-4 text-[12px] font-bold tracking-[0.14em] hover:bg-cyan transition">REQUEST TEARDOWN →</button>
+          <div class="md:col-span-2 mt-3 flex items-center gap-2 text-[10px] tracking-widest uppercase opacity-40"><span class="w-3 h-3 rounded-full border border-white/20 grid place-items-center">✓</span> Replies in < 24h • NDA by default</div>
+        </form>
+      </div>
+      <div class="col-span-12 lg:col-span-5 border-t lg:border-t-0 lg:border-l border-white/10 bg-[rgba(0,0,0,0.25)] p-8 md:p-10 flex flex-col">
+        <div class="flex-1">
+          <div class="glass rounded-[18px] p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] tracking-[0.2em] uppercase opacity-60">Current pod availability</span>
+              <span class="text-[11px] px-2 py-1 rounded-full bg-emerald-400/20 text-emerald-300">2 spots left</span>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-3">
+              <div class="bg-white/5 rounded-[12px] p-3"><div class="text-[10px] uppercase opacity-50">Feb 2026</div><div class="mt-1 font-display font-bold">FULL</div><div class="mt-2 h-1 bg-white/10 rounded-full"><div class="h-full w-full bg-white/30"></div></div></div>
+              <div class="bg-white/5 rounded-[12px] p-3 border border-cyan/30"><div class="text-[10px] uppercase opacity-50">Mar 2026</div><div class="mt-1 font-display font-bold text-cyan">OPEN</div><div class="mt-2 h-1 bg-white/10 rounded-full"><div class="h-full w-[40%] bg-cyan"></div></div></div>
+            </div>
+            <div class="mt-4 text-[11px] leading-[1.5] opacity-50">San Francisco → Remote-first. We fly to you for kickoff if Series A+.</div>
+          </div>
+
+          <div class="mt-8">
+            <div class="text-[11px] tracking-[0.3em] uppercase opacity-40 mb-4">HQ / Signal</div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between py-3 border-b border-white/10"><span class="text-[13px] opacity-70">Email</span><span class="text-[13px] font-medium">studio@nova.atelier</span></div>
+              <div class="flex items-center justify-between py-3 border-b border-white/10"><span class="text-[13px] opacity-70">Telegram</span><span class="text-[13px] font-medium">@nova_studio</span></div>
+              <div class="flex items-center justify-between py-3"><span class="text-[13px] opacity-70">Read our memo</span><span class="w-7 h-7 rounded-full bg-white text-midnight grid place-items-center">↗</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 glass rounded-[14px] p-4 flex gap-3 items-center">
+          <div class="w-10 h-10 rounded-full chrome-bubble grid place-items-center font-bold text-midnight">N</div>
+          <div class="text-[11px] leading-[1.4]"><span class="font-bold">NOVA Atelier Digital Inc.</span><br><span class="opacity-50">2261 Market St #4320<br>San Francisco, CA 94114</span></div>
+          <div class="ml-auto text-[10px] opacity-30">©2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER BOTTOM -->
+  <div class="mt-14 border-t border-white/10 pt-8 flex flex-wrap gap-6 justify-between items-center text-[11px] tracking-[0.15em] uppercase opacity-40">
+    <div class="flex gap-6"><span>Privacy — Brutal</span><span>Cookies — Only tasty ones</span><span>Careers — 1 Role Open</span></div>
+    <div class="flex items-center gap-3">
+      <span>Built with chromatic aberration + taste.</span>
+      <span class="w-px h-4 bg-white/20"></span>
+      <span class="font-display font-bold tracking-tight text-white">NOVA — ®</span>
+    </div>
+  </div>
+
+  <!-- Huge footer type -->
+  <div class="mt-12 overflow-hidden select-none pointer-events-none">
+    <div class="font-display font-[800] text-[18vw] leading-[0.8] tracking-[-0.06em] opacity-[0.05] whitespace-nowrap">NOVA — NOVA — NOVA — NOVA</div>
+  </div>
+</section>
+
+<div style="height:1px"></div>
+
+<script>
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn?.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+  // Cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  const trailContainer = document.getElementById('cursorTrail');
+  let mouseX = -100, mouseY = -100, ringX = -100, ringY = -100;
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+  if(!isTouch){
+    // create trail dots
+    const trails = [];
+    for(let i=0;i<8;i++){
+      const d = document.createElement('div');
+      d.className = 'cursor-el';
+      d.style.width = (4 + i*1.2)+'px';
+      d.style.height = (4 + i*1.2)+'px';
+      d.style.background = i%2===0 ? '#00f5ff' : '#8b5cf6';
+      d.style.borderRadius='50%';
+      d.style.opacity = (0.35 - i*0.03).toString();
+      d.style.transform='translate(-50%,-50%)';
+      trailContainer.appendChild(d);
+      trails.push({el:d, x:-100, y:-100});
+    }
+
+    document.addEventListener('mousemove', (e)=>{
+      mouseX=e.clientX; mouseY=e.clientY;
+      dot.style.left=mouseX+'px'; dot.style.top=mouseY+'px';
+    });
+
+    const lerp=(a,b,n)=> (1-n)*a + n*b;
+
+    (function animate(){
+      ringX = lerp(ringX, mouseX, 0.14);
+      ringY = lerp(ringY, mouseY, 0.14);
+      ring.style.left=ringX+'px'; ring.style.top=ringY+'px';
+
+      trails.forEach((t, idx)=>{
+        const lag = 0.18 - idx*0.016;
+        t.x = lerp(t.x, mouseX, lag);
+        t.y = lerp(t.y, mouseY, lag);
+        t.el.style.left = t.x+'px';
+        t.el.style.top = t.y+'px';
+      });
+      requestAnimationFrame(animate);
+    })();
+
+    // hover states
+    document.querySelectorAll('a, button, .group').forEach(el=>{
+      el.addEventListener('mouseenter',()=> ring.classList.add('hover'));
+      el.addEventListener('mouseleave',()=> ring.classList.remove('hover'));
+    });
+  }
+
+  // Magnetic buttons
+  document.querySelectorAll('.magnetic').forEach(btn=>{
+    btn.addEventListener('mousemove', (e)=>{
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width/2;
+      const y = e.clientY - rect.top - rect.height/2;
+      btn.style.transform = `translate(${x*0.22}px, ${y*0.35}px)`;
+    });
+    btn.addEventListener('mouseleave', ()=> btn.style.transform='translate(0,0)');
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('active');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=> observer.observe(el));
+
+  // Parallax for bubbles (simple)
+  let ticking=false;
+  document.addEventListener('scroll', ()=>{
+    if(ticking) return;
+    ticking=true;
+    requestAnimationFrame(()=>{
+      const sc = window.scrollY;
+      document.querySelectorAll('.chrome-bubble').forEach((b, i)=>{
+        const speed = 0.04 + i*0.015;
+        b.style.transform = `translateY(${sc*speed*0.2}px) rotate(${sc*0.01 + i*10}deg)`;
+      });
+      ticking=false;
+    });
+  });
+
+  // Form mock submit
+  document.querySelector('form button')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const btn = e.currentTarget;
+    btn.textContent='REQUEST SENT — CHECK EMAIL ↗';
+    btn.classList.add('bg-cyan');
+    setTimeout(()=>{ btn.textContent='REQUEST TEARDOWN →'; btn.classList.remove('bg-cyan'); }, 3000);
+  });
+</script>
+
+</body>
+</html>

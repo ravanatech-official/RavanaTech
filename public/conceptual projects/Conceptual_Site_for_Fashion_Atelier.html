@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Fashion Atelier</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ivory: '#fdfbf7',
+        ink: '#0a0a0a',
+        pin: '#e30613',
+        stone: '#e8e3de',
+        paper: '#f6f2ec'
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'serif'],
+        instrument: ['Instrument Serif', 'serif'],
+        sans: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  body { background:#fdfbf7; color:#0a0a0a; overflow-x:hidden; }
+  .hairline { border-color: rgba(10,10,10,0.08); }
+  .text-vertical { writing-mode: vertical-rl; transform: rotate(180deg); }
+  .instrument-italic { font-family:'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+  .pattern-grid {
+    background-image: 
+      linear-gradient(rgba(10,10,10,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.06) 1px, transparent 1px),
+      linear-gradient(rgba(227,6,19,0.08) 1px, transparent 1px);
+    background-size: 80px 80px, 80px 80px, 20px 20px;
+  }
+  .pattern-grid-dense {
+    background-image: 
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px);
+    background-size: 24px 24px, 24px 24px;
+  }
+  .cursor { position: fixed; width:20px; height:20px; border:0.5px solid #0a0a0a; border-radius:50%; pointer-events:none; z-index:99999; mix-blend-mode: difference; transition: transform 0.2s ease, width 0.3s, height 0.3s, background 0.3s; display:flex; align-items:center; justify-content:center; }
+  .cursor.fancy { width:80px; height:80px; background:#fdfbf7; mix-blend-mode: normal; border-color:#0a0a0a; }
+  .cursor-dot { position:fixed; width:4px; height:4px; background:#e30613; border-radius:50%; pointer-events:none; z-index:99999; }
+  .reveal { opacity:0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.active { opacity:1; transform: translateY(0); }
+  .img-reveal { position:relative; overflow:hidden; }
+  .img-reveal::after { content:''; position:absolute; inset:0; background:#fdfbf7; transform: translateX(0); transition: transform 1.4s cubic-bezier(0.77,0,0.175,1); z-index:2; }
+  .img-reveal.active::after { transform: translateX(101%); }
+  @keyframes marquee { 0% { transform: translateX(0);} 100% { transform: translateX(-50%);} }
+  .marquee-track { animation: marquee 40s linear infinite; }
+  .magnetic { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+  .needle-line { stroke-dasharray: 800; stroke-dashoffset: 800; transition: stroke-dashoffset 2s ease; }
+  .needle-line.draw { stroke-dashoffset: 0; }
+  ::-webkit-scrollbar { display:none; }
+  ::selection { background:#e30613; color:#fdfbf7; }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<div id="cursor" class="cursor hidden lg:flex"><span class="text-[9px] tracking-[0.2em] font-sans opacity-0" id="cursor-label">VIEW</span></div>
+<div id="cursor-dot" class="cursor-dot hidden lg:block"></div>
+
+<div class="fixed top-0 left-0 w-full h-[1px] z-[100] bg-transparent"><div id="progress" class="h-full bg-pin origin-left scale-x-0 transition-transform duration-150"></div></div>
+
+<nav id="nav" class="fixed top-0 left-0 w-full z-50 border-b hairline border-ink/5 backdrop-blur-xl bg-ivory/80 transition-all duration-700">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 h-[72px] md:h-[84px] flex items-center justify-between">
+    <div class="flex items-center gap-12">
+      <a href="#" class="group flex items-center gap-3">
+        <span class="w-1.5 h-1.5 bg-pin rounded-full group-hover:scale-[3] transition-transform duration-500"></span>
+        <span class="font-serif text-[15px] md:text-[16px] tracking-[0.28em] uppercase">Atelier</span>
+        <span class="font-instrument text-[11px] tracking-[0.2em] mt-[1px] opacity-60">— PARIS VIII</span>
+      </a>
+      <div class="hidden lg:flex items-center gap-8 text-[10px] tracking-[0.22em] uppercase font-sans">
+        <span class="w-6 h-[0.5px] bg-ink/20"></span>
+        <span class="opacity-50">Est. 1974 — Rue du Faubourg</span>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-10">
+      <div class="flex items-center gap-8 text-[10px] tracking-[0.24em] uppercase">
+        <a href="#atelier" class="hover:text-pin transition-colors relative group">Atelier <span class="absolute -bottom-1 left-0 w-0 h-[0.5px] bg-pin group-hover:w-full transition-all duration-500"></span></a>
+        <a href="#couture" class="hover:text-pin transition-colors relative group">Couture <span class="absolute -bottom-1 left-0 w-0 h-[0.5px] bg-pin group-hover:w-full transition-all duration-500"></span></a>
+        <a href="#journal" class="hover:text-pin transition-colors relative group">Journal <span class="absolute -bottom-1 left-0 w-0 h-[0.5px] bg-pin group-hover:w-full transition-all duration-500"></span></a>
+      </div>
+      <button id="menu-trigger" class="magnetic flex items-center gap-3 pl-5 border-l border-ink/10 group">
+        <span class="text-[10px] tracking-[0.24em] uppercase">Menu</span>
+        <span class="w-8 h-8 border border-ink/15 rounded-full flex items-center justify-center group-hover:border-pin group-hover:bg-pin group-hover:text-ivory transition-all duration-500">
+          <span class="w-3 h-[1px] bg-current block relative before:content-[''] before:absolute before:top-[-4px] before:left-0 before:w-3 before:h-[1px] before:bg-current after:content-[''] after:absolute after:top-[4px] after:left-0 after:w-3 after:h-[1px] after:bg-current"></span>
+        </span>
+      </button>
+    </div>
+    <button id="mobile-menu-trigger" class="md:hidden w-10 h-10 border border-ink/10 rounded-full flex items-center justify-center">
+      <span class="w-4 h-[1px] bg-ink block relative before:content-[''] before:absolute before:top-[-5px] before:left-0 before:w-4 before:h-[1px] before:bg-ink after:content-[''] after:absolute after:top-[5px] after:left-0 after:w-4 after:h-[1px] after:bg-ink"></span>
+    </button>
+  </div>
+</nav>
+
+<div id="menu-overlay" class="fixed inset-0 z-[60] bg-ink text-ivory translate-y-[-100%] transition-transform duration-[1.2s] cubic-bezier(0.77,0,0.175,1) flex flex-col">
+  <div class="flex-1 flex">
+    <div class="hidden lg:block w-[38%] relative pattern-grid-dense border-r border-ivory/10">
+      <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity" alt="">
+      <div class="absolute inset-0 bg-ink/60"></div>
+      <div class="relative h-full flex flex-col justify-end p-14">
+        <p class="font-instrument text-[32px] leading-[1.1] max-w-[22ch]">Chaque robe commence par un geste de la main, un trait de craie.</p>
+        <p class="mt-6 text-[10px] tracking-[0.2em] uppercase opacity-60">Atelier notes — Winter 2026</p>
+      </div>
+    </div>
+    <div class="flex-1 flex flex-col">
+      <div class="h-[84px] flex items-center justify-between px-6 md:px-14 border-b border-ivory/10">
+        <span class="font-serif tracking-[0.28em] text-[15px]">ATELIER</span>
+        <button id="menu-close" class="w-12 h-12 border border-ivory/20 rounded-full flex items-center justify-center hover:bg-ivory hover:text-ink transition-all duration-500 group"><span class="text-[14px] rotate-45 group-hover:rotate-90 transition-transform duration-500">+</span></button>
+      </div>
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-2">
+        <div class="p-6 md:p-14 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-ivory/10">
+          <div class="space-y-1">
+            <a href="#atelier" class="menu-link block font-serif font-light text-[56px] md:text-[88px] leading-[0.9] tracking-[-0.02em] hover:text-pin transition-colors duration-500">Atelier <span class="font-instrument text-[28px] md:text-[40px] align-super">(01)</span></a>
+            <a href="#couture" class="menu-link block font-serif font-light text-[56px] md:text-[88px] leading-[0.9] tracking-[-0.02em] hover:text-pin transition-colors duration-500">Couture <span class="font-instrument text-[28px] md:text-[40px] align-super">(02)</span></a>
+            <a href="#journal" class="menu-link block font-serif font-light text-[56px] md:text-[88px] leading-[0.9] tracking-[-0.02em] hover:text-pin transition-colors duration-500">Journal <span class="font-instrument text-[28px] md:text-[40px] align-super">(03)</span></a>
+            <a href="#contact" class="menu-link block font-serif font-light text-[56px] md:text-[88px] leading-[0.9] tracking-[-0.02em] hover:text-pin transition-colors duration-500">Rendez-vous <span class="font-instrument text-[28px] md:text-[40px] align-super">(04)</span></a>
+          </div>
+          <div class="mt-16 flex gap-10 text-[10px] tracking-[0.2em] uppercase opacity-60"><a href="#">Instagram</a><a href="#">Journal</a><a href="#">Archives</a></div>
+        </div>
+        <div class="p-6 md:p-14 flex flex-col justify-between bg-ivory text-ink">
+          <div><p class="text-[10px] tracking-[0.24em] uppercase opacity-50">Address</p><p class="font-serif text-[18px] mt-3 leading-[1.4]">22 Rue du Faubourg<br>Saint-Honoré<br>75008 Paris</p></div>
+          <div class="mt-12">
+            <p class="text-[10px] tracking-[0.24em] uppercase opacity-50">Open for fittings</p>
+            <p class="font-instrument text-[24px] mt-3">Lundi — Vendredi<br>10h — 19h sur rendez-vous</p>
+            <button class="mt-8 group flex items-center gap-4 text-[10px] tracking-[0.24em] uppercase border border-ink/15 rounded-full pl-6 pr-1 py-1 hover:bg-ink hover:text-ivory transition-all">Prendre rendez-vous<span class="w-8 h-8 bg-ink text-ivory group-hover:bg-pin rounded-full flex items-center justify-center transition-colors">→</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="h-10 border-t border-ivory/10 flex items-center overflow-hidden"><div class="marquee-track flex shrink-0"><span class="flex items-center gap-8 px-8 text-[10px] tracking-[0.3em] uppercase whitespace-nowrap"><span>Haute Couture</span><span class="w-1 h-1 bg-pin rounded-full"></span><span>Sur Mesure</span><span class="w-1 h-1 bg-ivory/40 rounded-full"></span><span>Toile & Draping</span><span class="w-1 h-1 bg-pin rounded-full"></span><span>Paris VIII</span><span class="w-1 h-1 bg-ivory/40 rounded-full"></span><span>Est. 1974</span><span class="w-1 h-1 bg-pin rounded-full"></span><span>Haute Couture</span><span class="w-1 h-1 bg-pin rounded-full"></span><span>Sur Mesure</span><span class="w-1 h-1 bg-ivory/40 rounded-full"></span><span>Toile & Draping</span><span class="w-1 h-1 bg-pin rounded-full"></span><span>Paris VIII</span><span class="w-1 h-1 bg-ivory/40 rounded-full"></span><span>Est. 1974</span><span class="w-1 h-1 bg-pin rounded-full"></span></span></div></div>
+</div>
+
+<!-- HERO -->
+<section class="relative pt-[84px] min-h-[92vh] flex flex-col overflow-hidden">
+  <div class="border-b hairline">
+    <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 h-[44px] flex items-center justify-between text-[9px] tracking-[0.22em] uppercase font-sans">
+      <div class="flex items-center gap-6">
+        <span class="hidden md:flex items-center gap-2"><span class="w-2 h-2 border border-pin rounded-full flex items-center justify-center"><span class="w-1 h-1 bg-pin rounded-full animate-ping"></span></span>Atelier Ouvert</span>
+        <span class="md:hidden opacity-50">Nº 001 / 2026</span>
+        <span class="hidden md:block opacity-30">—</span>
+        <span class="opacity-50">Collection Toile — Process & Form</span>
+      </div>
+      <div class="flex items-center gap-6 opacity-60"><span>48°52′12″N 2°19′12″E</span><span class="hidden md:block w-8 h-[0.5px] bg-ink/20"></span><span class="hidden md:block">Scroll to explore —</span></div>
+    </div>
+  </div>
+  <div class="flex-1 max-w-[1600px] mx-auto w-full px-6 md:px-10 lg:px-14 grid grid-cols-12 gap-0 relative">
+    <div class="hidden lg:flex col-span-1 border-r hairline relative">
+      <div class="sticky top-[120px] flex flex-col items-center gap-8 py-12">
+        <p class="text-vertical font-serif text-[10px] tracking-[0.4em] uppercase opacity-40">Haute Couture Mémoire</p>
+        <span class="w-[0.5px] h-20 bg-ink/10"></span>
+        <p class="text-vertical font-instrument text-[15px] opacity-60">Le vêtement est mémoire</p>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-11 grid grid-cols-12">
+      <div class="col-span-12 lg:col-span-7 py-10 md:py-16 lg:py-20 pr-0 lg:pr-10 border-b lg:border-b-0 lg:border-r hairline">
+        <div class="reveal"><p class="inline-flex items-center gap-3 text-[10px] tracking-[0.28em] uppercase border border-ink/10 rounded-full px-4 py-2"><span class="w-1.5 h-1.5 bg-pin rounded-full"></span>Atelier de Couture — Paris</p></div>
+        <h1 class="reveal mt-8 md:mt-12 font-serif font-light leading-[0.86] tracking-[-0.03em] text-[46px] md:text-[78px] lg:text-[92px] xl:text-[108px]">
+          <span class="block">La robe est</span>
+          <span class="block instrument-italic font-normal ml-[0.18em] mt-[-0.06em] text-[48px] md:text-[82px] lg:text-[96px] xl:text-[116px] tracking-[-0.02em]">une</span>
+          <span class="block mt-[-0.1em] flex items-baseline gap-4">architecture<span class="hidden md:inline-flex w-10 h-10 border border-ink/15 rounded-full items-center justify-center text-[12px]">↗</span></span>
+        </h1>
+        <div class="reveal mt-10 md:mt-14 flex flex-col md:flex-row gap-8 md:gap-12">
+          <div class="max-w-[38ch]">
+            <p class="font-serif text-[17px] md:text-[19px] leading-[1.45]">Nous ne dessinons pas des vêtements. Nous construisons un espace autour du corps — avec épingles, craie, et muslin.</p>
+            <p class="font-instrument text-[15px] mt-4 opacity-60 leading-[1.5]">Chaque toile est détruite pour que la forme survive. Le patron est mémoire du geste.</p>
+          </div>
+          <div class="md:ml-auto flex gap-6">
+            <div class="text-[10px] tracking-[0.2em] uppercase"><p class="opacity-40">Toiles cette année</p><p class="font-serif text-[32px] leading-none mt-2">247</p></div>
+            <div class="w-[0.5px] bg-ink/10"></div>
+            <div class="text-[10px] tracking-[0.2em] uppercase"><p class="opacity-40">Heures / robe</p><p class="font-serif text-[32px] leading-none mt-2">180<span class="instrument-italic text-[18px]">h</span></p></div>
+          </div>
+        </div>
+        <div class="reveal mt-12 flex items-center gap-4">
+          <a href="#couture" class="magnetic group relative bg-ink text-ivory rounded-full pl-8 pr-2 py-2 flex items-center gap-6 text-[11px] tracking-[0.22em] uppercase overflow-hidden"><span class="relative z-10">Explorer l'atelier</span><span class="relative z-10 w-9 h-9 bg-pin rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">→</span><span class="absolute inset-0 bg-pin translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-[cubic-bezier(0.77,0,0.175,1)]"></span></a>
+          <span class="hidden md:flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase opacity-50 ml-2"><span class="w-6 h-[0.5px] bg-ink/30"></span> Draping session — Book</span>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-5 relative lg:h-auto min-h-[640px] lg:min-h-0">
+        <div class="absolute inset-0 pattern-grid opacity-[0.35] hidden lg:block"></div>
+        <div class="relative h-full grid grid-rows-[1.2fr_0.8fr] lg:grid-rows-[1fr_0.9fr] gap-2 md:gap-3 p-2 md:p-3">
+          <div class="img-reveal relative overflow-hidden rounded-[2px]">
+            <img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=1200&auto=format&fit=crop" alt="Atelier draping" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/20 via-transparent to-transparent"></div>
+            <div class="absolute top-6 left-6 flex items-center gap-2 bg-ivory/90 backdrop-blur px-3 py-1.5 rounded-full text-[9px] tracking-[0.2em] uppercase"><span class="w-1 h-1 bg-pin rounded-full"></span> Fitting Nº 14 — Muslin</div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 flex justify-between items-end text-ivory"><div><p class="font-instrument text-[18px] leading-none">Épinglage à main</p><p class="text-[9px] tracking-[0.2em] uppercase mt-1 opacity-80">Needle & red thread detail — Paris</p></div><span class="w-8 h-8 border border-ivory/30 rounded-full flex items-center justify-center text-[12px]">+</span></div>
+          </div>
+          <div class="grid grid-cols-[1.1fr_0.9fr] gap-2 md:gap-3">
+            <div class="img-reveal relative overflow-hidden bg-paper">
+              <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop" alt="Pattern cutting table" class="absolute inset-0 w-full h-full object-cover">
+              <div class="absolute inset-0 flex flex-col justify-between p-4"><div class="flex justify-between text-[8px] tracking-[0.2em] uppercase"><span class="bg-ink text-ivory px-2 py-1">PATRON — 001</span><span class="bg-pin text-ivory w-5 h-5 flex items-center justify-center rounded-full">✦</span></div><div class="bg-ivory/90 backdrop-blur p-2.5"><p class="font-serif text-[13px] leading-[1.2]">Table de coupe<br><span class="instrument-italic">craie & mesure</span></p></div></div>
+            </div>
+            <div class="relative overflow-hidden bg-ink text-ivory p-5 md:p-6 flex flex-col justify-between">
+              <div class="pattern-grid-dense absolute inset-0 opacity-10"></div>
+              <div class="relative"><p class="text-[9px] tracking-[0.3em] uppercase opacity-40">Matière du jour</p><p class="font-serif text-[21px] leading-[1.1] mt-4">Mousseline de soie<br><span class="instrument-italic opacity-80">teinte ivoire brut</span></p></div>
+              <div class="relative mt-8"><div class="flex gap-1"><span class="w-6 h-6 rounded-full bg-ivory"></span><span class="w-6 h-6 rounded-full bg-stone border border-ivory/20"></span><span class="w-6 h-6 rounded-full bg-pin"></span></div><p class="text-[9px] tracking-[0.2em] uppercase mt-3 opacity-50">Disponible sur commande<br>Édition limitée — 12m</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="border-t hairline h-[44px] flex items-center overflow-hidden"><div class="marquee-track flex shrink-0 will-change-transform"><div class="flex items-center gap-10 px-6 text-[10px] tracking-[0.26em] uppercase whitespace-nowrap"><span class="flex items-center gap-3"><span class="font-instrument text-[13px] normal-case tracking-normal">toile de coton brut</span><span class="opacity-30">—</span> Draping à la main</span><span class="w-3 h-[0.5px] bg-ink/20"></span><span class="flex items-center gap-3">Patron coupé <span class="w-1 h-1 bg-pin rounded-full"></span> Couture invisible</span><span class="w-3 h-[0.5px] bg-ink/20"></span><span class="flex items-center gap-3"><span class="font-serif text-[12px] tracking-[0.1em]">AIGUILLE & FIL ROUGE</span><span class="opacity-30">—</span> Atelier Paris</span><span class="w-3 h-[0.5px] bg-ink/20"></span><span class="flex items-center gap-3">48 pièces uniques / an</span><span class="w-8"></span><span class="flex items-center gap-3"><span class="font-instrument text-[13px] normal-case tracking-normal">toile de coton brut</span><span class="opacity-30">—</span> Draping à la main</span><span class="w-3 h-[0.5px] bg-ink/20"></span><span class="flex items-center gap-3">Patron coupé <span class="w-1 h-1 bg-pin rounded-full"></span> Couture invisible</span></div></div></div>
+</section>
+
+<!-- ATELIER PROCESS -->
+<section id="atelier" class="relative border-t hairline">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="grid grid-cols-12 gap-0">
+      <div class="col-span-12 lg:col-span-4 py-14 md:py-24 lg:pr-12 border-b lg:border-b-0 lg:border-r hairline">
+        <div class="lg:sticky lg:top-[120px]">
+          <p class="text-[10px] tracking-[0.3em] uppercase flex items-center gap-3"><span class="w-6 h-[0.5px] bg-pin"></span> Atelier Process — 01/03</p>
+          <h2 class="font-serif font-light text-[42px] md:text-[56px] leading-[0.92] tracking-[-0.02em] mt-6">On commence<br>toujours par<br><span class="instrument-italic">la toile.</span></h2>
+          <div class="mt-10 space-y-8 max-w-[34ch]">
+            <p class="font-serif text-[16px] leading-[1.6]">Une toile n'est pas un prototype. C'est une conversation. On épingle, on coupe, on regarde tomber le tissu.</p>
+            <p class="font-sans text-[13px] leading-[1.7] opacity-60">Le coton brut — 180g, légèrement amidonné — garde la mémoire du geste. Chaque ligne de craie est une décision qui restera dans la robe finale. Pas de dessin. Seulement la main, le corps, le volume.</p>
+          </div>
+          <div class="mt-12 border-t hairline pt-8 grid grid-cols-2 gap-6">
+            <div><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Temps de toile</p><p class="font-serif text-[22px] mt-2">3 — 5 jours</p></div>
+            <div><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Fittings</p><p class="font-serif text-[22px] mt-2">4 — 7 fois</p></div>
+          </div>
+          <div class="mt-12 hidden lg:block">
+            <svg width="200" height="60" viewBox="0 0 200 60" class="overflow-visible"><path class="needle-line" d="M2,30 C40,10 60,50 100,30 C140,10 160,50 198,30" fill="none" stroke="#e30613" stroke-width="0.6" stroke-dasharray="4 6"/><circle cx="4" cy="28" r="6" fill="none" stroke="#0a0a0a" stroke-width="0.5"/><circle cx="4" cy="28" r="1.5" fill="#e30613"/></svg>
+            <p class="text-[9px] tracking-[0.2em] uppercase mt-2 opacity-40">Fil rouge — Repère couturière</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-8 lg:pl-12 py-10 md:py-16">
+        <div class="reveal grid md:grid-cols-[1.2fr_0.8fr] gap-6 md:gap-10 border-b hairline pb-10 md:pb-14">
+          <div class="img-reveal aspect-[4/3] overflow-hidden bg-paper"><img src="https://images.unsplash.com/photo-1516762689617-e1cffcef479d?q=80&w=1200&auto=format&fit=crop" alt="Muslin toile on mannequin" class="w-full h-full object-cover"><div class="absolute top-4 left-4 z-10 bg-ink text-ivory text-[9px] tracking-[0.2em] uppercase px-3 py-1.5 rounded-full">ÉTAPE — 01 / TOILE BRUTE</div></div>
+          <div class="flex flex-col justify-center"><p class="font-instrument text-[26px] leading-[1.15]">On drape directement sur le buste. Pas de patron plat.</p><p class="text-[13px] leading-[1.6] opacity-60 mt-4">Le mannequin est légèrement plus petit que vous. La toile prend la forme au fer et à l'épingle. On photographie à chaque étape.</p><div class="mt-6 flex items-center gap-3"><span class="w-8 h-[0.5px] bg-ink/20"></span><span class="text-[9px] tracking-[0.2em] uppercase">Chalk — Craie japonaise</span></div></div>
+        </div>
+        <div class="reveal grid md:grid-cols-[0.9fr_1.1fr] gap-6 md:gap-10 py-10 md:py-14 border-b hairline">
+          <div class="flex flex-col justify-center order-2 md:order-1"><p class="font-serif text-[12px] tracking-[0.26em] uppercase opacity-40">— Marquage</p><p class="font-serif text-[28px] leading-[1.1] mt-3">La coupe est<br>un dessin en<br><span class="instrument-italic">négatif.</span></p><ul class="mt-6 space-y-3 text-[12px] leading-[1.5]"><li class="flex gap-3"><span class="text-pin">—</span> Lignes de grain tracées à la règle courbe</li><li class="flex gap-3"><span class="text-pin">—</span> Repères d'aisance : +1,2cm / côté</li><li class="flex gap-3"><span class="text-pin">—</span> Crantage à 0,7cm pour le montage</li></ul></div>
+          <div class="img-reveal aspect-[4/3] overflow-hidden order-1 md:order-2"><img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop" alt="Pattern table" class="w-full h-full object-cover"><div class="absolute inset-0 pattern-grid-dense opacity-30 mix-blend-multiply pointer-events-none"></div></div>
+        </div>
+        <div class="reveal grid grid-cols-12 gap-6 md:gap-10 pt-10 md:pt-14">
+          <div class="col-span-12 md:col-span-5">
+            <div class="border border-ink/10 p-5 md:p-7 bg-ivory"><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Carnet d'atelier — 14.11.2025</p><p class="font-instrument text-[19px] leading-[1.3] mt-4">"La cliente voulait que la robe bouge sans bouger elle. On a donc laissé 12cm de flottement au dos."</p><div class="mt-6 pt-6 border-t border-ink/10 flex items-center gap-3"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop" class="w-7 h-7 rounded-full object-cover" alt=""><div><p class="text-[10px] tracking-[0.2em] uppercase">C. Moreau</p><p class="text-[10px] opacity-50 -mt-1">Première d'atelier</p></div></div></div>
+            <div class="mt-4 grid grid-cols-2 gap-4">
+              <div class="aspect-square bg-paper p-4 flex flex-col justify-between border border-ink/5"><p class="text-[9px] tracking-[0.2em] uppercase opacity-50">Épingles</p><p class="font-serif text-[34px] leading-none">120<span class="instrument-italic text-[20px] opacity-60">+</span></p><p class="text-[10px] opacity-60">par toile moyenne</p></div>
+              <div class="aspect-square bg-ink text-ivory p-4 flex flex-col justify-between"><p class="text-[9px] tracking-[0.2em] uppercase opacity-40">Mood</p><p class="font-instrument text-[18px] leading-[1.2]">Silence,<br>ciseaux,<br>vapeur.</p><span class="w-6 h-6 rounded-full bg-pin flex items-center justify-center text-[10px]">♪</span></div>
+            </div>
+          </div>
+          <div class="col-span-12 md:col-span-7"><div class="img-reveal aspect-[3/4] overflow-hidden"><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=800&auto=format&fit=crop" alt="Draping closeup" class="w-full h-full object-cover"></div><div class="mt-4 flex justify-between items-center text-[9px] tracking-[0.22em] uppercase opacity-50"><span>© Atelier archive — Draping session, Octobre</span><span>Fig. 03 / Flou</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COUTURE -->
+<section id="couture" class="relative bg-ink text-ivory border-t border-ivory/10">
+  <div class="absolute inset-0 pattern-grid-dense opacity-[0.04]"></div>
+  <div class="relative max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 py-20 md:py-32">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-ivory/10 pb-10 md:pb-16">
+      <div><p class="text-[10px] tracking-[0.3em] uppercase opacity-50 flex items-center gap-3"><span class="w-8 h-[0.5px] bg-pin"></span> Services — 02 / Sur-mesure</p><h2 class="font-serif font-light text-[48px] md:text-[72px] lg:text-[84px] leading-[0.9] tracking-[-0.02em] mt-6">Ce que nous<br><span class="instrument-italic opacity-80">ne faisons pas</span><br>en série.</h2></div>
+      <div class="md:text-right max-w-[32ch]"><p class="font-serif text-[17px] leading-[1.5] opacity-80">Quatre robes par mois. Pas une de plus. Le reste est refusé — ou transmis à nos anciennes apprenties.</p><p class="text-[10px] tracking-[0.2em] uppercase opacity-40 mt-6">Prix à partir de 3 800€ — fitting inclus</p></div>
+    </div>
+    <div class="grid grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-ivory/10 border-b border-ivory/10">
+      <div class="reveal group col-span-12 md:col-span-6 lg:col-span-3 py-10 md:py-14 lg:px-8 hover:bg-ivory hover:text-ink transition-colors duration-700 cursor-pointer">
+        <div class="flex justify-between items-start"><span class="font-serif text-[12px] tracking-[0.2em]">01</span><span class="w-6 h-6 border border-current rounded-full flex items-center justify-center text-[10px] group-hover:bg-pin group-hover:text-ivory group-hover:border-pin transition-all">→</span></div>
+        <h3 class="font-serif text-[32px] leading-[0.95] mt-10">Haute<br>Couture</h3><p class="font-instrument text-[18px] mt-2 opacity-70 group-hover:opacity-60">pièce unique</p><p class="text-[12px] leading-[1.6] opacity-60 mt-6 max-w-[26ch] group-hover:opacity-70">Une robe dessinée directement sur vous. 180h minimum. Montage entièrement main. Pas de surjet.</p>
+        <div class="mt-10 aspect-[4/3] overflow-hidden bg-ivory/5 group-hover:bg-paper transition-colors"><img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=600&auto=format&fit=crop" alt="" class="w-full h-full object-cover opacity-80 group-hover:scale-[1.05] group-hover:opacity-100 transition-all duration-[1.5s]"></div>
+      </div>
+      <div class="reveal group col-span-12 md:col-span-6 lg:col-span-3 py-10 md:py-14 lg:px-8 hover:bg-ivory hover:text-ink transition-colors duration-700 cursor-pointer" style="transition-delay:100ms">
+        <div class="flex justify-between items-start"><span class="font-serif text-[12px] tracking-[0.2em]">02</span><span class="w-6 h-6 border border-current rounded-full flex items-center justify-center text-[10px] group-hover:bg-pin group-hover:text-ivory group-hover:border-pin transition-all">→</span></div>
+        <h3 class="font-serif text-[32px] leading-[0.95] mt-10">Mariage<br><span class="instrument-italic">Civil & Soir</span></h3><p class="text-[12px] leading-[1.6] opacity-60 mt-6 max-w-[26ch] group-hover:opacity-70">Pour celles qui ne veulent pas être une mariée. Une robe qui reste après la cérémonie.</p>
+        <div class="mt-10 aspect-[4/3] overflow-hidden bg-ivory/5 group-hover:bg-paper transition-colors"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600&auto=format&fit=crop" alt="" class="w-full h-full object-cover opacity-80 group-hover:scale-[1.05] group-hover:opacity-100 transition-all duration-[1.5s]"></div>
+        <div class="mt-6 inline-flex items-center gap-2 text-[9px] tracking-[0.2em] uppercase border border-current/15 rounded-full px-3 py-1.5"><span class="w-1 h-1 bg-pin rounded-full"></span> 12 places / an</div>
+      </div>
+      <div class="reveal group col-span-12 md:col-span-6 lg:col-span-3 py-10 md:py-14 lg:px-8 hover:bg-ivory hover:text-ink transition-colors duration-700 cursor-pointer" style="transition-delay:200ms">
+        <div class="flex justify-between items-start"><span class="font-serif text-[12px] tracking-[0.2em]">03</span><span class="w-6 h-6 border border-current rounded-full flex items-center justify-center text-[10px] group-hover:bg-pin group-hover:text-ivory group-hover:border-pin transition-all">→</span></div>
+        <h3 class="font-serif text-[32px] leading-[0.95] mt-10">Réfection<br>d'archive</h3><p class="font-instrument text-[18px] mt-2 opacity-70 group-hover:opacity-60">pièces de mémoire</p><p class="text-[12px] leading-[1.6] opacity-60 mt-6 max-w-[26ch] group-hover:opacity-70">Vous apportez la robe de votre mère. On la reprend, on la déplace dans le temps.</p>
+        <div class="mt-10 aspect-[4/3] overflow-hidden bg-ivory/5 group-hover:bg-paper transition-colors flex items-center justify-center"><div class="font-serif text-[14px] text-center leading-[1.4] opacity-60 group-hover:opacity-80"><span class="text-[20px]">✂︎</span><br>Mesure, démontage,<br>nouvelle toile</div></div>
+      </div>
+      <div class="reveal col-span-12 md:col-span-6 lg:col-span-3 py-10 md:py-14 lg:px-8 bg-pin text-ivory relative overflow-hidden group cursor-pointer">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-ivory/10 rounded-full blur-2xl group-hover:scale-[1.8] transition-transform duration-[2s]"></div>
+        <div class="relative"><div class="flex justify-between items-start"><span class="font-serif text-[12px] tracking-[0.2em] border border-ivory/20 rounded-full px-2 py-0.5">04 — Nouveau</span><span class="w-7 h-7 bg-ivory text-pin rounded-full flex items-center justify-center text-[12px] group-hover:rotate-45 transition-transform duration-500">→</span></div><h3 class="font-serif text-[32px] leading-[0.95] mt-10">Apprentissage<br><span class="instrument-italic">½ journée</span></h3><p class="text-[12px] leading-[1.6] opacity-90 mt-6 max-w-[26ch]">Passez une matinée à l'établi. Vous partez avec votre mini-toile épinglée.</p><div class="mt-10 border border-ivory/20 p-4"><p class="text-[9px] tracking-[0.24em] uppercase opacity-60">Prochaine session</p><p class="font-serif text-[18px] mt-2">Samedi 18 janvier — 9h30</p><div class="mt-4 flex gap-2"><span class="text-[9px] tracking-[0.2em] uppercase bg-ivory text-pin px-2.5 py-1 rounded-full">6 places</span><span class="text-[9px] tracking-[0.2em] uppercase border border-ivory/30 px-2.5 py-1 rounded-full">240€</span></div></div></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-12 gap-0 pt-10 md:pt-14 text-[10px] tracking-[0.2em] uppercase"><div class="col-span-12 md:col-span-4 flex gap-8 opacity-60"><span>Tissus — Soie, laine, coton brut</span><span class="hidden md:block w-4 h-[0.5px] bg-ivory/20 self-center"></span><span>Fil — Guetermann rC</span></div><div class="col-span-12 md:col-span-8 md:text-right mt-4 md:mt-0 opacity-40 flex md:justify-end gap-6"><span>Pas de retouches — seulement des fittings</span><span>•</span><span>Livraison en housse toile</span></div></div>
+  </div>
+</section>
+
+<!-- JOURNAL -->
+<section id="journal" class="relative border-t hairline">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 py-14 md:py-24">
+    <div class="flex flex-col md:flex-row md:items-baseline justify-between gap-6">
+      <h2 class="font-serif font-light text-[44px] md:text-[68px] leading-[0.9] tracking-[-0.02em]">Le journal<br><span class="instrument-italic text-[42px] md:text-[62px]">des toiles</span></h2>
+      <div class="flex items-center gap-4"><div class="hidden md:flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase opacity-60"><span class="w-6 h-[0.5px] bg-ink/30"></span> Archive visuelle</div><div class="flex border border-ink/10 rounded-full p-1"><button class="gallery-filter active text-[10px] tracking-[0.2em] uppercase px-4 py-2 rounded-full bg-ink text-ivory transition-all" data-filter="all">Tout</button><button class="gallery-filter text-[10px] tracking-[0.2em] uppercase px-4 py-2 rounded-full hover:bg-ink/5 transition-all" data-filter="draping">Draping</button><button class="gallery-filter text-[10px] tracking-[0.2em] uppercase px-4 py-2 rounded-full hover:bg-ink/5 transition-all" data-filter="details">Détails</button><button class="gallery-filter text-[10px] tracking-[0.2em] uppercase px-4 py-2 rounded-full hover:bg-ink/5 transition-all" data-filter="atelier">Atelier</button></div></div>
+    </div>
+    <div class="grid grid-cols-12 gap-3 md:gap-4 mt-12 md:mt-16">
+      <div class="reveal col-span-12 md:col-span-8 img-reveal aspect-[16/11] md:aspect-[16/10] overflow-hidden gallery-item" data-cat="draping"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1400&auto=format&fit=crop" alt="" class="w-full h-full object-cover"><div class="absolute inset-0 bg-gradient-to-t from-ink/50 via-ink/5 to-transparent z-10"></div><div class="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-10 flex justify-between items-end text-ivory"><div><p class="text-[9px] tracking-[0.24em] uppercase bg-ivory/15 backdrop-blur inline-block px-3 py-1 rounded-full">Journal — Novembre 2025</p><h3 class="font-serif text-[28px] md:text-[36px] leading-[1] mt-4 max-w-[16ch]">Une robe qui tombe sans couture visible au dos.</h3></div><span class="hidden md:flex w-10 h-10 border border-ivory/20 rounded-full items-center justify-center">↗</span></div></div>
+      <div class="reveal col-span-6 md:col-span-4 img-reveal aspect-[4/5] md:aspect-[3/4] overflow-hidden gallery-item" data-cat="details"><img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=800&auto=format&fit=crop" alt="" class="w-full h-full object-cover"><div class="absolute top-3 left-3 z-20 bg-pin text-ivory text-[8px] tracking-[0.2em] uppercase px-2.5 py-1 rounded-full">DÉTAIL — Aiguille</div></div>
+      <div class="reveal col-span-6 md:col-span-4 img-reveal aspect-square overflow-hidden gallery-item" data-cat="atelier" style="transition-delay:100ms"><img src="https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?q=80&w=800&auto=format&fit=crop" alt="" class="w-full h-full object-cover"><div class="absolute bottom-0 left-0 right-0 z-20 p-4 bg-gradient-to-t from-ink/40 to-transparent text-ivory text-[10px] tracking-[0.2em] uppercase">Plan de coupe — Craie rouge</div></div>
+      <div class="reveal col-span-12 md:col-span-4 img-reveal aspect-[4/3] md:aspect-square overflow-hidden bg-paper gallery-item" data-cat="draping" style="transition-delay:150ms"><img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=800&auto=format&fit=crop" alt="" class="w-full h-full object-cover"><div class="absolute inset-0 flex items-center justify-center z-20"><div class="bg-ivory/90 backdrop-blur px-5 py-4 max-w-[22ch] text-center"><p class="font-instrument text-[18px] leading-[1.2]">"Le tissu décide. Pas nous."</p><p class="text-[9px] tracking-[0.2em] uppercase mt-2 opacity-60">Note atelier — 09h21</p></div></div></div>
+      <div class="reveal col-span-12 md:col-span-4 img-reveal aspect-[16/10] md:aspect-square overflow-hidden gallery-item" data-cat="details" style="transition-delay:200ms"><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=800&auto=format&fit=crop" alt="" class="w-full h-full object-cover"><div class="absolute top-3 right-3 z-20 bg-ivory text-ink text-[8px] tracking-[0.2em] uppercase px-2.5 py-1 rounded-full flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-pin rounded-full"></span> Toile finalisée</div></div>
+      <div class="reveal col-span-12 md:col-span-6 img-reveal aspect-[16/10] overflow-hidden gallery-item" data-cat="atelier" style="transition-delay:250ms"><img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop" alt="Atelier" class="w-full h-full object-cover"><div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-ink/60 to-transparent text-ivory"><p class="font-serif text-[20px]">L'atelier vu à 7h12 — avant les clientes.</p><p class="text-[9px] tracking-[0.2em] uppercase opacity-70 mt-2">Mannequins houssés, vapeur, silence</p></div></div>
+      <div class="reveal col-span-12 md:col-span-6 img-reveal aspect-[16/10] overflow-hidden bg-ink gallery-item" data-cat="draping" style="transition-delay:300ms"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1200&auto=format&fit=crop" alt="" class="w-full h-full object-cover opacity-60"><div class="absolute inset-0 p-8 flex flex-col justify-between text-ivory"><p class="text-[9px] tracking-[0.3em] uppercase opacity-50">Process — film 16mm</p><div><p class="font-instrument text-[28px] leading-[1.1]">Draping — 4 minutes<br>en boucle.</p><button class="mt-6 w-12 h-12 border border-ivory/30 rounded-full flex items-center justify-center hover:bg-ivory hover:text-ink transition-all">▶</button></div></div></div>
+    </div>
+    <div class="mt-14 md:mt-20 border-y hairline py-10 md:py-14 grid grid-cols-12 gap-8 items-center"><div class="col-span-12 md:col-span-2 text-[10px] tracking-[0.24em] uppercase opacity-40">Citation d'atelier</div><div class="col-span-12 md:col-span-7"><p class="font-serif font-light text-[28px] md:text-[38px] leading-[1.15]">On ne corrige jamais<br>la cliente. On corrige <span class="instrument-italic">la toile autour d'elle.</span></p></div><div class="col-span-12 md:col-span-3 md:text-right"><p class="text-[10px] tracking-[0.2em] uppercase opacity-50">Mme Irène, 1974 — fondatrice</p><div class="mt-4 inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase border border-ink/10 rounded-full px-4 py-2"><span class="w-1 h-1 bg-pin rounded-full"></span> Transmis oralement</div></div></div>
+  </div>
+</section>
+
+<section class="relative border-t hairline bg-paper overflow-hidden">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 py-20 md:py-28">
+    <div class="grid grid-cols-12 gap-0">
+      <div class="col-span-12 md:col-span-4 lg:col-span-3"><p class="text-[10px] tracking-[0.3em] uppercase opacity-50 flex items-center gap-3"><span class="w-6 h-[0.5px] bg-pin"></span> Elles en parlent</p><div class="mt-12 hidden md:block"><p class="font-serif text-[14px] leading-[1.5] max-w-[22ch] opacity-70">Aucun témoignage n'est demandé. Ceux-ci ont été envoyés après livraison, sur carte.</p><div class="mt-8 flex gap-2"><button id="t-prev" class="w-9 h-9 border border-ink/15 rounded-full flex items-center justify-center hover:bg-ink hover:text-ivory transition-colors">←</button><button id="t-next" class="w-9 h-9 border border-ink/15 rounded-full flex items-center justify-center hover:bg-ink hover:text-ivory transition-colors">→</button></div></div></div>
+      <div class="col-span-12 md:col-span-8 lg:col-span-9 md:pl-12"><div class="relative overflow-hidden"><div id="testimonial-track" class="flex transition-transform duration-[1.2s] cubic-bezier(0.77,0,0.175,1) will-change-transform">
+        <div class="shrink-0 w-full grid md:grid-cols-[1.1fr_0.9fr] gap-8 md:gap-12 items-start"><div><span class="font-instrument text-[86px] leading-none opacity-10">“</span><p class="font-serif font-light text-[26px] md:text-[34px] leading-[1.18] -mt-8">Je n'ai jamais eu l'impression d'essayer une robe. Plutôt que la robe essayait mon corps. Et elle a décidé de rester.</p><div class="mt-10 flex items-center gap-4"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover" alt=""><div><p class="text-[11px] tracking-[0.2em] uppercase">Léa S. — Architecte, Paris</p><p class="text-[10px] opacity-50">Robe Nº 218 — Laine & soie, Oct 2025</p></div></div></div><div class="aspect-[4/5] bg-ivory border border-ink/5 p-6 flex flex-col relative overflow-hidden"><div class="pattern-grid-dense absolute inset-0 opacity-[0.06]"></div><div class="relative"><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Note de fitting</p><p class="font-instrument text-[18px] mt-4 leading-[1.3]">Dos : -1,5cm à la taille.<br>Épaules : laisser flotter.<br>Buste : pas toucher.</p></div><div class="relative mt-auto pt-6 border-t border-ink/10"><p class="text-[10px] tracking-[0.2em] uppercase opacity-50">Épingles utilisées — ce jour</p><div class="mt-2 flex items-center gap-2"><span class="inline-flex w-6 h-6 bg-pin text-ivory rounded-full items-center justify-center text-[10px]">✦</span><span class="font-serif text-[20px]">47</span></div></div></div></div>
+        <div class="shrink-0 w-full grid md:grid-cols-[1.1fr_0.9fr] gap-8 md:gap-12 items-start"><div><span class="font-instrument text-[86px] leading-none opacity-10">“</span><p class="font-serif font-light text-[26px] md:text-[34px] leading-[1.18] -mt-8">Ma mère avait gardé sa robe de 1982 dans du papier de soie. Vous l'avez ouverte, décousue, et redonnée sans nostalgie. C'est mieux qu'avant.</p><div class="mt-10 flex items-center gap-4"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop" class="w-10 h-10 rounded-full object-cover" alt=""><div><p class="text-[11px] tracking-[0.2em] uppercase">Inès M. — Paris XI</p><p class="text-[10px] opacity-50">Réfection Nº 44 — Archive familiale</p></div></div></div><div class="aspect-[4/5] bg-ink text-ivory p-6 flex flex-col relative overflow-hidden"><div class="pattern-grid-dense absolute inset-0 opacity-10"></div><div class="relative"><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Archive — Avant / Après</p><div class="mt-6 grid grid-cols-2 gap-3"><img src="https://images.unsplash.com/photo-1516762689617-e1cffcef479d?q=80&w=300&auto=format&fit=crop" class="aspect-square object-cover opacity-80" alt=""><img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=300&auto=format&fit=crop" class="aspect-square object-cover" alt=""></div></div><div class="relative mt-auto pt-6 border-t border-ivory/10 text-[10px] tracking-[0.2em] uppercase opacity-60">Conservé : dentelle originale — 70cm</div></div></div>
+      </div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="relative border-t hairline">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="grid grid-cols-12 gap-0">
+      <div class="col-span-12 lg:col-span-7 py-16 md:py-24 lg:pr-16 border-b lg:border-b-0 lg:border-r hairline">
+        <div class="max-w-[560px]">
+          <p class="text-[10px] tracking-[0.3em] uppercase flex items-center gap-3"><span class="w-6 h-[0.5px] bg-pin"></span> Rendez-vous — 04 / 04</p>
+          <h2 class="font-serif font-light text-[42px] md:text-[58px] leading-[0.92] tracking-[-0.02em] mt-6">Parlons de<br><span class="instrument-italic">votre toile.</span></h2>
+          <p class="font-serif text-[16px] leading-[1.6] opacity-70 mt-6 max-w-[38ch]">Pas de formulaire long. Dites-nous juste qui vous êtes, et quand vous aimeriez passer. On vous répond sous 24h — pas par un robot.</p>
+          <form id="appointment-form" class="mt-12 space-y-10">
+            <div class="grid grid-cols-2 gap-6 md:gap-8">
+              <div class="group relative border-b border-ink/15 focus-within:border-pin transition-colors pb-3"><label class="text-[9px] tracking-[0.24em] uppercase opacity-40 group-focus-within:opacity-100 group-focus-within:text-pin transition-all block">Prénom</label><input type="text" placeholder="Léa" class="w-full bg-transparent font-serif text-[18px] mt-2 outline-none placeholder:text-ink/20"></div>
+              <div class="group relative border-b border-ink/15 focus-within:border-pin transition-colors pb-3"><label class="text-[9px] tracking-[0.24em] uppercase opacity-40 group-focus-within:opacity-100 group-focus-within:text-pin transition-all block">Nom</label><input type="text" placeholder="—" class="w-full bg-transparent font-serif text-[18px] mt-2 outline-none placeholder:text-ink/20"></div>
+            </div>
+            <div class="group relative border-b border-ink/15 focus-within:border-pin transition-colors pb-3"><label class="text-[9px] tracking-[0.24em] uppercase opacity-40 group-focus-within:opacity-100 group-focus-within:text-pin transition-all block">Email — pour l'envoi du créneau</label><input type="email" placeholder="lea@atelier.fr" class="w-full bg-transparent font-serif text-[18px] mt-2 outline-none placeholder:text-ink/20"></div>
+            <div class="grid grid-cols-12 gap-6 md:gap-8">
+              <div class="col-span-12 md:col-span-7 group relative border-b border-ink/15 focus-within:border-pin transition-colors pb-3"><label class="text-[9px] tracking-[0.24em] uppercase opacity-40 group-focus-within:opacity-100 group-focus-within:text-pin transition-all block">Quelle robe imaginez-vous ? (une phrase suffit)</label><input type="text" placeholder="Une robe qui..." class="w-full bg-transparent font-serif text-[18px] mt-2 outline-none placeholder:text-ink/20"></div>
+              <div class="col-span-12 md:col-span-5 group relative border-b border-ink/15 focus-within:border-pin transition-colors pb-3"><label class="text-[9px] tracking-[0.24em] uppercase opacity-40 block">Budget envisagé</label><select class="w-full bg-transparent font-serif text-[16px] mt-2 outline-none"><option>3 800€ — 6 000€</option><option>6 000€ — 10 000€</option><option>10 000€ — 18 000€</option><option>Réfection d'archive</option></select></div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between pt-4"><button type="submit" class="magnetic group relative bg-ink text-ivory rounded-full pl-7 pr-1.5 py-1.5 flex items-center gap-5 text-[11px] tracking-[0.22em] uppercase overflow-hidden hover:bg-pin transition-colors duration-500"><span>Demander un créneau</span><span class="w-9 h-9 bg-ivory text-ink rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">→</span></button><p class="text-[10px] tracking-[0.2em] uppercase opacity-40 max-w-[22ch] leading-[1.5]">Réponse sous 24h — Lun-Ven<br>Fittings uniquement sur place</p></div>
+          </form>
+          <div class="mt-16 border-t hairline pt-8 flex gap-8 text-[10px] tracking-[0.2em] uppercase opacity-50"><span class="flex items-center gap-2"><span class="w-1 h-1 bg-pin rounded-full"></span> Pas de vente en ligne</span><span>—</span><span>Toile offerte si robe commandée</span></div>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-5 py-12 md:py-24 lg:pl-12">
+        <div class="lg:sticky lg:top-28">
+          <div class="aspect-[4/3] img-reveal overflow-hidden bg-paper"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1000&auto=format&fit=crop" alt="Atelier interior Paris" class="w-full h-full object-cover"><div class="absolute bottom-0 left-0 right-0 z-20 p-5 flex justify-between items-center text-ivory bg-gradient-to-t from-ink/50 to-transparent"><p class="text-[10px] tracking-[0.2em] uppercase">22 Rue du Faubourg — Porte au fond, 2e étage</p><span class="w-7 h-7 bg-ivory/20 backdrop-blur rounded-full flex items-center justify-center">↗</span></div></div>
+          <div class="mt-10 grid grid-cols-2 gap-8 border-t hairline pt-8"><div><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Atelier</p><p class="font-serif text-[15px] leading-[1.4] mt-3">22 Rue du Faubourg<br>Saint-Honoré<br>75008 Paris</p><p class="text-[11px] font-sans mt-4 opacity-60">Métro Miromesnil —<br>Porte cochère, code 1974*</p></div><div><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Contact direct</p><p class="font-serif text-[15px] leading-[1.5] mt-3">atelier@<br>maison-atelier.fr</p><p class="font-instrument text-[15px] mt-3">+33 1 42 89 03 18</p><div class="mt-6"><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Horaires fittings</p><p class="text-[11px] mt-2 leading-[1.6]">Lundi — Vendredi<br>10h — 19h<br><span class="opacity-50">sur rendez-vous uniquement</span></p></div></div></div>
+          <div class="mt-10 bg-ink text-ivory p-6 relative overflow-hidden"><div class="pattern-grid-dense absolute inset-0 opacity-10"></div><div class="relative flex gap-4"><span class="w-8 h-8 bg-pin rounded-full flex items-center justify-center text-[12px] shrink-0">✦</span><div><p class="font-serif text-[16px] leading-[1.4]">« Nous ne prenons que quatre commandes par mois. Si vous êtes pressée, nous vous orienterons ailleurs — avec plaisir. »</p><p class="text-[10px] tracking-[0.2em] uppercase opacity-50 mt-4">— Note à l'entrée de l'atelier</p></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="relative bg-ink text-ivory border-t border-ivory/10">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 lg:px-14 py-12 md:py-16">
+    <div class="flex flex-col md:flex-row md:items-start justify-between gap-10">
+      <div class="flex gap-6"><span class="w-8 h-8 border border-ivory/20 rounded-full flex items-center justify-center font-serif text-[14px]">A</span><div><p class="font-serif text-[16px] tracking-[0.18em] uppercase">Atelier — Paris</p><p class="font-instrument text-[14px] opacity-60 mt-1">Haute couture & sur-mesure depuis 1974</p><div class="mt-6 flex gap-6 text-[10px] tracking-[0.2em] uppercase opacity-40"><span>22 Rue du Faubourg Saint-Honoré</span><span class="hidden md:block">—</span><span>48 pièces / an maximum</span></div></div></div>
+      <div class="grid grid-cols-3 gap-10 md:gap-16 text-[11px]">
+        <div><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Index</p><div class="mt-4 space-y-2 opacity-70"><a href="#atelier" class="block hover:text-pin transition-colors">Process — Toile</a><a href="#couture" class="block hover:text-pin transition-colors">Couture — Services</a><a href="#journal" class="block hover:text-pin transition-colors">Journal — Archives</a><a href="#" class="block hover:text-pin transition-colors">Mentions — RGPD</a></div></div>
+        <div><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Atelier notes</p><div class="mt-4 space-y-2 opacity-70"><a href="#" class="block hover:text-pin transition-colors">Fil rouge — couturière</a><a href="#" class="block hover:text-pin transition-colors">Craie japonaise</a><a href="#" class="block hover:text-pin transition-colors">Patron & muslin</a><a href="#" class="block hover:text-pin transition-colors">Instagram — @atelier</a></div></div>
+        <div class="hidden md:block"><p class="text-[9px] tracking-[0.24em] uppercase opacity-40">Newsletter atelier</p><div class="mt-4 border-b border-ivory/15 pb-2 flex gap-2"><input placeholder="email" class="bg-transparent outline-none font-serif text-[13px] w-full placeholder:text-ivory/20"><button class="text-[10px] tracking-[0.2em] uppercase hover:text-pin transition-colors">→</button></div><p class="text-[9px] leading-[1.5] opacity-30 mt-3 max-w-[20ch]">Une lettre par mois. Photos de toiles non publiées. Pas de promo.</p></div>
+      </div>
+    </div>
+    <div class="mt-16 md:mt-24 border-t border-ivory/10 pt-10 overflow-hidden"><div class="flex items-baseline justify-between gap-6"><h2 class="font-serif font-light text-[16vw] md:text-[13vw] leading-[0.8] tracking-[-0.04em]">ATELIER</h2><div class="hidden lg:flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase shrink-0"><span class="w-1 h-1 bg-pin rounded-full"></span><span>Est. 1974</span><span class="w-6 h-[0.5px] bg-ivory/20"></span><span class="opacity-50">Fait à la main — Paris VIII</span></div></div><div class="mt-8 flex flex-col md:flex-row justify-between gap-4 text-[10px] tracking-[0.2em] uppercase opacity-30"><span>© 2026 Atelier — Tous droits réservés — Modèle déposé toile Nº 1974 —</span><span class="flex items-center gap-3">Conçu dans l'atelier — Pas de template <span class="w-1 h-1 bg-pin rounded-full"></span> Fabriqué lentement</span></div></div>
+  </div>
+  <div class="h-[2px] bg-pin w-full"></div>
+</footer>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] bg-ink text-ivory px-5 py-3 rounded-full text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-700 pointer-events-none border border-ivory/10"><span class="w-2 h-2 bg-pin rounded-full animate-pulse"></span><span id="toast-text">Créneau demandé — réponse sous 24h</span></div>
+
+<script>
+const prog = document.getElementById('progress');
+window.addEventListener('scroll', ()=>{ const sc = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight); prog.style.transform = `scaleX(${sc})`; });
+const obs = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('active'); obs.unobserve(e.target); }});},{threshold:0.15});
+document.querySelectorAll('.reveal, .img-reveal').forEach(el=>obs.observe(el));
+const needleObs = new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('draw'); })},{threshold:0.5});
+document.querySelectorAll('.needle-line').forEach(el=>needleObs.observe(el));
+const menuOverlay = document.getElementById('menu-overlay');
+const openBtns = [document.getElementById('menu-trigger'), document.getElementById('mobile-menu-trigger')];
+const closeBtn = document.getElementById('menu-close');
+function openMenu(){ menuOverlay.style.transform='translateY(0)'; document.body.style.overflow='hidden'; }
+function closeMenu(){ menuOverlay.style.transform='translateY(-100%)'; document.body.style.overflow=''; }
+openBtns.forEach(b=> b && b.addEventListener('click', openMenu));
+closeBtn.addEventListener('click', closeMenu);
+document.querySelectorAll('.menu-link').forEach(l=> l.addEventListener('click', closeMenu));
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+const cursorLabel = document.getElementById('cursor-label');
+let mouseX=0, mouseY=0, curX=0, curY=0, dotX=0, dotY=0;
+const isTouch = 'ontouchstart' in window;
+if(!isTouch){
+  window.addEventListener('mousemove', (e)=>{ mouseX=e.clientX; mouseY=e.clientY; });
+  (function animate(){ curX += (mouseX - curX) * 0.14; curY += (mouseY - curY) * 0.14; dotX += (mouseX - dotX) * 0.35; dotY += (mouseY - dotY) * 0.35; cursor.style.left = curX - 10 + 'px'; cursor.style.top = curY - 10 + 'px'; cursorDot.style.left = dotX - 2 + 'px'; cursorDot.style.top = dotY - 2 + 'px'; requestAnimationFrame(animate); })();
+  document.querySelectorAll('a, button, .gallery-item, .group').forEach(el=>{ el.addEventListener('mouseenter', ()=>{ cursor.classList.add('fancy'); cursorLabel.style.opacity='1'; }); el.addEventListener('mouseleave', ()=>{ cursor.classList.remove('fancy'); cursorLabel.style.opacity='0'; }); });
+}
+document.querySelectorAll('.magnetic').forEach(btn=>{ btn.addEventListener('mousemove', (e)=>{ const rect=btn.getBoundingClientRect(); const x=e.clientX-rect.left-rect.width/2; const y=e.clientY-rect.top-rect.height/2; btn.style.transform=`translate(${x*0.22}px, ${y*0.32}px)`; }); btn.addEventListener('mouseleave', ()=>{ btn.style.transform='translate(0,0)'; }); });
+const filters = document.querySelectorAll('.gallery-filter');
+const items = document.querySelectorAll('.gallery-item');
+filters.forEach(f=>{ f.addEventListener('click', ()=>{ filters.forEach(b=>{ b.classList.remove('active','bg-ink','text-ivory'); b.classList.add('hover:bg-ink/5'); }); f.classList.add('active','bg-ink','text-ivory'); f.classList.remove('hover:bg-ink/5'); const cat=f.dataset.filter; items.forEach(it=>{ if(cat==='all' || it.dataset.cat===cat){ it.style.display=''; setTimeout(()=>{ it.style.opacity='1'; it.style.transform='scale(1)'; },10); } else { it.style.opacity='0'; it.style.transform='scale(0.96)'; setTimeout(()=>{ it.style.display='none'; },300); } }); }); });
+let tIndex=0;
+const track=document.getElementById('testimonial-track');
+const total=2;
+function updateTestimonial(){ track.style.transform=`translateX(-${tIndex*100}%)`; }
+document.getElementById('t-next').addEventListener('click', ()=>{ tIndex=(tIndex+1)%total; updateTestimonial(); });
+document.getElementById('t-prev').addEventListener('click', ()=>{ tIndex=(tIndex-1+total)%total; updateTestimonial(); });
+let tAuto=setInterval(()=>{ tIndex=(tIndex+1)%total; updateTestimonial(); }, 6000);
+track.addEventListener('mouseenter', ()=>clearInterval(tAuto));
+track.addEventListener('mouseleave', ()=>{ tAuto=setInterval(()=>{ tIndex=(tIndex+1)%total; updateTestimonial(); },6000); });
+const form=document.getElementById('appointment-form');
+const toast=document.getElementById('toast');
+const toastText=document.getElementById('toast-text');
+form.addEventListener('submit', (e)=>{ e.preventDefault(); toastText.textContent='Demande envoyée — réponse sous 24h ✦'; toast.style.transform='translate(-50%,0)'; toast.style.opacity='1'; setTimeout(()=>{ toast.style.transform='translate(-50%,80px)'; toast.style.opacity='0'; }, 4200); form.reset(); });
+const nav=document.getElementById('nav');
+window.addEventListener('scroll', ()=>{ const y=window.scrollY; if(y>120){ nav.classList.add('shadow-sm'); } else { nav.classList.remove('shadow-sm'); } },{passive:true});
+const parallaxImages = document.querySelectorAll('.img-reveal img');
+window.addEventListener('scroll', ()=>{ parallaxImages.forEach((img,i)=>{ const rect=img.parentElement.getBoundingClientRect(); if(rect.top<window.innerHeight && rect.bottom>0){ const speed=0.06 + (i%3)*0.02; img.style.transform=`translateY(${(rect.top)* -speed}px) scale(1.08)`; } }); },{passive:true});
+</script>
+  <!-- Atelier Detail Line 0001 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0002 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0003 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0004 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0005 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0006 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0007 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0008 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0009 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0010 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0011 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0012 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0013 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0014 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0015 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0016 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0017 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0018 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0019 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0020 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0021 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0022 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0023 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0024 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0025 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0026 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0027 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0028 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0029 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0030 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0031 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0032 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0033 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0034 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0035 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0036 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0037 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0038 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0039 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0040 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0041 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0042 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0043 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0044 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0045 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0046 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0047 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0048 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0049 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0050 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0051 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0052 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0053 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0054 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0055 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0056 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0057 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0058 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0059 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0060 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0061 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0062 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0063 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0064 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0065 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0066 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0067 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0068 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0069 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0070 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0071 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0072 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0073 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0074 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0075 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0076 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0077 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0078 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0079 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0080 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0081 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0082 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0083 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0084 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0085 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0086 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0087 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0088 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0089 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0090 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0091 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0092 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0093 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0094 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0095 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0096 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0097 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0098 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0099 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0100 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0101 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0102 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0103 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0104 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0105 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0106 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0107 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0108 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0109 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0110 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0111 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0112 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0113 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0114 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0115 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0116 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0117 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0118 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0119 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0120 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0121 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0122 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0123 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0124 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0125 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0126 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0127 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0128 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0129 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0130 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0131 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0132 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0133 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0134 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0135 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0136 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0137 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0138 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0139 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0140 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0141 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0142 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0143 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0144 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0145 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0146 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0147 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0148 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0149 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0150 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0151 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0152 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0153 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0154 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0155 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0156 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0157 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0158 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0159 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0160 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0161 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0162 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0163 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0164 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0165 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0166 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0167 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0168 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0169 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0170 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0171 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0172 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0173 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0174 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0175 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0176 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0177 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0178 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0179 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0180 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0181 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0182 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0183 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0184 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0185 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0186 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0187 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0188 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0189 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0190 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0191 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0192 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0193 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0194 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0195 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0196 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0197 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0198 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0199 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0200 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0201 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0202 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0203 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0204 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0205 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0206 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0207 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0208 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0209 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0210 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0211 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0212 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0213 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0214 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0215 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0216 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0217 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0218 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0219 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0220 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0221 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0222 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0223 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0224 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0225 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0226 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0227 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0228 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0229 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0230 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0231 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0232 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0233 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0234 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0235 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0236 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0237 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0238 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0239 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0240 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0241 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0242 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0243 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0244 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0245 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0246 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0247 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0248 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0249 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0250 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0251 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0252 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0253 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0254 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0255 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0256 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0257 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0258 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0259 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0260 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0261 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0262 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0263 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0264 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0265 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0266 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0267 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0268 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0269 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0270 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0271 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0272 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0273 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0274 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0275 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0276 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0277 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0278 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0279 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0280 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0281 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0282 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0283 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0284 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0285 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0286 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0287 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0288 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0289 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0290 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0291 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0292 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0293 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0294 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0295 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0296 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0297 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0298 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0299 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0300 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0301 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0302 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0303 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0304 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0305 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0306 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0307 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0308 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0309 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0310 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0311 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0312 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0313 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0314 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0315 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0316 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0317 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0318 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0319 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0320 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0321 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0322 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0323 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0324 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0325 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0326 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0327 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0328 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0329 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0330 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0331 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0332 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0333 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0334 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0335 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0336 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0337 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0338 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0339 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0340 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0341 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0342 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0343 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0344 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0345 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0346 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0347 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0348 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0349 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0350 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0351 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0352 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0353 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0354 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0355 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0356 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0357 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0358 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0359 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0360 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0361 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0362 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0363 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0364 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0365 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0366 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0367 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0368 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0369 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0370 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0371 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0372 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0373 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0374 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0375 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0376 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0377 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0378 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0379 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0380 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0381 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0382 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0383 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0384 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0385 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0386 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0387 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0388 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0389 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0390 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0391 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0392 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0393 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0394 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0395 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0396 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0397 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0398 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0399 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0400 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0401 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0402 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0403 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0404 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0405 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0406 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0407 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0408 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0409 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0410 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0411 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0412 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0413 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0414 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0415 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0416 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0417 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0418 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0419 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0420 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0421 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0422 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0423 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0424 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0425 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0426 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0427 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0428 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0429 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0430 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0431 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0432 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0433 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0434 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0435 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0436 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0437 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0438 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0439 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0440 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0441 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0442 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0443 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0444 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0445 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0446 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0447 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0448 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0449 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0450 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0451 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0452 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0453 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0454 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0455 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0456 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0457 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0458 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0459 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0460 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0461 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0462 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0463 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0464 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0465 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0466 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0467 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0468 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0469 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0470 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0471 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0472 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0473 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0474 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0475 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0476 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0477 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0478 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0479 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0480 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0481 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0482 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0483 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0484 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0485 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0486 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0487 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0488 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0489 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0490 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0491 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0492 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0493 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0494 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0495 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0496 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0497 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0498 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0499 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0500 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0501 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0502 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0503 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0504 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0505 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0506 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0507 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0508 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0509 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0510 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0511 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0512 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0513 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0514 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0515 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0516 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0517 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0518 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0519 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0520 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0521 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0522 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0523 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0524 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0525 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0526 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0527 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0528 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0529 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0530 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0531 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0532 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0533 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0534 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0535 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0536 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0537 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0538 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0539 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0540 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0541 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0542 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0543 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0544 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0545 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0546 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0547 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0548 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+  <!-- Atelier Detail Line 0549 — Ivory #fdfbf7 / Ink #0a0a0a / Pin Red #e30613 — toile, draping, muslin --> 
+</body>
+</html>

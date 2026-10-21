@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Pottery Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,100;0,9..144,200;0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,100;1,9..144,300;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        clay: '#e8ddd0',
+        terracotta: '#c86b3c',
+        rust: '#a85a35',
+        ink: '#1f1a16',
+        paper: '#fbf7f0',
+        moss: '#3d4a3e',
+        ash: '#9a8f87'
+      },
+      fontFamily: {
+        fraunces: ['Fraunces', 'serif'],
+        hand: ['Caveat', 'cursive']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  body { background: #e8ddd0; color: #1f1a16; overscroll-behavior: none; cursor: none; }
+  @media (max-width: 1024px) { body { cursor: auto; } .cursor-dot, .cursor-ring { display:none!important; } }
+  ::selection { background: #c86b3c; color: #fbf7f0; }
+
+  /* Grain texture */
+  .grain::before {
+    content:"";
+    position: fixed;
+    inset: -50%;
+    width: 200%; height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+    animation: grainMove 8s steps(10) infinite;
+  }
+  @keyframes grainMove {
+    0%,100%{ transform: translate(0,0); }
+    10%{ transform: translate(-5%,-10%); }
+    20%{ transform: translate(-15%,5%); }
+    30%{ transform: translate(7%,-25%); }
+    40%{ transform: translate(-5%,25%); }
+    50%{ transform: translate(-15%,10%); }
+    60%{ transform: translate(15%,0%); }
+    70%{ transform: translate(0%,15%); }
+    80%{ transform: translate(3%,-15%); }
+    90%{ transform: translate(-10%,10%); }
+  }
+
+  /* Imperfect borders */
+  .hand-drawn {
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  }
+  .hand-drawn-2 {
+    border-radius: 18px 255px 18px 255px / 255px 18px 255px 18px;
+  }
+  .hand-drawn-3 {
+    border-radius: 60% 40% 40% 60% / 60% 30% 70% 40%;
+  }
+  .rough-border {
+    position: relative;
+    border: 1.5px solid #1f1a16;
+  }
+  .rough-border::after {
+    content:"";
+    position:absolute; inset:-2px;
+    border:1px solid #1f1a16;
+    border-radius: inherit;
+    transform: rotate(-0.6deg) scale(1.01);
+    pointer-events:none;
+    opacity:0.35;
+  }
+
+  /* Custom cursor */
+  .cursor-dot {
+    position: fixed; top:0; left:0;
+    width: 8px; height: 8px;
+    background: #c86b3c;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%,-50%);
+    transition: width .25s, height .25s, background .25s;
+  }
+  .cursor-ring {
+    position: fixed; top:0; left:0;
+    width: 42px; height: 42px;
+    border: 1px solid rgba(31,26,22,0.25);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%,-50%);
+    transition: width .35s cubic-bezier(.16,1,.3,1), height .35s cubic-bezier(.16,1,.3,1), border-color .3s;
+  }
+  .cursor-dot.hover { width: 14px; height: 14px; background:#1f1a16; }
+  .cursor-ring.hover { width: 70px; height: 70px; border-color:#c86b3c; background: rgba(200,107,60,0.06); }
+
+  /* Marquee */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track { animation: marquee 40s linear infinite; }
+
+  /* Wobble */
+  @keyframes wobble {
+    0%,100%{ transform: rotate(-0.6deg); }
+    50%{ transform: rotate(0.7deg); }
+  }
+  @keyframes floatSlow {
+    0%,100%{ transform: translateY(0) rotate(-1deg); }
+    50%{ transform: translateY(-10px) rotate(1deg); }
+  }
+  @keyframes inkBleed {
+    0%{ clip-path: inset(0 100% 0 0); }
+    100%{ clip-path: inset(0 0 0 0); }
+  }
+  .reveal-ink { animation: inkBleed 1.2s cubic-bezier(.76,0,.24,1) forwards; }
+
+  /* Scroll indicator */
+  .scroll-line { transform-origin: top; transform: scaleY(0); transition: transform .1s linear; }
+
+  /* Image reveal */
+  .img-reveal { clip-path: inset(0 0 100% 0); transition: clip-path 1.4s cubic-bezier(.76,0,.24,1); }
+  .img-reveal.in-view { clip-path: inset(0 0 0 0); }
+
+  /* Magnetic */
+  .magnetic { transition: transform .4s cubic-bezier(.16,1,.3,1); }
+
+  /* Paper shadow */
+  .paper-shadow { box-shadow: 0 2px 0 #1f1a16, 0 12px 24px rgba(31,26,22,0.08); }
+
+  /* Scribble underline */
+  .scribble {
+    position: relative;
+    display: inline-block;
+  }
+  .scribble::after {
+    content:"";
+    position:absolute;
+    left:-4%; right:-4%; bottom: 4px;
+    height: 10px;
+    background: url("data:image/svg+xml,%3Csvg width='200' height='12' viewBox='0 0 200 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 8 Q 20 2 40 7 T 80 6 T 120 8 T 160 5 T 198 7' stroke='%23c86b3c' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat;
+    background-size: 100% 100%;
+    opacity:0.8;
+    pointer-events:none;
+  }
+
+  /* Custom scrollbar hide */
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  /* Sticky stack */
+  .sticky-card { position: sticky; top: 22vh; }
+
+  /* Wheel progress */
+  .wheel-dot { transition: all .6s cubic-bezier(.16,1,.3,1); }
+</style>
+</head>
+<body class="font-fraunces grain antialiased overflow-x-hidden selection:bg-terracotta selection:text-paper">
+
+<!-- CURSORS -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- SCROLL PROGRESS -->
+<div class="fixed top-0 left-0 w-full h-[2px] z-[60] pointer-events-none">
+  <div id="scrollProgress" class="h-full bg-terracotta scroll-line w-full"></div>
+</div>
+
+<!-- NAV -->
+<nav class="fixed top-0 left-0 w-full z-40 mix-blend-normal">
+  <div class="mx-auto max-w-[1600px] px-6 md:px-10 py-5 md:py-7 flex items-center justify-between">
+    <div class="flex items-center gap-10">
+      <a href="#" class="group flex items-center gap-3">
+        <div class="w-[42px] h-[42px] rounded-[42% 58% 60% 40%/40% 42% 58% 60%] bg-ink text-paper flex items-center justify-center font-fraunces font-[700] text-[18px] tracking-[-0.02em] group-hover:rotate-3 transition-transform">土</div>
+        <div class="leading-[0.9]">
+          <div class="font-fraunces font-[600] text-[17px] tracking-[0.02em]">TSUCHI</div>
+          <div class="font-hand text-[15px] -mt-1 text-ash">clay studio</div>
+        </div>
+      </a>
+      <div class="hidden lg:flex items-center gap-8 text-[13px] tracking-[0.18em] uppercase font-[500]">
+        <a href="#works" class="hover:text-terracotta transition-colors relative group">Works <span class="absolute -bottom-1 left-0 w-0 group-hover:w-full h-[1px] bg-terracotta transition-all duration-500"></span></a>
+        <a href="#philosophy" class="hover:text-terracotta transition-colors relative group">Philosophy <span class="absolute -bottom-1 left-0 w-0 group-hover:w-full h-[1px] bg-terracotta transition-all duration-500"></span></a>
+        <a href="#classes" class="hover:text-terracotta transition-colors relative group">Classes <span class="absolute -bottom-1 left-0 w-0 group-hover:w-full h-[1px] bg-terracotta transition-all duration-500"></span></a>
+        <a href="#journal" class="hover:text-terracotta transition-colors relative group">Journal <span class="absolute -bottom-1 left-0 w-0 group-hover:w-full h-[1px] bg-terracotta transition-all duration-500"></span></a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="hidden md:inline font-hand text-[18px] text-ash rotate-[-3deg] mr-2">open today — 10-18h</span>
+      <a href="#contact" class="magnetic rough-border hand-drawn bg-terracotta text-paper px-6 py-[11px] text-[13px] tracking-[0.14em] uppercase font-[600] hover:bg-ink transition-colors">
+        Visit Studio
+      </a>
+      <button id="menuBtn" class="lg:hidden rough-border hand-drawn-2 w-[44px] h-[44px] flex items-center justify-center bg-paper">
+        <div class="w-[18px] h-[14px] flex flex-col justify-between">
+          <span class="block h-[1.5px] bg-ink w-full"></span>
+          <span class="block h-[1.5px] bg-ink w-3/4 ml-auto"></span>
+          <span class="block h-[1.5px] bg-ink w-full"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+  <!-- mobile menu -->
+  <div id="mobileMenu" class="lg:hidden fixed inset-0 z-[55] bg-clay translate-x-full transition-transform duration-[600ms] cubic-bezier(.76,0,.24,1)">
+    <div class="p-6 flex justify-between items-center">
+      <span class="font-fraunces font-[600]">TSUCHI</span>
+      <button id="closeMenu" class="rough-border hand-drawn w-[44px] h-[44px] flex items-center justify-center bg-paper">✕</button>
+    </div>
+    <div class="px-8 pt-16 flex flex-col gap-6 text-[42px] font-[300] leading-[0.9] tracking-[-0.03em]">
+      <a href="#works" class="mobile-link">Works <span class="font-hand text-[22px] align-middle text-terracotta">— 27 pieces</span></a>
+      <a href="#philosophy" class="mobile-link">Philosophy</a>
+      <a href="#classes" class="mobile-link">Classes</a>
+      <a href="#journal" class="mobile-link">Journal</a>
+      <a href="#contact" class="mobile-link mt-10 text-[16px] tracking-[0.2em] uppercase font-[600] rough-border hand-drawn inline-block px-6 py-3 bg-terracotta text-paper w-fit">Visit Studio</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MARQUEE TOP -->
+<div class="relative z-30 pt-[88px] md:pt-[96px] border-y border-ink/10 overflow-hidden bg-paper/60 backdrop-blur">
+  <div class="flex whitespace-nowrap marquee-track">
+    <div class="flex items-center gap-6 px-6 py-3 text-[12px] tracking-[0.22em] uppercase font-[500]">
+      <span>Wabi-sabi — Beauty in imperfection</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Clay • Fire • Hand • Time</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Wheel thrown in Peckham</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Founded MMXVIII</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Raw earth — 1260°</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+    </div>
+    <div class="flex items-center gap-6 px-6 py-3 text-[12px] tracking-[0.22em] uppercase font-[500]" aria-hidden>
+      <span>Wabi-sabi — Beauty in imperfection</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Clay • Fire • Hand • Time</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Wheel thrown in Peckham</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Founded MMXVIII</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Raw earth — 1260°</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+    </div>
+    <div class="flex items-center gap-6 px-6 py-3 text-[12px] tracking-[0.22em] uppercase font-[500]" aria-hidden>
+      <span>Wabi-sabi — Beauty in imperfection</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Clay • Fire • Hand • Time</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Wheel thrown in Peckham</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Founded MMXVIII</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+      <span>Raw earth — 1260°</span><span class="w-1 h-1 rounded-full bg-terracotta"></span>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="relative max-w-[1600px] mx-auto px-6 md:px-10 pt-10 md:pt-16 pb-24">
+  <div class="grid grid-cols-12 gap-6 md:gap-8 items-start">
+    <!-- Left copy -->
+    <div class="col-span-12 lg:col-span-7 relative">
+      <div class="flex items-start gap-4 mb-8">
+        <div class="hidden md:block w-[56px] h-[1px] bg-ink mt-[14px]"></div>
+        <p class="font-hand text-[22px] leading-[1.2] text-terracotta rotate-[-1.5deg] max-w-[320px]">“Nothing lasts, nothing is finished, and nothing is perfect.” — tea master</p>
+      </div>
+      <h1 class="font-fraunces font-[200] tracking-[-0.05em] leading-[0.85] text-[16vw] md:text-[10vw] lg:text-[9vw] xl:text-[132px]">
+        <span class="block">clay</span>
+        <span class="block -mt-2 md:-mt-4 ml-[0.12em] flex items-baseline gap-4">
+          <span class="font-[600] italic tracking-[-0.06em]">remembers</span>
+          <span class="hidden md:inline-flex w-[1.6em] h-[0.9em] rounded-full border border-ink/20 items-center justify-center text-[14px] tracking-[0.2em] uppercase font-[500] not-italic translate-y-[-0.3em]">every</span>
+        </span>
+        <span class="block -mt-2 md:-mt-6 flex items-center gap-4 md:gap-8">
+          <span class="font-hand font-[400] text-terracotta text-[20vw] md:text-[11vw] xl:text-[148px] rotate-[-4deg] translate-y-1 scribble">touch</span>
+          <span class="font-[100] text-[18px] md:text-[20px] tracking-[0.02em] leading-[1.1] max-w-[16ch] translate-y-3 hidden md:block">A Peckham studio practicing imperfect, slow-made vessels fired with wood & soda.</span>
+        </span>
+      </h1>
+
+      <div class="mt-10 md:mt-14 flex flex-wrap gap-4 md:gap-6 items-center">
+        <a href="#classes" class="group relative inline-flex items-center gap-4 bg-ink text-paper px-8 py-4 hand-drawn rough-border overflow-hidden">
+          <span class="relative z-10 text-[13px] tracking-[0.18em] uppercase font-[600]">Throw with us</span>
+          <span class="relative z-10 w-[28px] h-[28px] rounded-full bg-terracotta flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">↗</span>
+          <div class="absolute inset-0 bg-terracotta translate-y-full group-hover:translate-y-0 transition-transform duration-500 cubic-bezier(.76,0,.24,1)"></div>
+        </a>
+        <div class="flex items-center gap-3">
+          <div class="flex -space-x-3">
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face" class="w-10 h-10 rounded-full border-2 border-clay object-cover hand-drawn-2">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face" class="w-10 h-10 rounded-full border-2 border-clay object-cover hand-drawn">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" class="w-10 h-10 rounded-full border-2 border-clay object-cover hand-drawn-2">
+          </div>
+          <p class="font-hand text-[18px] leading-[1.1]">loved by 2,000<br>beginners this year</p>
+        </div>
+      </div>
+
+      <!-- mobile paragraph -->
+      <p class="md:hidden mt-8 font-fraunces font-[300] text-[18px] leading-[1.35] max-w-[28ch] text-ink/80">A Peckham studio practicing imperfect, slow-made vessels fired with wood & soda. Every bowl holds a fingerprint.</p>
+    </div>
+
+    <!-- Right visual -->
+    <div class="col-span-12 lg:col-span-5 relative mt-6 lg:mt-0">
+      <div class="relative aspect-[4/5] lg:aspect-[4/5.2] max-w-[520px] ml-auto">
+        <!-- blob background -->
+        <div class="absolute -inset-6 bg-terracotta/15 hand-drawn-3 rotate-1"></div>
+        <div class="absolute inset-0 border border-ink/10 hand-drawn-2 -rotate-1"></div>
+
+        <div class="relative w-full h-full overflow-hidden hand-drawn-2 paper-shadow bg-paper img-reveal" id="heroImg">
+          <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=900&auto=format&fit=crop&q=80" alt="Potter hands on wheel" class="w-full h-full object-cover scale-[1.02] hover:scale-[1.06] transition-transform duration-[1.8s] cubic-bezier(.16,1,.3,1)">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent mix-blend-multiply pointer-events-none"></div>
+          <!-- tape -->
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-[88px] h-[28px] bg-[#f0e6c8] rotate-[-6deg] opacity-80 shadow-[0_1px_3px_rgba(0,0,0,0.1)]" style="clip-path: polygon(2% 0,100% 0,98% 100%,0 100%);"></div>
+        </div>
+
+        <!-- floating notes -->
+        <div class="absolute -left-6 md:-left-12 top-[18%] bg-paper hand-drawn rough-border px-4 py-3 max-w-[158px] rotate-[-4deg] paper-shadow" style="animation: floatSlow 6s ease-in-out infinite;">
+          <div class="text-[10px] tracking-[0.2em] uppercase text-ash">Kiln Note · #421</div>
+          <div class="font-hand text-[20px] leading-[0.95] mt-1">fired at 1260°<br>soda ash + silence</div>
+          <div class="mt-2 w-full h-[1px] bg-ink/10"></div>
+          <div class="font-hand text-[14px] mt-1 text-terracotta">→ imperfect glaze, perfect</div>
+        </div>
+
+        <div class="absolute -right-4 md:-right-6 bottom-[12%] bg-ink text-paper hand-drawn-2 px-5 py-4 rotate-[2deg] paper-shadow w-[180px]">
+          <div class="flex items-baseline gap-2">
+            <span class="text-[40px] font-[200] leading-none">4000</span><span class="font-hand text-[18px] -mb-1">pieces</span>
+          </div>
+          <div class="text-[11px] tracking-[0.16em] uppercase opacity-70 mt-1">Wheel thrown since 2018 — each one different</div>
+          <div class="mt-3 flex gap-1.5">
+            <span class="w-6 h-1 bg-terracotta"></span><span class="w-2 h-1 bg-paper/30"></span><span class="w-2 h-1 bg-paper/30"></span>
+          </div>
+        </div>
+
+        <!-- scribble arrow -->
+        <div class="absolute -bottom-10 left-10 hidden md:block">
+          <svg width="90" height="60" viewBox="0 0 90 60" fill="none"><path d="M5 55 Q 20 10 70 18 T 84 12" stroke="#c86b3c" stroke-width="1.5" stroke-dasharray="3 5" fill="none" stroke-linecap="round"/><path d="M78 6 L84 12 L 76 18" stroke="#c86b3c" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="font-hand text-[16px] text-terracotta ml-6 rotate-[-6deg] inline-block">real hands, no moulds</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- bottom bar stats -->
+  <div class="mt-16 md:mt-24 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 border-t border-ink/10 pt-8">
+    <div class="flex gap-3 items-start">
+      <span class="font-hand text-[28px] text-terracotta mt-[-4px]">①</span>
+      <div><div class="font-[600] text-[14px] tracking-[0.12em] uppercase">Clay from Devon</div><div class="font-[300] text-[14px] text-ash">Wild dug, unrefined, full of iron specks</div></div>
+    </div>
+    <div class="flex gap-3 items-start">
+      <span class="font-hand text-[28px] text-terracotta mt-[-4px]">②</span>
+      <div><div class="font-[600] text-[14px] tracking-[0.12em] uppercase">Fired slow</div><div class="font-[300] text-[14px] text-ash">72h wood kiln, we sleep in shifts</div></div>
+    </div>
+    <div class="flex gap-3 items-start">
+      <span class="font-hand text-[28px] text-terracotta mt-[-4px]">③</span>
+      <div><div class="font-[600] text-[14px] tracking-[0.12em] uppercase">No perfect circle</div><div class="font-[300] text-[14px] text-ash">Wabi-sabi — beauty of the uneven</div></div>
+    </div>
+    <div class="flex gap-3 items-start">
+      <span class="font-hand text-[28px] text-terracotta mt-[-4px]">④</span>
+      <div><div class="font-[600] text-[14px] tracking-[0.12em] uppercase">Made to hold</div><div class="font-[300] text-[14px] text-ash">Soup, hands, morning light</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy" class="relative bg-paper border-y border-ink/10 overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-[14px] flex">
+    <div class="flex-1 bg-ink"></div><div class="flex-1 bg-terracotta"></div><div class="flex-1 bg-clay"></div><div class="flex-1 bg-ink"></div>
+  </div>
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-32 grid grid-cols-12 gap-10">
+    <div class="col-span-12 md:col-span-5">
+      <div class="sticky top-[140px]">
+        <div class="inline-flex items-center gap-2 rough-border hand-drawn px-4 py-1.5 text-[11px] tracking-[0.2em] uppercase font-[600] bg-clay">Philosophy — Wabi-sabi</div>
+        <h2 class="mt-8 font-fraunces font-[200] text-[12vw] md:text-[7vw] lg:text-[84px] leading-[0.85] tracking-[-0.05em]">Nothing<br><span class="font-[500] italic">needs</span><br>to be<br><span class="font-hand text-terracotta text-[14vw] md:text-[8vw] lg:text-[96px] rotate-[-2deg] inline-block -mt-2">perfect.</span></h2>
+        <p class="mt-8 font-hand text-[24px] leading-[1.15] max-w-[32ch]">We leave the wobble. The thumbprint. The crawl in the glaze. You can feel where a hand was.</p>
+        <div class="mt-10 hidden md:block">
+          <div class="w-[140px] h-[140px] rounded-full border border-dashed border-ink/20 flex items-center justify-center animate-[spin_22s_linear_infinite]">
+            <span class="font-hand text-[14px] tracking-[0.2em] uppercase">• imperfect • handmade • slow</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-12 md:col-span-7 space-y-16 md:space-y-24">
+      <!-- item 01 -->
+      <div class="group grid md:grid-cols-[96px_1fr] gap-6 md:gap-8 items-start border-b border-ink/10 pb-12 md:pb-16">
+        <div class="flex items-center gap-4"><span class="font-hand text-[48px] leading-none text-terracotta">侘</span><span class="text-[11px] tracking-[0.2em] uppercase opacity-60">wabi</span></div>
+        <div>
+          <h3 class="font-fraunces font-[500] text-[32px] md:text-[42px] leading-[0.95] tracking-[-0.03em]">Acceptance of transience and imperfection.</h3>
+          <p class="mt-4 font-[300] text-[17px] leading-[1.6] text-ink/80 max-w-[54ch]">Our clay is mixed with grog from old failed pots. Ground back into the new. Nothing wasted. Every vessel contains the memory of the last one that cracked in the kiln. That's <em class="font-[500]">wabi</em> — humble, unpretentious, finding beauty in the bare.</p>
+          <div class="mt-6 flex gap-3">
+            <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=300&auto=format&fit=crop&q=80" class="w-[88px] h-[88px] object-cover hand-drawn-2 rough-border">
+            <img src="https://images.unsplash.com/photo-1608111113921-7ef84d6f2a7f?w=300&auto=format&fit=crop&q=80" class="w-[88px] h-[88px] object-cover hand-drawn rough-border grayscale">
+          </div>
+        </div>
+      </div>
+      <!-- item 02 -->
+      <div class="group grid md:grid-cols-[96px_1fr] gap-6 md:gap-8 items-start border-b border-ink/10 pb-12 md:pb-16">
+        <div class="flex items-center gap-4"><span class="font-hand text-[48px] leading-none text-terracotta">寂</span><span class="text-[11px] tracking-[0.2em] uppercase opacity-60">sabi</span></div>
+        <div>
+          <h3 class="font-fraunces font-[500] text-[32px] md:text-[42px] leading-[0.95] tracking-[-0.03em]">Beauty that comes with age and use.</h3>
+          <p class="mt-4 font-[300] text-[17px] leading-[1.6] text-ink/80 max-w-[54ch]">We want our mugs to chip. To have tea stains in the crazing lines after 6 years. <em class="font-[500]">Sabi</em> is the bloom, not the flaw. Our glaze breaks over edges to reveal the iron body beneath — like skin over bone.</p>
+          <div class="mt-6 bg-clay hand-drawn p-4 md:p-5 max-w-[520px] rotate-[-0.6deg]">
+            <div class="font-hand text-[20px] leading-[1.2]">“At first I wanted it perfectly round. Now I ask for the one that leans a little.” — Mari, regular since 2019</div>
+          </div>
+        </div>
+      </div>
+      <!-- item 03 -->
+      <div class="group grid md:grid-cols-[96px_1fr] gap-6 md:gap-8 items-start">
+        <div class="flex items-center gap-4"><span class="font-hand text-[48px] leading-none text-terracotta">土</span><span class="text-[11px] tracking-[0.2em] uppercase opacity-60">tsuchi</span></div>
+        <div>
+          <h3 class="font-fraunces font-[500] text-[32px] md:text-[42px] leading-[0.95] tracking-[-0.03em]">Clay is not material, it's time.</h3>
+          <p class="mt-4 font-[300] text-[17px] leading-[1.6] text-ink/80 max-w-[54ch]">20 million years to become Devon ball clay. 3 weeks to dry. 3 days in the kiln. 20 minutes you hold it at the market and decide. It takes so long to become simple.</p>
+          <div class="mt-8 grid grid-cols-3 gap-3 max-w-[520px]">
+            <div class="bg-ink text-paper hand-drawn p-3 text-center"><div class="font-[700] text-[22px] leading-none">72h</div><div class="text-[10px] uppercase tracking-[0.15em] mt-1 opacity-70">kiln time</div></div>
+            <div class="bg-terracotta text-paper hand-drawn-2 p-3 text-center"><div class="font-[700] text-[22px] leading-none">1260°</div><div class="text-[10px] uppercase tracking-[0.15em] mt-1 opacity-80">peak temp</div></div>
+            <div class="bg-clay hand-drawn p-3 text-center rough-border"><div class="font-[700] text-[22px] leading-none">∞</div><div class="text-[10px] uppercase tracking-[0.15em] mt-1 opacity-60">repairs</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAKER STORY — sticky -->
+<section class="relative max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28 grid grid-cols-12 gap-8">
+  <div class="col-span-12 md:col-span-6">
+    <div class="sticky-card">
+      <div class="relative aspect-[4/5] max-w-[520px] overflow-hidden hand-drawn-2 paper-shadow">
+        <img src="https://images.unsplash.com/photo-1493106641515-6b563a1d79e9?w=800&auto=format&fit=crop&q=80" alt="Hands centered on wheel" class="w-full h-full object-cover">
+        <!-- stamp -->
+        <div class="absolute bottom-5 left-5 bg-paper/90 backdrop-blur hand-drawn px-4 py-2 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-ink text-paper flex items-center justify-center text-[14px]">土</div>
+          <div><div class="font-[600] text-[12px] tracking-[0.14em] uppercase leading-none">Akari Sato</div><div class="font-hand text-[14px] leading-none mt-1">founder / potter</div></div>
+        </div>
+      </div>
+      <div class="mt-6 max-w-[520px] flex gap-4 text-[13px] leading-[1.4] font-[300] text-ash">
+        <div class="w-10 h-[1px] bg-ink/20 mt-3 shrink-0"></div>
+        <p>Akari learned in Mashiko, Japan for 3 years with a 78-year-old master who never measured. “If you need calipers, you are not listening to the clay.” She opened Tsuchi in a railway arch in 2018 with a second-hand Shimpo wheel and a rescue dog.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-12 md:col-span-6">
+    <div class="space-y-20 md:space-y-32 pt-4">
+      <div>
+        <div class="text-[12px] tracking-[0.24em] uppercase font-[600] text-terracotta">02 — Process</div>
+        <h3 class="mt-4 font-fraunces text-[48px] md:text-[64px] font-[300] leading-[0.9] tracking-[-0.04em]">We work in circles.<br><span class="italic font-[400]">The clay does too.</span></h3>
+      </div>
+
+      <div class="space-y-16">
+        <div class="flex gap-6 group">
+          <div class="shrink-0 w-12 h-12 rounded-full border border-ink/20 flex items-center justify-center font-hand text-[22px] group-hover:bg-terracotta group-hover:text-paper group-hover:border-terracotta transition-colors">1</div>
+          <div><h4 class="font-[600] text-[20px]">Wedging / remembering</h4><p class="mt-2 font-[300] text-[16px] leading-[1.6] text-ink/75 max-w-[42ch]">20 minutes of push, fold, spiral. Removing air, aligning particles. It’s like kneading a memory back into the body. If you rush this, everything collapses later.</p></div>
+        </div>
+        <div class="flex gap-6 group">
+          <div class="shrink-0 w-12 h-12 rounded-full border border-ink/20 flex items-center justify-center font-hand text-[22px] group-hover:bg-terracotta group-hover:text-paper group-hover:border-terracotta transition-colors">2</div>
+          <div><h4 class="font-[600] text-[20px]">Centering / listening</h4><p class="mt-2 font-[300] text-[16px] leading-[1.6] text-ink/75 max-w-[42ch]">Both hands, water, breathe. You are not forcing it center, you are asking. When true center comes, the wheel goes quiet. Beginners chase this sound for months.</p></div>
+        </div>
+        <div class="flex gap-6 group">
+          <div class="shrink-0 w-12 h-12 rounded-full border border-ink/20 flex items-center justify-center font-hand text-[22px] group-hover:bg-terracotta group-hover:text-paper group-hover:border-terracotta transition-colors">3</div>
+          <div><h4 class="font-[600] text-[20px]">Opening / risk</h4><p class="mt-2 font-[300] text-[16px] leading-[1.6] text-ink/75 max-w-[42ch]">Two thumbs. A hole that becomes a bottom. Too thin and it tears. Too thick and it never dries. Every pot holds this moment of near-failure.</p></div>
+        </div>
+        <div class="flex gap-6 group">
+          <div class="shrink-0 w-12 h-12 rounded-full border border-ink/20 flex items-center justify-center font-hand text-[22px] group-hover:bg-terracotta group-hover:text-paper group-hover:border-terracotta transition-colors">4</div>
+          <div><h4 class="font-[600] text-[20px]">Pulling / breathing</h4><p class="mt-2 font-[300] text-[16px] leading-[1.6] text-ink/75 max-w-[42ch]">Inside hand, outside hand, lift. The wall rises like a lung. We teach you to leave it a little thicker at the rim — so it lives after you put it down.</p></div>
+        </div>
+      </div>
+
+      <div class="relative bg-ink text-paper hand-drawn-2 p-6 md:p-8 overflow-hidden">
+        <div class="absolute top-0 right-0 w-[140px] h-[140px] opacity-20 rotate-12"><img src="https://images.unsplash.com/photo-1536266192225-5a5a11b0d51a?w=400&auto=format&fit=crop&q=80" class="w-full h-full object-cover rounded-full hand-drawn"></div>
+        <div class="relative">
+          <div class="font-hand text-[28px] leading-[0.95] text-terracotta">The kiln has final say.</div>
+          <p class="mt-3 font-[300] text-[14px] leading-[1.6] text-paper/70 max-w-[38ch]">We fire with wood on full moons. Soda at peak. You do not control glaze. You invite it. About 30% will have a story you didn’t plan — those are the ones we keep.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLASSES -->
+<section id="classes" class="relative bg-terracotta text-paper overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.06]" style="background-image:url('https://grainy-gradients.vercel.app/noise.svg');"></div>
+  <div class="relative max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28">
+    <div class="flex flex-wrap justify-between gap-8 items-end">
+      <div>
+        <div class="inline-flex items-center gap-2 border border-paper/20 hand-drawn px-4 py-1.5 text-[11px] tracking-[0.2em] uppercase font-[600]">Classes — Winter 2025</div>
+        <h2 class="mt-6 font-fraunces font-[200] text-[14vw] md:text-[8vw] lg:text-[96px] leading-[0.85] tracking-[-0.05em]">Come<br>make<span class="font-hand text-[16vw] md:text-[9vw] lg:text-[110px] ml-3 rotate-[-3deg] inline-block text-clay">with hands.</span></h2>
+      </div>
+      <p class="font-hand text-[22px] leading-[1.15] max-w-[28ch] text-clay rotate-[-1deg]">Small groups of 6. No experience. We sweep the floor after, you take a pot that wobbles. It will be your favourite mug.</p>
+    </div>
+
+    <div class="mt-16 grid grid-cols-12 gap-6 md:gap-8">
+      <!-- Card 1 -->
+      <div class="col-span-12 md:col-span-4 group relative bg-paper text-ink hand-drawn paper-shadow p-6 md:p-8 hover:rotate-[-0.6deg] transition-transform duration-500">
+        <div class="flex justify-between items-start">
+          <div class="w-12 h-12 rounded-full bg-clay flex items-center justify-center font-hand text-[22px]">𐃆</div>
+          <span class="text-[11px] tracking-[0.2em] uppercase font-[600] border border-ink/15 hand-drawn px-3 py-1">Most Loved</span>
+        </div>
+        <div class="mt-8">
+          <div class="text-[12px] tracking-[0.2em] uppercase font-[600] text-terracotta">4 Weeks — Beginner</div>
+          <h3 class="mt-2 font-fraunces font-[500] text-[32px] leading-[0.9] tracking-[-0.03em]">Wheel<br>Throwing</h3>
+          <p class="mt-3 font-[300] text-[15px] leading-[1.5] text-ink/70">Learn centering, opening, pulling cylinders and bowls. You will fail beautifully for 3 weeks, then something clicks.</p>
+        </div>
+        <div class="mt-8 aspect-[4/3] overflow-hidden hand-drawn-2 bg-clay">
+          <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=600&auto=format&fit=crop&q=80" alt="wheel" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        </div>
+        <div class="mt-6 flex justify-between items-end">
+          <div><div class="font-fraunces font-[600] text-[28px] leading-none">£285</div><div class="text-[12px] text-ash mt-1">incl. clay + firings</div></div>
+          <div class="font-hand text-[18px] text-terracotta group-hover:translate-x-1 transition-transform">→ join →</div>
+        </div>
+        <!-- tape -->
+        <div class="absolute -top-2 -right-2 w-[68px] h-[24px] bg-[#f0e6c8] rotate-[12deg] opacity-90 shadow-sm" style="clip-path: polygon(1% 0,100% 0,99% 100%,0 100%);"></div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="col-span-12 md:col-span-4 group relative bg-clay text-ink hand-drawn-2 paper-shadow p-6 md:p-8 rotate-[0.5deg] hover:rotate-[-0.4deg] transition-transform duration-500">
+        <div class="flex justify-between items-start">
+          <div class="w-12 h-12 rounded-full bg-paper flex items-center justify-center font-hand text-[22px]">☾</div>
+          <span class="text-[11px] tracking-[0.2em] uppercase font-[600] border border-ink/15 hand-drawn px-3 py-1">Slow Sundays</span>
+        </div>
+        <div class="mt-8">
+          <div class="text-[12px] tracking-[0.2em] uppercase font-[600] text-terracotta">One Day — Hand Build</div>
+          <h3 class="mt-2 font-fraunces font-[500] text-[32px] leading-[0.9] tracking-[-0.03em]">Coil & Pinch</h3>
+          <p class="mt-3 font-[300] text-[15px] leading-[1.5] text-ink/70">No wheel. Just hands, wooden tools, and tea. Make two pieces: a tea bowl and a small vase. Good for people who think they are “not creative”.</p>
+        </div>
+        <div class="mt-8 aspect-[4/3] overflow-hidden hand-drawn bg-paper">
+          <img src="https://images.unsplash.com/photo-1608111113921-7ef84d6f2a7f?w=600&auto=format&fit=crop&q=80" alt="hand building" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        </div>
+        <div class="mt-6 flex justify-between items-end">
+          <div><div class="font-fraunces font-[600] text-[28px] leading-none">£95</div><div class="text-[12px] text-ash mt-1">incl. lunch + tea</div></div>
+          <div class="font-hand text-[18px] text-terracotta group-hover:translate-x-1 transition-transform">→ join →</div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="col-span-12 md:col-span-4 group relative bg-ink text-paper hand-drawn p-6 md:p-8 paper-shadow rotate-[-0.6deg] hover:rotate-[0.4deg] transition-transform duration-500">
+        <div class="flex justify-between items-start">
+          <div class="w-12 h-12 rounded-full bg-terracotta flex items-center justify-center font-hand text-[22px] text-paper">✺</div>
+          <span class="text-[11px] tracking-[0.2em] uppercase font-[600] border border-paper/20 hand-drawn-2 px-3 py-1 text-paper/80">Alchemists</span>
+        </div>
+        <div class="mt-8">
+          <div class="text-[12px] tracking-[0.2em] uppercase font-[600] text-terracotta">Weekend — Glaze</div>
+          <h3 class="mt-2 font-fraunces font-[500] text-[32px] leading-[0.9] tracking-[-0.03em] text-paper">Glaze &<br>Fire</h3>
+          <p class="mt-3 font-[300] text-[15px] leading-[1.5] text-paper/70">Mix your own shino and celadon from raw rock. Wax, dip, pour. Then we fire together. You will wait two weeks — torture, then love.</p>
+        </div>
+        <div class="mt-8 aspect-[4/3] overflow-hidden hand-drawn-2 bg-paper/10">
+          <img src="https://images.unsplash.com/photo-1493106641515-6b563a1d79e9?w=600&auto=format&fit=crop&q=80" alt="glaze" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90">
+        </div>
+        <div class="mt-6 flex justify-between items-end">
+          <div><div class="font-fraunces font-[600] text-[28px] leading-none text-paper">£165</div><div class="text-[12px] text-paper/50 mt-1">bring bisque piece</div></div>
+          <div class="font-hand text-[18px] text-terracotta group-hover:translate-x-1 transition-transform">→ join →</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 flex flex-wrap gap-4 text-[13px]">
+      <div class="inline-flex items-center gap-2 bg-paper text-ink hand-drawn px-4 py-2"><span class="w-2 h-2 rounded-full bg-[#2ecc71]"></span> 2 spots left — January wheel</div>
+      <div class="inline-flex items-center gap-2 bg-ink/40 text-paper hand-drawn-2 px-4 py-2 backdrop-blur"><span class="font-hand text-[16px]">P.S.</span> We offer gift vouchers handwritten on raw paper</div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY / WORKS -->
+<section id="works" class="relative max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28">
+  <div class="flex flex-wrap justify-between items-end gap-6">
+    <div>
+      <div class="flex items-center gap-4">
+        <div class="text-[12px] tracking-[0.24em] uppercase font-[600]">03 — Works</div>
+        <div class="font-hand text-[20px] text-terracotta rotate-[-2deg]">not collection, but companions</div>
+      </div>
+      <h2 class="mt-4 font-fraunces font-[200] text-[12vw] md:text-[7vw] lg:text-[84px] leading-[0.85] tracking-[-0.05em]">Made to be <span class="italic font-[400] scribble">used.</span></h2>
+    </div>
+    <div class="flex items-center gap-2">
+      <button data-filter="all" class="filter-btn active rough-border hand-drawn px-4 py-2 text-[12px] tracking-[0.18em] uppercase font-[600] bg-ink text-paper">All</button>
+      <button data-filter="bowls" class="filter-btn rough-border hand-drawn-2 px-4 py-2 text-[12px] tracking-[0.18em] uppercase font-[600] bg-paper hover:bg-clay transition-colors">Bowls</button>
+      <button data-filter="vases" class="filter-btn rough-border hand-drawn px-4 py-2 text-[12px] tracking-[0.18em] uppercase font-[600] bg-paper hover:bg-clay transition-colors">Vases</button>
+      <button data-filter="cups" class="filter-btn rough-border hand-drawn-2 px-4 py-2 text-[12px] tracking-[0.18em] uppercase font-[600] bg-paper hover:bg-clay transition-colors">Cups</button>
+    </div>
+  </div>
+
+  <div class="mt-12 grid grid-cols-12 gap-6 md:gap-8 auto-rows-[minmax(220px,auto)]">
+    <!-- large -->
+    <div class="col-span-12 md:col-span-7 gallery-item" data-cat="bowls">
+      <div class="group relative aspect-[4/3] overflow-hidden hand-drawn-2 bg-paper paper-shadow">
+        <img src="https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?w=1000&auto=format&fit=crop&q=80" alt="Large bowl" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-[1.2s]">
+        <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-ink/70 to-transparent">
+          <div class="flex justify-between items-end">
+            <div><div class="font-hand text-[22px] text-paper leading-none">ash bowl — #118</div><div class="text-[11px] tracking-[0.2em] uppercase text-paper/60 mt-1">Shino + wood ash / Ø24cm</div></div>
+            <div class="font-fraunces text-[18px] text-paper">£78</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- vertical -->
+    <div class="col-span-6 md:col-span-5 gallery-item" data-cat="vases">
+      <div class="group relative aspect-[3/4] overflow-hidden hand-drawn bg-clay paper-shadow">
+        <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80" alt="Vase" class="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1.2s]">
+        <div class="absolute top-4 left-4 bg-paper hand-drawn px-3 py-1.5 rotate-[-2deg]"><span class="font-hand text-[16px]">one of a kind</span></div>
+      </div>
+      <div class="mt-3 flex justify-between">
+        <div class="font-[500] text-[16px]">Tall crackle vase</div><div class="font-hand text-[16px] text-terracotta">£120</div>
+      </div>
+    </div>
+    <!-- small row -->
+    <div class="col-span-6 md:col-span-4 gallery-item" data-cat="cups">
+      <div class="group relative aspect-square overflow-hidden hand-drawn-2 bg-paper paper-shadow">
+        <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&auto=format&fit=crop&q=80" alt="Cup" class="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-[1.2s]">
+      </div>
+      <div class="mt-3 flex justify-between"><div class="font-[500] text-[14px] tracking-[0.02em]">Thumb cup — iron</div><div class="font-hand text-[16px] text-terracotta">£32</div></div>
+    </div>
+    <div class="col-span-6 md:col-span-4 gallery-item" data-cat="bowls">
+      <div class="group relative aspect-square overflow-hidden hand-drawn bg-paper paper-shadow">
+        <img src="https://images.unsplash.com/photo-1608111113921-7ef84d6f2a7f?w=600&auto=format&fit=crop&q=80" alt="Bowl" class="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-[1.2s]">
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-paper/40 backdrop-blur-[2px]"><span class="hand-drawn-2 bg-ink text-paper px-4 py-2 text-[12px] uppercase tracking-[0.18em] font-[600]">Sold — new batch March</span></div>
+      </div>
+      <div class="mt-3 flex justify-between"><div class="font-[500] text-[14px] tracking-[0.02em]">Rice bowl — white</div><div class="font-hand text-[16px] text-terracotta">£42</div></div>
+    </div>
+    <div class="col-span-12 md:col-span-4 gallery-item" data-cat="vases">
+      <div class="group relative aspect-[4/3] md:aspect-square overflow-hidden hand-drawn-2 bg-clay paper-shadow">
+        <img src="https://images.unsplash.com/photo-1493106641515-6b563a1d79e9?w=800&auto=format&fit=crop&q=80" alt="Vases grouping" class="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-[1.2s]">
+        <div class="absolute bottom-3 left-3 bg-ink text-paper hand-drawn px-3 py-1 text-[11px] tracking-[0.18em] uppercase">Studio shelf 7AM</div>
+      </div>
+      <div class="mt-3 flex justify-between"><div class="font-[500] text-[14px] tracking-[0.02em]">Set of 3 bud vases</div><div class="font-hand text-[16px] text-terracotta">£68</div></div>
+    </div>
+
+    <!-- quote block -->
+    <div class="col-span-12 md:col-span-12 mt-2 grid md:grid-cols-[1.2fr_1fr] gap-6 items-center border-t border-ink/10 pt-10">
+      <div class="font-fraunces font-[300] text-[28px] md:text-[36px] leading-[1.05] tracking-[-0.03em]">We don’t photograph everything. Some pots are only meant to be held at the Saturday market, still warm from your hands in December.</div>
+      <div class="flex gap-4 items-center justify-start md:justify-end">
+        <div class="text-right"><div class="font-hand text-[22px] leading-none rotate-[-1deg]">Every Saturday<br>at Peckham market</div><div class="text-[11px] tracking-[0.2em] uppercase mt-2">10am — 3pm · Bellenden Rd</div></div>
+        <div class="w-[56px] h-[56px] rounded-full border border-ink/20 flex items-center justify-center">↗</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNAL / TESTIMONIALS -->
+<section id="journal" class="relative bg-ink text-paper overflow-hidden">
+  <div class="absolute left-0 top-0 w-full h-full opacity-[0.04]" style="background-image:url('https://grainy-gradients.vercel.app/noise.svg');"></div>
+  <div class="relative max-w-[1600px] mx-auto px-6 md:px-10 py-20 md:py-28">
+    <div class="grid grid-cols-12 gap-10">
+      <div class="col-span-12 md:col-span-4">
+        <div class="inline-flex items-center gap-2 border border-paper/15 hand-drawn px-4 py-1.5 text-[11px] tracking-[0.2em] uppercase font-[600]">Journal & Notes</div>
+        <h2 class="mt-6 font-fraunces font-[200] text-[48px] md:text-[60px] leading-[0.9] tracking-[-0.04em]">Fingerprints,<br><span class="italic font-[300] text-clay">not</span><br>signatures.</h2>
+        <div class="mt-10 space-y-6">
+          <div class="bg-paper/5 border border-paper/10 hand-drawn p-5 rotate-[-0.5deg]">
+            <div class="font-hand text-[22px] leading-[1.1] text-terracotta">Kiln opening —<br>12 imperfect loves + 3 losses</div>
+            <div class="mt-3 text-[13px] leading-[1.5] text-paper/60">Yesterday we opened. Akari cried at pot #7. Small tea bowl with iron bleed like a river delta. Photo attached. We kept the cracked one as pencil holder.</div>
+            <div class="mt-3 text-[11px] tracking-[0.18em] uppercase text-paper/40">Oct 12 — kiln log</div>
+          </div>
+          <div class="font-hand text-[20px] text-clay rotate-[1deg]">→ we repair free for life. Bring your chipped mug. We'll do kintsugi with brass.</div>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-8 grid grid-cols-12 gap-6">
+        <!-- testimonial cards -->
+        <div class="col-span-12 md:col-span-6 bg-paper text-ink hand-drawn p-6 md:p-7 paper-shadow rotate-[0.4deg] hover:rotate-[-0.4deg] transition-transform duration-500">
+          <div class="flex justify-between"><div class="font-hand text-[28px] leading-none text-terracotta">“</div><div class="text-[10px] tracking-[0.2em] uppercase border border-ink/15 px-2 py-1 hand-drawn">Google ★★★★★</div></div>
+          <p class="mt-2 font-fraunces font-[300] text-[20px] leading-[1.25]">I came for a date idea. Stayed for 2 years. My kitchen is now full of wobbly bowls I love more than my wedding china.</p>
+          <div class="mt-6 flex items-center gap-3"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" class="w-9 h-9 rounded-full object-cover hand-drawn-2"><div><div class="font-[600] text-[13px]">Elise Hart</div><div class="font-hand text-[14px] text-ash -mt-1">student, 2023-25</div></div></div>
+        </div>
+        <div class="col-span-12 md:col-span-6 bg-clay text-ink hand-drawn-2 p-6 md:p-7 paper-shadow rotate-[-0.6deg] hover:rotate-[0.4deg] transition-transform duration-500">
+          <div class="flex justify-between"><div class="font-hand text-[28px] leading-none text-terracotta">“</div><div class="text-[10px] tracking-[0.2em] uppercase border border-ink/15 px-2 py-1 hand-drawn-2">Instagram DM</div></div>
+          <p class="mt-2 font-fraunces font-[300] text-[20px] leading-[1.25]">my mug has a small dent where Akari’s thumb was. I drink from that dent every morning. it knows my mouth now.</p>
+          <div class="mt-6 flex items-center gap-3"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face" class="w-9 h-9 rounded-full object-cover hand-drawn"><div><div class="font-[600] text-[13px]">Jonah Field</div><div class="font-hand text-[14px] text-ash -mt-1">builder & tea drinker</div></div></div>
+        </div>
+        <div class="col-span-12 bg-terracotta text-paper hand-drawn-2 p-6 md:p-8 paper-shadow flex flex-col md:flex-row gap-8 items-start">
+          <div class="shrink-0 w-[72px] h-[72px] rounded-full bg-paper flex items-center justify-center text-ink font-fraunces font-[700] text-[22px] hand-drawn-2">土</div>
+          <div>
+            <p class="font-fraunces font-[300] text-[22px] md:text-[26px] leading-[1.15] max-w-[48ch]">We teach 6 at a time because clay needs quiet. No loud music, no hurry. Our studio smells of wet earth and toast from the bakery next door. You will get clay under your nails and you will like it.</p>
+            <div class="mt-6 inline-flex items-center gap-2 border border-paper/20 hand-drawn px-4 py-2 text-[12px] tracking-[0.18em] uppercase font-[600]">Akari — founder note, pinned to kiln</div>
+          </div>
+        </div>
+        <!-- images strip -->
+        <div class="col-span-12 grid grid-cols-3 gap-4">
+          <div class="aspect-[4/3] overflow-hidden hand-drawn bg-paper/10"><img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=600&auto=format&fit=crop&q=80" class="w-full h-full object-cover"></div>
+          <div class="aspect-[4/3] overflow-hidden hand-drawn-2 bg-paper/10"><img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=600&auto=format&fit=crop&q=80" class="w-full h-full object-cover"></div>
+          <div class="aspect-[4/3] overflow-hidden hand-drawn bg-paper/10"><img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&auto=format&fit=crop&q=80" class="w-full h-full object-cover"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / FOOTER -->
+<footer id="contact" class="relative bg-paper border-t border-ink/10">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+    <!-- big CTA -->
+    <div class="py-16 md:py-24 border-b border-ink/10 grid grid-cols-12 gap-8 items-end">
+      <div class="col-span-12 lg:col-span-8">
+        <div class="font-hand text-[28px] md:text-[32px] text-terracotta rotate-[-1deg]">come touch the clay —</div>
+        <h2 class="font-fraunces font-[200] text-[16vw] md:text-[11vw] lg:text-[132px] leading-[0.82] tracking-[-0.06em] mt-2">peckham<br>arch <span class="font-[500] italic">38</span></h2>
+      </div>
+      <div class="col-span-12 lg:col-span-4">
+        <div class="bg-clay hand-drawn p-6 md:p-7 rough-border">
+          <div class="flex justify-between items-start">
+            <div class="text-[11px] tracking-[0.22em] uppercase font-[600]">Visit</div>
+            <div class="w-6 h-6 rounded-full bg-ink text-paper flex items-center justify-center text-[12px]">◍</div>
+          </div>
+          <div class="mt-4 font-fraunces font-[400] text-[20px] leading-[1.2]">Arch 38, Blenheim Grove<br>Peckham, London SE15 4QL</div>
+          <div class="mt-4 space-y-1 text-[13px] font-[400]">
+            <div class="flex justify-between"><span class="text-ash">Mon — Fri</span><span>10am — 6pm (making)</span></div>
+            <div class="flex justify-between"><span class="text-ash">Saturday</span><span>Market 10am — 3pm</span></div>
+            <div class="flex justify-between"><span class="text-ash">Sunday</span><span>closed — kiln breathing</span></div>
+          </div>
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <a href="mailto:hello@tsuchi.studio" class="rough-border hand-drawn bg-ink text-paper text-center py-2.5 text-[12px] tracking-[0.16em] uppercase font-[600] hover:bg-terracotta transition-colors">Email us</a>
+            <a href="#" class="rough-border hand-drawn bg-paper text-ink text-center py-2.5 text-[12px] tracking-[0.16em] uppercase font-[600] hover:bg-clay transition-colors">Get directions</a>
+          </div>
+          <div class="mt-4 font-hand text-[18px] text-terracotta">dog friendly, tea always on</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- lower footer -->
+    <div class="py-12 grid grid-cols-12 gap-10 text-[13px]">
+      <div class="col-span-12 md:col-span-5">
+        <div class="flex items-center gap-3">
+          <div class="w-[36px] h-[36px] rounded-[40% 60% 50% 50%] bg-ink text-paper flex items-center justify-center font-fraunces font-[700]">土</div>
+          <div class="font-fraunces font-[600] tracking-[0.02em]">TSUCHI STUDIO — EST. 2018</div>
+        </div>
+        <p class="mt-4 font-[300] leading-[1.6] max-w-[40ch] text-ink/70">Small batch pottery made slowly in South London. We dig, wedge, throw, trim, bisque, glaze and fire — everything in the arch. Our pots are not perfect, they are finished when they feel good to hold.</p>
+        <div class="mt-6 flex gap-2">
+          <a href="#" class="w-9 h-9 rounded-full border border-ink/15 flex items-center justify-center hover:bg-ink hover:text-paper transition-colors">IG</a>
+          <a href="#" class="w-9 h-9 rounded-full border border-ink/15 flex items-center justify-center hover:bg-ink hover:text-paper transition-colors">↗</a>
+          <span class="ml-2 font-hand text-[16px] text-ash rotate-[-2deg] self-center">@tsuchi.studio</span>
+        </div>
+      </div>
+      <div class="col-span-6 md:col-span-2">
+        <div class="text-[11px] tracking-[0.2em] uppercase font-[600] text-ash">Explore</div>
+        <div class="mt-3 flex flex-col gap-2 font-[400]">
+          <a href="#works" class="hover:text-terracotta transition-colors">Works & Shop</a>
+          <a href="#classes" class="hover:text-terracotta transition-colors">Classes</a>
+          <a href="#philosophy" class="hover:text-terracotta transition-colors">Philosophy</a>
+          <a href="#" class="hover:text-terracotta transition-colors">Journal</a>
+        </div>
+      </div>
+      <div class="col-span-6 md:col-span-2">
+        <div class="text-[11px] tracking-[0.2em] uppercase font-[600] text-ash">Info</div>
+        <div class="mt-3 flex flex-col gap-2 font-[400]">
+          <a href="#" class="hover:text-terracotta transition-colors">Stockists</a>
+          <a href="#" class="hover:text-terracotta transition-colors">Repairs — Kintsugi</a>
+          <a href="#" class="hover:text-terracotta transition-colors">Clay Sourcing</a>
+          <a href="#" class="hover:text-terracotta transition-colors">Wholesale</a>
+        </div>
+      </div>
+      <div class="col-span-12 md:col-span-3">
+        <div class="text-[11px] tracking-[0.2em] uppercase font-[600] text-ash">Newsletter — irregular, like our rims</div>
+        <form class="mt-3 flex gap-2" onsubmit="event.preventDefault(); this.querySelector('button').textContent='added — thank you';">
+          <input type="email" required placeholder="your@email" class="flex-1 bg-clay hand-drawn rough-border px-4 py-2.5 text-[13px] outline-none focus:border-terracotta placeholder:text-ink/30">
+          <button class="bg-terracotta text-paper hand-drawn px-5 py-2.5 text-[12px] tracking-[0.14em] uppercase font-[600] rough-border hover:bg-ink transition-colors">Join</button>
+        </form>
+        <p class="mt-2 font-hand text-[15px] text-ash">No spam. Just kiln openings & new mugs.</p>
+      </div>
+    </div>
+
+    <div class="border-t border-ink/10 py-6 flex flex-wrap justify-between gap-4 text-[11px] tracking-[0.14em] uppercase font-[500] text-ash">
+      <div>© 2025 Tsuchi Studio — All pots have fingerprints. All photos have dust.</div>
+      <div class="flex gap-6"><span>Made in Peckham</span><span class="hidden md:inline">•</span><span>Cookie-free site</span><span class="hidden md:inline">•</span><span>侘寂 — Wabi-sabi forever</span></div>
+    </div>
+  </div>
+
+  <!-- bottom brush stroke -->
+  <div class="h-[14px] w-full flex">
+    <div class="flex-1 bg-clay"></div><div class="flex-1 bg-terracotta"></div><div class="flex-1 bg-ink"></div><div class="flex-1 bg-moss"></div><div class="flex-1 bg-clay"></div>
+  </div>
+</footer>
+
+<!-- JS -->
+<script>
+  // cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mouseX=0,mouseY=0,ringX=0,ringY=0;
+  document.addEventListener('mousemove', e=>{
+    mouseX=e.clientX; mouseY=e.clientY;
+    dot.style.left=mouseX+'px'; dot.style.top=mouseY+'px';
+  });
+  (function animRing(){
+    ringX += (mouseX - ringX)*0.15;
+    ringY += (mouseY - ringY)*0.15;
+    ring.style.left=ringX+'px'; ring.style.top=ringY+'px';
+    requestAnimationFrame(animRing);
+  })();
+  document.querySelectorAll('a, button, .gallery-item').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{dot.classList.add('hover'); ring.classList.add('hover')});
+    el.addEventListener('mouseleave',()=>{dot.classList.remove('hover'); ring.classList.remove('hover')});
+  });
+
+  // scroll progress + reveal
+  const progress = document.getElementById('scrollProgress');
+  const heroImg = document.getElementById('heroImg');
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in-view'); });
+  },{threshold:0.15});
+  document.querySelectorAll('.img-reveal').forEach(el=>io.observe(el));
+  // trigger hero on load
+  setTimeout(()=> heroImg.classList.add('in-view'), 200);
+
+  window.addEventListener('scroll', ()=>{
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progress.style.transform = `scaleY(${scrolled/100})`;
+    // parallax small for hero image
+    const y = window.scrollY * 0.12;
+    if(heroImg) heroImg.querySelector('img').style.transform = `translateY(${y*0.2}px) scale(1.02)`;
+  }, {passive:true});
+
+  // magnetic buttons
+  document.querySelectorAll('.magnetic').forEach(btn=>{
+    btn.addEventListener('mousemove', e=>{
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width/2;
+      const y = e.clientY - rect.top - rect.height/2;
+      btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+    });
+    btn.addEventListener('mouseleave', ()=>{ btn.style.transform='translate(0,0)'; });
+  });
+
+  // mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const closeMenu = document.getElementById('closeMenu');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn?.addEventListener('click', ()=> mobileMenu.style.transform='translateX(0)');
+  closeMenu?.addEventListener('click', ()=> mobileMenu.style.transform='translateX(100%)');
+  document.querySelectorAll('.mobile-link').forEach(l=> l.addEventListener('click',()=> mobileMenu.style.transform='translateX(100%)'));
+
+  // gallery filter
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const items = document.querySelectorAll('.gallery-item');
+  filterBtns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      filterBtns.forEach(b=>{ b.classList.remove('active','bg-ink','text-paper'); b.classList.add('bg-paper'); });
+      btn.classList.add('active','bg-ink','text-paper'); btn.classList.remove('bg-paper');
+      const cat = btn.dataset.filter;
+      items.forEach(it=>{
+        if(cat==='all' || it.dataset.cat===cat){ it.style.display=''; it.style.opacity='1'; }
+        else { it.style.opacity='0'; setTimeout(()=> it.style.display='none', 200); }
+      });
+    });
+  });
+
+  // tiny wheel visual following scroll near process section
+  const wheelDots = document.querySelectorAll('.wheel-dot');
+</script>
+</body>
+</html>

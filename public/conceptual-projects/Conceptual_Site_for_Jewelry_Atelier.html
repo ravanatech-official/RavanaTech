@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Jewelry Atelier</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        noir: '#0a0a0a',
+        gold: '#d4af37',
+        goldlight: '#e8c874',
+        offwhite: '#faf8f5',
+        stone: '#efebe4'
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'serif'],
+        display: ['Instrument Serif', 'serif'],
+        sans: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root {
+    --noir: #0a0a0a;
+    --gold: #d4af37;
+    --off: #faf8f5;
+    --line: rgba(212,175,55,0.22);
+  }
+  * { -webkit-font-smoothing: antialiased; }
+  body { background: #faf8f5; color: #0a0a0a; font-family: 'Inter', sans-serif; overscroll-behavior: none; }
+  .font-editorial { font-family: 'Cormorant Garamond', serif; }
+  .font-display { font-family: 'Instrument Serif', serif; }
+  
+  /* Grain */
+  .grain::after {
+    content: "";
+    position: fixed;
+    inset: -50%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    animation: grainMove 8s steps(10) infinite;
+  }
+  @keyframes grainMove {
+    0%,100% { transform: translate(0,0); }
+    10% { transform: translate(-5%,-10%); }
+    20% { transform: translate(-15%,5%); }
+    30% { transform: translate(7%,-25%); }
+    40% { transform: translate(-5%,25%); }
+    50% { transform: translate(-15%,10%); }
+    60% { transform: translate(15%,0%); }
+    70% { transform: translate(0%,15%); }
+    80% { transform: translate(3%,-15%); }
+    90% { transform: translate(-10%,10%); }
+  }
+
+  /* Custom cursor */
+  .cursor { position: fixed; top:0; left:0; pointer-events:none; z-index:10000; mix-blend-mode: difference; }
+  .cursor-dot { width:4px; height:4px; background:#fff; border-radius:50%; transform: translate(-50%,-50%); transition: width 0.3s, height 0.3s; }
+  .cursor-ring { position:absolute; width:42px; height:42px; border:1px solid rgba(255,255,255,0.7); border-radius:50%; transform: translate(-50%,-50%); transition: all 0.35s cubic-bezier(0.23,1,0.32,1); }
+  .cursor.hovering .cursor-ring { width:86px; height:86px; border-color: rgba(212,175,55,0.9); background: rgba(212,175,55,0.06); }
+  .cursor.hovering .cursor-dot { width:0; }
+
+  /* Gold foil */
+  .gold-foil {
+    background: linear-gradient(100deg, #d4af37 0%, #f1d78a 25%, #d4af37 50%, #b8962e 75%, #e8c874 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hairline { height:1px; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.45), transparent); }
+  .hairline-v { width:1px; background: linear-gradient(180deg, transparent, rgba(212,175,55,0.45), transparent); }
+
+  /* magnetic */
+  .magnetic-wrap { display:inline-block; transition: transform 0.3s cubic-bezier(0.23,1,0.32,1); }
+
+  /* reveal */
+  .reveal { opacity:0; transform: translateY(24px); transition: all 1.2s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.in { opacity:1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay:0.12s; }
+  .reveal-delay-2 { transition-delay:0.24s; }
+  .reveal-delay-3 { transition-delay:0.36s; }
+
+  /* Marquee */
+  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .marquee-track { animation: marquee 40s linear infinite; }
+
+  /* Image parallax */
+  .parallax-img { will-change: transform; transition: transform 0.1s linear; }
+
+  /* custom scrollbar hide */
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  /* loader */
+  @keyframes loaderLine { 0% { transform: scaleX(0); transform-origin:left; } 50% { transform: scaleX(1); transform-origin:left; } 51% { transform-origin:right; } 100% { transform: scaleX(0); transform-origin:right; } }
+  .loader-line { animation: loaderLine 1.8s cubic-bezier(0.77,0,0.175,1) infinite; }
+
+  /* shimmer border */
+  @keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
+  .shimmer-border {
+    position: relative;
+    background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Text stroke */
+  .text-stroke { -webkit-text-stroke:1px rgba(10,10,10,0.12); color:transparent; }
+  .text-stroke-gold { -webkit-text-stroke:1px rgba(212,175,55,0.35); color:transparent; }
+</style>
+</head>
+<body class="grain selection:bg-gold selection:text-noir">
+
+<!-- Scroll Progress -->
+<div class="fixed top-0 left-0 w-full h-[2px] z-[999] origin-left">
+  <div id="progress" class="h-full bg-gold w-0 transition-[width] duration-100 ease-out"></div>
+</div>
+
+<!-- Custom Cursor (hidden on touch) -->
+<div id="cursor" class="cursor hidden lg:block">
+  <div class="cursor-ring"></div>
+  <div class="cursor-dot"></div>
+</div>
+
+<!-- Loader -->
+<div id="loader" class="fixed inset-0 z-[1000] bg-noir flex flex-col items-center justify-center transition-opacity duration-1000">
+  <div class="text-center">
+    <p class="font-sans text-[10px] tracking-[0.4em] text-white/40 uppercase mb-8">Maison Aurélia — Paris</p>
+    <h1 class="font-editorial text-[56px] leading-none text-offwhite font-light tracking-[-0.02em]">A<span class="italic font-display text-gold">U</span>RÉLIA</h1>
+    <div class="mt-12 w-[120px] h-[1px] mx-auto overflow-hidden bg-white/10">
+      <div class="loader-line w-full h-full bg-gold origin-left"></div>
+    </div>
+    <p class="font-sans text-[9px] tracking-[0.3em] text-white/30 uppercase mt-6">Haute Joaillerie</p>
+  </div>
+  <div class="absolute bottom-10 left-10 right-10 flex justify-between">
+    <span class="font-sans text-[9px] tracking-[0.25em] text-white/20">© 1987—2025</span>
+    <span class="font-sans text-[9px] tracking-[0.25em] text-white/20">00° 02' 14" N — 48° 51' 24" E</span>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav id="nav" class="fixed top-0 left-0 w-full z-40 mix-blend-difference text-white transition-all duration-700">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14 h-[84px] flex items-center justify-between">
+    <div class="flex items-center gap-10">
+      <button id="menuTrigger" class="group flex items-center gap-4 cursor-pointer">
+        <span class="w-[26px] h-[1px] bg-white block relative">
+          <span class="absolute left-0 -top-[6px] w-[26px] h-[1px] bg-white transition-all group-hover:w-[18px]"></span>
+          <span class="absolute left-0 top-[6px] w-[18px] h-[1px] bg-white transition-all group-hover:w-[26px]"></span>
+        </span>
+        <span class="font-sans text-[10px] tracking-[0.25em] uppercase hidden md:block">Index</span>
+      </button>
+      <div class="hidden lg:flex items-center gap-8 pl-10 border-l border-white/10">
+        <a href="#" class="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60 hover:opacity-100 transition-opacity">Boutique</a>
+        <a href="#" class="font-sans text-[10px] tracking-[0.25em] uppercase opacity-60 hover:opacity-100 transition-opacity">Savoir-faire</a>
+      </div>
+    </div>
+    <div class="absolute left-1/2 -translate-x-1/2 text-center">
+      <a href="#" class="block">
+        <h2 class="font-editorial text-[22px] tracking-[0.18em] leading-none font-light">AURÉLIA</h2>
+        <span class="font-sans text-[7px] tracking-[0.45em] uppercase opacity-60 -mt-1 block">PARIS — ATELIER</span>
+      </a>
+    </div>
+    <div class="flex items-center gap-8">
+      <span class="font-sans text-[10px] tracking-[0.2em] uppercase hidden md:block opacity-60">FR / EN</span>
+      <a href="#rendez" class="group relative overflow-hidden border border-white/25 px-7 py-[11px] font-sans text-[10px] tracking-[0.25em] uppercase">
+        <span class="relative z-10 group-hover:text-black transition-colors duration-500">Rendez-vous</span>
+        <span class="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-[600ms] cubic-bezier(0.77,0,0.175,1)"></span>
+      </a>
+    </div>
+  </div>
+  <div class="hairline w-full opacity-40"></div>
+</nav>
+
+<!-- Full Menu Overlay -->
+<div id="menu" class="fixed inset-0 z-50 bg-noir translate-y-[-100%] transition-transform duration-[900ms] cubic-bezier(0.77,0,0.175,1) will-change-transform">
+  <div class="h-full flex flex-col">
+    <div class="h-[84px] flex items-center justify-between px-6 md:px-10 lg:px-14 border-b border-white/[0.06]">
+      <p class="font-sans text-[10px] tracking-[0.3em] text-white/30 uppercase">Navigation — 1987 Atelier</p>
+      <button id="menuClose" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+    </div>
+    <div class="flex-1 grid lg:grid-cols-[1.2fr_0.8fr] overflow-hidden">
+      <div class="px-6 md:px-10 lg:px-14 py-12 lg:py-20 flex flex-col justify-between">
+        <div class="space-y-2">
+          <a href="#" class="menu-link block font-editorial text-[56px] md:text-[84px] lg:text-[108px] leading-[0.85] tracking-[-0.03em] text-white font-light hover:italic transition-all duration-500"><span class="text-white/20 text-[14px] font-sans tracking-[0.2em] mr-6 align-middle">01</span>Collections</a>
+          <a href="#" class="menu-link block font-editorial text-[56px] md:text-[84px] lg:text-[108px] leading-[0.85] tracking-[-0.03em] text-white font-light hover:italic transition-all duration-500"><span class="text-white/20 text-[14px] font-sans tracking-[0.2em] mr-6 align-middle">02</span>Bespoke</a>
+          <a href="#" class="menu-link block font-editorial text-[56px] md:text-[84px] lg:text-[108px] leading-[0.85] tracking-[-0.03em] text-white font-light hover:italic transition-all duration-500"><span class="text-white/20 text-[14px] font-sans tracking-[0.2em] mr-6 align-middle">03</span>Atelier</a>
+          <a href="#" class="menu-link block font-editorial text-[56px] md:text-[84px] lg:text-[108px] leading-[0.85] tracking-[-0.03em] text-white font-light hover:italic transition-all duration-500"><span class="text-white/20 text-[14px] font-sans tracking-[0.2em] mr-6 align-middle">04</span>Heritage</a>
+        </div>
+        <div class="flex gap-16 mt-16">
+          <div>
+            <p class="font-sans text-[9px] tracking-[0.3em] text-white/30 uppercase mb-4">Visit</p>
+            <p class="font-editorial text-[16px] leading-relaxed text-white/70">12 Rue de la Paix<br>75002 Paris, France<br>Sur rendez-vous uniquement</p>
+          </div>
+          <div>
+            <p class="font-sans text-[9px] tracking-[0.3em] text-white/30 uppercase mb-4">Contact</p>
+            <p class="font-editorial text-[16px] leading-relaxed text-white/70">atelier@aurelia.fr<br>+33 1 42 86 12 09</p>
+          </div>
+        </div>
+      </div>
+      <div class="hidden lg:block relative border-l border-white/[0.06] bg-[radial-gradient(circle_at_50%_0%,rgba(212,175,55,0.12),transparent_70%)]">
+        <div class="absolute inset-0 p-10">
+          <div class="h-full border border-white/[0.06] p-2">
+            <div class="h-full w-full overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1603561596112-0a132b757442?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="">
+            </div>
+          </div>
+          <div class="absolute bottom-14 left-14 right-14">
+            <p class="font-display text-[38px] leading-[0.9] text-white italic">“Chaque pierre<br>attend sa main.”</p>
+            <p class="font-sans text-[10px] tracking-[0.3em] text-gold uppercase mt-6">— Fondatrice, Hélène Aurélia</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="relative bg-offwhite min-h-[100vh] flex flex-col overflow-hidden">
+  <!-- thin side indices -->
+  <div class="absolute left-0 top-0 bottom-0 hidden xl:flex flex-col justify-between py-[120px] px-6 z-10">
+    <span class="font-sans text-[9px] tracking-[0.35em] uppercase writing-mode-vertical -rotate-180" style="writing-mode: vertical-rl;">Haute Joaillerie depuis 1987</span>
+    <div class="flex flex-col items-center gap-6">
+      <span class="w-[1px] h-[60px] bg-noir/10"></span>
+      <span class="font-sans text-[9px] tracking-[0.2em]">01 / 04</span>
+    </div>
+  </div>
+
+  <div class="max-w-[1920px] w-full mx-auto flex-1 grid lg:grid-cols-[1.15fr_0.85fr] pt-[84px]">
+    <!-- Left editorial -->
+    <div class="relative px-6 md:px-10 lg:px-14 xl:pl-[120px] py-12 lg:py-24 flex flex-col justify-between">
+      <div>
+        <div class="reveal flex items-center gap-4 mb-10 lg:mb-16">
+          <span class="w-10 h-[1px] bg-gold"></span>
+          <p class="font-sans text-[10px] tracking-[0.35em] uppercase text-noir/50">Édition n°07 — Collection Hiver</p>
+        </div>
+
+        <h1 class="reveal reveal-delay-1 font-editorial font-light leading-[0.82] tracking-[-0.045em] text-[52px] sm:text-[72px] md:text-[84px] lg:text-[104px] xl:text-[128px]">
+          <span class="block">L’Art du</span>
+          <span class="block ml-[0.18em] -mt-[0.06em] font-display italic font-normal text-[1.08em]">bijou</span>
+          <span class="block -mt-[0.08em] text-stroke text-[0.92em]">éternel</span>
+        </h1>
+
+        <div class="reveal reveal-delay-2 mt-10 lg:mt-14 max-w-[360px] ml-auto lg:ml-[18%]">
+          <p class="font-editorial text-[18px] md:text-[19px] leading-[1.55] text-noir/70 font-light">
+            Une maison confidentielle au cœur de Paris où chaque pièce est dessinée, sculptée et sertie à la main, dans le silence de l’atelier.
+          </p>
+          <div class="mt-8 flex items-center gap-6">
+            <div class="magnetic-wrap">
+              <a href="#collections" class="group relative inline-flex items-center gap-4 px-8 py-[14px] bg-noir text-offwhite overflow-hidden">
+                <span class="font-sans text-[10px] tracking-[0.3em] uppercase relative z-10">Découvrir</span>
+                <span class="w-5 h-[1px] bg-gold relative z-10 transition-all group-hover:w-8"></span>
+                <span class="absolute inset-0 bg-gold translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-[700ms] cubic-bezier(0.77,0,0.175,1)"></span>
+              </a>
+            </div>
+            <span class="font-sans text-[9px] tracking-[0.25em] uppercase text-noir/30">2 pièces restantes</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-3 mt-16 lg:mt-0 grid grid-cols-3 gap-6 border-t border-noir/[0.06] pt-8">
+        <div>
+          <p class="font-display text-[28px] leading-none">38</p>
+          <p class="font-sans text-[9px] tracking-[0.25em] uppercase text-noir/40 mt-2">Ans d’atelier</p>
+        </div>
+        <div>
+          <p class="font-display text-[28px] leading-none">412</p>
+          <p class="font-sans text-[9px] tracking-[0.25em] uppercase text-noir/40 mt-2">Pierres uniques</p>
+        </div>
+        <div>
+          <p class="font-display text-[28px] leading-none">1:1</p>
+          <p class="font-sans text-[9px] tracking-[0.25em] uppercase text-noir/40 mt-2">Bespoke only</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right image -->
+    <div class="relative bg-stone lg:min-h-[calc(100vh-84px)] overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-full">
+        <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1600&auto=format&fit=crop" alt="haute joaillerie close-up" class="parallax-img w-full h-[115%] object-cover object-[50%_30%]">
+        <div class="absolute inset-0 bg-gradient-to-t from-noir/20 via-transparent to-transparent"></div>
+      </div>
+      <!-- Gold frame corners -->
+      <div class="absolute inset-6 md:inset-10 border border-gold/20 pointer-events-none">
+        <div class="absolute -top-[1px] -left-[1px] w-8 h-8 border-t border-l border-gold"></div>
+        <div class="absolute -top-[1px] -right-[1px] w-8 h-8 border-t border-r border-gold"></div>
+        <div class="absolute -bottom-[1px] -left-[1px] w-8 h-8 border-b border-l border-gold"></div>
+        <div class="absolute -bottom-[1px] -right-[1px] w-8 h-8 border-b border-r border-gold"></div>
+      </div>
+      <!-- floating card -->
+      <div class="absolute bottom-6 md:bottom-10 left-6 right-6 md:left-10 md:right-10 bg-offwhite/95 backdrop-blur-xl border border-gold/20 p-6 md:p-8 flex items-center justify-between">
+        <div>
+          <p class="font-sans text-[9px] tracking-[0.35em] uppercase text-noir/40">Pièce à la une</p>
+          <h3 class="font-editorial text-[22px] leading-none mt-2">Bague Sélène No.04 — 3.24ct</h3>
+          <p class="font-sans text-[10px] tracking-[0.2em] uppercase text-noir/40 mt-2">Diamant taille ancienne • Or 18k</p>
+        </div>
+        <div class="w-12 h-12 rounded-full border border-noir/10 flex items-center justify-center group cursor-pointer hover:bg-noir hover:text-white transition-colors">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13M13 7L8 1M13 7L8 13" stroke="currentColor" stroke-width="0.8"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="bg-noir text-offwhite border-y border-white/[0.06] overflow-hidden py-4">
+  <div class="flex w-[200%] marquee-track">
+    <div class="flex items-center gap-12 shrink-0 pr-12">
+      <span class="font-editorial text-[13px] tracking-[0.25em] uppercase flex items-center gap-12"><span class="w-1 h-1 rounded-full bg-gold"></span>Haute Joaillerie <span class="w-1 h-1 rounded-full bg-gold"></span>Pierres certifiées GIA <span class="w-1 h-1 rounded-full bg-gold"></span>Or 18k recyclé <span class="w-1 h-1 rounded-full bg-gold"></span>Atelier parisien <span class="w-1 h-1 rounded-full bg-gold"></span>Sur mesure uniquement <span class="w-1 h-1 rounded-full bg-gold"></span>Since 1987</span>
+      <span class="font-editorial text-[13px] tracking-[0.25em] uppercase flex items-center gap-12"><span class="w-1 h-1 rounded-full bg-gold"></span>Haute Joaillerie <span class="w-1 h-1 rounded-full bg-gold"></span>Pierres certifiées GIA <span class="w-1 h-1 rounded-full bg-gold"></span>Or 18k recyclé <span class="w-1 h-1 rounded-full bg-gold"></span>Atelier parisien <span class="w-1 h-1 rounded-full bg-gold"></span>Sur mesure uniquement <span class="w-1 h-1 rounded-full bg-gold"></span>Since 1987</span>
+    </div>
+    <div class="flex items-center gap-12 shrink-0 pr-12">
+      <span class="font-editorial text-[13px] tracking-[0.25em] uppercase flex items-center gap-12"><span class="w-1 h-1 rounded-full bg-gold"></span>Haute Joaillerie <span class="w-1 h-1 rounded-full bg-gold"></span>Pierres certifiées GIA <span class="w-1 h-1 rounded-full bg-gold"></span>Or 18k recyclé <span class="w-1 h-1 rounded-full bg-gold"></span>Atelier parisien <span class="w-1 h-1 rounded-full bg-gold"></span>Sur mesure uniquement <span class="w-1 h-1 rounded-full bg-gold"></span>Since 1987</span>
+      <span class="font-editorial text-[13px] tracking-[0.25em] uppercase flex items-center gap-12"><span class="w-1 h-1 rounded-full bg-gold"></span>Haute Joaillerie <span class="w-1 h-1 rounded-full bg-gold"></span>Pierres certifiées GIA <span class="w-1 h-1 rounded-full bg-gold"></span>Or 18k recyclé <span class="w-1 h-1 rounded-full bg-gold"></span>Atelier parisien <span class="w-1 h-1 rounded-full bg-gold"></span>Sur mesure uniquement <span class="w-1 h-1 rounded-full bg-gold"></span>Since 1987</span>
+    </div>
+  </div>
+</div>
+
+<!-- STORY / Heritage -->
+<section class="bg-offwhite py-24 md:py-36 lg:py-48 relative">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14 xl:px-[120px]">
+    <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-16 lg:gap-28 items-start">
+      <div class="lg:sticky lg:top-[120px]">
+        <div class="reveal">
+          <p class="font-sans text-[10px] tracking-[0.35em] uppercase text-noir/40 mb-6 flex items-center gap-3"><span class="w-6 h-[1px] bg-gold"></span>Chapitre I — Héritage</p>
+          <h2 class="font-editorial text-[46px] md:text-[56px] lg:text-[64px] leading-[0.92] tracking-[-0.03em] font-light">Trois générations<br><span class="font-display italic">de silence et d’or</span></h2>
+        </div>
+        <div class="reveal reveal-delay-1 mt-12 relative aspect-[4/5] overflow-hidden bg-stone">
+          <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=900&auto=format&fit=crop" alt="atelier hands crafting" class="w-full h-full object-cover">
+          <div class="absolute inset-0 border-[14px] border-offwhite"></div>
+          <div class="absolute bottom-0 left-0 bg-noir text-offwhite px-6 py-4 flex items-center gap-6">
+            <span class="font-display text-[28px] leading-none">—</span>
+            <p class="font-sans text-[10px] tracking-[0.25em] uppercase leading-relaxed">L’atelier original,<br>rue de Turenne, 1987</p>
+          </div>
+        </div>
+      </div>
+      <div class="pt-4 lg:pt-[68px]">
+        <div class="reveal">
+          <p class="font-display text-[28px] md:text-[32px] leading-[1.18] tracking-[-0.01em]">Nous ne fabriquons pas des bijoux. Nous révélons<br class="hidden md:block"> ce que la pierre a toujours voulu être.</p>
+        </div>
+        <div class="reveal reveal-delay-1 mt-10 grid md:grid-cols-2 gap-10 font-editorial text-[17px] leading-[1.8] text-noir/65">
+          <div class="space-y-6">
+            <p>Fondée par Hélène Aurélia dans un minuscule atelier du Marais, la maison a toujours refusé l’industrialisation. Chaque pièce commence par un dessin à la mine de plomb, puis une sculpture en cire perdue réalisée à la main.</p>
+            <p>Nous ne travaillons qu’avec des diamants anciens de rivière, des saphirs du Cachemire et des émeraudes de Muzo — tous tracés, tous certifiés, tous choisis pour leur feu intérieur plutôt que leur papier.</p>
+          </div>
+          <div class="space-y-6">
+            <p>L’or que nous utilisons est 100% recyclé et affiné à Paris. Nos sertis sont tous réalisés en grains, à la main, sous binoculaire — une technique qui demande huit ans d’apprentissage et que seules quatre mains à Paris maîtrisent encore.</p>
+            <div class="pt-4">
+              <div class="hairline w-full mb-6"></div>
+              <div class="flex items-center gap-4">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop" class="w-11 h-11 rounded-full object-cover grayscale" alt="">
+                <div>
+                  <p class="font-editorial text-[15px] leading-none">Céleste Aurélia</p>
+                  <p class="font-sans text-[9px] tracking-[0.25em] uppercase text-noir/40 mt-1">Directrice de l’atelier • 2e génération</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quote huge -->
+        <div class="reveal mt-20 lg:mt-32 relative">
+          <span class="font-display text-[160px] leading-[0.6] text-gold/20 absolute -top-6 -left-6">“</span>
+          <blockquote class="relative font-editorial text-[32px] md:text-[42px] leading-[1.06] tracking-[-0.02em] font-light pl-12 md:pl-20 border-l border-gold/20">
+            Le luxe n’est pas ce que l’on voit.<br>C’est le temps que personne<br>n’a vu passer.
+            <footer class="mt-8 font-sans text-[10px] tracking-[0.3em] uppercase text-noir/40 not-italic">— Note d’atelier, carnet n°3, 1991</footer>
+          </blockquote>
+        </div>
+
+        <!-- Process line -->
+        <div class="reveal mt-20 grid grid-cols-1 md:grid-cols-3 gap-0 border border-noir/[0.07]">
+          <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-noir/[0.07] group hover:bg-noir hover:text-offwhite transition-colors duration-700">
+            <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-gold mb-8">01 — Dessin</p>
+            <h4 class="font-editorial text-[20px] leading-[1.2]">Une heure pour un trait, si nécessaire</h4>
+            <p class="font-sans text-[12px] leading-[1.6] opacity-60 mt-4">Crayon 9H, papier vellum, lumière du nord. Rien ne commence sans le dessin à l’échelle 1:1.</p>
+          </div>
+          <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-noir/[0.07] group hover:bg-noir hover:text-offwhite transition-colors duration-700">
+            <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-gold mb-8">02 — Cire</p>
+            <h4 class="font-editorial text-[20px] leading-[1.2]">La sculpture avant le métal</h4>
+            <p class="font-sans text-[12px] leading-[1.6] opacity-60 mt-4">Modelage à la cire bleue sous loupe, finition à 0,01mm. L’erreur est interdite.</p>
+          </div>
+          <div class="p-8 md:p-10 group hover:bg-noir hover:text-offwhite transition-colors duration-700">
+            <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-gold mb-8">03 — Sertissage</p>
+            <h4 class="font-editorial text-[20px] leading-[1.2]">Quand l’or retient la lumière</h4>
+            <p class="font-sans text-[12px] leading-[1.6] opacity-60 mt-4">Serti grain, quatre heures par pierre. Le geste le plus lent de tout l’atelier.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COLLECTIONS -->
+<section id="collections" class="bg-noir text-offwhite py-24 md:py-36 relative overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-[1px] shimmer-border"></div>
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-20">
+      <div class="reveal">
+        <p class="font-sans text-[10px] tracking-[0.35em] uppercase text-white/30 mb-6 flex items-center gap-3"><span class="w-6 h-[1px] bg-gold"></span>Collection Permanente</p>
+        <h2 class="font-editorial text-[48px] md:text-[64px] lg:text-[84px] leading-[0.86] tracking-[-0.03em] font-light">Objets de<br><span class="font-display italic text-gold">mémoire</span></h2>
+      </div>
+      <div class="reveal reveal-delay-1 max-w-[360px]">
+        <p class="font-editorial text-[16px] leading-[1.7] text-white/60">Toutes nos pièces sont uniques ou limitées à 8 exemplaires. Aucune n’est exposée en vitrine. Elles se découvrent ici, ou pas du tout.</p>
+        <div class="mt-8 flex gap-3">
+          <button class="px-5 py-2 rounded-full border border-white/15 font-sans text-[10px] tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors">Bagues</button>
+          <button class="px-5 py-2 rounded-full border border-white/15 font-sans text-[10px] tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors">Solitaires</button>
+          <button class="px-5 py-2 rounded-full bg-gold text-noir font-sans text-[10px] tracking-[0.2em] uppercase">Nouveautés</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Grid - editorial asymmetric -->
+    <div class="grid md:grid-cols-12 gap-[1px] bg-white/[0.06] border border-white/[0.06]">
+      <!-- large feature -->
+      <div class="reveal md:col-span-7 bg-noir p-6 md:p-10 lg:p-12 group cursor-pointer">
+        <div class="flex justify-between items-start mb-12">
+          <div>
+            <p class="font-sans text-[9px] tracking-[0.35em] uppercase text-gold">N°04 — ÉDITION LIMITÉE</p>
+            <h3 class="font-editorial text-[30px] leading-[1.05] mt-3">Bague Sélène<br>en or gris & diamant ancien</h3>
+          </div>
+          <span class="font-sans text-[10px] tracking-[0.2em] uppercase border border-white/10 px-3 py-1">3.24ct • VVS1</span>
+        </div>
+        <div class="relative aspect-[4/3] overflow-hidden bg-[#111111]">
+          <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1200&auto=format&fit=crop" alt="Bague Sélène" class="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1200ms] cubic-bezier(0.16,1,0.3,1)">
+          <div class="absolute top-4 left-4 bg-offwhite text-noir px-3 py-1 font-sans text-[9px] tracking-[0.2em] uppercase">Vendue — sur commande</div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+        </div>
+        <div class="mt-8 flex justify-between items-end">
+          <p class="font-editorial text-[14px] leading-[1.5] text-white/50 max-w-[280px]">Taille ancienne coussin, serti grain sur chaton plat. Inspirée des bagues de fiançailles de 1923.</p>
+          <span class="font-sans text-[11px] tracking-[0.2em] uppercase flex items-center gap-3 group-hover:gap-5 transition-all">Sur demande <span class="w-6 h-[1px] bg-gold"></span></span>
+        </div>
+      </div>
+
+      <!-- stack two -->
+      <div class="md:col-span-5 grid grid-rows-2 gap-[1px] bg-white/[0.06]">
+        <div class="reveal reveal-delay-1 bg-noir p-6 md:p-8 group cursor-pointer">
+          <div class="flex justify-between mb-8">
+            <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/40">N°11 — COLLIER</p>
+            <p class="font-display text-[16px]">Aurore</p>
+          </div>
+          <div class="aspect-[1.6/1] overflow-hidden bg-[#111]">
+            <img src="https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=800&auto=format&fit=crop" alt="Collier Aurore" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+          </div>
+          <div class="mt-6 flex justify-between items-center">
+            <p class="font-sans text-[10px] tracking-[0.2em] uppercase text-white/40">Émeraude 2.11ct • Or jaune</p>
+            <span class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">↗</span>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-2 bg-noir p-6 md:p-8 group cursor-pointer">
+          <div class="flex justify-between mb-8">
+            <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/40">N°08 — BOUCLES</p>
+            <p class="font-display text-[16px]">Miroir</p>
+          </div>
+          <div class="aspect-[1.6/1] overflow-hidden bg-[#111]">
+            <img src="https://images.unsplash.com/photo-1635767798638-3e25273a8236?q=80&w=800&auto=format&fit=crop" alt="Boucles Miroir" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+          </div>
+          <div class="mt-6 flex justify-between items-center">
+            <p class="font-sans text-[10px] tracking-[0.2em] uppercase text-white/40">Paire • Diamants poire</p>
+            <span class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">↗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- bottom row 3 -->
+      <div class="md:col-span-4 bg-noir p-6 md:p-8 group cursor-pointer reveal">
+        <div class="aspect-[4/5] overflow-hidden bg-[#111] mb-6">
+          <img src="https://images.unsplash.com/photo-1603561596112-0a132b757442?q=80&w=800&auto=format&fit=crop" alt="Bague" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+        </div>
+        <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-gold">N°02 — ALLIANCE</p>
+        <h4 class="font-editorial text-[20px] mt-2">Noire Éternité</h4>
+        <p class="font-sans text-[10px] text-white/40 mt-2">Or noirci • 7 diamants noirs</p>
+      </div>
+      <div class="md:col-span-4 bg-[#0e0e0e] p-6 md:p-8 group cursor-pointer reveal reveal-delay-1 border-x border-white/[0.04]">
+        <div class="aspect-[4/5] overflow-hidden bg-[#111] mb-6 relative">
+          <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=800&auto=format&fit=crop" alt="diamant" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="px-4 py-2 bg-gold text-noir font-sans text-[9px] tracking-[0.25em] uppercase">Nouveau serti</div>
+          </div>
+        </div>
+        <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-gold">N°19 — SOLITAIRE</p>
+        <h4 class="font-editorial text-[20px] mt-2">L’Aube — 4.01ct</h4>
+        <p class="font-sans text-[10px] text-white/40 mt-2">Ovale • Sertissage invisible</p>
+      </div>
+      <div class="md:col-span-4 bg-noir p-6 md:p-8 group cursor-pointer reveal reveal-delay-2">
+        <div class="h-full flex flex-col justify-between min-h-[400px]">
+          <div>
+            <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/30">Service Bespoke</p>
+            <h4 class="font-editorial text-[28px] leading-[1.05] mt-6">Votre pierre<br><span class="font-display italic text-gold">inattendue</span></h4>
+            <p class="font-editorial text-[14px] leading-[1.6] text-white/50 mt-6">Nous accompagnons votre recherche de pierre pendant des mois. Puis nous dessinons autour d’elle.</p>
+          </div>
+          <div class="mt-12">
+            <div class="w-full h-[1px] bg-white/10 mb-6"></div>
+            <a href="#" class="inline-flex items-center gap-3 font-sans text-[10px] tracking-[0.3em] uppercase hover:gap-5 transition-all">Commencer un projet <span class="w-6 h-[1px] bg-gold"></span></a>
+            <div class="mt-10 grid grid-cols-3 gap-4">
+              <div class="aspect-square bg-white/[0.03] border border-white/[0.06]"></div>
+              <div class="aspect-square bg-white/[0.03] border border-white/[0.06] overflow-hidden"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt=""></div>
+              <div class="aspect-square bg-gold/10 border border-gold/20 flex items-center justify-center"><span class="font-display text-[18px] text-gold">+?</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Atelier horizontal gallery -->
+<section class="bg-offwhite py-24 md:py-32 overflow-hidden">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="flex justify-between items-end mb-12">
+      <div class="reveal">
+        <p class="font-sans text-[10px] tracking-[0.35em] uppercase text-noir/40">Lieu — Méthode — Matière</p>
+        <h2 class="font-editorial text-[40px] md:text-[52px] leading-[0.9] tracking-[-0.03em] mt-4">Dans l’atelier,<br>rien ne brille <span class="font-display italic">avant</span> l’heure</h2>
+      </div>
+      <div class="hidden md:flex gap-3">
+        <button id="atelierPrev" class="w-12 h-12 rounded-full border border-noir/10 flex items-center justify-center hover:bg-noir hover:text-white transition-colors">←</button>
+        <button id="atelierNext" class="w-12 h-12 rounded-full border border-noir/10 flex items-center justify-center hover:bg-noir hover:text-white transition-colors">→</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="atelierTrack" class="flex gap-6 px-6 md:px-10 lg:px-14 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">
+    <div class="snap-start shrink-0 w-[88vw] md:w-[56vw] lg:w-[42vw]">
+      <div class="aspect-[1.2/1] overflow-hidden bg-stone relative group">
+        <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+        <div class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/70 to-transparent">
+          <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/60">01 / Lumière du nord — établi principal</p>
+        </div>
+      </div>
+    </div>
+    <div class="snap-start shrink-0 w-[78vw] md:w-[36vw] lg:w-[28vw]">
+      <div class="aspect-[4/5] overflow-hidden bg-stone relative">
+        <img src="https://images.unsplash.com/photo-1589674781759-c21c37956a44?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+        <div class="absolute inset-6 border border-white/20 pointer-events-none"></div>
+      </div>
+      <div class="mt-6 flex gap-6">
+        <p class="font-display text-[18px] leading-none">02</p>
+        <p class="font-editorial text-[14px] leading-[1.5] text-noir/60 max-w-[220px]">Pinces de Bruxelles, 1920. Toujours utilisées pour sertir les pierres de centre.</p>
+      </div>
+    </div>
+    <div class="snap-start shrink-0 w-[88vw] md:w-[48vw] lg:w-[36vw]">
+      <div class="aspect-[1.1/1] overflow-hidden bg-stone relative">
+        <img src="https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+        <div class="absolute top-6 left-6 bg-offwhite px-4 py-2"><p class="font-sans text-[9px] tracking-[0.25em] uppercase">Cire bleue — modèle</p></div>
+      </div>
+    </div>
+    <div class="snap-start shrink-0 w-[70vw] md:w-[32vw] lg:w-[24vw]">
+      <div class="aspect-[4/5] overflow-hidden bg-noir p-10 flex flex-col justify-between text-offwhite">
+        <div>
+          <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-gold">Matériel</p>
+          <h4 class="font-editorial text-[26px] leading-[1.1] mt-6">Le sertissage se juge à<br>la loupe 10×, pas à l’œil nu.</h4>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between font-sans text-[10px] tracking-[0.15em] uppercase text-white/40"><span>Or 18k recylé</span><span class="text-gold">100%</span></div>
+          <div class="w-full h-[1px] bg-white/10"></div>
+          <div class="flex justify-between font-sans text-[10px] tracking-[0.15em] uppercase text-white/40"><span>Diamants tracés</span><span class="text-gold">GIA / HRD</span></div>
+          <div class="w-full h-[1px] bg-white/10"></div>
+          <div class="flex justify-between font-sans text-[10px] tracking-[0.15em] uppercase text-white/40"><span>Délai moyen</span><span class="text-white">14 semaines</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="snap-start shrink-0 w-[88vw] md:w-[50vw]">
+      <div class="aspect-[16/10] overflow-hidden bg-stone">
+        <img src="https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials / Private clients -->
+<section class="bg-noir text-offwhite py-24 md:py-40 border-t border-white/[0.06] relative overflow-hidden">
+  <div class="absolute top-20 left-1/2 -translate-x-1/2 font-display text-[28vw] leading-none text-white/[0.02] select-none pointer-events-none">Clients</div>
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14 relative">
+    <div class="grid lg:grid-cols-12 gap-12">
+      <div class="lg:col-span-5">
+        <p class="font-sans text-[10px] tracking-[0.35em] uppercase text-white/30 mb-8">Confiance — Discrétion</p>
+        <h2 class="font-editorial text-[42px] md:text-[54px] leading-[0.88] tracking-[-0.03em] font-light">Celles et ceux<br><span class="font-display italic text-gold">qui portent</span><br>AURÉLIA</h2>
+        <div class="mt-12 inline-flex items-center gap-4 border border-white/10 px-6 py-3">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="font-sans text-[10px] tracking-[0.25em] uppercase">Rendez-vous disponibles — Décembre</span>
+        </div>
+      </div>
+      <div class="lg:col-span-7 space-y-[1px] bg-white/[0.06] border border-white/[0.06]">
+        <div class="bg-noir p-8 md:p-12 group hover:bg-[#111] transition-colors">
+          <div class="flex justify-between items-start">
+            <p class="font-display text-[56px] leading-none text-white/[0.06]">01</p>
+            <div class="flex gap-1">
+              <span class="w-6 h-[1px] bg-gold mt-3"></span>
+              <span class="w-6 h-[1px] bg-gold/40 mt-3"></span>
+            </div>
+          </div>
+          <blockquote class="font-editorial text-[22px] md:text-[26px] leading-[1.25] font-light mt-6">“Hélène a retrouvé un diamant taille ancienne issu de la bague de ma grand-mère. Elle l’a serti dans une monture que nous avons dessinée ensemble pendant six mois. Aujourd’hui, je ne le quitte plus.”</blockquote>
+          <div class="mt-8 flex items-center gap-4">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop" class="w-9 h-9 rounded-full object-cover grayscale" alt="">
+            <div>
+              <p class="font-sans text-[11px] tracking-[0.2em] uppercase">V. Lefevre — Paris</p>
+              <p class="font-sans text-[9px] tracking-[0.2em] uppercase text-white/30">Bague Héritage — 2023</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-noir p-8 md:p-12 grid md:grid-cols-2 gap-10 group hover:bg-[#111] transition-colors">
+          <div>
+            <p class="font-display text-[56px] leading-none text-white/[0.06]">02</p>
+            <blockquote class="font-editorial text-[18px] leading-[1.4] font-light mt-6">“Aucune vitrine. Aucun vendeur. Seulement deux chaises, un dessin et du thé. Le temps de comprendre ce que l’on désire vraiment.”</blockquote>
+            <div class="mt-6 font-sans text-[10px] tracking-[0.2em] uppercase text-white/40">— Échantillon d’une lettre reçue, mai 2024</div>
+          </div>
+          <div>
+            <p class="font-display text-[56px] leading-none text-white/[0.06]">03</p>
+            <blockquote class="font-editorial text-[18px] leading-[1.4] font-light mt-6">“J’avais besoin d’une alliance qui ne brille pas. Elle m’a proposé de l’or noirci à la main. C’est exactement ce que je portais sans le savoir.”</blockquote>
+            <div class="mt-6 font-sans text-[10px] tracking-[0.2em] uppercase text-white/40">— Architecte, 38 ans</div>
+          </div>
+        </div>
+        <div class="bg-noir p-8 md:p-12 flex flex-col md:flex-row gap-10 items-center">
+          <div class="flex -space-x-3">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" class="w-10 h-10 rounded-full border-2 border-noir object-cover" alt="">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop" class="w-10 h-10 rounded-full border-2 border-noir object-cover" alt="">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" class="w-10 h-10 rounded-full border-2 border-noir object-cover" alt="">
+            <div class="w-10 h-10 rounded-full border-2 border-noir bg-gold text-noir flex items-center justify-center font-sans text-[9px]">+127</div>
+          </div>
+          <p class="font-sans text-[10px] tracking-[0.25em] uppercase text-white/40 leading-relaxed">Clients privés dans le monde. Aucun témoignage public n’est sollicité. Ces mots sont partagés avec leur accord écrit.</p>
+          <div class="ml-auto hidden md:block w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white">✦</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Appointment / Contact -->
+<section id="rendez" class="bg-offwhite py-24 md:py-32 lg:py-40 relative">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-16 lg:gap-24 items-start">
+      <div class="lg:sticky lg:top-[120px]">
+        <p class="font-sans text-[10px] tracking-[0.35em] uppercase text-noir/40 mb-8 flex items-center gap-3"><span class="w-6 h-[1px] bg-gold"></span>Rendez-vous privé</p>
+        <h2 class="font-editorial text-[44px] md:text-[56px] lg:text-[68px] leading-[0.88] tracking-[-0.04em] font-light">Venez avec<br>une histoire.<br><span class="font-display italic">Repartez avec<br>un talisman.</span></h2>
+        <div class="mt-12 p-8 border border-noir/[0.08] bg-white">
+          <div class="flex items-start gap-4">
+            <span class="mt-1 w-5 h-5 rounded-full border border-gold flex items-center justify-center text-[10px]">!</span>
+            <p class="font-editorial text-[14px] leading-[1.6] text-noir/60">Les rendez-vous durent entre 60 et 90 minutes. Aucune obligation d’achat. Apportez si vous le souhaitez des bijoux anciens, des dessins, ou simplement une idée encore floue. Nous offrons le thé Mariage.</p>
+          </div>
+          <div class="mt-8 grid grid-cols-2 gap-6">
+            <div>
+              <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-noir/30">Atelier</p>
+              <p class="font-editorial text-[15px] mt-2 leading-[1.4]">12 Rue de la Paix<br>75002 Paris</p>
+            </div>
+            <div>
+              <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-noir/30">Horaires atelier</p>
+              <p class="font-editorial text-[15px] mt-2 leading-[1.4]">Lun — Ven<br>10h — 19h, sur RDV</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-noir text-offwhite p-8 md:p-12 lg:p-14 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[320px] h-[320px] bg-gold/10 rounded-full blur-[80px] pointer-events-none"></div>
+        <div class="relative">
+          <div class="flex justify-between items-start mb-12">
+            <h3 class="font-editorial text-[28px] leading-[1.1]">Demander un<br>rendez-vous</h3>
+            <span class="font-sans text-[9px] tracking-[0.3em] uppercase border border-white/15 px-3 py-1">Confidentiel</span>
+          </div>
+
+          <form class="space-y-8" onsubmit="event.preventDefault(); this.innerHTML='<div class=\'py-20 text-center\'><p class=\'font-display text-[42px] italic\'>Merci.</p><p class=\'font-sans text-[11px] tracking-[0.25em] uppercase text-white/50 mt-4\'>Nous vous répondrons sous 24 heures ouvrées — avec discrétion.</p></div>'">
+            <div class="grid md:grid-cols-2 gap-8">
+              <label class="group block border-b border-white/15 focus-within:border-gold transition-colors pb-3">
+                <span class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/40 group-focus-within:text-gold transition-colors">Prénom & Nom</span>
+                <input required type="text" placeholder="Jeanne D." class="mt-3 w-full bg-transparent font-editorial text-[18px] placeholder:text-white/20 outline-none">
+              </label>
+              <label class="group block border-b border-white/15 focus-within:border-gold transition-colors pb-3">
+                <span class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/40 group-focus-within:text-gold transition-colors">Email</span>
+                <input required type="email" placeholder="jeanne@adresse.com" class="mt-3 w-full bg-transparent font-editorial text-[18px] placeholder:text-white/20 outline-none">
+              </label>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8">
+              <label class="group block border-b border-white/15 focus-within:border-gold transition-colors pb-3">
+                <span class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/40 group-focus-within:text-gold transition-colors">Sujet</span>
+                <select class="mt-3 w-full bg-transparent font-editorial text-[16px] outline-none text-white/80">
+                  <option class="text-noir">Bague de fiançailles</option>
+                  <option class="text-noir">Alliance / Mariage</option>
+                  <option class="text-noir">Transformation d’un bijou</option>
+                  <option class="text-noir">Pièce bespoke</option>
+                  <option class="text-noir">Première visite</option>
+                </select>
+              </label>
+              <label class="group block border-b border-white/15 focus-within:border-gold transition-colors pb-3">
+                <span class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/40 group-focus-within:text-gold transition-colors">Budget indicatif</span>
+                <select class="mt-3 w-full bg-transparent font-editorial text-[16px] outline-none text-white/80">
+                  <option class="text-noir">5 000 — 15 000 €</option>
+                  <option class="text-noir">15 000 — 35 000 €</option>
+                  <option class="text-noir">35 000 — 80 000 €</option>
+                  <option class="text-noir">80 000 € +</option>
+                  <option class="text-noir">Je ne sais pas encore</option>
+                </select>
+              </label>
+            </div>
+            <label class="group block border-b border-white/15 focus-within:border-gold transition-colors pb-3">
+              <span class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/40 group-focus-within:text-gold transition-colors">Racontez-nous — en quelques lignes</span>
+              <textarea rows="3" placeholder="Une pierre que vous avez vue, une histoire familiale, une forme que vous gardez en tête depuis longtemps..." class="mt-3 w-full bg-transparent font-editorial text-[17px] leading-[1.5] placeholder:text-white/20 outline-none resize-none"></textarea>
+            </label>
+
+            <div class="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between pt-4">
+              <label class="flex gap-3 items-start cursor-pointer group">
+                <input type="checkbox" required class="mt-1 accent-gold">
+                <span class="font-sans text-[11px] leading-[1.5] text-white/40 group-hover:text-white/70 transition-colors max-w-[280px]">J’accepte que mes informations restent strictement confidentielles et ne soient jamais transmises. <span class="underline">Politique</span>.</span>
+              </label>
+              <button class="group relative inline-flex items-center gap-4 bg-offwhite text-noir px-10 py-[16px] overflow-hidden">
+                <span class="font-sans text-[11px] tracking-[0.3em] uppercase relative z-10">Envoyer</span>
+                <span class="w-6 h-[1px] bg-noir relative z-10 group-hover:w-10 transition-all duration-500"></span>
+                <span class="absolute inset-0 bg-gold translate-y-full group-hover:translate-y-0 transition-transform duration-[600ms] cubic-bezier(0.77,0,0.175,1)"></span>
+              </button>
+            </div>
+            <p class="font-sans text-[9px] tracking-[0.2em] uppercase text-white/25 text-center pt-4">Réponse sous 24h • Aucune newsletter • Atelier sur RDV uniquement</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER - huge editorial -->
+<footer class="bg-noir text-offwhite border-t border-white/[0.06] pt-16 md:pt-24 pb-8 overflow-hidden">
+  <div class="max-w-[1920px] mx-auto px-6 md:px-10 lg:px-14">
+    <div class="flex flex-col lg:flex-row justify-between gap-12">
+      <div>
+        <h2 class="font-editorial text-[72px] md:text-[96px] lg:text-[132px] leading-[0.8] tracking-[-0.05em] font-light">AURÉLIA</h2>
+        <div class="mt-6 flex gap-8">
+          <p class="font-sans text-[10px] tracking-[0.25em] uppercase text-white/30">Paris — Depuis 1987</p>
+          <span class="w-12 h-[1px] bg-gold/50 mt-2"></span>
+          <p class="font-sans text-[10px] tracking-[0.25em] uppercase text-white/30">Or 18k • Pierres certifiées</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-10 lg:gap-20 text-[13px]">
+        <div class="space-y-3">
+          <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/20 mb-5">Atelier</p>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Collections</a>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Bespoke</a>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Savoir-faire</a>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Héritage</a>
+        </div>
+        <div class="space-y-3">
+          <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/20 mb-5">Informations</p>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Rendez-vous</a>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Entretien</a>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Certification</a>
+          <a href="#" class="block font-editorial text-[15px] text-white/70 hover:text-white transition-colors">Presse</a>
+        </div>
+        <div class="space-y-3 col-span-2 md:col-span-1">
+          <p class="font-sans text-[9px] tracking-[0.3em] uppercase text-white/20 mb-5">Journal</p>
+          <div class="border border-white/10 p-4 bg-white/[0.02]">
+            <p class="font-editorial text-[13px] leading-[1.4] text-white/60">Carnet n°07 — Novembre 2025: La recherche d’un saphir du Cachemire de 2 carats à la lumière du jour.</p>
+            <a href="#" class="font-sans text-[9px] tracking-[0.25em] uppercase text-gold mt-3 inline-block">Lire — 4 min</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-20 md:mt-32 relative">
+      <div class="hairline w-full"></div>
+      <div class="flex flex-col md:flex-row justify-between gap-4 py-6">
+        <div class="flex gap-6 font-sans text-[9px] tracking-[0.25em] uppercase text-white/25">
+          <span>© 2025 MAISON AURÉLIA</span>
+          <a href="#" class="hover:text-white/60 transition-colors">Mentions légales</a>
+          <a href="#" class="hover:text-white/60 transition-colors">Confidentialité</a>
+        </div>
+        <div class="flex items-center gap-6 font-sans text-[9px] tracking-[0.25em] uppercase text-white/25">
+          <span>Site par Atelier Noir</span>
+          <span class="w-6 h-[1px] bg-white/20"></span>
+          <span>Fabriqué à Paris — avec patience</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom huge watermark -->
+    <div class="select-none pointer-events-none overflow-hidden -mb-8">
+      <p class="font-display text-[28vw] leading-[0.75] tracking-[-0.06em] text-white/[0.02] -ml-[0.05em]">AURÉLIA</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Loader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const l = document.getElementById('loader');
+      l.style.opacity = '0';
+      setTimeout(() => l.style.display = 'none', 1000);
+    }, 900);
+  });
+
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    document.getElementById('progress').style.width = (scrolled * 100) + '%';
+    // nav blend switch
+    const nav = document.getElementById('nav');
+    if (window.scrollY > 80) {
+      nav.classList.add('bg-noir/80','backdrop-blur-xl');
+      nav.classList.remove('mix-blend-difference');
+      nav.classList.add('text-white');
+    } else {
+      nav.classList.remove('bg-noir/80','backdrop-blur-xl');
+      nav.classList.add('mix-blend-difference');
+    }
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('in');
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  let mouseX=0, mouseY=0, cursorX=0, cursorY=0;
+  const isTouch = 'ontouchstart' in window;
+  if (!isTouch) {
+    window.addEventListener('mousemove', (e) => { mouseX=e.clientX; mouseY=e.clientY; });
+    (function loop(){
+      cursorX += (mouseX - cursorX) * 0.18;
+      cursorY += (mouseY - cursorY) * 0.18;
+      cursor.style.transform = `translate3d(${cursorX}px,${cursorY}px,0)`;
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll('a, button, .group').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+    });
+  }
+
+  // Magnetic buttons
+  document.querySelectorAll('.magnetic-wrap').forEach(wrap => {
+    const inner = wrap.firstElementChild;
+    if (!inner) return;
+    wrap.addEventListener('mousemove', (e) => {
+      const rect = wrap.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width/2;
+      const y = e.clientY - rect.top - rect.height/2;
+      inner.style.transform = `translate(${x*0.28}px, ${y*0.35}px)`;
+      wrap.style.transform = `translate(${x*0.08}px, ${y*0.12}px)`;
+    });
+    wrap.addEventListener('mouseleave', () => {
+      inner.style.transform = `translate(0,0)`;
+      wrap.style.transform = `translate(0,0)`;
+    });
+  });
+
+  // Menu
+  const menu = document.getElementById('menu');
+  document.getElementById('menuTrigger').addEventListener('click', () => {
+    menu.style.transform = 'translateY(0)';
+    document.body.style.overflow = 'hidden';
+  });
+  document.getElementById('menuClose').addEventListener('click', () => {
+    menu.style.transform = 'translateY(-100%)';
+    document.body.style.overflow = '';
+  });
+  // close on link
+  document.querySelectorAll('.menu-link').forEach(a => {
+    a.addEventListener('click', () => {
+      menu.style.transform = 'translateY(-100%)';
+      document.body.style.overflow = '';
+    });
+  });
+
+  // Atelier scroll buttons
+  const track = document.getElementById('atelierTrack');
+  document.getElementById('atelierPrev')?.addEventListener('click', () => track.scrollBy({left:-400, behavior:'smooth'}));
+  document.getElementById('atelierNext')?.addEventListener('click', () => track.scrollBy({left:400, behavior:'smooth'}));
+
+  // Parallax images
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.parallax-img').forEach(img => {
+          const rect = img.parentElement.getBoundingClientRect();
+          const speed = 0.18;
+          const y = (rect.top - window.innerHeight/2) * speed;
+          img.style.transform = `translate3d(0, ${y}px, 0) scale(1.08)`;
+        });
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // Smooth anchor
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href');
+      if (id.length > 1) {
+        const target = document.querySelector(id);
+        if (target) { e.preventDefault(); target.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+    });
+  });
+</script>
+</body>
+</html>

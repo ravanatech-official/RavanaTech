@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Pet Grooming</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        fredoka: ['Fredoka', 'sans-serif'],
+        nunito: ['Nunito', 'sans-serif'],
+      },
+      colors: {
+        bubblegum: '#ff8fab',
+        cream: '#fff7ed',
+        mint: '#c7f2d9',
+        mintdark: '#a8e6cf',
+        ink: '#2b2122',
+        inksoft: '#6b5d5f',
+        blush: '#ffe0ec',
+      },
+      borderRadius: {
+        '4xl': '40px',
+        '5xl': '56px',
+        '6xl': '72px',
+      }
+    }
+  }
+}
+</script>
+<style>
+*{ -webkit-font-smoothing: antialiased; }
+html{ scroll-behavior: smooth; }
+body{ font-family:'Nunito',sans-serif; background:#fff7ed; color:#2b2122; overflow-x:hidden; cursor:none; }
+.font-fredoka{ font-family:'Fredoka',sans-serif; }
+
+/* Grain */
+.grain:before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+.blob{
+  border-radius: 42% 58% 58% 42% / 42% 42% 58% 58%;
+  animation: blobMorph 8s ease-in-out infinite;
+}
+@keyframes blobMorph{
+  0%,100%{ border-radius: 42% 58% 58% 42% / 42% 42% 58% 58%; }
+  25%{ border-radius: 58% 42% 42% 58% / 58% 58% 42% 42%; }
+  50%{ border-radius: 35% 65% 60% 40% / 50% 35% 65% 50%; }
+  75%{ border-radius: 60% 40% 35% 65% / 40% 60% 40% 60%; }
+}
+@keyframes floaty{ 0%,100%{ transform: translateY(0) rotate(0deg);} 50%{ transform: translateY(-12px) rotate(2deg);} }
+@keyframes wiggle{ 0%,100%{ transform: rotate(-2deg);} 50%{ transform: rotate(3deg);} }
+@keyframes marquee{ 0%{ transform: translateX(0);} 100%{ transform: translateX(-50%);} }
+@keyframes popIn{ 0%{ transform: scale(.9) translateY(20px); opacity:0;} 100%{ transform: scale(1) translateY(0); opacity:1;} }
+.floaty{ animation: floaty 5s ease-in-out infinite; }
+.wiggle{ animation: wiggle 3s ease-in-out infinite; }
+
+/* Custom Cursor */
+.cursor-dot{ position:fixed; width:18px; height:18px; background:#ff8fab; border:3px solid #fff7ed; border-radius:50%; pointer-events:none; z-index:10000; mix-blend-mode:normal; transition: transform .15s ease, width .2s, height .2s, background .2s; box-shadow: 0 0 0 4px rgba(255,143,171,.15); }
+.cursor-ring{ position:fixed; width:48px; height:48px; border:1.5px dashed #ff8fab; border-radius:50%; pointer-events:none; z-index:9999; transition: transform .25s ease, width .3s, height .3s; opacity:.6; }
+.cursor-dot.hover{ transform: scale(2.2); background:#2b2122; }
+.cursor-ring.hover{ transform: scale(1.5); border-style:solid; }
+@media (pointer: coarse){ .cursor-dot,.cursor-ring{display:none} body{cursor:auto} }
+
+/* Reveal */
+.reveal{ opacity:0; transform: translateY(30px); transition: all .9s cubic-bezier(.16,1,.3,1); }
+.reveal.in{ opacity:1; transform:none; }
+
+/* Scrollbar */
+::-webkit-scrollbar{ width:8px; }
+::-webkit-scrollbar-thumb{ background:#ff8fab; border-radius:999px; }
+::-webkit-scrollbar-track{ background:#fff7ed; }
+
+.chubby-shadow{ box-shadow: 0 12px 0 #2b2122; }
+.chubby-shadow-sm{ box-shadow: 0 6px 0 #2b2122; }
+.paw-bg{
+  background-image: radial-gradient(circle at 30% 30%, #ff8fab 0 3px, transparent 3.5px),
+                    radial-gradient(circle at 65% 28%, #ff8fab 0 2.5px, transparent 3px),
+                    radial-gradient(circle at 78% 45%, #ff8fab 0 2.5px, transparent 3px),
+                    radial-gradient(circle at 55% 58%, #ff8fab 0 6px, transparent 6.5px);
+  background-size: 40px 40px;
+}
+</style>
+</head>
+<body class="grain selection:bg-bubblegum selection:text-white">
+
+<!-- CURSORS -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<header class="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 pt-4 sm:pt-6 pointer-events-none">
+  <nav class="pointer-events-auto max-w-[1320px] mx-auto flex items-center justify-between bg-white/90 backdrop-blur-xl border-[2.5px] border-ink rounded-full px-2 sm:px-3 py-2 sm:py-2.5 chubby-shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-full bg-bubblegum border-[2.5px] border-ink flex items-center justify-center font-fredoka font-bold text-white text-[18px] tracking-tight">
+        <span class="relative -top-[1px]">˚₊</span>
+      </div>
+      <div class="leading-[0.9]">
+        <div class="font-fredoka font-bold text-[16px] sm:text-[19px] tracking-tight -mb-1">BOBO & BALM</div>
+        <div class="text-[10px] font-extrabold tracking-[0.18em] uppercase text-inksoft">Seoul Pet Spa — Sinsa</div>
+      </div>
+      <div class="hidden lg:flex items-center gap-2 ml-6">
+        <span class="w-2 h-2 rounded-full bg-mintdark border border-ink"></span>
+        <span class="text-[11px] font-extrabold tracking-widest uppercase">Open today 10—19</span>
+      </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-1 bg-cream border-[2px] border-ink rounded-full p-1">
+      <a href="#services" class="px-5 py-2 rounded-full font-bold text-[13px] tracking-wide hover:bg-white border border-transparent hover:border-ink transition-all">Services</a>
+      <a href="#gallery" class="px-5 py-2 rounded-full font-bold text-[13px] tracking-wide hover:bg-white border border-transparent hover:border-ink transition-all">Lookbook</a>
+      <a href="#reviews" class="px-5 py-2 rounded-full font-bold text-[13px] tracking-wide hover:bg-white border border-transparent hover:border-ink transition-all">Wag Wall</a>
+      <a href="#membership" class="px-5 py-2 rounded-full font-bold text-[13px] tracking-wide hover:bg-white border border-transparent hover:border-ink transition-all">Membership</a>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="#book" class="hidden sm:flex items-center gap-2 bg-ink text-cream rounded-full px-5 sm:px-6 py-2.5 sm:py-3 font-fredoka font-semibold text-[14px] tracking-wide border-[2.5px] border-ink hover:bg-bubblegum hover:text-ink transition-all">
+        <span>Book bath</span>
+        <span class="w-6 h-6 rounded-full bg-white text-ink grid place-items-center text-[12px]">↗</span>
+      </a>
+      <button id="mobileMenuBtn" class="md:hidden w-11 h-11 rounded-full bg-cream border-[2.5px] border-ink grid place-items-center">☰</button>
+    </div>
+  </nav>
+  <div id="mobileMenu" class="pointer-events-auto hidden md:hidden max-w-[1320px] mx-auto mt-3 bg-white border-[2.5px] border-ink rounded-[28px] p-3 chubby-shadow-sm">
+    <a href="#services" class="block px-5 py-3 rounded-full font-bold hover:bg-cream">Services</a>
+    <a href="#gallery" class="block px-5 py-3 rounded-full font-bold hover:bg-cream">Lookbook</a>
+    <a href="#reviews" class="block px-5 py-3 rounded-full font-bold hover:bg-cream">Wag Wall</a>
+    <a href="#book" class="block mt-2 bg-bubblegum border-[2.5px] border-ink rounded-full text-center py-3 font-fredoka font-bold">Book bath ↗</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="pt-[108px] sm:pt-[136px] pb-10 px-3 sm:px-6">
+  <div class="max-w-[1320px] mx-auto">
+    <div class="bg-white border-[3px] border-ink rounded-[40px] sm:rounded-[56px] overflow-hidden chubby-shadow relative">
+      <!-- top bar -->
+      <div class="flex items-center justify-between px-6 sm:px-10 py-5 border-b-[3px] border-ink bg-cream/60">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-2 bg-bubblegum text-white border-[2.5px] border-ink rounded-full px-3 py-1 font-extrabold text-[11px] tracking-widest uppercase">Seoul • Sinsa-dong</span>
+          <span class="hidden sm:inline-flex items-center gap-2 bg-mint border-[2.5px] border-ink rounded-full px-3 py-1 font-extrabold text-[11px] tracking-widest uppercase">✦ Non-toxic • Fear-free</span>
+        </div>
+        <div class="flex items-center gap-2 text-[12px] font-bold">
+          <span class="w-2 h-2 bg-[#1dd36f] rounded-full animate-pulse border border-ink"></span>
+          <span>3 slots left today</span>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-[1.15fr_.85fr] gap-0">
+        <!-- left copy -->
+        <div class="p-7 sm:p-10 lg:p-[56px] relative">
+          <!-- stickers -->
+          <div class="absolute right-6 top-6 sm:right-10 sm:top-8 rotate-3 bg-mint border-[2.5px] border-ink rounded-[18px] px-3 py-2 font-fredoka font-bold text-[12px] sm:text-[13px] chubby-shadow-sm">★ 4.9 / 2,341 wags</div>
+
+          <h1 class="font-fredoka font-bold leading-[0.85] tracking-[-0.04em] text-[44px] sm:text-[64px] lg:text-[84px] mt-6 sm:mt-10">
+            <span class="block">Your pup's</span>
+            <span class="block relative">
+              <span class="relative z-10">favorite place</span>
+              <span class="absolute left-0 -bottom-1 sm:bottom-0 w-full h-[18px] sm:h-[28px] bg-bubblegum/30 -rotate-1 -z-0"></span>
+            </span>
+            <span class="block text-bubblegum">on earth.</span>
+          </h1>
+
+          <p class="mt-6 sm:mt-8 text-[17px] sm:text-[19px] leading-[1.5] text-inksoft font-semibold max-w-[520px]">
+            A bubblegum-pink boutique spa in Seoul where every bath is a bubble party, every trim is a cuddle, and every tail leaves happier.
+          </p>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#book" class="group inline-flex items-center gap-3 bg-bubblegum border-[3px] border-ink rounded-full px-7 py-4 font-fredoka font-bold text-[16px] chubby-shadow hover:translate-y-[2px] hover:shadow-[0_6px_0_#2b2122] transition-all">
+              Reserve a bubble bath
+              <span class="w-9 h-9 rounded-full bg-white border-[2.5px] border-ink grid place-items-center group-hover:rotate-45 transition-transform">→</span>
+            </a>
+            <a href="#services" class="inline-flex items-center gap-2 bg-cream border-[3px] border-ink rounded-full px-7 py-4 font-bold text-[15px] hover:bg-white transition-colors">
+              See menu
+              <span class="text-[11px] border border-ink rounded-full px-2 py-0.5">₩</span>
+            </a>
+          </div>
+
+          <!-- trust row -->
+          <div class="mt-10 sm:mt-12 flex flex-wrap items-center gap-6">
+            <div class="flex -space-x-3">
+              <img src="https://images.unsplash.com/photo-1558788353-6fc6f73e2831?w=120&h=120&fit=crop" class="w-11 h-11 rounded-full border-[2.5px] border-ink object-cover" alt="">
+              <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=120&h=120&fit=crop" class="w-11 h-11 rounded-full border-[2.5px] border-ink object-cover" alt="">
+              <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=120&h=120&fit=crop" class="w-11 h-11 rounded-full border-[2.5px] border-ink object-cover" alt="">
+              <div class="w-11 h-11 rounded-full bg-ink text-cream border-[2.5px] border-ink grid place-items-center font-fredoka font-bold text-[12px]">+2k</div>
+            </div>
+            <div class="text-[13px] leading-[1.2] font-bold">
+              <div class="font-extrabold">Loved by Sinsa dog parents</div>
+              <div class="text-inksoft font-semibold">Fear-free certified groomers since 2021</div>
+            </div>
+          </div>
+
+          <!-- floating mini cards -->
+          <div class="hidden sm:flex gap-3 mt-10">
+            <div class="bg-white border-[2.5px] border-ink rounded-[22px] px-4 py-3 flex items-center gap-3 chubby-shadow-sm rotate-[-2deg]">
+              <div class="w-10 h-10 rounded-full bg-mint grid place-items-center border-[2px] border-ink">🫧</div>
+              <div class="leading-tight"><div class="font-fredoka font-bold text-[14px]">Oat milk bath</div><div class="text-[11px] font-bold text-inksoft">pH 7, tearless</div></div>
+            </div>
+            <div class="bg-white border-[2.5px] border-ink rounded-[22px] px-4 py-3 flex items-center gap-3 chubby-shadow-sm rotate-[2deg]">
+              <div class="w-10 h-10 rounded-full bg-blush grid place-items-center border-[2px] border-ink">✦</div>
+              <div class="leading-tight"><div class="font-fredoka font-bold text-[14px]">Seoul-made scents</div><div class="text-[11px] font-bold text-inksoft">yuzu + rice</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- right visual -->
+        <div class="relative bg-cream border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-ink p-4 sm:p-6 lg:p-8 overflow-hidden">
+          <!-- pastel blobs -->
+          <div class="absolute -top-20 -right-20 w-[320px] h-[320px] bg-bubblegum/40 rounded-full blur-[40px]"></div>
+          <div class="absolute -bottom-24 -left-20 w-[380px] h-[380px] bg-mint/80 rounded-full blur-[30px]"></div>
+
+          <div class="relative h-full grid gap-4">
+            <!-- main blob image -->
+            <div class="relative rounded-[40px] border-[3px] border-ink overflow-hidden bg-white chubby-shadow h-[440px] sm:h-[520px] lg:h-[560px]">
+              <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=900&h=1100&fit=crop" alt="Cute fluffy dog after grooming" class="absolute inset-0 w-full h-full object-cover">
+              <!-- overlay gradient -->
+              <div class="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent"></div>
+
+              <!-- paw sticker -->
+              <div class="absolute top-5 left-5 bg-white border-[2.5px] border-ink rounded-full px-4 py-2 font-fredoka font-bold text-[13px] flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-bubblegum border border-ink grid place-items-center text-white text-[11px]">🐾</span>
+                Today's MVP: Mochi
+              </div>
+
+              <!-- bottom info card -->
+              <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-xl border-[2.5px] border-ink rounded-[28px] p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-full overflow-hidden border-[2px] border-ink">
+                    <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=200&h=200&fit=crop" class="w-full h-full object-cover" alt="">
+                  </div>
+                  <div>
+                    <div class="font-fredoka font-bold leading-none">Mochi • Bichon</div>
+                    <div class="text-[11px] font-extrabold tracking-widest uppercase text-inksoft mt-1">Bubble + Berry Trim • 70min</div>
+                  </div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-mint border-[2px] border-ink grid place-items-center font-fredoka font-bold">5.0</div>
+              </div>
+            </div>
+
+            <!-- small cards row -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="rounded-[28px] border-[2.5px] border-ink bg-white p-4 chubby-shadow-sm relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 text-[84px] opacity-10">🐾</div>
+                <div class="font-fredoka font-bold text-[42px] leading-none">98%</div>
+                <div class="text-[12px] font-extrabold uppercase tracking-widest mt-1">tails wagging<br>on exit</div>
+              </div>
+              <div class="rounded-[28px] border-[2.5px] border-ink bg-bubblegum text-white p-4 chubby-shadow-sm">
+                <div class="text-[12px] font-extrabold uppercase tracking-widest opacity-90">Next slot</div>
+                <div class="font-fredoka font-bold text-[22px] leading-[1.1] mt-1">Today<br>3:40 PM</div>
+                <div class="mt-2 inline-flex bg-white text-ink border border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase">Hold for 10m</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="relative -rotate-1 mt-2 border-y-[3px] border-ink bg-ink text-cream overflow-hidden py-3">
+  <div class="flex whitespace-nowrap will-change-transform" style="animation: marquee 22s linear infinite;">
+    <div class="flex items-center gap-8 pr-8">
+      <span class="font-fredoka font-bold text-[18px] tracking-wide">BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT • BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT •</span>
+      <span class="font-fredoka font-bold text-[18px] tracking-wide">BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT • BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT •</span>
+    </div>
+    <div class="flex items-center gap-8 pr-8" aria-hidden="true">
+      <span class="font-fredoka font-bold text-[18px] tracking-wide">BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT • BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT •</span>
+      <span class="font-fredoka font-bold text-[18px] tracking-wide">BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT • BATH • TRIM • PAWDICURE • AROMA • BRUSH • LOVE • REPEAT •</span>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT STORY -->
+<section id="about" class="px-3 sm:px-6 py-10 sm:py-16">
+  <div class="max-w-[1320px] mx-auto grid lg:grid-cols-[1.1fr_.9fr] gap-6 items-stretch">
+    <!-- left story -->
+    <div class="bg-mint border-[3px] border-ink rounded-[40px] sm:rounded-[56px] p-7 sm:p-10 lg:p-12 chubby-shadow relative overflow-hidden reveal">
+      <div class="absolute right-0 top-0 w-[240px] h-[240px] bg-white rounded-full blur-[1px] border-[3px] border-ink translate-x-[30%] -translate-y-[20%] grid place-items-center rotate-12">
+        <div class="font-fredoka font-bold text-[68px] leading-[0.8] text-center">100%<br><span class="text-[20px]">cuddle<br>certified</span></div>
+      </div>
+
+      <div class="inline-flex bg-white border-[2.5px] border-ink rounded-full px-4 py-2 font-extrabold text-[11px] tracking-widest uppercase">Our Promise • Seoul Standard</div>
+
+      <h2 class="mt-8 font-fredoka font-bold text-[40px] sm:text-[52px] leading-[0.9] tracking-[-0.03em] max-w-[520px]">
+        We treat every tail wag like a tiny piece of art.
+      </h2>
+
+      <p class="mt-6 text-[17px] leading-[1.6] font-semibold text-[#3a3233] max-w-[560px]">
+        Bobo & Balm started in a 6-pyeong studio above a rice cake shop in Sinsa. No cages, no rush, no blue lights. Just oat milk bubbles, low-noise dryers, and groomers who remember your pup's favorite scratch spot.
+      </p>
+
+      <div class="mt-8 grid sm:grid-cols-3 gap-4">
+        <div class="bg-white border-[2.5px] border-ink rounded-[24px] p-5">
+          <div class="w-10 h-10 rounded-full bg-bubblegum border-[2px] border-ink grid place-items-center text-white font-bold">1</div>
+          <div class="mt-3 font-fredoka font-bold">Fear-Free</div>
+          <div class="text-[13px] font-semibold leading-[1.3] text-inksoft mt-1">Certified pros, 1:1 rooms, break anytime.</div>
+        </div>
+        <div class="bg-white border-[2.5px] border-ink rounded-[24px] p-5">
+          <div class="w-10 h-10 rounded-full bg-ink text-white border-[2px] border-ink grid place-items-center font-bold">2</div>
+          <div class="mt-3 font-fredoka font-bold">Skin First</div>
+          <div class="text-[13px] font-semibold leading-[1.3] text-inksoft mt-1">pH-balanced, vegan, vet-approved potions.</div>
+        </div>
+        <div class="bg-white border-[2.5px] border-ink rounded-[24px] p-5">
+          <div class="w-10 h-10 rounded-full bg-mint border-[2px] border-ink grid place-items-center font-bold">3</div>
+          <div class="mt-3 font-fredoka font-bold">Made in Seoul</div>
+          <div class="text-[13px] font-semibold leading-[1.3] text-inksoft mt-1">Yuzu, rice water, mugwort from Jeju.</div>
+        </div>
+      </div>
+
+      <div class="mt-10 flex items-center gap-4">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&h=200&fit=crop" class="w-14 h-14 rounded-full border-[2.5px] border-ink object-cover" alt="">
+        <div>
+          <div class="font-fredoka font-bold">Jisoo & Hana — founders</div>
+          <div class="text-[13px] font-bold text-inksoft">groomer + dog therapist, 8 yrs in Sinsa</div>
+        </div>
+        <div class="ml-auto hidden sm:flex bg-ink text-cream rounded-full px-4 py-2 font-bold text-[12px]">Since 2021</div>
+      </div>
+    </div>
+
+    <!-- right image collage -->
+    <div class="grid grid-rows-[1.2fr_.8fr] gap-6">
+      <div class="rounded-[40px] sm:rounded-[56px] border-[3px] border-ink overflow-hidden chubby-shadow relative reveal">
+        <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800&h=900&fit=crop" class="w-full h-full object-cover" alt="Dog in bath">
+        <div class="absolute top-4 left-4 right-4 flex justify-between">
+          <div class="bg-white border-[2.5px] border-ink rounded-full px-4 py-2 font-bold text-[12px]">★ No cage boarding zone</div>
+          <div class="w-10 h-10 bg-bubblegum border-[2.5px] border-ink rounded-full grid place-items-center text-white">♡</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="rounded-[32px] border-[3px] border-ink bg-white p-5 sm:p-6 chubby-shadow-sm reveal flex flex-col justify-between">
+          <div class="flex justify-between items-start">
+            <div class="w-12 h-12 rounded-full bg-cream border-[2.5px] border-ink grid place-items-center text-[22px]">🐩</div>
+            <span class="bg-mint border border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase">Faves</span>
+          </div>
+          <div class="mt-6">
+            <div class="font-fredoka font-bold text-[28px] leading-none">4,200+</div>
+            <div class="text-[12px] font-bold uppercase tracking-widest mt-1">happy paws groomed</div>
+          </div>
+        </div>
+        <div class="rounded-[32px] border-[3px] border-ink overflow-hidden bg-bubblegum relative chubby-shadow-sm reveal">
+          <img src="https://images.unsplash.com/photo-1530281700044-0b2240e1bf97?w=400&h=400&fit=crop" class="w-full h-full object-cover mix-blend-multiply opacity-80" alt="">
+          <div class="absolute inset-0 p-5 flex flex-col justify-end">
+            <div class="bg-white border-[2.5px] border-ink rounded-[20px] p-3 font-fredoka font-bold text-[14px] leading-[1.1]">Yuzu rice<br>conditioner in<br>every bath →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="px-3 sm:px-6 py-6 sm:py-10">
+  <div class="max-w-[1320px] mx-auto">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-8">
+      <div>
+        <div class="inline-flex bg-bubblegum text-white border-[2.5px] border-ink rounded-full px-4 py-2 font-extrabold text-[11px] tracking-widest uppercase">The Menu • No Upsells</div>
+        <h2 class="mt-5 font-fredoka font-bold text-[40px] sm:text-[58px] leading-[0.9] tracking-[-0.03em]">Pick your bubble,<br>we'll bring the joy.</h2>
+      </div>
+      <div class="max-w-[360px] text-[15px] font-semibold leading-[1.5] text-inksoft">All grooms include health check, ear fluff & complimentary Polaroid. 40px of softness guaranteed.</div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+      <!-- Service 1 -->
+      <div class="group relative bg-white border-[3px] border-ink rounded-[40px] p-3 chubby-shadow hover:translate-y-[3px] hover:shadow-[0_6px_0_#2b2122] transition-all reveal">
+        <div class="rounded-[32px] overflow-hidden border-[2.5px] border-ink relative h-[248px]">
+          <img src="https://images.unsplash.com/photo-1558788353-6fc6f73e2831?w=600&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
+          <div class="absolute top-3 left-3 bg-white border-[2px] border-ink rounded-full px-3 py-1 font-bold text-[11px]">70 MIN • MOST LOVED</div>
+          <div class="absolute bottom-3 right-3 w-10 h-10 bg-mint border-[2px] border-ink rounded-full grid place-items-center font-fredoka font-bold text-[14px]">₩55k</div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-fredoka font-bold text-[22px] leading-[1.1]">Bubble Bath</h3>
+            <span class="w-8 h-8 rounded-full bg-cream border-[2px] border-ink grid place-items-center">🫧</span>
+          </div>
+          <p class="mt-2 text-[13px] font-semibold leading-[1.4] text-inksoft">Oat milk soak, blueberry facial, fluff dry, spritz of yuzu.</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="bg-cream border border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase">Small • Medium</span>
+            <span class="bg-blush border border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase">Report card</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service 2 -->
+      <div class="group relative bg-bubblegum border-[3px] border-ink rounded-[40px] p-3 chubby-shadow hover:translate-y-[3px] hover:shadow-[0_6px_0_#2b2122] transition-all reveal" style="transition-delay:.06s">
+        <div class="rounded-[32px] overflow-hidden border-[2.5px] border-ink relative h-[248px] bg-white">
+          <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
+          <div class="absolute top-3 left-3 bg-ink text-cream border-[2px] border-ink rounded-full px-3 py-1 font-bold text-[11px]">90 MIN • SIGNATURE</div>
+          <div class="absolute bottom-3 right-3 w-14 h-10 bg-white border-[2px] border-ink rounded-full grid place-items-center font-fredoka font-bold text-[14px]">₩85k</div>
+        </div>
+        <div class="p-4 text-white">
+          <div class="flex items-center justify-between">
+            <h3 class="font-fredoka font-bold text-[22px] leading-[1.1]">Chubby Trim</h3>
+            <span class="w-8 h-8 rounded-full bg-white text-ink border-[2px] border-ink grid place-items-center">✂︎</span>
+          </div>
+          <p class="mt-2 text-[13px] font-semibold leading-[1.4] text-white/90">Breed-standard or teddy cut, hand-scissored, zero rush.</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="bg-white text-ink border border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase">Face • Feet • Fanny</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service 3 -->
+      <div class="group relative bg-white border-[3px] border-ink rounded-[40px] p-3 chubby-shadow hover:translate-y-[3px] hover:shadow-[0_6px_0_#2b2122] transition-all reveal" style="transition-delay:.12s">
+        <div class="rounded-[32px] overflow-hidden border-[2.5px] border-ink relative h-[248px]">
+          <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
+          <div class="absolute top-3 left-3 bg-mint border-[2px] border-ink rounded-full px-3 py-1 font-bold text-[11px]">30 MIN</div>
+          <div class="absolute bottom-3 right-3 w-10 h-10 bg-ink text-cream border-[2px] border-ink rounded-full grid place-items-center font-fredoka font-bold text-[13px]">₩25k</div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-fredoka font-bold text-[22px] leading-[1.1]">Pawdicure</h3>
+            <span class="w-8 h-8 rounded-full bg-mint border-[2px] border-ink grid place-items-center">🐾</span>
+          </div>
+          <p class="mt-2 text-[13px] font-semibold leading-[1.4] text-inksoft">Nail grind, paw balm, pad tidy — plus mini massage.</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="bg-cream border border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase">Add to any bath</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service 4 -->
+      <div class="group relative bg-ink text-cream border-[3px] border-ink rounded-[40px] p-3 chubby-shadow hover:translate-y-[3px] hover:shadow-[0_6px_0_#2b2122] transition-all reveal" style="transition-delay:.18s">
+        <div class="rounded-[32px] overflow-hidden border-[2.5px] border-cream/20 relative h-[248px] bg-[#3a3233]">
+          <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" alt="">
+          <div class="absolute top-3 left-3 bg-cream text-ink border-[2px] border-ink rounded-full px-3 py-1 font-bold text-[11px]">60 MIN • SPA</div>
+          <div class="absolute bottom-3 right-3 w-12 h-10 bg-bubblegum text-white border-[2px] border-ink rounded-full grid place-items-center font-fredoka font-bold text-[13px]">₩70k</div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-fredoka font-bold text-[22px] leading-[1.1]">Aroma Spa</h3>
+            <span class="w-8 h-8 rounded-full bg-mint text-ink border-[2px] border-white/20 grid place-items-center">♨︎</span>
+          </div>
+          <p class="mt-2 text-[13px] font-semibold leading-[1.4] text-cream/70">Mugwort wrap, lymph massage, blue light calm — snooze approved.</p>
+          <div class="mt-4 flex gap-2">
+            <span class="bg-white/10 border border-white/20 rounded-full px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase">Senior friendly</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- process strip -->
+    <div class="mt-8 bg-white border-[3px] border-ink rounded-[32px] sm:rounded-[40px] p-2 sm:p-3 flex flex-wrap gap-2 sm:gap-3 chubby-shadow-sm reveal">
+      <div class="flex-1 min-w-[200px] bg-cream border-[2.5px] border-ink rounded-[28px] px-5 py-4 flex items-center gap-4">
+        <div class="w-11 h-11 rounded-full bg-white border-[2px] border-ink grid place-items-center font-fredoka font-bold">1</div>
+        <div><div class="font-fredoka font-bold leading-none">Sniff & Greet</div><div class="text-[12px] font-bold text-inksoft mt-1">5-min calm-in, treats</div></div>
+      </div>
+      <div class="flex-1 min-w-[200px] bg-white border-[2.5px] border-ink rounded-[28px] px-5 py-4 flex items-center gap-4">
+        <div class="w-11 h-11 rounded-full bg-mint border-[2px] border-ink grid place-items-center font-fredoka font-bold">2</div>
+        <div><div class="font-fredoka font-bold leading-none">Wash + Whisper</div><div class="text-[12px] font-bold text-inksoft mt-1">Low noise, chatty cuddles</div></div>
+      </div>
+      <div class="flex-1 min-w-[200px] bg-white border-[2.5px] border-ink rounded-[28px] px-5 py-4 flex items-center gap-4">
+        <div class="w-11 h-11 rounded-full bg-bubblegum text-white border-[2px] border-ink grid place-items-center font-fredoka font-bold">3</div>
+        <div><div class="font-fredoka font-bold leading-none">Reveal ✨</div><div class="text-[12px] font-bold text-inksoft mt-1">Polaroid + report card</div></div>
+      </div>
+      <div class="bg-ink text-cream rounded-[28px] px-6 py-4 flex items-center gap-3 border-[2.5px] border-ink">
+        <div class="text-[13px] font-extrabold tracking-widest uppercase leading-[1.1]">Same-day<br>text updates</div>
+        <div class="w-9 h-9 rounded-full bg-bubblegum grid place-items-center border border-white/20">♥</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY / LOOKBOOK -->
+<section id="gallery" class="px-3 sm:px-6 py-8 sm:py-14">
+  <div class="max-w-[1320px] mx-auto">
+    <div class="bg-ink text-cream border-[3px] border-ink rounded-[40px] sm:rounded-[56px] overflow-hidden chubby-shadow reveal">
+      <div class="p-7 sm:p-10 lg:p-12 flex flex-wrap gap-6 items-start justify-between">
+        <div>
+          <div class="inline-flex bg-bubblegum border-[2px] border-white/20 rounded-full px-4 py-1.5 font-extrabold text-[11px] tracking-widest uppercase text-white">Lookbook • Real Clients</div>
+          <h2 class="mt-6 font-fredoka font-bold text-[36px] sm:text-[56px] leading-[0.9] tracking-[-0.03em]">Fluff, but make it<br>fashion.</h2>
+        </div>
+        <div class="flex gap-3 items-center">
+          <div class="bg-white/10 border border-white/20 rounded-full px-4 py-2 font-bold text-[13px]">Seoul street style insp.</div>
+          <a href="#" class="w-12 h-12 rounded-full bg-white text-ink border-[2.5px] border-ink grid place-items-center font-bold hover:rotate-12 transition-transform">↗</a>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-12 gap-4 p-2 sm:p-3 bg-cream">
+        <div class="sm:col-span-5 rounded-[32px] overflow-hidden border-[3px] border-ink relative h-[420px] sm:h-[560px] group">
+          <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=800&h=1000&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
+          <div class="absolute bottom-3 left-3 right-3 bg-white border-[2.5px] border-ink rounded-[22px] p-4 flex items-center justify-between">
+            <div><div class="font-fredoka font-bold">Momo • Poodle</div><div class="text-[11px] font-bold uppercase tracking-widest text-inksoft">Berry teddy • before/after</div></div>
+            <div class="w-8 h-8 bg-bubblegum border border-ink rounded-full grid place-items-center text-white text-[12px]">♡</div>
+          </div>
+        </div>
+
+        <div class="sm:col-span-7 grid grid-rows-2 gap-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-[32px] overflow-hidden border-[3px] border-ink relative h-[260px] sm:h-[272px] group">
+              <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=600&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
+              <div class="absolute top-3 left-3 bg-mint border-[2px] border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase">Calm rinse</div>
+            </div>
+            <div class="rounded-[32px] overflow-hidden border-[3px] border-ink relative h-[260px] sm:h-[272px] bg-bubblegum p-4 flex flex-col justify-between">
+              <div class="flex justify-between items-start">
+                <div class="bg-white border-[2px] border-ink rounded-full px-3 py-1 font-bold text-[11px]">Color palette</div>
+                <div class="w-8 h-8 bg-ink text-white border border-white rounded-full grid place-items-center">✦</div>
+              </div>
+              <div class="grid grid-cols-3 gap-2 mt-6">
+                <div class="h-[74px] rounded-[18px] border-[2px] border-ink bg-[#ff8fab] grid place-items-end p-2 font-bold text-[11px] text-white">Bubblegum</div>
+                <div class="h-[74px] rounded-[18px] border-[2px] border-ink bg-[#fff7ed] p-2 font-bold text-[11px]">Cream</div>
+                <div class="h-[74px] rounded-[18px] border-[2px] border-ink bg-[#c7f2d9] p-2 font-bold text-[11px]">Mint</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-[32px] overflow-hidden border-[3px] border-ink relative h-[260px] sm:h-[272px] group">
+            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=900&h=600&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
+            <div class="absolute inset-0 bg-gradient-to-r from-ink/50 to-transparent"></div>
+            <div class="absolute left-4 bottom-4 bg-white border-[2.5px] border-ink rounded-[22px] px-4 py-3 font-fredoka font-bold text-[16px] leading-[1.1]">We keep one Polaroid wall<br>for every happy graduate 🎓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-3 sm:px-6 py-5 bg-cream border-t-[3px] border-ink flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3 text-[13px] font-bold">
+          <span class="w-10 h-10 rounded-full bg-white border-[2px] border-ink grid place-items-center">📷</span>
+          Tag @boboandbalm to be featured — we print all our faves.
+        </div>
+        <div class="flex gap-2">
+          <span class="bg-white border-[2px] border-ink rounded-full px-3 py-1.5 font-bold text-[11px]">#seoulpup</span>
+          <span class="bg-white border-[2px] border-ink rounded-full px-3 py-1.5 font-bold text-[11px]">#bobotrim</span>
+          <span class="bg-bubblegum text-white border-[2px] border-ink rounded-full px-3 py-1.5 font-bold text-[11px]">#bubblebathclub</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS / WAG WALL -->
+<section id="reviews" class="px-3 sm:px-6 py-6 sm:py-10">
+  <div class="max-w-[1320px] mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <h2 class="font-fredoka font-bold text-[34px] sm:text-[52px] leading-[0.9] tracking-[-0.03em]">The Wag Wall —<br>soft, loud, honest.</h2>
+      <div class="bg-white border-[3px] border-ink rounded-full px-2 py-2 flex items-center gap-2 chubby-shadow-sm">
+        <div class="w-10 h-10 rounded-full bg-ink text-cream grid place-items-center font-fredoka font-bold">★</div>
+        <div class="pr-4 leading-tight"><div class="font-extrabold text-[14px]">4.9 / 5 from 2,341 parents</div><div class="text-[11px] font-bold text-inksoft">Naver • Google • Instagram</div></div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 sm:gap-6">
+      <div class="bg-white border-[3px] border-ink rounded-[36px] p-6 sm:p-7 chubby-shadow-sm reveal hover:rotate-[-1deg] transition-transform">
+        <div class="flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop" class="w-12 h-12 rounded-full border-[2px] border-ink object-cover" alt="">
+          <div><div class="font-fredoka font-bold">Yuna • Momo's mom</div><div class="text-[11px] font-extrabold uppercase tracking-widest text-inksoft">Poodle • Chubby Trim</div></div>
+          <div class="ml-auto w-8 h-8 rounded-full bg-mint border-[2px] border-ink grid place-items-center font-bold text-[12px]">5</div>
+        </div>
+        <p class="mt-5 text-[16px] leading-[1.5] font-semibold">“Momo usually shakes at groomers. Here she fell asleep. The bath smelled like yuzu and the report card had her favorite spot marked.”</p>
+        <div class="mt-5 flex gap-2"><span class="bg-cream border border-ink rounded-full px-3 py-1 text-[11px] font-bold">Fear-free</span><span class="bg-blush border border-ink rounded-full px-3 py-1 text-[11px] font-bold">Polaroid included</span></div>
+      </div>
+
+      <div class="bg-bubblegum text-white border-[3px] border-ink rounded-[36px] p-6 sm:p-7 chubby-shadow-sm reveal hover:rotate-[1deg] transition-transform" style="transition-delay:.07s">
+        <div class="flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop" class="w-12 h-12 rounded-full border-[2px] border-ink object-cover" alt="">
+          <div><div class="font-fredoka font-bold">Minho • Bori & Sora</div><div class="text-[11px] font-extrabold uppercase tracking-widest text-white/80">Two Shibas • Bubble x2</div></div>
+          <div class="ml-auto w-8 h-8 rounded-full bg-white text-ink border-[2px] border-ink grid place-items-center font-bold text-[12px]">5</div>
+        </div>
+        <p class="mt-5 text-[16px] leading-[1.5] font-semibold text-white">“They texted mid-wash with water temp and let us peek via window. No cage, no hurry. Seoul's softest place fr.”</p>
+        <div class="mt-5 flex gap-2"><span class="bg-white text-ink border border-ink rounded-full px-3 py-1 text-[11px] font-bold">See-through studio</span></div>
+      </div>
+
+      <div class="bg-mint border-[3px] border-ink rounded-[36px] p-6 sm:p-7 chubby-shadow-sm reveal hover:rotate-[-1deg] transition-transform" style="transition-delay:.14s">
+        <div class="flex items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=120&h=120&fit=crop" class="w-12 h-12 rounded-full border-[2px] border-ink object-cover" alt="">
+          <div><div class="font-fredoka font-bold">Chae • Tofu</div><div class="text-[11px] font-extrabold uppercase tracking-widest text-inksoft">Senior Bichon • Aroma Spa</div></div>
+          <div class="ml-auto w-8 h-8 rounded-full bg-white border-[2px] border-ink grid place-items-center font-bold text-[12px]">5</div>
+        </div>
+        <p class="mt-5 text-[16px] leading-[1.5] font-semibold">“Tofu is 13. They laid a heated mat and did joint massage. He came home snoring. The balm for paws is magic.”</p>
+        <div class="mt-5 flex gap-2"><span class="bg-white border border-ink rounded-full px-3 py-1 text-[11px] font-bold">Senior care</span><span class="bg-ink text-cream border border-ink rounded-full px-3 py-1 text-[11px] font-bold">Vet-backed</span></div>
+      </div>
+    </div>
+
+    <!-- ticker -->
+    <div class="mt-6 bg-white border-[3px] border-ink rounded-full py-3 px-4 flex items-center gap-3 overflow-hidden chubby-shadow-sm">
+      <div class="bg-bubblegum text-white border-[2px] border-ink rounded-full px-3 py-1 font-extrabold text-[11px] tracking-widest uppercase">Live now</div>
+      <div class="flex-1 overflow-hidden">
+        <div class="whitespace-nowrap animate-[marquee_30s_linear_infinite] flex gap-12">
+          <span class="font-bold text-[13px]">Momo just left with a bow tie 🎀</span>
+          <span class="font-bold text-[13px]">Bori booked Pawdicure for Friday • </span>
+          <span class="font-bold text-[13px]">New scent: Jeju mugwort + rice milk dropping next week 🌾</span>
+          <span class="font-bold text-[13px]">Momo just left with a bow tie 🎀</span>
+          <span class="font-bold text-[13px]">Bori booked Pawdicure for Friday • </span>
+          <span class="font-bold text-[13px]">New scent: Jeju mugwort + rice milk dropping next week 🌾</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MEMBERSHIP -->
+<section id="membership" class="px-3 sm:px-6 py-8 sm:py-14">
+  <div class="max-w-[1320px] mx-auto">
+    <div class="grid lg:grid-cols-[.9fr_1.1fr] gap-6 items-stretch">
+      <div class="bg-white border-[3px] border-ink rounded-[40px] p-7 sm:p-10 chubby-shadow reveal">
+        <div class="w-14 h-14 rounded-[18px] bg-bubblegum border-[3px] border-ink grid place-items-center text-white text-[26px]">♥</div>
+        <h3 class="mt-6 font-fredoka font-bold text-[36px] leading-[0.9] tracking-[-0.02em]">Bubble Club<br>for frequent waggers.</h3>
+        <p class="mt-4 text-[15px] font-semibold leading-[1.5] text-inksoft">Three visits = one free bubble refill + paw balm. No card juggling, just tail count.</p>
+        <div class="mt-8 bg-cream border-[2.5px] border-ink rounded-[28px] p-5">
+          <div class="flex items-center justify-between font-fredoka font-bold text-[14px]">
+            <span>Tofu's progress</span>
+            <span class="bg-ink text-cream rounded-full px-2.5 py-1 text-[11px]">2 / 3</span>
+          </div>
+          <div class="mt-4 h-3 rounded-full bg-white border-[2px] border-ink overflow-hidden p-1">
+            <div class="h-full w-[66%] bg-bubblegum rounded-full"></div>
+          </div>
+          <div class="mt-3 text-[12px] font-bold">One more bath and he gets free balm + Polaroid frame!</div>
+        </div>
+        <div class="mt-6 grid grid-cols-3 gap-3 text-center">
+          <div><div class="font-fredoka font-bold text-[22px]">₩0</div><div class="text-[10px] font-extrabold uppercase tracking-widest">Join fee</div></div>
+          <div><div class="font-fredoka font-bold text-[22px]">-15%</div><div class="text-[10px] font-extrabold uppercase tracking-widest">Every 4th</div></div>
+          <div><div class="font-fredoka font-bold text-[22px]">♥</div><div class="text-[10px] font-extrabold uppercase tracking-widest">Surprises</div></div>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-6">
+        <div class="bg-cream border-[3px] border-ink rounded-[40px] p-7 flex flex-col chubby-shadow-sm reveal">
+          <div class="flex items-center justify-between">
+            <div class="font-fredoka font-bold text-[20px]">Starter</div>
+            <div class="bg-white border-[2px] border-ink rounded-full px-3 py-1 font-bold text-[11px]">Pay as you go</div>
+          </div>
+          <div class="mt-6 font-fredoka font-bold text-[44px] leading-none">₩55k<span class="text-[16px] font-bold text-inksoft"> / visit</span></div>
+          <ul class="mt-6 space-y-3 text-[14px] font-semibold">
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-white border border-ink grid place-items-center text-[10px]">✓</span> Bubble Bath included</li>
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-white border border-ink grid place-items-center text-[10px]">✓</span> Report card + photo</li>
+            <li class="flex gap-2 opacity-60"><span class="w-5 h-5 rounded-full bg-white border border-ink grid place-items-center text-[10px]">–</span> No monthly perks</li>
+          </ul>
+          <a href="#book" class="mt-auto pt-6 inline-flex justify-center bg-white border-[2.5px] border-ink rounded-full py-3 font-fredoka font-bold hover:bg-ink hover:text-cream transition-colors">Choose</a>
+        </div>
+
+        <div class="bg-ink text-cream border-[3px] border-ink rounded-[40px] p-7 flex flex-col chubby-shadow relative overflow-hidden reveal" style="transition-delay:.08s">
+          <div class="absolute -right-16 -top-16 w-[180px] h-[180px] bg-bubblegum rounded-full blur-[30px] opacity-70"></div>
+          <div class="relative flex items-center justify-between">
+            <div class="font-fredoka font-bold text-[20px] flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-bubblegum border border-white grid place-items-center text-[12px]">★</span> Bubble Club</div>
+            <div class="bg-bubblegum text-white border-[2px] border-white/20 rounded-full px-3 py-1 font-bold text-[11px]">Most loved</div>
+          </div>
+          <div class="relative mt-6 font-fredoka font-bold text-[44px] leading-none">₩129k<span class="text-[16px] font-bold text-cream/60"> / mo</span></div>
+          <div class="relative mt-1 text-[12px] font-bold text-cream/70">For small pups • save 35% • pause anytime</div>
+          <ul class="relative mt-6 space-y-3 text-[14px] font-semibold">
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-bubblegum border border-white/30 grid place-items-center text-[10px]">✓</span> 2 Bubble Baths</li>
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-bubblegum border border-white/30 grid place-items-center text-[10px]">✓</span> 1 Pawdicure / month</li>
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-bubblegum border border-white/30 grid place-items-center text-[10px]">✓</span> Free balm + bow tie archive</li>
+          </ul>
+          <a href="#book" class="relative mt-auto pt-6 inline-flex justify-center bg-bubblegum border-[2.5px] border-white/20 rounded-full py-3 font-fredoka font-bold hover:bg-white hover:text-ink transition-colors">Join bubble club ♥</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK / FOOTER -->
+<section id="book" class="px-3 sm:px-6 pb-6">
+  <div class="max-w-[1320px] mx-auto">
+    <div class="bg-bubblegum border-[3px] border-ink rounded-[40px] sm:rounded-[56px] overflow-hidden chubby-shadow relative reveal">
+      <div class="absolute inset-0 paw-bg opacity-[0.12]"></div>
+      <div class="relative grid lg:grid-cols-[1.1fr_.9fr] gap-0">
+        <!-- form -->
+        <div class="p-7 sm:p-10 lg:p-12">
+          <div class="inline-flex bg-white border-[2.5px] border-ink rounded-full px-4 py-2 font-extrabold text-[11px] tracking-widest uppercase">Book in 20 seconds</div>
+          <h2 class="mt-6 font-fredoka font-bold text-[42px] sm:text-[56px] leading-[0.9] tracking-[-0.03em] text-white">Come as you are,<br>leave extra fluffy.</h2>
+
+          <form class="mt-8 grid sm:grid-cols-2 gap-4" onsubmit="event.preventDefault(); alert('Wag! We saved your bubble slot — check Kakao in 2 mins 💬');">
+            <div class="sm:col-span-2 bg-white border-[3px] border-ink rounded-[22px] px-5 py-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-cream border-[2px] border-ink grid place-items-center">🐾</div>
+              <input required placeholder="Pup's name (Mochi, Tofu...)" class="flex-1 bg-transparent outline-none font-bold text-[15px] placeholder:text-inksoft/60">
+              <span class="hidden sm:inline bg-mint border border-ink rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase">We remember</span>
+            </div>
+            <div class="bg-white border-[3px] border-ink rounded-[22px] px-5 py-4">
+              <div class="text-[10px] font-extrabold tracking-widest uppercase">Human</div>
+              <input required placeholder="Your name" class="w-full mt-1 bg-transparent outline-none font-bold text-[15px] placeholder:text-inksoft/60">
+            </div>
+            <div class="bg-white border-[3px] border-ink rounded-[22px] px-5 py-4">
+              <div class="text-[10px] font-extrabold tracking-widest uppercase">Channel</div>
+              <input required placeholder="Kakao / Phone" class="w-full mt-1 bg-transparent outline-none font-bold text-[15px] placeholder:text-inksoft/60">
+            </div>
+            <div class="bg-white border-[3px] border-ink rounded-[22px] px-5 py-4">
+              <div class="text-[10px] font-extrabold tracking-widest uppercase">Service</div>
+              <select class="w-full mt-1 bg-transparent outline-none font-bold text-[15px]">
+                <option>Bubble Bath — ₩55k</option>
+                <option>Chubby Trim — ₩85k</option>
+                <option>Pawdicure — ₩25k</option>
+                <option>Aroma Spa — ₩70k</option>
+              </select>
+            </div>
+            <div class="bg-white border-[3px] border-ink rounded-[22px] px-5 py-4">
+              <div class="text-[10px] font-extrabold tracking-widest uppercase">Preferred time</div>
+              <input type="datetime-local" class="w-full mt-1 bg-transparent outline-none font-bold text-[15px]">
+            </div>
+            <button class="sm:col-span-2 mt-2 bg-ink text-cream border-[3px] border-ink rounded-full py-4 font-fredoka font-bold text-[17px] chubby-shadow-sm hover:translate-y-[2px] hover:shadow-[0_4px_0_#2b2122] transition-all flex items-center justify-center gap-3">
+              Hold my bubble slot
+              <span class="w-8 h-8 rounded-full bg-white text-ink grid place-items-center">♥</span>
+            </button>
+            <div class="sm:col-span-2 text-[11px] font-bold text-white/80 text-center">No card needed • Free cancel up to 2h • Same-day texts</div>
+          </form>
+        </div>
+
+        <!-- info side -->
+        <div class="border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-ink bg-white p-7 sm:p-10 lg:p-12 flex flex-col">
+          <div class="rounded-[28px] overflow-hidden border-[3px] border-ink h-[260px] relative">
+            <img src="https://images.unsplash.com/photo-1558788353-6fc6f73e2831?w=800&h=600&fit=crop" class="w-full h-full object-cover" alt="">
+            <div class="absolute top-3 left-3 bg-white border-[2px] border-ink rounded-full px-3 py-1 font-bold text-[11px] flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#1dd36f] border border-ink"></span> Open studio — come peek</div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-2 gap-4">
+            <div class="bg-cream border-[2.5px] border-ink rounded-[22px] p-4">
+              <div class="text-[11px] font-extrabold uppercase tracking-widest">Find us</div>
+              <div class="mt-2 font-fredoka font-bold leading-[1.2]">Sinsa-dong 533-7,<br>Gangnam • 2F<br>Seoul, KR 06012</div>
+              <div class="mt-3 inline-flex bg-white border border-ink rounded-full px-2.5 py-1 text-[10px] font-bold">Map ↗</div>
+            </div>
+            <div class="bg-mint border-[2.5px] border-ink rounded-[22px] p-4">
+              <div class="text-[11px] font-extrabold uppercase tracking-widest">Hours</div>
+              <div class="mt-2 font-bold text-[14px] leading-[1.3]">Mon—Sat 10:00—19:00<br>Sun 11:00—18:00<br><span class="text-[12px]">Break 13:00—14:00 (walk)</span></div>
+            </div>
+          </div>
+
+          <div class="mt-6 bg-ink text-cream border-[2.5px] border-ink rounded-[22px] p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-white text-ink border border-ink grid place-items-center">💬</div>
+              <div class="font-bold leading-tight"><div>Kakao: @boboandbalm</div><div class="text-[11px] font-extrabold uppercase tracking-widest text-white/60">Reply in < 5 min</div></div>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-bubblegum grid place-items-center border border-white/20">↗</div>
+          </div>
+
+          <div class="mt-auto pt-8 flex items-center justify-between">
+            <div class="font-fredoka font-bold text-[20px] tracking-tight">BOBO & BALM</div>
+            <div class="flex gap-2">
+              <a class="w-9 h-9 rounded-full bg-cream border-[2px] border-ink grid place-items-center font-bold text-[12px] hover:bg-bubblegum hover:text-white transition-colors">IG</a>
+              <a class="w-9 h-9 rounded-full bg-cream border-[2px] border-ink grid place-items-center font-bold text-[12px] hover:bg-ink hover:text-cream transition-colors">NV</a>
+              <a class="w-9 h-9 rounded-full bg-cream border-[2px] border-ink grid place-items-center font-bold text-[12px] hover:bg-mint transition-colors">TT</a>
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] font-bold text-inksoft leading-[1.4]">© 2026 Bobo & Balm Studio. Vegan. Fear-free certified. All bows handmade in Seoul. Made with 🫧 in Sinsa.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- tiny bottom marquee -->
+<div class="px-3 sm:px-6 pb-10">
+  <div class="max-w-[1320px] mx-auto bg-white border-[2.5px] border-ink rounded-full py-2.5 px-6 flex items-center justify-between gap-4 chubby-shadow-sm">
+    <div class="flex items-center gap-2 font-bold text-[12px]"><span class="w-6 h-6 rounded-full bg-bubblegum border border-ink grid place-items-center text-white text-[10px]">✦</span> Crafted for pups who deserve spa days, not just bath days.</div>
+    <div class="hidden sm:flex items-center gap-2 font-extrabold text-[11px] tracking-widest uppercase"><span>Seoul • Sinsa • Since 2021</span><span class="w-1.5 h-1.5 rounded-full bg-ink"></span><span>Non-toxic • Fear-free • Vegan</span></div>
+  </div>
+</div>
+
+<script>
+// custom cursor
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = window.innerWidth/2, my = window.innerHeight/2;
+let rx = mx, ry = my, dx = mx, dy = my;
+const isTouch = matchMedia('(pointer: coarse)').matches;
+if(!isTouch){
+  window.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; });
+  const loop = ()=>{
+    rx += (mx - rx)*0.15;
+    ry += (my - ry)*0.15;
+    dx += (mx - dx)*0.28;
+    dy += (my - dy)*0.28;
+    ring.style.left = rx - 24 + 'px';
+    ring.style.top = ry - 24 + 'px';
+    dot.style.left = dx - 9 + 'px';
+    dot.style.top = dy - 9 + 'px';
+    requestAnimationFrame(loop);
+  };
+  loop();
+  document.querySelectorAll('a,button,[role=button],input,select').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ dot.classList.add('hover'); ring.classList.add('hover'); });
+    el.addEventListener('mouseleave', ()=>{ dot.classList.remove('hover'); ring.classList.remove('hover'); });
+  });
+}
+
+// reveal on scroll
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// mobile menu
+const btn = document.getElementById('mobileMenuBtn');
+const menu = document.getElementById('mobileMenu');
+if(btn && menu){
+  btn.addEventListener('click', ()=> menu.classList.toggle('hidden'));
+  menu.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> menu.classList.add('hidden')));
+}
+
+// wiggle on hover for service cards
+document.querySelectorAll('.group').forEach(card=>{
+  card.addEventListener('mousemove', (e)=>{
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left)/r.width - .5;
+    const y = (e.clientY - r.top)/r.height - .5;
+    card.style.transform = `perspective(800px) rotateX(${ -y*4 }deg) rotateY(${ x*6 }deg) translateY(-2px)`;
+  });
+  card.addEventListener('mouseleave', ()=>{ card.style.transform=''; });
+});
+</script>
+</body>
+</html>

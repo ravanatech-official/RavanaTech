@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Photography Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=IBM+Plex+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        dark: '#0a0a0a',
+        paper: '#f5f1e8',
+        safelight: '#ff2d2d',
+        charcoal: '#1a1a1a',
+        stone: '#d8d2c4'
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond','serif'],
+        display: ['Instrument Serif','serif'],
+        mono: ['IBM Plex Mono','monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+:root{
+  --dark:#0a0a0a;
+  --paper:#f5f1e8;
+  --safelight:#ff2d2d;
+  --charcoal:#1a1a1a;
+}
+*{ -webkit-font-smoothing: antialiased; }
+html{ scroll-behavior: smooth; }
+body{
+  background: var(--dark);
+  color: var(--paper);
+  font-family: 'IBM Plex Mono', monospace;
+  overflow-x: hidden;
+}
+.font-serif{ font-family: 'Cormorant Garamond', serif; }
+.font-display{ font-family: 'Instrument Serif', serif; }
+
+/* Custom Cursor */
+#cursor{
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: var(--safelight);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  mix-blend-mode: normal;
+  transition: transform .15s ease;
+}
+#cursor-follower{
+  position: fixed;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(245,241,232,0.3);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transition: transform .25s cubic-bezier(.23,1,.32,1), border-color .3s, width .3s, height .3s;
+}
+@media (max-width: 1024px){
+  #cursor,#cursor-follower{ display:none; }
+  *{ cursor:auto !important; }
+}
+
+/* Grain */
+.grain{
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9990;
+  opacity: .06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: grainShift 8s steps(10) infinite;
+}
+@keyframes grainShift{
+  0%{ transform: translate(0,0); }
+  10%{ transform: translate(-5%,-10%); }
+  20%{ transform: translate(-15%,5%); }
+  30%{ transform: translate(7%,-25%); }
+  40%{ transform: translate(-5%,25%); }
+  50%{ transform: translate(-15%,10%); }
+  60%{ transform: translate(15%,0%); }
+  70%{ transform: translate(0%,15%); }
+  80%{ transform: translate(3%,-15%); }
+  90%{ transform: translate(-10%,10%); }
+  100%{ transform: translate(0,0); }
+}
+
+/* Marquee */
+.marquee{
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid #1f1f1f;
+  border-bottom: 1px solid #1f1f1f;
+}
+.marquee-track{
+  display: inline-flex;
+  animation: marquee 40s linear infinite;
+}
+@keyframes marquee{
+  0%{ transform: translateX(0); }
+  100%{ transform: translateX(-50%); }
+}
+
+/* Film perforations */
+.perf{
+  background-image: 
+    radial-gradient(circle at center, var(--dark) 0 40%, transparent 41%),
+    radial-gradient(circle at center, var(--dark) 0 40%, transparent 41%);
+  background-size: 24px 24px;
+  background-position: 0 6px, 0 36px;
+  background-repeat: repeat-y;
+}
+
+/* Scroll reveal */
+.reveal{
+  opacity:0;
+  transform: translateY(32px);
+  transition: all 1.1s cubic-bezier(.16,1,.3,1);
+}
+.reveal.active{
+  opacity:1;
+  transform: translateY(0);
+}
+.reveal-delay-1{ transition-delay: .1s; }
+.reveal-delay-2{ transition-delay: .2s; }
+.reveal-delay-3{ transition-delay: .3s; }
+
+/* Contact sheet hover negative */
+.contact-frame{
+  position: relative;
+  overflow: hidden;
+}
+.contact-frame img{
+  filter: grayscale(1) contrast(1.2) brightness(.95);
+  transition: filter .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.contact-frame:hover img{
+  filter: grayscale(0) contrast(1) brightness(1);
+  transform: scale(1.03);
+}
+.contact-frame::after{
+  content: attr(data-frame);
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-family: 'IBM Plex Mono';
+  font-size: 9px;
+  letter-spacing: .08em;
+  color: rgba(245,241,232,.6);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar{ width:6px; height:6px; }
+::-webkit-scrollbar-thumb{ background:#222; }
+::-webkit-scrollbar-track{ background:#0a0a0a; }
+
+/* Enlarger line */
+.enlarger-line{
+  width:1px;
+  background: linear-gradient(to bottom, transparent, var(--safelight), transparent);
+  animation: scan 4s ease-in-out infinite;
+}
+@keyframes scan{
+  0%{ transform: translateY(-100%); opacity:0; }
+  50%{ opacity:1; }
+  100%{ transform: translateY(100%); opacity:0; }
+}
+
+/* Input focus */
+.input-line{
+  border-bottom:1px solid #2a2a2a;
+  transition: border-color .4s ease;
+}
+.input-line:focus{
+  border-color: var(--safelight);
+  outline:none;
+}
+
+/* safelight blink */
+@keyframes blink{
+  0%,100%{ opacity:1; box-shadow:0 0 8px var(--safelight); }
+  50%{ opacity:.4; box-shadow:0 0 2px var(--safelight); }
+}
+.blink{ animation: blink 2s ease-in-out infinite; }
+
+</style>
+</head>
+<body class="bg-dark text-paper selection:bg-safelight selection:text-paper">
+
+<div id="cursor"></div>
+<div id="cursor-follower"></div>
+<div class="grain"></div>
+
+<!-- Loader -->
+<div id="loader" class="fixed inset-0 z-[10000] bg-dark flex flex-col justify-between p-6 md:p-10 transition-transform duration-[1.2s] cubic-bezier(.16,1,.3,1)">
+  <div class="flex justify-between font-mono text-[10px] tracking-[0.2em] uppercase text-stone/60">
+    <span>LABORATORY NO. 03 — DARKROOM</span>
+    <span id="loader-pct">00%</span>
+  </div>
+  <div class="relative">
+    <div class="h-[1px] w-full bg-charcoal overflow-hidden">
+      <div id="loader-bar" class="h-full bg-safelight w-0 transition-all duration-200"></div>
+    </div>
+    <h1 class="font-display text-[14vw] leading-[0.85] tracking-[-0.04em] mt-8">NOIR<br><span class="font-serif italic font-light pl-[0.2em]">LAB</span></h1>
+  </div>
+  <div class="flex justify-between font-mono text-[10px] text-stone/40 uppercase tracking-widest">
+    <span>EST — 1972 • PARIS / TOKYO</span>
+    <span>35MM • 120 • 4X5</span>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav id="nav" class="fixed top-0 w-full z-40 border-b border-charcoal bg-dark/90 backdrop-blur-[12px]">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 h-[64px] flex items-center justify-between">
+    <div class="flex items-center gap-10">
+      <a href="#" class="group flex items-center gap-3">
+        <div class="w-[28px] h-[28px] border border-paper flex items-center justify-center">
+          <div class="w-[10px] h-[10px] bg-safelight rounded-full blink"></div>
+        </div>
+        <span class="font-display text-[20px] tracking-[-0.02em]">NOIR LAB</span>
+        <span class="font-mono text-[9px] tracking-[0.2em] opacity-60 mt-1 hidden md:block">DARKROOM EDITION</span>
+      </a>
+      <div class="hidden lg:flex items-center gap-8 font-mono text-[11px] tracking-[0.18em] uppercase">
+        <a href="#story" class="hover:text-safelight transition-colors">Process</a>
+        <a href="#services" class="hover:text-safelight transition-colors">Atelier</a>
+        <a href="#gallery" class="hover:text-safelight transition-colors">Contact Sheets</a>
+        <a href="#journal" class="hover:text-safelight transition-colors">Journal</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="hidden md:flex items-center gap-3 font-mono text-[10px] tracking-widest">
+        <span class="w-2 h-2 bg-safelight rounded-full blink"></span>
+        <span class="opacity-70">SAFELIGHT ON • DO NOT ENTER</span>
+      </div>
+      <a href="#contact" class="group relative overflow-hidden border border-paper/20 px-6 py-[10px] font-mono text-[11px] tracking-[0.18em] uppercase hover:border-paper transition-colors">
+        <span class="relative z-10 group-hover:text-dark transition-colors duration-300">Book Session</span>
+        <div class="absolute inset-0 bg-paper translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)]"></div>
+      </a>
+      <button id="menu-toggle" class="lg:hidden w-10 h-10 border border-charcoal flex flex-col justify-center items-center gap-1.5">
+        <span class="w-4 h-[1px] bg-paper block"></span>
+        <span class="w-4 h-[1px] bg-paper block"></span>
+      </button>
+    </div>
+  </div>
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="lg:hidden hidden border-t border-charcoal bg-dark px-6 py-10 space-y-6 font-mono text-[12px] tracking-[0.18em] uppercase">
+    <a href="#story" class="block">Process</a>
+    <a href="#services" class="block">Atelier</a>
+    <a href="#gallery" class="block">Contact Sheets</a>
+    <a href="#journal" class="block">Journal</a>
+    <div class="pt-10 text-[10px] opacity-40">EST 1972 • 120 Rue de Turenne, Paris</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative pt-[64px] min-h-[100vh] flex flex-col">
+  <div class="max-w-[1600px] mx-auto w-full px-6 md:px-10 flex-1 grid lg:grid-cols-[1.15fr_0.85fr] gap-10 md:gap-0">
+    <!-- Left Type -->
+    <div class="relative py-12 md:py-20 lg:pr-10 flex flex-col justify-between border-r-0 lg:border-r border-charcoal">
+      <div class="reveal">
+        <div class="flex items-center gap-4 font-mono text-[10px] tracking-[0.25em] uppercase text-stone/60 mb-10">
+          <span class="w-8 h-[1px] bg-stone/30"></span>
+          <span>VOL. 03 — FILM IS A MEMORY OF LIGHT</span>
+        </div>
+        <h1 class="font-display text-[14vw] lg:text-[9.2vw] leading-[0.85] tracking-[-0.05em] -ml-1">
+          THE<br>
+          <span class="font-serif italic font-light">LIGHT</span><br>
+          THAT<br>
+          <span class="relative inline-block">
+            REMAINS
+            <span class="absolute -right-6 -top-2 w-2 h-2 bg-safelight rounded-full blink hidden md:block"></span>
+          </span>
+        </h1>
+        <div class="mt-12 max-w-[360px] font-mono text-[12px] leading-[1.7] tracking-[-0.01em] text-stone/70">
+          We do not take pictures. We wait for light to remember itself on silver. A darkroom in Le Marais, three enlargers, one Leica M6 that has seen four decades. No presets. Only time, chemistry, and patience.
+          <div class="mt-8 flex gap-6 font-mono text-[10px] uppercase tracking-widest">
+            <span>ISO 400 • f/8 • 1/125</span>
+            <span class="text-safelight">● REC</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-1 mt-16 lg:mt-0 grid grid-cols-3 border-t border-charcoal">
+        <div class="py-6 border-r border-charcoal">
+          <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2">Sessions / Year</div>
+          <div class="font-display text-[36px] leading-none">286</div>
+        </div>
+        <div class="py-6 border-r border-charcoal px-6">
+          <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2">Darkroom Hours</div>
+          <div class="font-display text-[36px] leading-none">1,940</div>
+        </div>
+        <div class="py-6 px-6">
+          <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2">Prints Pulled</div>
+          <div class="font-display text-[36px] leading-none">4.2k</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Visual - Contact Sheet Stack -->
+    <div class="relative py-6 md:py-10 lg:pl-10">
+      <div class="reveal reveal-delay-2 sticky top-[96px]">
+        <!-- Film canister header -->
+        <div class="flex justify-between items-center font-mono text-[9px] tracking-[0.2em] uppercase border border-charcoal px-4 py-3 bg-charcoal/30">
+          <span class="flex items-center gap-2"><span class="w-[18px] h-[12px] border border-paper/30 flex items-center justify-center"><span class="w-2 h-2 bg-paper"></span></span> KODAK PORTRA • 400 • 36EXP</span>
+          <span class="opacity-50">ROLL #0487 • PARIS 11.24</span>
+        </div>
+
+        <div class="relative border-x border-b border-charcoal bg-[#0f0f0f] p-3 md:p-4 grid grid-cols-3 gap-3 md:gap-4">
+          <!-- Perforations deco -->
+          <div class="absolute left-0 top-0 bottom-0 w-6 perf opacity-30 hidden md:block"></div>
+          <div class="absolute right-0 top-0 bottom-0 w-6 perf opacity-30 hidden md:block"></div>
+          
+          <div class="col-span-3 grid grid-cols-3 gap-3">
+            <div class="contact-frame aspect-[4/3] bg-charcoal" data-frame="04A">
+              <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+            </div>
+            <div class="contact-frame aspect-[4/3] bg-charcoal ring-1 ring-safelight ring-offset-2 ring-offset-[#0f0f0f]" data-frame="05A ♦">
+              <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute inset-0 border border-safelight pointer-events-none"></div>
+            </div>
+            <div class="contact-frame aspect-[4/3] bg-charcoal" data-frame="06A">
+              <img src="https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+            </div>
+            <div class="contact-frame aspect-[3/4] bg-charcoal" data-frame="07A">
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+            </div>
+            <div class="contact-frame aspect-[3/4] col-span-2 bg-charcoal" data-frame="08A SELECTED">
+              <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute top-2 left-2 bg-safelight text-dark font-mono text-[8px] px-2 py-1 tracking-widest">PRINTED • FIBER 11x14</div>
+            </div>
+            <div class="contact-frame aspect-[4/3] col-span-3 bg-charcoal" data-frame="09A">
+              <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?q=80&w=1200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+            </div>
+          </div>
+
+          <div class="col-span-3 mt-2 pt-4 border-t border-charcoal flex justify-between font-mono text-[9px] uppercase tracking-[0.2em] opacity-50">
+            <span>CONTACT SHEET • LEICA M6 • SUMMICRON 35mm</span>
+            <span>☻ NOIR LAB PROOF — NOT FOR REPRO</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full overflow-hidden border border-charcoal">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+          </div>
+          <div class="font-mono text-[11px] leading-[1.3]">
+            <div class="uppercase tracking-[0.15em]">Julien Moreau — Lead Printer</div>
+            <div class="opacity-50 text-[10px]">28 years in D-76. Still learning grain.</div>
+          </div>
+          <div class="ml-auto w-8 h-8 border border-charcoal flex items-center justify-center">
+            <span class="font-mono text-[10px]">→</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Marquee -->
+  <div class="marquee py-4 bg-paper text-dark">
+    <div class="marquee-track font-mono text-[12px] tracking-[0.25em] uppercase">
+      <span class="mx-8">★ PORTRA 400 • TRI-X 400 • HP5 PLUS • T-MAX 400 • EKTAR 100 • DELTA 3200 • ACROS II • PRO 400H (RIP) ★</span>
+      <span class="mx-8">★ PORTRA 400 • TRI-X 400 • HP5 PLUS • T-MAX 400 • EKTAR 100 • DELTA 3200 • ACROS II • PRO 400H (RIP) ★</span>
+      <span class="mx-8">★ PORTRA 400 • TRI-X 400 • HP5 PLUS • T-MAX 400 • EKTAR 100 • DELTA 3200 • ACROS II • PRO 400H (RIP) ★</span>
+      <span class="mx-8">★ PORTRA 400 • TRI-X 400 • HP5 PLUS • T-MAX 400 • EKTAR 100 • DELTA 3200 • ACROS II • PRO 400H (RIP) ★</span>
+    </div>
+  </div>
+</section>
+
+<!-- STORY / PROCESS -->
+<section id="story" class="relative border-t border-charcoal">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10">
+    <div class="grid lg:grid-cols-12 gap-0">
+      <!-- Left index -->
+      <div class="lg:col-span-4 py-16 md:py-24 border-b lg:border-b-0 lg:border-r border-charcoal lg:pr-12">
+        <div class="reveal sticky top-[120px]">
+          <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-safelight mb-8">(02) — PROCESS</div>
+          <h2 class="font-display text-[52px] md:text-[68px] leading-[0.9] tracking-[-0.04em]">
+            Chemistry<br>
+            <span class="font-serif italic font-light">is slow</span><br>
+            photography.
+          </h2>
+          <div class="mt-12 space-y-6 font-mono text-[11px] leading-[1.8] text-stone/60 max-w-[320px]">
+            <p>The darkroom is not about nostalgia. It is about control. You cannot swipe to undo a print. You burn, you dodge, you watch the paper breathe in the tray at 20°C. The image decides when it wants to appear.</p>
+            <p>Our enlargers are DeVere 504s. Our lenses are Rodenstock. Our timer is still the GraLab 450 from 1974. It clicks.</p>
+          </div>
+          <div class="mt-12 border border-charcoal p-4 bg-charcoal/20">
+            <div class="font-mono text-[9px] uppercase tracking-[0.2em] opacity-50 mb-3">Current Bath — D-76 1:1 @ 20°C</div>
+            <div class="flex gap-1">
+              <div class="h-1 bg-paper flex-1"></div>
+              <div class="h-1 bg-paper/60 flex-1"></div>
+              <div class="h-1 bg-paper/30 flex-1"></div>
+              <div class="h-1 bg-charcoal flex-1 border border-paper/10"></div>
+            </div>
+            <div class="mt-2 flex justify-between font-mono text-[8px] opacity-40">
+              <span>00:00</span><span>03:45</span><span>07:30</span><span>11:15</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right imagery + steps -->
+      <div class="lg:col-span-8">
+        <div class="relative h-[520px] md:h-[640px] overflow-hidden border-b border-charcoal">
+          <img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover" alt="Darkroom">
+          <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/30 to-transparent"></div>
+          <div class="absolute top-6 left-6 right-6 flex justify-between font-mono text-[9px] uppercase tracking-[0.2em]">
+            <span class="bg-dark/80 backdrop-blur px-3 py-1 border border-charcoal">DE_VERE 504 • CONDENSER HEAD • 150W</span>
+            <span class="bg-safelight text-dark px-3 py-1">EXPOSURE • 12.4 SEC • f/11</span>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 grid md:grid-cols-3 gap-6 border-t border-white/10 bg-dark/60 backdrop-blur-[20px]">
+            <div>
+              <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50 mb-2">01 / EXPOSE</div>
+              <div class="font-serif text-[18px] leading-[1.2]">Test strips at 3 sec intervals. Trust your eyes, not the meter.</div>
+            </div>
+            <div>
+              <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50 mb-2">02 / DEVELOP</div>
+              <div class="font-serif text-[18px] leading-[1.2]">Agitate 5s every 30s. No music. Listen to the paper.</div>
+            </div>
+            <div>
+              <div class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-50 mb-2">03 / FIX & WASH</div>
+              <div class="font-serif text-[18px] leading-[1.2]">Archival wash 60 min. The print will outlive us.</div>
+            </div>
+          </div>
+          <div class="absolute left-1/2 top-0 bottom-0 w-[1px] hidden md:block">
+            <div class="enlarger-line absolute inset-0"></div>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-charcoal border-b border-charcoal">
+          <div class="p-8 md:p-10 reveal">
+            <div class="font-mono text-[10px] tracking-[0.2em] uppercase mb-6 opacity-40">[LEICA M SYSTEM]</div>
+            <img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?q=80&w=800&auto=format&fit=crop" class="w-full aspect-[4/3] object-cover grayscale mb-6" alt="">
+            <div class="font-display text-[22px] leading-[1.1] mb-3">We shoot what we print.</div>
+            <div class="font-mono text-[11px] leading-[1.6] opacity-60">M6 TTL • M4-P • 35/50/90 Summicron. No autofocus. One frame at a time. You learn to wait for the moment between moments.</div>
+          </div>
+          <div class="p-8 md:p-10 reveal reveal-delay-1">
+            <div class="font-mono text-[10px] tracking-[0.2em] uppercase mb-6 opacity-40">[PAPER STOCK]</div>
+            <img src="https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=800&auto=format&fit=crop" class="w-full aspect-[4/3] object-cover grayscale mb-6" alt="">
+            <div class="font-display text-[22px] leading-[1.1] mb-3">Fiber, not RC.</div>
+            <div class="font-mono text-[11px] leading-[1.6] opacity-60">Ilford MG FB Warmtone, Hahnemühle Photo Rag, Adox MCC. Each has a voice. Warmtone for skin, Cold for architecture.</div>
+          </div>
+          <div class="p-8 md:p-10 reveal reveal-delay-2">
+            <div class="font-mono text-[10px] tracking-[0.2em] uppercase mb-6 opacity-40">[TONING]</div>
+            <img src="https://images.unsplash.com/photo-1471341971476-ae15ff5dd4ea?q=80&w=800&auto=format&fit=crop" class="w-full aspect-[4/3] object-cover grayscale mb-6" alt="">
+            <div class="font-display text-[22px] leading-[1.1] mb-3">Selenium for permanence.</div>
+            <div class="font-mono text-[11px] leading-[1.6] opacity-60">Slight selenium tone — not for look, for 200-year stability. We are making heirlooms, not content.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES / ATELIER -->
+<section id="services" class="relative bg-paper text-dark">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-16 md:py-28">
+    <div class="flex flex-col md:flex-row justify-between gap-10 items-start mb-16 md:mb-24">
+      <div class="reveal">
+        <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-safelight mb-6">(03) — ATELIER / SERVICES</div>
+        <h2 class="font-display text-[56px] md:text-[88px] leading-[0.85] tracking-[-0.05em]">
+          No filters.<br>
+          <span class="font-serif italic font-light">Just physics.</span>
+        </h2>
+      </div>
+      <div class="reveal reveal-delay-1 max-w-[360px] font-mono text-[12px] leading-[1.7] opacity-70 pt-4">
+        All sessions include a roll of film, hand-development, and a proof sheet review in the darkroom. You leave with negatives and a fiber print you helped pull.
+        <div class="mt-8 inline-flex items-center gap-2 border border-dark px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em]">
+          <span>View Technical Data Sheets</span>
+          <span>↗</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-[1px] bg-dark border border-dark">
+      <!-- Service 1 -->
+      <div class="group bg-paper p-8 md:p-10 reveal hover:bg-[#efebe0] transition-colors duration-500">
+        <div class="flex justify-between items-start mb-10">
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase">
+            <div class="opacity-40">SERVICE — 01</div>
+            <div class="text-[13px] mt-1">PORTRAIT • 120 MIN</div>
+          </div>
+          <div class="w-10 h-10 border border-dark flex items-center justify-center font-mono text-[10px]">35</div>
+        </div>
+        <div class="aspect-[4/3] overflow-hidden mb-8 border border-dark/10">
+          <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=900&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1.2s] ease-[cubic-bezier(.16,1,.3,1)]" alt="">
+        </div>
+        <h3 class="font-display text-[32px] leading-[0.95] tracking-[-0.02em] mb-4">The Sitting<br>— Leica M</h3>
+        <p class="font-mono text-[11px] leading-[1.7] opacity-70 mb-8">One camera, one lens, one roll. Natural light studio in Le Marais. No retouching. We print your favorite frame during the session on fiber paper.</p>
+        <div class="border-t border-dark/15 pt-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.15em]">
+          <span>36 Frames • 1 Final Print 11x14</span>
+          <span class="font-semibold">€380</span>
+        </div>
+        <div class="mt-3 font-mono text-[9px] opacity-40 uppercase tracking-widest">Includes: Roll of Portra 400 + Dev + Contact + Work Print</div>
+      </div>
+
+      <!-- Service 2 -->
+      <div class="group bg-paper p-8 md:p-10 reveal reveal-delay-1 hover:bg-[#efebe0] transition-colors duration-500 ring-1 ring-safelight ring-inset z-10">
+        <div class="flex justify-between items-start mb-10">
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase">
+            <div class="opacity-40">SERVICE — 02 / MOST BOOKED</div>
+            <div class="text-[13px] mt-1 text-safelight">DARKROOM • 240 MIN</div>
+          </div>
+          <div class="w-10 h-10 bg-safelight text-paper flex items-center justify-center font-mono text-[10px]">120</div>
+        </div>
+        <div class="aspect-[4/3] overflow-hidden mb-8 border border-dark/10 relative">
+          <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=900&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1.2s]" alt="">
+          <div class="absolute bottom-2 left-2 bg-dark text-paper font-mono text-[8px] px-2 py-1 uppercase tracking-widest">Hands in chemistry • Apron provided</div>
+        </div>
+        <h3 class="font-display text-[32px] leading-[0.95] tracking-[-0.02em] mb-4">Print Your<br>Own Negative</h3>
+        <p class="font-mono text-[11px] leading-[1.7] opacity-70 mb-8">Bring a 35mm or 120 negative. We teach dodging, burning, split-grade printing. Leave with two museum-grade fiber prints dry-mounted.</p>
+        <div class="border-t border-dark/15 pt-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.15em]">
+          <span>2 Final Prints 11x14 • Warmtone</span>
+          <span class="font-semibold text-safelight">€520</span>
+        </div>
+        <div class="mt-3 font-mono text-[9px] opacity-40 uppercase tracking-widest">Chemistry + Paper Included • Max 2 People</div>
+      </div>
+
+      <!-- Service 3 -->
+      <div class="group bg-paper p-8 md:p-10 reveal reveal-delay-2 hover:bg-[#efebe0] transition-colors duration-500">
+        <div class="flex justify-between items-start mb-10">
+          <div class="font-mono text-[10px] tracking-[0.2em] uppercase">
+            <div class="opacity-40">SERVICE — 03</div>
+            <div class="text-[13px] mt-1">ARCHIVE • ONGOING</div>
+          </div>
+          <div class="w-10 h-10 border border-dark flex items-center justify-center font-mono text-[10px]">4x5</div>
+        </div>
+        <div class="aspect-[4/3] overflow-hidden mb-8 border border-dark/10">
+          <img src="https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?q=80&w=900&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[1.2s]" alt="">
+        </div>
+        <h3 class="font-display text-[32px] leading-[0.95] tracking-[-0.02em] mb-4">Family Archive<br>Preservation</h3>
+        <p class="font-mono text-[11px] leading-[1.7] opacity-70 mb-8">We digitize and print from your family's negatives — scanning at 6400dpi, spotting, and archival storage in acid-free boxes. The work that matters.</p>
+        <div class="border-t border-dark/15 pt-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.15em]">
+          <span>Scanning + 5 Prints + Box</span>
+          <span class="font-semibold">From €890</span>
+        </div>
+        <div class="mt-3 font-mono text-[9px] opacity-40 uppercase tracking-widest">35mm / 120 / 620 / Glass Plates</div>
+      </div>
+    </div>
+
+    <div class="mt-[1px] grid md:grid-cols-12 gap-[1px] bg-dark border-x border-b border-dark">
+      <div class="md:col-span-5 bg-paper p-6 md:p-8 flex items-center gap-6">
+        <div class="w-12 h-12 border border-dark rounded-full flex items-center justify-center font-mono text-[16px]">✦</div>
+        <div class="font-mono text-[11px] leading-[1.5] opacity-70">All chemistry mixed fresh weekly. We use Xtol, D-76, and Rodinal only. No HC-110. We have opinions.</div>
+      </div>
+      <div class="md:col-span-7 bg-paper p-6 md:p-8 flex flex-col md:flex-row justify-between gap-6 font-mono text-[10px] uppercase tracking-[0.15em]">
+        <span>Lab Hours: Wed—Sun 10:00 → 19:00 • Darkroom by appointment only</span>
+        <span class="opacity-50">120 Rue de Turenne • Paris III</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY — CONTACT SHEETS -->
+<section id="gallery" class="relative border-t border-charcoal overflow-hidden">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="px-6 md:px-10 py-12 md:py-16 flex flex-col md:flex-row justify-between gap-8 border-b border-charcoal">
+      <div class="reveal">
+        <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-safelight mb-6">(04) — SELECTED CONTACTS</div>
+        <h2 class="font-display text-[48px] md:text-[64px] leading-[0.9] tracking-[-0.04em]">Proofs before<br><span class="font-serif italic font-light">the print.</span></h2>
+      </div>
+      <div class="reveal reveal-delay-1 flex gap-3 self-end">
+        <button class="w-12 h-12 border border-charcoal hover:border-paper transition-colors flex items-center justify-center">←</button>
+        <button class="w-12 h-12 border border-paper flex items-center justify-center">→</button>
+      </div>
+    </div>
+
+    <!-- Horizontal film strip -->
+    <div class="relative bg-[#0e0e0e] border-b border-charcoal overflow-x-auto">
+      <div class="flex gap-0 min-w-max p-2">
+        <!-- repeating film cell -->
+        <div class="flex items-center">
+          <div class="w-[22px] h-[500px] bg-[#0a0a0a] flex flex-col justify-between py-4 items-center border-y border-charcoal">
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+            <div class="font-mono text-[8px] rotate-90 whitespace-nowrap opacity-30 tracking-[0.2em]">KODAK 400TX</div>
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+          </div>
+          <div class="w-[360px] md:w-[460px] h-[500px] bg-charcoal p-3">
+            <div class="w-full h-full contact-frame bg-dark">
+              <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute bottom-0 left-0 right-0 bg-dark/80 backdrop-blur p-3 flex justify-between font-mono text-[9px] uppercase tracking-widest">
+                <span>ROLL 042 • FRAME 11A • MARIANNE • 2024</span>
+                <span class="text-safelight">SELECTED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-[22px] h-[500px] bg-[#0a0a0a] flex flex-col justify-between py-4 items-center border-y border-charcoal">
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+            <div class="font-mono text-[8px] rotate-90 whitespace-nowrap opacity-30 tracking-[0.2em]">PORTRA 400</div>
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+          </div>
+          <div class="w-[360px] md:w-[460px] h-[500px] bg-charcoal p-3">
+            <div class="w-full h-full contact-frame bg-dark">
+              <img src="https://images.unsplash.com/photo-1495745966610-2a67f2297e5e?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute bottom-0 left-0 right-0 bg-dark/80 backdrop-blur p-3 flex justify-between font-mono text-[9px] uppercase tracking-widest">
+                <span>ROLL 048 • FRAME 05A • LUCAS • 2024</span>
+                <span>APPROVED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-[22px] h-[500px] bg-[#0a0a0a] flex flex-col justify-between py-4 items-center border-y border-charcoal">
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+            <div class="font-mono text-[8px] rotate-90 whitespace-nowrap opacity-30 tracking-[0.2em]">HP5 PLUS</div>
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+          </div>
+          <div class="w-[360px] md:w-[460px] h-[500px] bg-charcoal p-3">
+            <div class="w-full h-full contact-frame bg-dark">
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute bottom-0 left-0 right-0 bg-dark/80 backdrop-blur p-3 flex justify-between font-mono text-[9px] uppercase tracking-widest">
+                <span>ROLL 051 • FRAME 19A • KYOTO • 2023</span>
+                <span>ALT PRINT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-[22px] h-[500px] bg-[#0a0a0a] flex flex-col justify-between py-4 items-center border-y border-charcoal">
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+            <div class="font-mono text-[8px] rotate-90 whitespace-nowrap opacity-30 tracking-[0.2em]">TRI-X 400</div>
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+          </div>
+          <div class="w-[360px] md:w-[460px] h-[500px] bg-charcoal p-3">
+            <div class="w-full h-full contact-frame bg-dark">
+              <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute bottom-0 left-0 right-0 bg-dark/80 backdrop-blur p-3 flex justify-between font-mono text-[9px] uppercase tracking-widest">
+                <span>ROLL 055 • FRAME 23 • ARLES • 2024</span>
+                <span>FINAL 16x20</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-[22px] h-[500px] bg-[#0a0a0a] flex flex-col justify-between py-4 items-center border-y border-charcoal">
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+            <div class="font-mono text-[8px] rotate-90 whitespace-nowrap opacity-30 tracking-[0.2em]">EKTAR 100</div>
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+          </div>
+          <div class="w-[360px] md:w-[460px] h-[500px] bg-charcoal p-3">
+            <div class="w-full h-full contact-frame bg-dark">
+              <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover" alt="">
+              <div class="absolute bottom-0 left-0 right-0 bg-dark/80 backdrop-blur p-3 flex justify-between font-mono text-[9px] uppercase tracking-widest">
+                <span>ROLL 059 • FRAME 02 • NOIR LAB • 2024</span>
+                <span>PRINTED</span>
+              </div>
+            </div>
+          </div>
+          <div class="w-[22px] h-[500px] bg-[#0a0a0a] flex flex-col justify-between py-4 items-center border-y border-charcoal">
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+            <div class="font-mono text-[8px] rotate-90 whitespace-nowrap opacity-30 tracking-[0.2em]">END</div>
+            <div class="space-y-[14px]"><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div><div class="w-3 h-4 bg-[#1a1a1a] rounded-[2px]"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-12 border-b border-charcoal font-mono text-[10px] uppercase tracking-[0.18em]">
+      <div class="md:col-span-4 p-6 md:px-10 border-b md:border-b-0 md:border-r border-charcoal flex justify-between">
+        <span class="opacity-50">All frames silver gelatin • Fiber based</span>
+        <span>↔ DRAG TO VIEW</span>
+      </div>
+      <div class="md:col-span-8 p-6 md:px-10 flex justify-between gap-6">
+        <span class="opacity-40">Leica M6 • Summicron 35mm f/2 ASPH • Sekonic L-758</span>
+        <span class="hidden md:block">Negatives stored flat • Acid-free archival sleeves</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS / JOURNAL -->
+<section id="journal" class="relative bg-[#0f0f0f] border-t border-charcoal">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-16 md:py-24">
+    <div class="grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="reveal sticky top-[120px]">
+          <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-safelight mb-8">(05) — NOTES FROM THE TRAYS</div>
+          <h2 class="font-display text-[44px] md:text-[56px] leading-[0.95] tracking-[-0.03em] mb-8">
+            What they<br>
+            <span class="font-serif italic">wrote on the<br>proofs.</span>
+          </h2>
+          <div class="font-mono text-[11px] leading-[1.7] opacity-60 max-w-[340px]">We ask clients to write on the contact sheet with red pen. Circle what hurts. Cross what lies. The proof is a conversation.</div>
+
+          <div class="mt-12 border border-charcoal bg-dark p-6">
+            <div class="font-mono text-[9px] uppercase tracking-[0.2em] opacity-40 mb-4">Latest Entry — 2024.11.18 • DARKROOM LOG</div>
+            <div class="font-serif text-[16px] leading-[1.5] italic">“Julien insisted we push the Portra one stop for night. I was scared. The grain came out like rain on a window. He was right. As usual.” — S.</div>
+            <div class="mt-4 flex items-center gap-2 font-mono text-[10px]"><span class="w-2 h-2 bg-safelight rounded-full"></span> WET PRINT STILL DRIPPING</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 space-y-[1px] bg-charcoal border border-charcoal">
+        <!-- Testimonial 1 -->
+        <div class="group bg-[#0a0a0a] p-8 md:p-10 flex gap-6 md:gap-10 reveal hover:bg-[#111] transition-colors">
+          <div class="hidden md:block font-mono text-[10px] leading-[1.2] opacity-30">01<br>───<br>PORTRAIT<br>2024</div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-6">
+              <div class="flex items-center gap-4">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full grayscale object-cover" alt="">
+                <div>
+                  <div class="font-display text-[20px] leading-none">Camille Durand</div>
+                  <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 mt-1">Editor • Le Monde — Shot on Tri-X</div>
+                </div>
+              </div>
+              <div class="font-mono text-[10px] px-2 py-1 border border-charcoal">★★★★★</div>
+            </div>
+            <div class="font-serif text-[22px] md:text-[26px] leading-[1.25] tracking-[-0.02em]">“I have been photographed for magazines for 15 years. This is the first time I recognized myself. No soft skin, no fake eyes. Just the small scar on my left eyebrow that I got at six. He kept it.”</div>
+            <div class="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] opacity-40">Frame 12A circled in red • Printed 11x14 fiber • Selenium toned</div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="group bg-[#0a0a0a] p-8 md:p-10 flex gap-6 md:gap-10 reveal reveal-delay-1 hover:bg-[#111] transition-colors">
+          <div class="hidden md:block font-mono text-[10px] leading-[1.2] opacity-30">02<br>───<br>DARKROOM<br>2024</div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-6">
+              <div class="flex items-center gap-4">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full grayscale object-cover" alt="">
+                <div>
+                  <div class="font-display text-[20px] leading-none">Kenji Nakamura</div>
+                  <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 mt-1">Architect • Kyoto / Paris</div>
+                </div>
+              </div>
+              <div class="font-mono text-[10px] px-2 py-1 border border-charcoal">★★★★★</div>
+            </div>
+            <div class="font-serif text-[22px] md:text-[26px] leading-[1.25] tracking-[-0.02em]">“We brought my grandfather’s Leica IIIf negatives from 1952. Julien spent 6 hours printing one frame of my grandmother in the garden. He cried a little. I cried a lot.”</div>
+            <div class="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] opacity-40">4x5 contact • Ilford Warmtone • Mounted on rag board</div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="group bg-[#0a0a0a] p-8 md:p-10 flex gap-6 md:gap-10 reveal reveal-delay-2 hover:bg-[#111] transition-colors">
+          <div class="hidden md:block font-mono text-[10px] leading-[1.2] opacity-30">03<br>───<br>ARCHIVE<br>2023</div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-6">
+              <div class="flex items-center gap-4">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop" class="w-10 h-10 rounded-full grayscale object-cover" alt="">
+                <div>
+                  <div class="font-display text-[20px] leading-none">Ava & Milo Hart</div>
+                  <div class="font-mono text-[10px] uppercase tracking-[0.15em] opacity-50 mt-1">Family Archive • 400 Negatives</div>
+                </div>
+              </div>
+              <div class="font-mono text-[10px] px-2 py-1 border border-safelight text-safelight">HEIRLOOM</div>
+            </div>
+            <div class="font-serif text-[22px] md:text-[26px] leading-[1.25] tracking-[-0.02em]">“We thought we just wanted scans. We ended up with 12 fiber prints in a handmade box, each numbered, each with a small note. Our kids will have this when we are gone.”</div>
+            <div class="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] opacity-40">Full archival treatment • 60-year storage recommendation</div>
+          </div>
+        </div>
+
+        <div class="bg-dark p-6 md:p-8 flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-[0.2em] opacity-40">
+          <span>★ 127 Google Reviews • 4.9 Average</span>
+          <span class="hidden md:inline">•</span>
+          <span>No digital retouching • No AI • Silver only</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / BOOKING -->
+<section id="contact" class="relative bg-paper text-dark border-t border-dark">
+  <div class="max-w-[1600px] mx-auto">
+    <div class="grid lg:grid-cols-12">
+      <!-- Left info -->
+      <div class="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-dark/15 p-6 md:p-10 lg:p-12">
+        <div class="reveal sticky top-[96px]">
+          <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-safelight mb-8">(06) — BOOKING / LOCATION</div>
+          <h2 class="font-display text-[52px] md:text-[68px] leading-[0.85] tracking-[-0.05em] mb-10">
+            Come<br>
+            <span class="font-serif italic font-light">with film.</span><br>
+            Leave with<br>
+            paper.
+          </h2>
+
+          <div class="space-y-8 font-mono text-[11px] leading-[1.7]">
+            <div class="grid grid-cols-2 gap-6 border-t border-dark/15 pt-6">
+              <div>
+                <div class="uppercase tracking-[0.2em] opacity-40 mb-2 text-[10px]">Studio</div>
+                <div>120 Rue de Turenne<br>75003 Paris, FR<br>3rd floor, no elevator<br>Buzzer: NOIR LAB</div>
+              </div>
+              <div>
+                <div class="uppercase tracking-[0.2em] opacity-40 mb-2 text-[10px]">Contact</div>
+                <div>hello@noirlab.fr<br>+33 1 42 72 38 90<br>@noirlab.paris<br>Signal preferred</div>
+              </div>
+            </div>
+
+            <div class="aspect-[4/3] bg-dark overflow-hidden border border-dark">
+              <img src="https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-90 grayscale contrast-125" alt="Studio interior">
+            </div>
+
+            <div class="border border-dark p-4 flex items-center justify-between bg-dark text-paper">
+              <div class="flex items-center gap-3">
+                <div class="w-2 h-2 bg-safelight rounded-full blink"></div>
+                <span class="uppercase tracking-[0.2em] text-[10px]">Darkroom Status</span>
+              </div>
+              <span class="font-mono text-[10px] uppercase tracking-widest">Occupied — Printing until 19:30</span>
+            </div>
+
+            <div class="font-mono text-[10px] opacity-60 leading-[1.6]">
+              We answer emails between batches. If you need urgently, leave a note under the door. We check it when we wash prints. Chemistry makes us patient. The world should be more like the darkroom: quiet, red, honest.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right form - looks like order form -->
+      <div class="lg:col-span-7 p-6 md:p-10 lg:p-12 bg-[#f0ebe0]">
+        <div class="reveal border border-dark bg-paper p-6 md:p-10 shadow-[8px_8px_0px_#0a0a0a]">
+          <div class="flex justify-between items-center border-b border-dark pb-6 mb-8">
+            <div class="font-mono text-[10px] tracking-[0.2em] uppercase">
+              <div class="font-bold text-[13px]">FORM-NL-2024 / BOOKING REQUEST</div>
+              <div class="opacity-60 mt-1">Carbon copy • Keep for your records</div>
+            </div>
+            <div class="w-12 h-12 border border-dark flex flex-col items-center justify-center font-mono text-[8px] leading-none">
+              <span>NO</span><span class="font-bold text-[14px] leading-none my-1">03</span><span>LAB</span>
+            </div>
+          </div>
+
+          <form id="booking-form" class="space-y-8">
+            <div class="grid md:grid-cols-2 gap-8">
+              <div>
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">Full Name *</label>
+                <input type="text" required class="input-line w-full mt-3 pb-3 bg-transparent font-serif text-[18px] placeholder:opacity-30" placeholder="As on your film canister">
+              </div>
+              <div>
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">Email *</label>
+                <input type="email" required class="input-line w-full mt-3 pb-3 bg-transparent font-serif text-[18px]" placeholder="you@domain.com">
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+              <div>
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">Session Type *</label>
+                <div class="mt-3 grid grid-cols-1 gap-2">
+                  <label class="group flex items-center gap-3 border border-dark/15 p-3 cursor-pointer hover:border-dark transition-colors has-[:checked]:bg-dark has-[:checked]:text-paper">
+                    <input type="radio" name="service" class="accent-safelight" checked>
+                    <span class="font-mono text-[11px] uppercase tracking-[0.1em]">Sitting — Portrait • €380</span>
+                  </label>
+                  <label class="group flex items-center gap-3 border border-dark/15 p-3 cursor-pointer hover:border-dark transition-colors has-[:checked]:bg-dark has-[:checked]:text-paper">
+                    <input type="radio" name="service" class="accent-safelight">
+                    <span class="font-mono text-[11px] uppercase tracking-[0.1em]">Print Your Neg • €520</span>
+                  </label>
+                  <label class="group flex items-center gap-3 border border-dark/15 p-3 cursor-pointer hover:border-dark transition-colors has-[:checked]:bg-dark has-[:checked]:text-paper">
+                    <input type="radio" name="service" class="accent-safelight">
+                    <span class="font-mono text-[11px] uppercase tracking-[0.1em]">Archive Preservation</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">Preferred Film Stock</label>
+                <select class="input-line w-full mt-3 pb-3 bg-transparent font-mono text-[12px] uppercase tracking-widest">
+                  <option>KODAK PORTRA 400 — Natural skin</option>
+                  <option>KODAK TRI-X 400 — Classic grain</option>
+                  <option>ILFORD HP5 PLUS — Contrast</option>
+                  <option>KODAK EKTAR 100 — Saturated</option>
+                  <option>Fuji Acros II — Fine grain B&W</option>
+                  <option>Bring my own roll</option>
+                </select>
+                <div class="mt-8">
+                  <label class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">Preferred Date</label>
+                  <input type="date" class="input-line w-full mt-3 pb-3 bg-transparent font-mono text-[12px]">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">Tell us about the light you want to keep *</label>
+              <textarea rows="4" required class="input-line w-full mt-3 pb-3 bg-transparent font-serif text-[18px] leading-[1.4] resize-none" placeholder="e.g. My mother at 80, hands, window light, no smile needed. Or: I have 12 rolls from 1998, undeveloped, found in attic."></textarea>
+              <div class="mt-2 font-mono text-[9px] opacity-40 uppercase tracking-widest">We read every word. The more specific, the better the print.</div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 pt-4">
+              <button type="submit" class="flex-1 group relative bg-dark text-paper h-[56px] overflow-hidden border border-dark hover:bg-[#1a1a1a] transition-colors">
+                <span class="relative z-10 font-mono text-[12px] tracking-[0.2em] uppercase">Send to Lab →</span>
+              </button>
+              <div class="md:w-[200px] border border-dark/20 p-3 font-mono text-[9px] leading-[1.4] uppercase tracking-[0.1em] opacity-60">
+                Response within 24h • We develop on Wed & Sat • Prints ready in 7 days
+              </div>
+            </div>
+
+            <div class="pt-6 border-t border-dashed border-dark/20 flex justify-between font-mono text-[8px] uppercase tracking-[0.2em] opacity-40">
+              <span>NOIR LAB • 120 RUE DE TURENNE • PARIS • EST 1972</span>
+              <span>FORM REVISION 03.24</span>
+            </div>
+          </form>
+        </div>
+
+        <div class="mt-10 grid grid-cols-3 gap-[1px] bg-dark/15 border border-dark/15">
+          <div class="bg-[#f0ebe0] p-4 font-mono text-[10px] uppercase tracking-[0.15em]"><span class="opacity-40 block mb-1">Avg. Response</span> &lt; 4 Hours</div>
+          <div class="bg-[#f0ebe0] p-4 font-mono text-[10px] uppercase tracking-[0.15em]"><span class="opacity-40 block mb-1">No Show Policy</span> Roll still billed</div>
+          <div class="bg-[#f0ebe0] p-4 font-mono text-[10px] uppercase tracking-[0.15em]"><span class="opacity-40 block mb-1">Payment</span> Cash • Wire • Film</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="relative bg-dark text-paper border-t border-charcoal overflow-hidden">
+  <div class="max-w-[1600px] mx-auto px-6 md:px-10 py-12 md:py-20">
+    <div class="flex flex-col lg:flex-row justify-between gap-12">
+      <div class="lg:w-[45%]">
+        <div class="font-display text-[18vw] lg:text-[11vw] leading-[0.8] tracking-[-0.06em] -ml-2">NOIR<br><span class="font-serif italic font-light opacity-80">LAB</span></div>
+        <div class="mt-8 grid grid-cols-2 gap-8 font-mono text-[11px] leading-[1.6] max-w-[420px]">
+          <div class="opacity-60">A film-only studio and darkroom. We do not shoot digital. We do not retouch. We print by hand on fiber paper. Chemistry is our filter.</div>
+          <div class="opacity-40">© 1972–2024 Noir Lab<br>Laboratory No.03<br>120 Rue de Turenne, Paris III<br>Made slowly, on purpose.</div>
+        </div>
+      </div>
+
+      <div class="lg:w-[50%] grid grid-cols-2 md:grid-cols-3 gap-10 font-mono text-[11px] uppercase tracking-[0.15em]">
+        <div>
+          <div class="opacity-30 mb-6 text-[10px] tracking-[0.25em]">Index</div>
+          <div class="space-y-3">
+            <a href="#story" class="block hover:text-safelight transition-colors">Process</a>
+            <a href="#services" class="block hover:text-safelight transition-colors">Atelier</a>
+            <a href="#gallery" class="block hover:text-safelight transition-colors">Contact Sheets</a>
+            <a href="#journal" class="block hover:text-safelight transition-colors">Darkroom Log</a>
+            <a href="#" class="block opacity-50">Shop — Prints</a>
+            <a href="#" class="block opacity-50">Archive Boxes</a>
+          </div>
+        </div>
+        <div>
+          <div class="opacity-30 mb-6 text-[10px] tracking-[0.25em]">Technical</div>
+          <div class="space-y-3 opacity-70">
+            <div>Leica M6 TTL • 0.72</div>
+            <div>Summicron 35/50/90</div>
+            <div>DeVere 504 • Rodenstock</div>
+            <div>Ilford MG FB Warmtone</div>
+            <div>D-76 1:1 • 20°C • 7:30</div>
+            <div>Selenium 1:9 • 4min</div>
+          </div>
+        </div>
+        <div class="col-span-2 md:col-span-1">
+          <div class="opacity-30 mb-6 text-[10px] tracking-[0.25em]">Lab Timer</div>
+          <div class="border border-charcoal bg-[#111] p-4">
+            <div class="flex justify-between text-[9px] opacity-40 mb-2"><span>ELAPSED</span><span>REMAINING</span></div>
+            <div class="font-mono text-[28px] leading-none tracking-[-0.05em] flex justify-between">
+              <span id="timer-elapsed">00:12:44</span>
+              <span class="text-safelight">●</span>
+            </div>
+            <div class="mt-4 h-[2px] bg-charcoal overflow-hidden">
+              <div class="h-full bg-safelight" style="width:64%"></div>
+            </div>
+            <div class="mt-3 font-mono text-[8px] opacity-30 uppercase tracking-widest">GraLab 450 • Since 1974 • Still clicking</div>
+          </div>
+          <div class="mt-6 flex gap-2">
+            <a href="#" class="w-9 h-9 border border-charcoal flex items-center justify-center hover:border-paper transition-colors">IG</a>
+            <a href="#" class="w-9 h-9 border border-charcoal flex items-center justify-center hover:border-paper transition-colors">YT</a>
+            <a href="#" class="w-9 h-9 border border-charcoal flex items-center justify-center hover:border-paper transition-colors">EM</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 md:mt-24 pt-8 border-t border-charcoal flex flex-col md:flex-row justify-between gap-4 font-mono text-[9px] uppercase tracking-[0.2em] opacity-30">
+      <span>No AI was used in the making of these prints. Only silver, light, and time.</span>
+      <span>Built for slow loading • Paris time • <span id="paris-time">--:--</span></span>
+    </div>
+  </div>
+
+  <!-- Big faint watermark -->
+  <div class="pointer-events-none absolute -bottom-10 right-10 font-display text-[32vw] leading-none opacity-[0.02] tracking-[-0.05em]">03</div>
+</footer>
+
+<script>
+// Loader
+let pct = 0;
+const loaderBar = document.getElementById('loader-bar');
+const loaderPct = document.getElementById('loader-pct');
+const loader = document.getElementById('loader');
+const iv = setInterval(()=>{
+  pct += Math.random()*18;
+  if(pct>100) pct=100;
+  if(loaderBar) loaderBar.style.width = pct+'%';
+  if(loaderPct) loaderPct.textContent = String(Math.floor(pct)).padStart(2,'0')+'%';
+  if(pct>=100){
+    clearInterval(iv);
+    setTimeout(()=>{
+      loader.style.transform='translateY(-100%)';
+    },400);
+  }
+},90);
+
+// Custom Cursor
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursor-follower');
+let mouseX=0, mouseY=0, fX=0, fY=0;
+document.addEventListener('mousemove', e=>{
+  mouseX=e.clientX; mouseY=e.clientY;
+  if(cursor){ cursor.style.left=mouseX-4+'px'; cursor.style.top=mouseY-4+'px'; }
+});
+function animateFollower(){
+  fX += (mouseX - fX)*0.12;
+  fY += (mouseY - fY)*0.12;
+  if(follower){ follower.style.left=fX-22+'px'; follower.style.top=fY-22+'px'; }
+  requestAnimationFrame(animateFollower);
+}
+animateFollower();
+document.querySelectorAll('a, button, .contact-frame, input, textarea, select').forEach(el=>{
+  el.addEventListener('mouseenter', ()=>{
+    if(cursor) cursor.style.transform='scale(3)';
+    if(follower){ follower.style.width='64px'; follower.style.height='64px'; follower.style.borderColor='rgba(255,45,45,0.6)'; }
+  });
+  el.addEventListener('mouseleave', ()=>{
+    if(cursor) cursor.style.transform='scale(1)';
+    if(follower){ follower.style.width='44px'; follower.style.height='44px'; follower.style.borderColor='rgba(245,241,232,0.3)'; }
+  });
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting) entry.target.classList.add('active');
+  });
+},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// Mobile menu
+const toggle = document.getElementById('menu-toggle');
+const mobile = document.getElementById('mobile-menu');
+if(toggle && mobile){
+  toggle.addEventListener('click', ()=>{
+    mobile.classList.toggle('hidden');
+  });
+}
+
+// Paris time
+function updateParisTime(){
+  const now = new Date();
+  const paris = now.toLocaleTimeString('en-GB',{timeZone:'Europe/Paris', hour:'2-digit', minute:'2-digit'});
+  const el = document.getElementById('paris-time');
+  if(el) el.textContent = paris + ' CET';
+}
+updateParisTime();
+setInterval(updateParisTime, 60000);
+
+// Lab timer fake increment
+let sec = 12*60+44;
+const elapsedEl = document.getElementById('timer-elapsed');
+setInterval(()=>{
+  sec++;
+  const m = Math.floor(sec/60)%60;
+  const s = sec%60;
+  const h = Math.floor(sec/3600);
+  if(elapsedEl) elapsedEl.textContent = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+},1000);
+
+// Form handling
+const form = document.getElementById('booking-form');
+if(form){
+  form.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const btn = form.querySelector('button[type="submit"]');
+    const original = btn.innerHTML;
+    btn.innerHTML = '<span class="font-mono text-[12px] tracking-[0.2em] uppercase">Developing... ● REC</span>';
+    btn.disabled = true;
+    setTimeout(()=>{
+      btn.innerHTML = '<span class="font-mono text-[12px] tracking-[0.2em] uppercase">Sent to Darkroom ✓</span>';
+      setTimeout(()=>{
+        btn.innerHTML = original;
+        btn.disabled=false;
+        form.reset();
+        alert('Thank you. We will reply between two baths of D-76. Usually within a few hours. — J.');
+      },1600);
+    },1200);
+  });
+}
+
+// Nav hide on scroll
+let lastScroll=0;
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', ()=>{
+  const cur = window.scrollY;
+  if(cur>lastScroll && cur>200){
+    nav.style.transform='translateY(-100%)';
+  }else{
+    nav.style.transform='translateY(0)';
+  }
+  lastScroll=cur;
+});
+
+// Smooth parallax for hero contact sheet
+window.addEventListener('scroll', ()=>{
+  const scrolled = window.scrollY;
+  const sheet = document.querySelector('.sticky.top-\\[96px\\]');
+  if(sheet && window.innerWidth>1024){
+    sheet.style.transform = `translateY(${scrolled*0.04}px)`;
+  }
+});
+
+</script>
+</body>
+</html>

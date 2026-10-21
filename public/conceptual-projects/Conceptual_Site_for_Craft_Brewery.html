@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conceptual Site for Craft Brewery</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        kraft: '#e8dcc4',
+        amber: '#b45309',
+        ink: '#0a0a0a',
+        rust: '#7c2d12',
+        cream: '#fdf6e3'
+      },
+      fontFamily: {
+        wood: ['Oswald','sans-serif'],
+        sans: ['Work Sans','sans-serif'],
+        type: ['Special Elite','cursive']
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{ -webkit-font-smoothing: antialiased; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background-color:#e8dcc4;
+    color:#0a0a0a;
+    font-family:'Work Sans',sans-serif;
+    overflow-x:hidden;
+  }
+  /* Grain texture */
+  .grain::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+  .barrel-texture{
+    background-image:
+      linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,10,10,0.03) 1px, transparent 1px),
+      repeating-linear-gradient(90deg, rgba(180,83,9,0.04) 0 2px, transparent 2px 28px);
+    background-size: 100% 1px, 1px 100%, 100% 100%;
+  }
+  .wood-shadow{
+    text-shadow: 3px 3px 0 #b45309, 6px 6px 0 rgba(10,10,10,0.08);
+  }
+  .stamp{
+    transform: rotate(-12deg);
+    border:4px solid #0a0a0a;
+    box-shadow: 4px 4px 0 #0a0a0a;
+  }
+  .brutal-border{ border: 2.5px solid #0a0a0a; }
+  .brutal-border-b{ border-bottom: 2.5px solid #0a0a0a; }
+  .brutal-border-t{ border-top: 2.5px solid #0a0a0a; }
+  .brutal-border-l{ border-left: 2.5px solid #0a0a0a; }
+  .marquee-track{
+    display:flex;
+    width:max-content;
+    animation: marquee 28s linear infinite;
+  }
+  @keyframes marquee{
+    0%{ transform: translateX(0); }
+    100%{ transform: translateX(-50%); }
+  }
+  .reveal{
+    opacity:0;
+    transform: translateY(24px);
+    transition: all .8s cubic-bezier(.16,1,.3,1);
+  }
+  .reveal.active{
+    opacity:1;
+    transform: translateY(0);
+  }
+  .tap-row{
+    transition: all .35s cubic-bezier(.16,1,.3,1);
+  }
+  .tap-row:hover{
+    background: #0a0a0a;
+    color:#e8dcc4;
+    transform: translateX(6px);
+  }
+  .tap-row:hover .tap-cta{
+    background:#b45309;
+    color:#fff;
+    border-color:#b45309;
+  }
+  .img-reveal{ clip-path: inset(0 0 100% 0); transition: clip-path 1.2s cubic-bezier(.77,0,.175,1); }
+  .img-reveal.active{ clip-path: inset(0 0 0 0); }
+  .cursor-dot{
+    width:10px;height:10px;
+    background:#b45309;
+    border-radius:50%;
+    position:fixed;
+    pointer-events:none;
+    z-index:10000;
+    mix-blend-mode:multiply;
+    transition: transform .15s ease, opacity .2s;
+  }
+  .cursor-ring{
+    width:44px;height:44px;
+    border:1.5px solid #0a0a0a;
+    border-radius:50%;
+    position:fixed;
+    pointer-events:none;
+    z-index:9999;
+    transition: all .22s cubic-bezier(.16,1,.3,1);
+  }
+  .hop-float{
+    animation: hopFloat 6s ease-in-out infinite;
+  }
+  @keyframes hopFloat{
+    0%,100%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(-12px) rotate(3deg); }
+  }
+  .scrollbar-hide::-webkit-scrollbar{ display:none; }
+  .scrollbar-hide{ -ms-overflow-style:none; scrollbar-width:none; }
+  /* Custom selection */
+  ::selection{ background:#b45309; color:#fdf6e3; }
+</style>
+</head>
+<body class="grain relative selection:bg-amber selection:text-cream">
+<!-- Custom Cursor -->
+<div id="cursorDot" class="cursor-dot hidden md:block"></div>
+<div id="cursorRing" class="cursor-ring hidden md:block"></div>
+
+<!-- Top Announcement -->
+<div class="bg-ink text-kraft text-[11px] font-wood tracking-[0.22em] uppercase py-2 px-4 flex justify-between items-center brutal-border-b relative z-50">
+  <div class="flex gap-6 items-center">
+    <span class="hidden md:inline">★ EST. 2012 — PORTLAND, OREGON</span>
+    <span>Taproom Open: 12PM — 10PM Daily</span>
+  </div>
+  <div class="flex gap-4 items-center">
+    <span class="opacity-60 hidden lg:inline">Small Batch • Barrel Aged • Unfiltered</span>
+    <a href="#visit" class="bg-amber text-white px-3 py-1 brutal-border text-[10px] hover:bg-white hover:text-ink transition">FIND US</a>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav id="navbar" class="sticky top-0 z-40 bg-kraft/90 backdrop-blur-xl brutal-border-b">
+  <div class="max-w-[1920px] mx-auto px-6 lg:px-10 h-[72px] flex items-center justify-between">
+    <div class="flex items-center gap-10">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 bg-ink text-kraft flex items-center justify-center font-wood font-bold text-[18px] brutal-border group-hover:bg-amber transition-colors">I</div>
+        <div class="leading-none">
+          <div class="font-wood font-bold text-[20px] tracking-[0.04em] uppercase leading-[0.9]">IRONWORKS</div>
+          <div class="font-type text-[10px] uppercase tracking-[0.2em] opacity-60 -mt-0.5">Brew Co.</div>
+        </div>
+      </a>
+      <div class="hidden lg:flex gap-8 font-wood text-[13px] uppercase tracking-[0.18em]">
+        <a href="#story" class="hover:text-amber transition relative group">Story <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-amber group-hover:w-full transition-all duration-300"></span></a>
+        <a href="#taps" class="hover:text-amber transition relative group">On Tap <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-amber group-hover:w-full transition-all duration-300"></span></a>
+        <a href="#process" class="hover:text-amber transition relative group">Process <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-amber group-hover:w-full transition-all duration-300"></span></a>
+        <a href="#visit" class="hover:text-amber transition relative group">Visit <span class="absolute -bottom-1 left-0 w-0 h-[2px] bg-amber group-hover:w-full transition-all duration-300"></span></a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2 brutal-border px-3 py-1.5 bg-white">
+        <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+        <span class="font-wood text-[11px] uppercase tracking-widest">9 Taps Flowing</span>
+      </div>
+      <a href="#taps" class="bg-ink text-kraft px-5 lg:px-7 py-2.5 font-wood text-[12px] uppercase tracking-[0.18em] brutal-border hover:bg-amber hover:text-white transition-all hover:shadow-[4px_4px_0_#0a0a0a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none">
+        Tap List
+      </a>
+      <button id="mobileMenu" class="lg:hidden w-10 h-10 brutal-border bg-white flex flex-col justify-center items-center gap-1.5">
+        <span class="w-5 h-[2px] bg-ink"></span>
+        <span class="w-5 h-[2px] bg-ink"></span>
+        <span class="w-3 h-[2px] bg-ink self-start ml-[10px]"></span>
+      </button>
+    </div>
+  </div>
+  <!-- Mobile Nav -->
+  <div id="mobileNav" class="lg:hidden hidden bg-ink text-kraft px-6 py-8 brutal-border-t">
+    <div class="flex flex-col gap-6 font-wood text-[22px] uppercase tracking-wide">
+      <a href="#story" class="hover:text-amber">Our Story</a>
+      <a href="#taps" class="hover:text-amber">On Tap Now</a>
+      <a href="#process" class="hover:text-amber">Brewing Process</a>
+      <a href="#visit" class="hover:text-amber">Visit Taproom</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative overflow-hidden">
+  <div class="max-w-[1920px] mx-auto grid lg:grid-cols-[1.2fr_0.8fr] min-h-[86vh]">
+    <!-- Left -->
+    <div class="relative px-6 lg:px-[64px] pt-12 lg:pt-20 pb-16 lg:pb-10 flex flex-col justify-between barrel-texture">
+      <!-- Big Type -->
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-3 brutal-border bg-white px-3 py-1 mb-8 rotate-[-1deg]">
+          <span class="w-2 h-2 bg-amber rounded-full"></span>
+          <span class="font-type text-[12px] uppercase tracking-[0.18em]">Batch No. 047 — Limited Release</span>
+        </div>
+        <h1 class="font-wood font-bold uppercase leading-[0.85] tracking-[-0.02em]">
+          <span class="block text-[14vw] lg:text-[9vw] xl:text-[128px]">BREWED</span>
+          <span class="block text-[14vw] lg:text-[9vw] xl:text-[128px] text-transparent" style="-webkit-text-stroke:2.5px #0a0a0a;">IN IRON</span>
+          <span class="block text-[14vw] lg:text-[9vw] xl:text-[128px] wood-shadow">& OAK</span>
+        </h1>
+        <div class="mt-8 lg:mt-12 grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
+          <p class="font-sans text-[17px] lg:text-[19px] leading-[1.6] max-w-[46ch]">
+            We hammer, we toast, we wait. Ironworks is a 15-barrel brewery built inside a 1928 machine shop. No shortcuts. Just <span class="font-bold underline decoration-amber decoration-4 underline-offset-4">wild yeast, charred oak, and time</span>.
+          </p>
+          <div class="flex gap-3">
+            <a href="#taps" class="group bg-ink text-kraft px-8 py-4 font-wood uppercase text-[13px] tracking-[0.2em] brutal-border flex items-center gap-3 hover:bg-amber transition-colors">
+              Explore Taps
+              <span class="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+            <a href="#story" class="bg-white px-6 py-4 font-wood uppercase text-[13px] tracking-[0.2em] brutal-border hover:shadow-[4px_4px_0_#0a0a0a] transition-all">
+              Our Story
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Stats -->
+      <div class="mt-12 lg:mt-0 grid grid-cols-3 brutal-border-t pt-8 gap-6">
+        <div>
+          <div class="font-wood font-bold text-[36px] leading-none">15<span class="text-amber">BBL</span></div>
+          <div class="font-type text-[11px] uppercase tracking-[0.18em] opacity-60 mt-1">System Size</div>
+        </div>
+        <div>
+          <div class="font-wood font-bold text-[36px] leading-none">47</div>
+          <div class="font-type text-[11px] uppercase tracking-[0.18em] opacity-60 mt-1">Barrels Aging</div>
+        </div>
+        <div>
+          <div class="font-wood font-bold text-[36px] leading-none">12<span class="text-amber">YRS</span></div>
+          <div class="font-type text-[11px] uppercase tracking-[0.18em] opacity-60 mt-1"> hammering away</div>
+        </div>
+      </div>
+
+      <!-- Decorative hops -->
+      <div class="absolute top-[48%] right-6 lg:right-12 opacity-[0.07] pointer-events-none hop-float hidden md:block">
+        <svg width="180" height="240" viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 0 C45 20 30 30 20 50 C30 45 45 40 50 35 C55 40 70 45 80 50 C70 30 55 20 50 0 Z" fill="#0a0a0a"/>
+          <path d="M50 35 C40 45 25 55 15 70 C25 68 40 65 50 60 C60 65 75 68 85 70 C75 55 60 45 50 35 Z" fill="#0a0a0a"/>
+          <path d="M50 60 C35 72 20 85 18 105 C28 102 42 95 50 88 C58 95 72 102 82 105 C80 85 65 72 50 60 Z" fill="#b45309"/>
+          <line x1="50" y1="88" x2="50" y2="140" stroke="#0a0a0a" stroke-width="3"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Right Image -->
+    <div class="relative bg-ink overflow-hidden min-h-[520px] lg:min-h-auto brutal-border-l">
+      <img src="https://images.unsplash.com/photo-1555652728-1d34a05b678a?q=80&w=2000&auto=format&fit=crop" alt="Industrial brewery interior with steel tanks" class="absolute inset-0 w-full h-full object-cover opacity-90">
+      <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent"></div>
+      <div class="absolute inset-0 opacity-30 mix-blend-multiply" style="background-image:url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1000&auto=format&fit=crop'); background-size:cover;"></div>
+
+      <!-- Floating Cards -->
+      <div class="absolute bottom-6 left-6 right-6 lg:left-10 lg:right-auto lg:w-[340px] space-y-4">
+        <div class="bg-kraft brutal-border p-4 rotate-[-0.8deg] hover:rotate-0 transition-transform duration-500">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-type text-[10px] uppercase tracking-widest opacity-60">Now Pouring</div>
+              <div class="font-wood font-bold text-[22px] uppercase leading-none mt-1">Anvil — Baltic Porter</div>
+              <div class="flex gap-2 mt-2">
+                <span class="text-[11px] bg-ink text-kraft px-2 py-0.5 font-wood uppercase">8.2% ABV</span>
+                <span class="text-[11px] brutal-border px-2 py-0.5 font-wood uppercase">22 IBU</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-amber flex items-center justify-center text-white font-wood font-bold">!</div>
+          </div>
+          <div class="mt-3 h-[3px] w-full bg-ink/10 relative overflow-hidden">
+            <div class="absolute left-0 top-0 bottom-0 w-[72%] bg-amber"></div>
+          </div>
+          <div class="font-type text-[10px] mt-1 opacity-60">72% KEG REMAINING — GET IT BEFORE IT'S GONE</div>
+        </div>
+
+        <div class="bg-white brutal-border p-3 flex items-center gap-3 rotate-[1deg]">
+          <img src="https://images.unsplash.com/photo-1608270586620-248524c67de9?q=80&w=200&auto=format&fit=crop" class="w-12 h-12 brutal-border object-cover" alt="Barrels">
+          <div>
+            <div class="font-wood text-[12px] uppercase tracking-wide font-bold">Barrel Room Access</div>
+            <div class="font-sans text-[11px] leading-tight">12 oak vessels — bourbon, rye & port. Inquiries for private tastings.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stamp -->
+      <div class="absolute top-10 right-10 stamp bg-kraft px-5 py-3 hidden lg:block">
+        <div class="font-wood font-bold text-[14px] uppercase tracking-[0.2em] leading-none text-center">Small Batch<br><span class="text-[28px] leading-none text-amber">No 47</span><br>Winter '24</div>
+      </div>
+
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[78%] h-[78%] border border-kraft/20 pointer-events-none hidden lg:block"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="bg-ink text-kraft overflow-hidden brutal-border-y py-3 relative">
+  <div class="marquee-track">
+    <div class="flex items-center gap-8 font-wood font-bold text-[18px] uppercase tracking-[0.2em] whitespace-nowrap pr-8">
+      <span>• UNFILTERED •</span><span class="text-amber">BARREL AGED</span><span>• 15 BBL SYSTEM •</span><span class="text-amber">WILD YEAST</span><span>• PORTLAND, OREGON • EST 2012 •</span><span class="text-amber">SMALL BATCH</span><span>• IRONWORKS BREW CO •</span>
+    </div>
+    <div class="flex items-center gap-8 font-wood font-bold text-[18px] uppercase tracking-[0.2em] whitespace-nowrap pr-8" aria-hidden="true">
+      <span>• UNFILTERED •</span><span class="text-amber">BARREL AGED</span><span>• 15 BBL SYSTEM •</span><span class="text-amber">WILD YEAST</span><span>• PORTLAND, OREGON • EST 2012 •</span><span class="text-amber">SMALL BATCH</span><span>• IRONWORKS BREW CO •</span>
+    </div>
+  </div>
+</div>
+
+<!-- STORY -->
+<section id="story" class="relative py-20 lg:py-28">
+  <div class="max-w-[1920px] mx-auto px-6 lg:px-10 grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-20">
+    <div class="lg:sticky lg:top-[120px] h-fit">
+      <div class="relative">
+        <div class="brutal-border bg-white p-2 rotate-[-1deg] img-reveal" id="storyImg1">
+          <img src="https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?q=80&w=1200&auto=format&fit=crop" alt="Oak barrels in brewery" class="w-full aspect-[4/5] object-cover brutal-border">
+          <div class="mt-2 flex justify-between items-center">
+            <span class="font-type text-[10px] uppercase tracking-widest">Barrel No. 23 — Port Wine — 14 Months</span>
+            <span class="font-wood text-[10px] bg-ink text-kraft px-2 py-1">PHOTO: 2023</span>
+          </div>
+        </div>
+        <div class="absolute -bottom-10 -right-6 bg-amber text-white brutal-border px-5 py-4 rotate-[2deg] hidden lg:block">
+          <div class="font-wood font-bold text-[12px] uppercase tracking-widest">Built by Hand</div>
+          <div class="font-sans text-[11px] mt-1 max-w-[18ch] leading-tight">Every tank welded on-site. Every label letterpressed.</div>
+        </div>
+      </div>
+      <div class="mt-16 grid grid-cols-2 gap-3">
+        <img src="https://images.unsplash.com/photo-1535958636474-b021ee8877f5?q=80&w=400&auto=format&fit=crop" alt="Hops close" class="brutal-border aspect-square object-cover w-full">
+        <img src="https://images.unsplash.com/photo-1584225064785-c62a8b43d148?q=80&w=400&auto=format&fit=crop" alt="Brewery steel" class="brutal-border aspect-square object-cover w-full translate-y-6">
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="flex items-start gap-4 mb-10">
+        <div class="w-[2px] h-20 bg-amber mt-1 hidden lg:block"></div>
+        <div>
+          <div class="font-type text-[13px] uppercase tracking-[0.24em] text-amber">Our Story — Hammer & Hops</div>
+          <h2 class="font-wood font-bold uppercase text-[48px] lg:text-[72px] leading-[0.9] tracking-[-0.02em] mt-2">
+            WE DIDN'T<br>BUY A BREWERY.<br>WE BUILT ONE.
+          </h2>
+        </div>
+      </div>
+
+      <div class="space-y-8 font-sans text-[16px] lg:text-[18px] leading-[1.7] max-w-[60ch]">
+        <p class="first-letter:text-[64px] first-letter:font-wood first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:leading-[0.8] first-letter:text-amber">
+          In 2012, Portland's industrial district had one more empty machine shop, oil on the floor, broken windows, a 40-ton press still bolted to the concrete. We saw tanks. My brother Eli and I had spent three years brewing out of a garage in St. Johns, hauling wort in buckets, trading bottles for welding lessons.
+        </p>
+        <p class="opacity-80">
+          The shop became Ironworks. We kept the crane rails, the soot, the name someone had spray-painted on the back wall in 1978. We rebuilt the brewhouse from salvaged dairy equipment — that's why the lauter tun has that dent on the side.
+        </p>
+
+        <!-- Timeline -->
+        <div class="py-10 space-y-0 relative">
+          <div class="absolute left-[9px] top-0 bottom-0 w-[2px] bg-ink/10 hidden lg:block"></div>
+          <div class="flex gap-6 group">
+            <div class="hidden lg:flex w-5 h-5 rounded-full bg-ink border-2 border-kraft group-hover:bg-amber transition-colors mt-1.5 z-10 relative shrink-0"></div>
+            <div class="brutal-border-l pl-6 lg:pl-0 lg:border-0 pb-10">
+              <div class="font-wood font-bold text-[18px] uppercase flex gap-3"><span class="text-amber">2012</span> Garage Batch #1 — Smoked Rye</div>
+              <div class="font-sans text-[14px] opacity-70 mt-1">Burnt. Undrinkable. Kept the yeast alive though.</div>
+            </div>
+          </div>
+          <div class="flex gap-6 group">
+            <div class="hidden lg:flex w-5 h-5 rounded-full bg-amber border-2 border-kraft mt-1.5 z-10 shrink-0"></div>
+            <div class="brutal-border-l pl-6 lg:pl-0 lg:border-0 pb-10">
+              <div class="font-wood font-bold text-[18px] uppercase flex gap-3"><span class="text-amber">2014</span> Lease Signed on Machine Shop</div>
+              <div class="font-sans text-[14px] opacity-70 mt-1">15 BBL system installed with a forklift and six friends. No permit for the forklift.</div>
+            </div>
+          </div>
+          <div class="flex gap-6 group">
+            <div class="hidden lg:flex w-5 h-5 rounded-full bg-ink border-2 border-kraft group-hover:bg-amber transition-colors mt-1.5 z-10 shrink-0"></div>
+            <div class="brutal-border-l pl-6 lg:pl-0 lg:border-0">
+              <div class="font-wood font-bold text-[18px] uppercase flex gap-3"><span class="text-amber">Today</span> 47 Barrels, 9 Taps, One Wood-Fired Pizza Oven</div>
+              <div class="font-sans text-[14px] opacity-70 mt-1">Still hammering. Still learning. Come taste what patience does.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-ink text-kraft p-8 brutal-border relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 opacity-10">
+            <svg viewBox="0 0 100 100" class="w-full h-full"><path d="M50 10 L60 40 L90 50 L60 60 L50 90 L40 60 L10 50 L40 40 Z" fill="#b45309"/></svg>
+          </div>
+          <div class="relative z-10 grid md:grid-cols-[auto_1fr] gap-6 items-center">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop" alt="Founder" class="w-20 h-20 brutal-border object-cover grayscale">
+            <div>
+              <div class="font-type text-[12px] uppercase tracking-widest opacity-60">Founder — Eli Mercer</div>
+              <div class="font-sans text-[15px] leading-[1.5] mt-1 italic">"If you can fix a lathe, you can fix a stuck mash. It's all just patience and listening to the metal." </div>
+              <div class="mt-3 font-wood text-[12px] uppercase tracking-[0.18em] flex gap-2">
+                <span class="bg-amber text-white px-2 py-0.5">WELDER</span>
+                <span class="brutal-border border-kraft/30 px-2 py-0.5">BREWER</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAP LIST -->
+<section id="taps" class="bg-ink text-kraft relative overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=2000&auto=format&fit=crop'); background-size:cover;"></div>
+  <div class="relative max-w-[1920px] mx-auto">
+    <div class="grid lg:grid-cols-[380px_1fr]">
+      <!-- Sidebar -->
+      <div class="p-8 lg:p-10 brutal-border-r border-kraft/10 lg:sticky lg:top-[72px] h-fit">
+        <div class="font-type text-[11px] uppercase tracking-[0.24em] opacity-50">Live Tap List • Updated 2 Hours Ago</div>
+        <h2 class="font-wood font-bold uppercase text-[56px] leading-[0.9] mt-4">WHAT'S<br><span class="text-amber">ON TAP</span></h2>
+        <div class="mt-6 space-y-4 font-sans text-[13px] leading-[1.6] opacity-70">
+          <p>Rotating. Small lots. When it's gone, it's gone. We don't do flagships — we do what's tasting best that week.</p>
+          <div class="flex gap-2">
+            <span class="brutal-border border-kraft/20 px-2 py-1 font-wood text-[10px] uppercase">No Crowlers</span>
+            <span class="brutal-border border-kraft/20 px-2 py-1 font-wood text-[10px] uppercase">Mixed 4-Pks Only</span>
+          </div>
+        </div>
+        <div class="mt-10 brutal-border-t border-kraft/10 pt-6">
+          <div class="font-wood text-[12px] uppercase tracking-widest mb-3">Filter</div>
+          <div class="flex flex-wrap gap-2" id="filterBtns">
+            <button data-filter="all" class="filter-btn active bg-amber text-white brutal-border border-amber px-3 py-1.5 font-wood text-[11px] uppercase tracking-wide">All</button>
+            <button data-filter="hoppy" class="filter-btn brutal-border border-kraft/30 px-3 py-1.5 font-wood text-[11px] uppercase tracking-wide hover:bg-kraft hover:text-ink transition">Hoppy</button>
+            <button data-filter="dark" class="filter-btn brutal-border border-kraft/30 px-3 py-1.5 font-wood text-[11px] uppercase tracking-wide hover:bg-kraft hover:text-ink transition">Dark</button>
+            <button data-filter="wild" class="filter-btn brutal-border border-kraft/30 px-3 py-1.5 font-wood text-[11px] uppercase tracking-wide hover:bg-kraft hover:text-ink transition">Wild / Sour</button>
+          </div>
+        </div>
+        <div class="mt-8 hidden lg:block">
+          <img src="https://images.unsplash.com/photo-1608270586620-248524c67de9?q=80&w=600&auto=format&fit=crop" class="w-full aspect-[4/3] object-cover brutal-border border-kraft/10 opacity-80" alt="Beer pour">
+        </div>
+      </div>
+
+      <!-- Tap List -->
+      <div class="divide-y divide-kraft/10">
+        <!-- Tap Header -->
+        <div class="grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-3 font-type text-[10px] uppercase tracking-[0.2em] opacity-40">
+          <div>No.</div><div>Beer / Style</div><div>ABV</div><div>IBU</div><div class="text-right">Status</div>
+        </div>
+
+        <!-- Rows -->
+        <div class="tap-list-container">
+          <!-- Row 1 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="hoppy">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">01</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Anvil — Baltic Porter</div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">Cold smoked beechwood • 8 weeks lager • Notes of tar, prune, iron</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">8.2% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">22 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">8.2%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">22</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-kraft/30 px-3 py-1 font-wood text-[11px] uppercase tracking-wide group-hover:border-amber">Low Keg</span></div>
+          </div>
+          <!-- Row 2 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="hoppy">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">02</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Crane Yard IPA</div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">Citra + Mosaic • Double dry-hopped • Portland water profile</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">6.8% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">68 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">6.8%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">68</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-kraft/30 px-3 py-1 font-wood text-[11px] uppercase tracking-wide bg-kraft text-ink">Fresh</span></div>
+          </div>
+          <!-- Row 3 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="wild">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">03</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Shop Floor Saison <span class="bg-amber text-white text-[10px] px-2 py-0.5 ml-2 align-middle">WILD</span></div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">House mixed culture • Aged on oregon peach • Funk, stone fruit, hay</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">5.9% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">18 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">5.9%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">18</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-kraft/30 px-3 py-1 font-wood text-[11px] uppercase tracking-wide">Bottle Only</span></div>
+          </div>
+          <!-- Row 4 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="dark">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">04</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Soot — Smoked Stout</div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">German beech smoke • Nitro pour • Campfire, dark chocolate</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">7.1% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">35 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">7.1%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">35</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-kraft/30 px-3 py-1 font-wood text-[11px] uppercase tracking-wide group-hover:border-amber">On Nitro</span></div>
+          </div>
+          <!-- Row 5 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="hoppy">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">05</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Lathe & Grain — Pale Ale</div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">Single malt, single hop — Cascade whole cone • Our house beer</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">5.2% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">42 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">5.2%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">42</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-kraft/30 px-3 py-1 font-wood text-[11px] uppercase tracking-wide bg-kraft text-ink">Always On</span></div>
+          </div>
+          <!-- Row 6 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="wild">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">06</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Borrowed Time — Foeder Saison</div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">18 months in foeder #2 • Lemon, cracker, white pepper</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">6.0% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">12 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">6.0%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">12</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-kraft/30 px-3 py-1 font-wood text-[11px] uppercase tracking-wide">Rare</span></div>
+          </div>
+          <!-- Row 7 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="dark">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">07</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Quench — Dark Lager</div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">Czech dark • Decoct mash • Bread crust, cola, clean</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">5.4% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">24 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">5.4%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">24</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-kraft/30 px-3 py-1 font-wood text-[11px] uppercase tracking-wide">Cold</span></div>
+          </div>
+          <!-- Row 8 -->
+          <div class="tap-row group grid grid-cols-[48px_1fr_90px_90px_100px] lg:grid-cols-[72px_1fr_120px_120px_140px] gap-2 px-6 lg:px-8 py-6 items-center cursor-pointer" data-category="wild">
+            <div class="font-wood font-bold text-[20px] text-amber group-hover:text-kraft">08</div>
+            <div class="min-w-0">
+              <div class="font-wood font-bold text-[20px] lg:text-[26px] uppercase leading-[0.95]">Rust — Barrel-Aged Red</div>
+              <div class="font-sans text-[12px] opacity-60 mt-1 leading-tight">Red ale in rye barrels • 11 months • Cherry, oak, vanilla</div>
+              <div class="lg:hidden flex gap-2 mt-2"><span class="bg-kraft/10 px-2 py-0.5 text-[10px] font-wood uppercase">7.8% ABV</span><span class="brutal-border border-kraft/20 px-2 py-0.5 text-[10px] font-wood uppercase">20 IBU</span></div>
+            </div>
+            <div class="hidden lg:block font-wood text-[14px]">7.8%</div>
+            <div class="hidden lg:block font-wood text-[14px] opacity-60">20</div>
+            <div class="flex justify-end"><span class="tap-cta brutal-border border-amber bg-amber text-white px-3 py-1 font-wood text-[11px] uppercase tracking-wide">NEW</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process" class="py-20 lg:py-28 brutal-border-t">
+  <div class="max-w-[1920px] mx-auto px-6 lg:px-10">
+    <div class="flex flex-col lg:flex-row justify-between items-start gap-8 mb-16">
+      <div>
+        <div class="font-type text-[12px] uppercase tracking-[0.24em] text-amber">How We Brew — No Shortcuts</div>
+        <h2 class="font-wood font-bold uppercase text-[48px] lg:text-[84px] leading-[0.9] tracking-[-0.02em] mt-3 max-w-[8ch]">IRON, OAK,<br>TIME & GRAIN.</h2>
+      </div>
+      <div class="lg:max-w-[52ch]">
+        <p class="font-sans text-[17px] leading-[1.6]">Our process is stubbornly manual. We mill by hand the night before, we watch the boil, we taste from barrels weekly. It's inefficient. It's the point.</p>
+        <div class="mt-6 flex gap-3">
+          <div class="brutal-border px-4 py-2 bg-white">
+            <div class="font-wood font-bold text-[24px] leading-none">100%</div>
+            <div class="font-type text-[10px] uppercase">Floor Malted</div>
+          </div>
+          <div class="brutal-border px-4 py-2 bg-white">
+            <div class="font-wood font-bold text-[24px] leading-none">0</div>
+            <div class="font-type text-[10px] uppercase">Adjuncts Ever</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-0 brutal-border">
+      <!-- Step 1 -->
+      <div class="bg-white p-8 lg:p-10 brutal-border-r group hover:bg-kraft transition-colors">
+        <div class="flex justify-between items-start">
+          <div class="font-wood font-bold text-[96px] leading-[0.8] opacity-[0.08] group-hover:opacity-[0.15] transition-opacity">01</div>
+          <div class="w-12 h-12 brutal-border flex items-center justify-center bg-ink text-kraft group-hover:bg-amber transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+          </div>
+        </div>
+        <h3 class="font-wood font-bold uppercase text-[24px] mt-6 leading-[0.95]">Mill & Mash —<br>By Feel</h3>
+        <p class="font-sans text-[14px] leading-[1.6] opacity-70 mt-4">We roller mill our own grain in the old tool crib. Oregon pale, Munich, a touch of rye. Decoction when the malt calls for it. No computers — just iodine and intuition.</p>
+        <div class="mt-6 pt-6 brutal-border-t">
+          <span class="font-type text-[11px] uppercase tracking-widest">02:00 AM — Milling Starts</span>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div class="bg-kraft p-8 lg:p-10 brutal-border-r group hover:bg-white transition-colors">
+        <div class="flex justify-between items-start">
+          <div class="font-wood font-bold text-[96px] leading-[0.8] opacity-[0.08] group-hover:opacity-[0.15] transition-opacity">02</div>
+          <div class="w-12 h-12 brutal-border flex items-center justify-center bg-amber text-white">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c-4-4-8-6-8-11a8 8 0 0 1 16 0c0 5-4 7-8 11z"/><circle cx="12" cy="11" r="3"/></svg>
+          </div>
+        </div>
+        <h3 class="font-wood font-bold uppercase text-[24px] mt-6 leading-[0.95]">Ferment & <br>Forget</h3>
+        <p class="font-sans text-[14px] leading-[1.6] opacity-70 mt-4">House ale yeast from a 2014 bottle of Orval, plus wild cultures caught in our barrel room. Primary in steel, secondary wherever makes sense — oak, foeder, bottle.</p>
+        <div class="mt-6 pt-6 brutal-border-t">
+          <span class="font-type text-[11px] uppercase tracking-widest">3 Weeks — 18 Months — Depends</span>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div class="bg-ink text-kraft p-8 lg:p-10 group hover:bg-amber transition-colors">
+        <div class="flex justify-between items-start">
+          <div class="font-wood font-bold text-[96px] leading-[0.8] opacity-[0.15]">03</div>
+          <div class="w-12 h-12 brutal-border border-kraft/20 flex items-center justify-center bg-kraft text-ink">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M11 3 8 9h8l-3-6z"/></svg>
+          </div>
+        </div>
+        <h3 class="font-wood font-bold uppercase text-[24px] mt-6 leading-[0.95] text-kraft">Pour Without<br>Apology</h3>
+        <p class="font-sans text-[14px] leading-[1.6] opacity-70 mt-4 text-kraft/70">We carbonate low, serve cool but not cold, in proper glassware. No frosted mugs. If we aged it 12 months, you should taste 12 months.</p>
+        <div class="mt-6 pt-6 brutal-border-t border-kraft/20">
+          <span class="font-type text-[11px] uppercase tracking-widest opacity-60">Taste. Talk. Trade.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY / BARREL ROOM -->
+<section class="bg-white brutal-border-t">
+  <div class="grid lg:grid-cols-[1.1fr_0.9fr] min-h-[80vh]">
+    <div class="relative overflow-hidden brutal-border-r">
+      <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=2000&auto=format&fit=crop" alt="Taproom interior" class="absolute inset-0 w-full h-full object-cover">
+      <div class="absolute inset-0 bg-ink/40"></div>
+      <div class="relative h-full flex flex-col justify-between p-8 lg:p-12 text-kraft">
+        <div class="inline-flex self-start brutal-border border-kraft/30 bg-ink/60 backdrop-blur px-3 py-1 font-type text-[11px] uppercase tracking-widest">Taproom — Since 2014</div>
+        <div>
+          <h3 class="font-wood font-bold uppercase text-[48px] lg:text-[64px] leading-[0.9]">Where Steel<br>Meets Thirst</h3>
+          <p class="font-sans text-[14px] opacity-80 mt-4 max-w-[36ch]">Twenty seats, concrete floor, pizza oven that never cools down. Dogs welcome, kids until 8PM. No TVs. Just people.</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-rows-[1fr_1fr]">
+      <div class="grid grid-cols-2">
+        <div class="relative brutal-border-r brutal-border-b overflow-hidden group">
+          <img src="https://images.unsplash.com/photo-1608270586620-248524c67de9?q=80&w=800&auto=format&fit=crop" alt="Beer foam" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur p-3 brutal-border-t">
+            <div class="font-wood text-[12px] uppercase font-bold">Barrels — 47 Active</div>
+            <div class="font-type text-[10px] uppercase opacity-60">Bourbon / Rye / Port / Gin</div>
+          </div>
+        </div>
+        <div class="relative brutal-border-b overflow-hidden bg-kraft p-8 flex flex-col justify-center">
+          <div class="font-wood font-bold text-[72px] leading-[0.8]">12</div>
+          <div class="font-wood uppercase text-[14px] tracking-[0.18em] mt-2">Pizza Menu<br>Wood-Fired Only</div>
+          <div class="mt-4 font-sans text-[12px] opacity-60">Hand-stretched, 72hr dough, scorch from oak offcuts from barrels that didn't make it.</div>
+          <div class="mt-6 w-10 h-10 brutal-border rounded-full flex items-center justify-center hover:bg-ink hover:text-kraft transition-colors cursor-pointer">→</div>
+        </div>
+      </div>
+      <div class="relative overflow-hidden group">
+        <img src="https://images.unsplash.com/photo-1558346489-19413928158b?q=80&w=1200&auto=format&fit=crop" alt="Brewery process" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        <div class="absolute inset-0 bg-gradient-to-r from-ink/80 to-transparent"></div>
+        <div class="relative p-8 lg:p-10 text-white h-full flex items-end">
+          <div class="flex justify-between w-full items-end">
+            <div>
+              <div class="font-type text-[11px] uppercase tracking-widest opacity-70">Next Event</div>
+              <div class="font-wood font-bold uppercase text-[28px] leading-[0.95] mt-1">Barrel Release &<br>Butchery Demo</div>
+            </div>
+            <div class="brutal-border border-white/30 bg-white text-ink px-4 py-2 font-wood uppercase text-[11px] tracking-widest">Oct 28 — 6PM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-16 lg:py-24 bg-kraft relative overflow-hidden">
+  <div class="max-w-[1920px] mx-auto px-6 lg:px-10">
+    <div class="flex justify-between items-end mb-10">
+      <h2 class="font-wood font-bold uppercase text-[32px] lg:text-[44px] leading-[0.9]">What Drinkers Say<br><span class="text-transparent" style="-webkit-text-stroke:1.5px #0a0a0a;">— Not Us</span></h2>
+      <div class="hidden md:flex gap-2">
+        <div class="w-12 h-[2px] bg-ink mt-6"></div>
+        <div class="font-type text-[11px] uppercase tracking-widest">From Untappd / Google / At The Bar</div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-0 brutal-border bg-white">
+      <div class="p-8 lg:p-10 brutal-border-r group hover:bg-ink hover:text-kraft transition-colors duration-300">
+        <div class="flex gap-1 text-amber">★★★★★</div>
+        <p class="font-sans text-[15px] leading-[1.6] mt-4">"Anvil Porter is the first porter in years that made me stop talking mid-sentence. Tastes like someone told the beer the truth."</p>
+        <div class="mt-6 flex items-center gap-3">
+          <div class="w-8 h-8 brutal-border bg-kraft text-ink flex items-center justify-center font-wood font-bold text-[12px]">MK</div>
+          <div>
+            <div class="font-wood font-bold uppercase text-[12px] tracking-wide">Mara K. — Brewer, Hair of the Dog</div>
+            <div class="font-type text-[10px] uppercase opacity-60">Visited March 2024</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-8 lg:p-10 brutal-border-r group hover:bg-ink hover:text-kraft transition-colors duration-300 bg-kraft">
+        <div class="flex gap-1 text-amber">★★★★★</div>
+        <p class="font-sans text-[15px] leading-[1.6] mt-4">"No pretense. Concrete. Steel. The saison actually tastes like the place smells — hay, iron, woodsmoke. In a good way."</p>
+        <div class="mt-6 flex items-center gap-3">
+          <div class="w-8 h-8 brutal-border bg-ink text-kraft flex items-center justify-center font-wood font-bold text-[12px]">JL</div>
+          <div>
+            <div class="font-wood font-bold uppercase text-[12px] tracking-wide">Jon L.</div>
+            <div class="font-type text-[10px] uppercase opacity-60">Regular Since 2016 — 184 Check-ins</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-8 lg:p-10 group hover:bg-ink hover:text-kraft transition-colors duration-300">
+        <div class="flex gap-1 text-amber">★★★★★</div>
+        <p class="font-sans text-[15px] leading-[1.6] mt-4">"They let me look at the barrels. No one does that. Eli pulled a sample with a wine thief and just said 'tell me what you taste.'"</p>
+        <div class="mt-6 flex items-center gap-3">
+          <div class="w-8 h-8 brutal-border bg-white text-ink flex items-center justify-center font-wood font-bold text-[12px]">SR</div>
+          <div>
+            <div class="font-wood font-bold uppercase text-[12px] tracking-wide">Samir R. — Portland Beer Week</div>
+            <div class="font-type text-[10px] uppercase opacity-60">Barrel Tour — Oct 2023</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT -->
+<section id="visit" class="bg-ink text-kraft relative">
+  <div class="max-w-[1920px] mx-auto grid lg:grid-cols-[1fr_480px]">
+    <div class="p-8 lg:p-12 order-2 lg:order-1">
+      <div class="flex items-start justify-between gap-8">
+        <div>
+          <div class="font-type text-[11px] uppercase tracking-[0.24em] opacity-50">Visit — 1928 Machine Shop — No Sign Out Front</div>
+          <h2 class="font-wood font-bold uppercase text-[48px] lg:text-[72px] leading-[0.85] mt-4">COME FIND<br><span class="text-amber">THE IRON.</span></h2>
+        </div>
+        <div class="hidden lg:block brutal-border border-kraft/20 p-3 rotate-[1deg]">
+          <div class="font-type text-[10px] uppercase opacity-50">Coordinates</div>
+          <div class="font-wood text-[14px]">45°31'23"N 122°40'30"W</div>
+        </div>
+      </div>
+
+      <div class="mt-12 grid md:grid-cols-2 gap-10">
+        <div>
+          <div class="font-wood uppercase text-[13px] tracking-[0.18em] opacity-50 mb-4">Hours / Location</div>
+          <div class="space-y-3 font-sans text-[14px] leading-[1.6]">
+            <div class="flex justify-between brutal-border-b border-kraft/10 pb-2"><span>Mon — Thu</span><span class="font-wood font-bold">12PM — 10PM</span></div>
+            <div class="flex justify-between brutal-border-b border-kraft/10 pb-2"><span>Fri — Sat</span><span class="font-wood font-bold">12PM — 11PM</span></div>
+            <div class="flex justify-between pb-2"><span>Sun</span><span class="font-wood font-bold">12PM — 8PM</span></div>
+          </div>
+          <div class="mt-8 font-sans text-[14px] opacity-70 max-w-[30ch]">
+            1320 NW Kearney St, Portland, OR 97209<br>
+            Roll-up door on 13th, look for the orange forklift.<br>
+            <a href="#" class="underline decoration-amber decoration-2 underline-offset-4 hover:text-amber transition">Get Directions →</a>
+          </div>
+        </div>
+        <div>
+          <div class="font-wood uppercase text-[13px] tracking-[0.18em] opacity-50 mb-4">This Week</div>
+          <div class="space-y-2">
+            <div class="bg-kraft text-ink brutal-border p-3 flex justify-between items-center">
+              <div class="font-wood font-bold uppercase text-[12px]">Tues — Cask Night</div>
+              <div class="font-type text-[10px] uppercase">Anvil on Cask + Cheese</div>
+            </div>
+            <div class="brutal-border border-kraft/20 p-3 flex justify-between items-center hover:bg-kraft hover:text-ink transition-colors cursor-pointer">
+              <div class="font-wood font-bold uppercase text-[12px]">Thurs — Tap Takeover Prep</div>
+              <div class="font-type text-[10px] uppercase opacity-60">Closed 6-7PM Private</div>
+            </div>
+            <div class="brutal-border border-kraft/20 p-3 flex justify-between items-center hover:bg-kraft hover:text-ink transition-colors cursor-pointer">
+              <div class="font-wood font-bold uppercase text-[12px]">Sat — Barrel Sampling</div>
+              <div class="font-type text-[10px] uppercase opacity-60">12PM — Reservation Only</div>
+            </div>
+          </div>
+          <div class="mt-6">
+            <a href="mailto:brew@ironworks.example" class="bg-amber text-white w-full brutal-border border-amber py-3 font-wood uppercase text-[13px] tracking-[0.18em] flex justify-center items-center gap-2 hover:bg-kraft hover:text-ink hover:border-ink transition-colors">Reserve A Table / Barrel Tour</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map / Image side -->
+    <div class="relative min-h-[420px] lg:min-h-full bg-kraft brutal-border-l border-kraft/10 order-1 lg:order-2 overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1200&auto=format&fit=crop" alt="Map texture" class="absolute inset-0 w-full h-full object-cover opacity-60">
+      <div class="absolute inset-0 bg-ink/10"></div>
+      <!-- Stylized map grid -->
+      <div class="absolute inset-0 p-6 grid grid-cols-6 grid-rows-6 gap-[1px] opacity-20">
+        <div class="bg-ink col-span-2 row-span-3"></div>
+        <div class="bg-amber col-span-2"></div>
+        <div class="bg-ink col-span-2 row-span-2"></div>
+      </div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div class="w-16 h-16 bg-ink brutal-border rotate-45 flex items-center justify-center">
+          <span class="font-wood font-bold text-kraft -rotate-45 text-[20px]">I</span>
+        </div>
+        <div class="mt-3 bg-kraft text-ink brutal-border px-3 py-1 font-wood text-[11px] uppercase tracking-widest whitespace-nowrap -translate-x-[22px]">You Are Here — 13th & Kearney</div>
+      </div>
+      <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur brutal-border p-3 flex justify-between text-[10px] font-type uppercase tracking-widest">
+        <span>Industrial District • No Parking Lot — Street Only</span>
+        <span class="hidden lg:inline">• Look For Forklift</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-kraft brutal-border-t relative overflow-hidden">
+  <div class="max-w-[1920px] mx-auto px-6 lg:px-10 pt-16 pb-8">
+    <!-- Giant Text -->
+    <div class="relative">
+      <h2 class="font-wood font-bold uppercase leading-[0.78] tracking-[-0.04em] text-[18vw] lg:text-[16vw] select-none">
+        <span class="block text-transparent" style="-webkit-text-stroke:2px #0a0a0a;">IRONWORKS</span>
+        <span class="block -mt-2 lg:-mt-6">BREW CO</span>
+      </h2>
+      <div class="absolute top-1/2 right-0 lg:right-20 -translate-y-1/2 stamp bg-ink text-kraft px-6 py-4 rotate-[-8deg] hidden md:block">
+        <div class="font-type text-[10px] uppercase tracking-widest opacity-60">Official Seal</div>
+        <div class="font-wood font-bold text-[20px] uppercase leading-none mt-1">Unfiltered<br>& Unfinished</div>
+        <div class="mt-2 w-full h-[2px] bg-amber"></div>
+        <div class="font-type text-[9px] uppercase mt-1">Est. 2012 • Portland, OR</div>
+      </div>
+    </div>
+
+    <div class="mt-16 grid md:grid-cols-12 gap-10 brutal-border-t pt-10">
+      <div class="md:col-span-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-ink text-kraft flex items-center justify-center font-wood font-bold brutal-border">I</div>
+          <div class="font-wood font-bold uppercase leading-none">Ironworks<br><span class="font-type text-[10px] tracking-[0.2em] opacity-60">Brew Co.</span></div>
+        </div>
+        <p class="font-sans text-[13px] leading-[1.6] opacity-70 mt-4 max-w-[32ch]">Small brewery in a big machine shop. We make beer like we fix things — patiently, with extra hands.</p>
+        <div class="mt-6 flex gap-2">
+          <a href="#" class="w-9 h-9 brutal-border bg-white flex items-center justify-center hover:bg-ink hover:text-kraft transition-colors font-wood text-[12px]">IG</a>
+          <a href="#" class="w-9 h-9 brutal-border bg-white flex items-center justify-center hover:bg-ink hover:text-kraft transition-colors font-wood text-[12px]">UT</a>
+          <a href="#" class="w-9 h-9 brutal-border bg-white flex items-center justify-center hover:bg-ink hover:text-kraft transition-colors font-wood text-[12px]">M@</a>
+        </div>
+      </div>
+      <div class="md:col-span-2">
+        <div class="font-wood uppercase text-[12px] tracking-[0.18em] mb-4">Menu</div>
+        <div class="space-y-2 font-sans text-[13px]">
+          <a href="#story" class="block hover:text-amber hover:translate-x-1 transition-all">Story</a>
+          <a href="#taps" class="block hover:text-amber hover:translate-x-1 transition-all">Tap List</a>
+          <a href="#process" class="block hover:text-amber hover:translate-x-1 transition-all">Process</a>
+          <a href="#" class="block hover:text-amber hover:translate-x-1 transition-all">Merch — Letterpressed</a>
+        </div>
+      </div>
+      <div class="md:col-span-3">
+        <div class="font-wood uppercase text-[12px] tracking-[0.18em] mb-4">Newsletter — Spare Parts</div>
+        <div class="brutal-border bg-white p-1 flex">
+          <input type="email" placeholder="YOUR EMAIL" class="flex-1 px-3 py-2 font-wood text-[12px] uppercase tracking-widest bg-transparent outline-none placeholder:opacity-40">
+          <button class="bg-ink text-kraft px-4 py-2 font-wood text-[11px] uppercase tracking-widest brutal-border hover:bg-amber transition-colors">Join</button>
+        </div>
+        <div class="font-type text-[10px] opacity-50 mt-2 uppercase tracking-wide">Monthly notes. Barrel releases. No spam. Ever.</div>
+      </div>
+      <div class="md:col-span-3 md:text-right">
+        <div class="font-wood uppercase text-[12px] tracking-[0.18em] mb-4">Colophon</div>
+        <div class="font-type text-[11px] leading-[1.6] opacity-60 uppercase">
+          Type: Oswald & Work Sans<br>
+          Paper: Kraft #E8DCC4 • 120lb<br>
+          Ink: Black + Deep Amber #B45309<br>
+          Built in Portland, Oregon<br>
+          © 2024 Ironworks Brew Co.
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 flex flex-col md:flex-row justify-between gap-4 font-type text-[10px] uppercase tracking-[0.18em] opacity-40">
+      <div>Design: Hammer & Hops — No templates. Just type & texture.</div>
+      <div class="flex gap-6">
+        <span>Drink Responsibly — 21+ Only</span>
+        <span class="hidden md:inline">•</span>
+        <span>Please Recycle This Website</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Scroll progress -->
+<div class="fixed top-0 left-0 h-[3px] bg-amber z-[100] origin-left" id="progress" style="width:0%"></div>
+
+<script>
+  // Custom cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mouseX=0, mouseY=0, ringX=0, ringY=0;
+  document.addEventListener('mousemove', e=>{
+    mouseX=e.clientX; mouseY=e.clientY;
+    dot.style.left=mouseX-5+'px'; dot.style.top=mouseY-5+'px';
+  });
+  function animateRing(){
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    ring.style.left=ringX-22+'px'; ring.style.top=ringY-22+'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a, button, .tap-row').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ ring.style.transform='scale(1.6)'; dot.style.transform='scale(1.8)'; dot.style.opacity='0.6'; });
+    el.addEventListener('mouseleave', ()=>{ ring.style.transform='scale(1)'; dot.style.transform='scale(1)'; dot.style.opacity='1'; });
+  });
+
+  // Mobile menu
+  const mobileBtn = document.getElementById('mobileMenu');
+  const mobileNav = document.getElementById('mobileNav');
+  mobileBtn?.addEventListener('click', ()=> mobileNav.classList.toggle('hidden'));
+
+  // Scroll progress + reveals
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', ()=>{
+    const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight))*100;
+    progress.style.width=scrolled+'%';
+  });
+
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting) entry.target.classList.add('active');
+    });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal, .img-reveal').forEach(el=> observer.observe(el));
+
+  // Tap filter
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const tapRows = document.querySelectorAll('.tap-row');
+  filterBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      filterBtns.forEach(b=>{ b.classList.remove('active','bg-amber','text-white','border-amber'); b.classList.add('border-kraft/30'); });
+      btn.classList.add('active','bg-amber','text-white','border-amber'); btn.classList.remove('border-kraft/30');
+      const filter = btn.dataset.filter;
+      tapRows.forEach(row=>{
+        if(filter==='all' || row.dataset.category===filter){
+          row.style.display='grid';
+          setTimeout(()=> row.style.opacity='1',50);
+        } else {
+          row.style.opacity='0';
+          setTimeout(()=> row.style.display='none',300);
+        }
+      });
+    });
+  });
+
+  // Navbar shrink
+  const navbar = document.getElementById('navbar');
+  let lastScroll=0;
+  window.addEventListener('scroll', ()=>{
+    if(window.scrollY>80){ navbar.classList.add('shadow-lg'); } else { navbar.classList.remove('shadow-lg'); }
+    lastScroll=window.scrollY;
+  });
+
+  // Tap row click feedback
+  tapRows.forEach(row=>{
+    row.addEventListener('click', ()=>{
+      row.style.transform='translateX(12px)';
+      setTimeout(()=> row.style.transform='',250);
+    });
+  });
+
+  // Parallax mild for hero image
+  window.addEventListener('scroll', ()=>{
+    const heroImg = document.querySelector('section:first-of-type img');
+    if(heroImg) heroImg.style.transform = `translateY(${window.scrollY*0.12}px) scale(1.05)`;
+  });
+</script>
+</body>
+</html>

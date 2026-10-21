@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { DeckScreen, SystemTelemetry, UserCvProfile } from './types.ts';
 import { CONCEPTUAL_PROJECTS } from './data/projectsData.ts';
 import { MatrixRainCanvas } from './components/MatrixRainCanvas.tsx';
+import { WatermarkAnimatedLogo } from './components/WatermarkAnimatedLogo.tsx';
 import { HeaderNav } from './components/HeaderNav.tsx';
 import { CommandDeckFooter } from './components/CommandDeckFooter.tsx';
 import { HomeScreen } from './components/screens/HomeScreen.tsx';
@@ -128,7 +129,6 @@ export const App: React.FC = () => {
       }
     };
 
-    // Check current path or preview hash
     const path = window.location.pathname;
     const hash = window.location.hash;
     if (hash && hash.startsWith('#preview=')) {
@@ -154,7 +154,6 @@ export const App: React.FC = () => {
       if (modalOpen || cvModalOpen) return;
 
       if (screenIndex === 5) {
-        // Inside AI Lab, Escape returns to Contact
         if (e.key === 'Escape') {
           e.preventDefault();
           navigateTo('contact');
@@ -179,6 +178,117 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [screenIndex, modalOpen, cvModalOpen, navigateTo]);
+
+  // Mouse Wheel & Mobile Touch Swipe Navigation Engine
+  useEffect(() => {
+    let accumulatedWheelDelta = 0;
+    let wheelResetTimer: any = null;
+    let isTransitioning = false;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (modalOpen || cvModalOpen) return;
+
+      const activeScreenEl = document.querySelector<HTMLElement>('.deck-screen.deck-screen-active');
+      if (!activeScreenEl) return;
+
+      // Inside AI Lab, scroll internally without deck transitions
+      if (activeScreenEl.id === 'ai-lab') return;
+
+      const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
+      const hasScroll = scrollableHeight > 10;
+      const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
+      const atBottom = !hasScroll || activeScreenEl.scrollTop >= scrollableHeight - 14;
+
+      accumulatedWheelDelta += e.deltaY;
+      clearTimeout(wheelResetTimer);
+      wheelResetTimer = setTimeout(() => {
+        accumulatedWheelDelta = 0;
+      }, 180);
+
+      if (isTransitioning) return;
+
+      // Downward scroll / Next Screen (stops at screen 4 / Contact)
+      if (accumulatedWheelDelta > 28 && atBottom) {
+        if (screenIndex < 4) {
+          isTransitioning = true;
+          accumulatedWheelDelta = 0;
+          navigateTo(screenIndex + 1);
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 420);
+        }
+      }
+      // Upward scroll / Previous Screen
+      else if (accumulatedWheelDelta < -28 && atTop) {
+        if (screenIndex > 0 && screenIndex <= 4) {
+          isTransitioning = true;
+          accumulatedWheelDelta = 0;
+          navigateTo(screenIndex - 1);
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 420);
+        }
+      }
+    };
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches && e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (modalOpen || cvModalOpen) return;
+      const activeScreenEl = document.querySelector<HTMLElement>('.deck-screen.deck-screen-active');
+      if (!activeScreenEl || activeScreenEl.id === 'ai-lab') return;
+
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        const diffX = e.changedTouches[0].clientX - touchStartX;
+        const diffY = e.changedTouches[0].clientY - touchStartY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
+
+        const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
+        const hasScroll = scrollableHeight > 10;
+        const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
+        const atBottom = !hasScroll || activeScreenEl.scrollTop >= scrollableHeight - 14;
+
+        if (isTransitioning) return;
+
+        // Horizontal swipe (left = next, right = prev)
+        if (absX > 45 && absX > absY * 1.2) {
+          if (diffX < 0 && screenIndex < 4) {
+            navigateTo(screenIndex + 1);
+          } else if (diffX > 0 && screenIndex > 0) {
+            navigateTo(screenIndex - 1);
+          }
+        }
+        // Vertical swipe
+        else if (absY > 45 && absY > absX * 1.2) {
+          if (diffY < 0 && atBottom && screenIndex < 4) {
+            navigateTo(screenIndex + 1);
+          } else if (diffY > 0 && atTop && screenIndex > 0) {
+            navigateTo(screenIndex - 1);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+      clearTimeout(wheelResetTimer);
+    };
   }, [screenIndex, modalOpen, cvModalOpen, navigateTo]);
 
   // Modal navigation
@@ -239,8 +349,8 @@ export const App: React.FC = () => {
         {/* Matrix Rain Canvas */}
         <MatrixRainCanvas />
 
-        {/* Global Logo Watermark */}
-        <div className="deck-global-watermark" aria-hidden="true" />
+        {/* Global Logo Watermark with Living Animated Cyber Eyes */}
+        <WatermarkAnimatedLogo />
 
         {/* Screens */}
         <HomeScreen

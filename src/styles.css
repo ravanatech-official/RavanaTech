@@ -212,14 +212,22 @@ main:nth-of-type(1),
   transform: translate(-50%, -50%);
   width: min(720px, 86vw);
   height: min(720px, 86vw);
+  pointer-events: none;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.watermark-emblem {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   background-image: url("/src/assets/images/ravana_tech_logo_1792581937150.jpg");
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0.12;
   filter: drop-shadow(0 0 50px rgba(24, 200, 255, 0.45));
-  pointer-events: none;
-  z-index: 2;
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96) 42%, rgba(0, 0, 0, 0) 74%);
   -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96) 42%, rgba(0, 0, 0, 0) 74%);
   animation: watermark-pulse 8s ease-in-out infinite alternate;
@@ -228,11 +236,177 @@ main:nth-of-type(1),
 @keyframes watermark-pulse {
   0% {
     opacity: 0.09;
-    transform: translate(-50%, -50%) scale(0.98);
+    transform: scale(0.98);
   }
   100% {
     opacity: 0.15;
-    transform: translate(-50%, -50%) scale(1.02);
+    transform: scale(1.02);
+  }
+}
+
+/*===== CYBER ANIMATED EYES RIG =====*/
+.watermark-eye-rig {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.watermark-cyber-eye {
+  position: absolute;
+  width: 4.8%;
+  height: 2.2%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: cyber-eye-blink-surge 6.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  transform-origin: center center;
+}
+
+.watermark-cyber-eye--left {
+  top: 49.3%;
+  left: 41.8%;
+  transform: translate(-50%, -50%) rotate(-7deg);
+}
+
+.watermark-cyber-eye--right {
+  top: 49.0%;
+  left: 58.2%;
+  transform: translate(-50%, -50%) rotate(7deg);
+}
+
+/* Outer diffuse cyber glow */
+.cyber-eye__ambient-glow {
+  position: absolute;
+  width: 220%;
+  height: 340%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 229, 255, 0.55) 0%, rgba(24, 200, 255, 0.25) 45%, rgba(0, 115, 184, 0) 75%);
+  filter: blur(6px);
+  animation: cyber-eye-breathe 3.5s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Eye Socket / Slanted Visor Silhouette */
+.cyber-eye__socket {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 60% 40% 50% 50%;
+  background: #000B16;
+  border: 1px solid rgba(0, 229, 255, 0.7);
+  box-shadow: inset 0 0 8px rgba(0, 191, 255, 0.8), 0 0 16px rgba(0, 229, 255, 0.65);
+  z-index: 2;
+}
+
+/* High-tech Glowing Iris */
+.cyber-eye__iris {
+  position: absolute;
+  width: 75%;
+  height: 75%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFFFFF 15%, #00FFFF 40%, #0099FF 80%);
+  box-shadow: 0 0 10px #00E5FF, 0 0 22px #18C8FF, inset 0 0 4px #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transform: translate(var(--pupil-x, 0px), var(--pupil-y, 0px));
+  transition: transform 0.05s linear;
+}
+
+/* White-hot Pupil Center */
+.cyber-eye__pupil {
+  width: 42%;
+  height: 42%;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 8px #FFFFFF, 0 0 16px #00FFFF;
+}
+
+/* Laser Lens Flare Slit */
+.cyber-eye__laser-flare {
+  position: absolute;
+  width: 280%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 229, 255, 0.3) 25%, #FFFFFF 50%, rgba(0, 229, 255, 0.3) 75%, transparent 100%);
+  filter: drop-shadow(0 0 6px #00E5FF);
+  opacity: 0.8;
+  z-index: 4;
+}
+
+/* Horizontal Cyber Targeting Beam Sweep across both eyes */
+.watermark-cyber-eye__beam-sweep {
+  position: absolute;
+  top: 48.8%;
+  left: 36%;
+  width: 28%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 229, 255, 0.2) 20%, #18C8FF 50%, #FFFFFF 52%, #18C8FF 54%, rgba(0, 229, 255, 0.2) 80%, transparent 100%);
+  filter: drop-shadow(0 0 10px #00E5FF);
+  animation: cyber-beam-sweep 8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  z-index: 5;
+  pointer-events: none;
+}
+
+@keyframes cyber-eye-breathe {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.92);
+    filter: blur(5px) drop-shadow(0 0 10px #00E5FF);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.12);
+    filter: blur(7px) drop-shadow(0 0 22px #00FFFF) drop-shadow(0 0 45px #18C8FF);
+  }
+}
+
+@keyframes cyber-eye-blink-surge {
+  0%, 78%, 100% {
+    transform: translate(-50%, -50%) scaleY(1);
+    opacity: 0.95;
+  }
+  80% {
+    transform: translate(-50%, -50%) scaleY(0.06);
+    opacity: 0.35;
+  }
+  82% {
+    transform: translate(-50%, -50%) scaleY(1.35) scaleX(1.15);
+    opacity: 1;
+    filter: brightness(2.2) drop-shadow(0 0 25px #FFFFFF) drop-shadow(0 0 50px #18C8FF);
+  }
+  84% {
+    transform: translate(-50%, -50%) scaleY(0.12);
+    opacity: 0.4;
+  }
+  86% {
+    transform: translate(-50%, -50%) scaleY(1.08);
+    opacity: 1;
+  }
+  88% {
+    transform: translate(-50%, -50%) scaleY(1);
+    opacity: 0.95;
+  }
+}
+
+@keyframes cyber-beam-sweep {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateX(-60%);
+  }
+  75% {
+    opacity: 0.9;
+    transform: translateX(0%);
+  }
+  80% {
+    opacity: 0;
+    transform: translateX(60%);
   }
 }
 

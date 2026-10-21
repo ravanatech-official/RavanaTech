@@ -3,6 +3,17 @@
   "version": "1.0.0",
   "inquiries": [
     {
+      "id": "LEAD-1792594082225-1XWGV",
+      "name": "Test Client",
+      "email": "test@example.com",
+      "service": "Bespoke High-Speed Websites",
+      "message": "Hello from React migration test!",
+      "source": "react_contact_form",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "receivedAt": "2026-10-21T14:48:02.225Z"
+    },
+    {
       "id": "LEAD-1791772344570-OJQ5K",
       "name": "Shanthapriya Client",
       "email": "client@example.com",

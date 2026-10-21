@@ -1,5 +1,7 @@
+import type { ConceptualProject } from "../types.ts";
+
 // Ravana Tech - 50 Conceptual Projects Registry
-export const CONCEPTUAL_PROJECTS = [
+export const CONCEPTUAL_PROJECTS: ConceptualProject[] = [
   {
     "id": "bakery",
     "title": "Bakery",

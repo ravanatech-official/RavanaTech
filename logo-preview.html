@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ravana Tech - Logo Preview & Review</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #070B12;
+            --card-bg: rgba(14, 23, 38, 0.85);
+            --border-color: rgba(24, 200, 255, 0.25);
+            --cyan-glow: #18C8FF;
+            --text-main: #E2E8F0;
+            --text-dim: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1.5rem 4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 2.5rem;
+        }
+
+        .tag {
+            display: inline-block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--cyan-glow);
+            background: rgba(24, 200, 255, 0.1);
+            border: 1px solid var(--border-color);
+            padding: 0.35rem 1rem;
+            border-radius: 999px;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #18C8FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-dim);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .preview-grid {
+            width: 100%;
+            max-width: 1050px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .preview-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .preview-card.featured {
+            grid-column: 1 / -1;
+            border-color: rgba(24, 200, 255, 0.6);
+            box-shadow: 0 0 35px rgba(24, 200, 255, 0.15);
+        }
+
+        .card-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: 0.1em;
+            color: var(--cyan-glow);
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .img-container {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .featured .img-container {
+            max-width: 440px;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            display: block;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Mockup Header */
+        .mockup-navbar {
+            width: 100%;
+            background: rgba(8, 12, 22, 0.95);
+            border: 1px solid rgba(24, 200, 255, 0.3);
+            border-radius: 12px;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .mockup-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            color: #FFF;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .mockup-logo-mini {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1.5px solid var(--cyan-glow);
+        }
+
+        .mockup-links {
+            display: flex;
+            gap: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Action Buttons */
+        .actions-panel {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(14, 23, 38, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.25rem;
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.85rem 1.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #18C8FF;
+            color: #070B12;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #4de0ff;
+            box-shadow: 0 0 20px rgba(24, 200, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Favicon Simulation */
+        .favicon-preview {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.25rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .fav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <span class="tag">BRAND IDENTITY PREVIEW</span>
+        <h1>RAVANA TECH OFFICIAL LOGO</h1>
+        <p class="subtitle">
+            මෙම පිටුවෙන් ඔබට අලුතින් නිර්මාණය කරන ලද Ravana Tech ලාංඡනය (Logo) විවිධ මානයන්ගෙන් සහ Header/Favicon ආකෘතිවලින් පරීක්ෂා කළ හැක. ඔබ කැමති නම් පමණක් මෙය ප්‍රධාන වෙබ් අඩවියට එකතු කරනු ලැබේ.
+        </p>
+    </header>
+
+    <main class="preview-grid">
+        <!-- Main High-Res Logo -->
+        <div class="preview-card featured">
+            <div class="card-title">
+                <span>MASTER HIGH-RESOLUTION LOGO (1:1)</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">Obsidian &amp; Neon Cyan Edition</span>
+            </div>
+            <div class="img-container">
+                <img src="/src/assets/images/ravana_tech_logo_1792581937150.jpg" alt="Ravana Tech Cyber Logo" class="logo-img" referrerpolicy="no-referrer">
+            </div>
+        </div>
+
+        <!-- In-Website Navbar Simulation -->
+        <div class="preview-card">
+            <div class="card-title">
+                <span>WEBSITE NAVBAR INTEGRATION PREVIEW</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.75rem; text-align: left; width: 100%;">
+                වෙබ් අඩවියේ ප්‍රධාන Header එකෙහි Text Logo වෙනුවට මෙම Logo Icon එක යෙදූ විට දිස්වන ආකාරය:
+            </p>
+            <div class="mockup-navbar">
+                <div class="mockup-brand">
+                    <img src="/src/assets/images/ravana_tech_logo_1792581937150.jpg" alt="Logo Icon" class="mockup-logo-mini" referrerpolicy="no-referrer">
+                    <span>RAVANA<span style="color: #18C8FF;">//</span>TECH</span>
+                </div>
+                <div class="mockup-links">
+                    <span>Home</span>
+                    <span>About</span>
+                    <span>Contact</span>
+                </div>
+            </div>
+
+            <!-- Favicon Simulation -->
+            <div class="favicon-preview">
+                <div class="fav-item">
+                    <img src="/src/assets/images/ravana_tech_logo_1792581937150.jpg" alt="Favicon 32" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid #18C8FF;" referrerpolicy="no-referrer">
+                    <span>Tab Icon (32px)</span>
+                </div>
+                <div class="fav-item">
+                    <img src="/src/assets/images/ravana_tech_logo_1792581937150.jpg" alt="Favicon 64" style="width: 48px; height: 48px; border-radius: 8px; border: 1px solid #18C8FF;" referrerpolicy="no-referrer">
+                    <span>App Icon (48px)</span>
+                </div>
+                <div style="flex: 1; font-size: 0.8rem; color: var(--text-dim); line-height: 1.4;">
+                    Browser tab එකෙහි favicon එකක් ලෙසද පැහැදිලිව දර්ශනය වේ.
+                </div>
+            </div>
+        </div>
+
+        <!-- Concept & Symbolism -->
+        <div class="preview-card">
+            <div class="card-title">
+                <span>DESIGN CONCEPT &amp; SPECIFICATIONS</span>
+            </div>
+            <ul style="list-style: none; text-align: left; width: 100%; display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem; color: #CBD5E1;">
+                <li><strong style="color: #18C8FF;">🔱 Emblem:</strong> රාවණ රජුගේ ඓතිහාසික ප්‍රෞඪත්වය සහ ඔටුන්න නූතන Cybernetic Warrior / AI Hexagon Grid එකක් සමඟ මුසු කර ඇත.</li>
+                <li><strong style="color: #18C8FF;">⚡ Technology Circuit:</strong> ශරීරය සහ පලිහ පුරා විහිදෙන Cyber-HUD Tracks මඟින් Automation, AI, සහ Modern Web Engineering සංකේතවත් කරයි.</li>
+                <li><strong style="color: #18C8FF;">🎨 Colors:</strong> Electric Cyan (<code style="background: rgba(24,200,255,0.15); padding: 2px 5px; border-radius: 4px;">#18C8FF</code>) සහ Deep Cyber Obsidian (<code style="background: rgba(255,255,255,0.08); padding: 2px 5px; border-radius: 4px;">#070B12</code>).</li>
+                <li><strong style="color: #18C8FF;">💼 Formats:</strong> Favicon, Header Logo, Social Media Avatar, සහ Watermark සඳහා පහසුවෙන් භාවිතා කළ හැක.</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Navigation & Next Steps -->
+    <div class="actions-panel">
+        <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-bottom: 0.5rem; color: #FFF;">
+            ඔබ මෙම Logo එකට කැමතිද?
+        </h3>
+        <p style="font-size: 0.95rem; color: var(--text-dim); line-height: 1.5;">
+            මෙම logo එක පිළිබඳ ඔබගේ අදහස චැට් එකෙන් මට දන්වන්න. ඔබට මෙය වෙබ් අඩවියේ Navbar එකට හෝ Favicon එකට යෙදීමට අවශ්‍ය නම්, "<strong>site ekata dapan</strong>" හෝ "<strong>apply karapan</strong>" කියා පවසන්න.
+        </p>
+        <div class="btn-group">
+            <a href="/" class="btn btn-secondary">
+                ← Return to Ravana Tech Portfolio
+            </a>
+            <a href="/src/assets/images/ravana_tech_logo_1792581937150.jpg" target="_blank" class="btn btn-primary" download="ravana_tech_official_logo.jpg">
+                💾 Download Original Logo
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

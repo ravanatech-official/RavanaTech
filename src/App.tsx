@@ -349,7 +349,7 @@ export const App: React.FC = () => {
         {/* Matrix Rain Canvas */}
         <MatrixRainCanvas />
 
-        {/* Global Logo Watermark with Living Animated Cyber Eyes */}
+        {/* Global Logo Watermark with Glowing Cyber Eyes */}
         <WatermarkAnimatedLogo />
 
         {/* Screens */}

@@ -77,14 +77,21 @@
                 right: 0;
                 overflow: hidden !important;
             }
+            ::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+            }
+            * {
+                scrollbar-width: none !important;
+            }
             .deck-screen {
                 position: absolute;
                 inset: 0;
                 width: 100%;
                 height: 100%;
                 padding: 1rem 0;
-                overflow-y: auto;
-                overflow-x: hidden;
+                overflow: hidden !important;
                 box-sizing: border-box;
                 display: none !important;
                 opacity: 0 !important;

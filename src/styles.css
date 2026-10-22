@@ -206,12 +206,12 @@ main:nth-of-type(1),
 
 /*===== GLOBAL CYBER LOGO WATERMARK (VISIBLE BEHIND ALL SECTIONS) =====*/
 .deck-global-watermark {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(720px, 86vw);
-  height: min(720px, 86vw);
+  width: min(760px, 90vw);
+  height: min(760px, 90vw);
   pointer-events: none;
   z-index: 2;
   box-sizing: border-box;

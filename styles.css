@@ -146,19 +146,14 @@ img {
   display: block;
 }
 
-/* Custom Cyber Scrollbar */
+/* Custom Cyber Scrollbar (Hidden for Strict Command Deck) */
 ::-webkit-scrollbar {
-  width: 7px;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
-::-webkit-scrollbar-track {
-  background: var(--rt-bg);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--rt-blue-dark);
-  border: 1px solid var(--rt-cyan);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--rt-cyan);
+* {
+  scrollbar-width: none !important;
 }
 
 /* Selection */
@@ -204,12 +199,12 @@ main:nth-of-type(1),
   mix-blend-mode: screen;
 }
 
-/*===== GLOBAL CYBER LOGO WATERMARK (OPTION A + OPTION B COMBO - ENHANCED VISIBILITY) =====*/
+/*===== GLOBAL CYBER LOGO WATERMARK (LOCKED IN PLACE) =====*/
 .deck-global-watermark {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(calc(-50% + var(--mouse-offset-x, 0px)), calc(-50% + var(--mouse-offset-y, 0px))) scale(var(--mouse-scale, 1));
+  transform: translate(-50%, -50%);
   width: min(760px, 90vw);
   height: min(760px, 90vw);
   background-image: url("/src/assets/images/ravana_tech_logo_1792581937150.jpg");
@@ -222,7 +217,6 @@ main:nth-of-type(1),
   pointer-events: none;
   z-index: 5;
   animation: watermark-combo-pulse 5s ease-in-out infinite alternate, cyber-flare-blink 8s infinite;
-  transition: transform 0.1s cubic-bezier(0.1, 1, 0.2, 1), filter 0.25s ease;
 }
 
 @keyframes watermark-combo-pulse {
@@ -260,12 +254,11 @@ main:nth-of-type(1),
   height: 100%;
   max-height: 100%;
   padding: 1.5rem 0 2rem;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden !important;
   box-sizing: border-box;
+  display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 }
 

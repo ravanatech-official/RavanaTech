@@ -37,7 +37,6 @@ export const WatermarkAnimatedLogo: React.FC = () => {
           const normX = Math.max(-1, Math.min(1, diffX / maxDist));
           const normY = Math.max(-1, Math.min(1, diffY / maxDist));
 
-          // Max pupil translation in pixels (subtle, high-tech glance)
           targetX = normX * 6.5;
           targetY = normY * 4.5;
         } else {
@@ -51,7 +50,6 @@ export const WatermarkAnimatedLogo: React.FC = () => {
         targetY = Math.cos(ambientTime * 0.8) * 2;
       }
 
-      // Smooth lerp easing (0.12)
       currentX += (targetX - currentX) * 0.12;
       currentY += (targetY - currentY) * 0.12;
 
@@ -94,7 +92,7 @@ export const WatermarkAnimatedLogo: React.FC = () => {
       {/* Background Logo Emblem */}
       <div className="watermark-emblem" />
 
-      {/* Cyber Animated Eye Rig */}
+      {/* Cyber Animated Eye Rig with Enhanced Glow */}
       <div className="watermark-eye-rig" ref={rigRef}>
         {/* Left Cyber Eye */}
         <div
@@ -102,9 +100,9 @@ export const WatermarkAnimatedLogo: React.FC = () => {
           className="watermark-cyber-eye watermark-cyber-eye--left"
           id="watermark-eye-left"
         >
-          <span className="cyber-eye__ambient-glow" />
+          <span className="cyber-eye__ambient-glow" style={{ boxShadow: '0 0 35px #00e5ff, 0 0 70px #18c8ff', opacity: 0.95 }} />
           <span className="cyber-eye__socket" />
-          <span className="cyber-eye__iris">
+          <span className="cyber-eye__iris" style={{ background: 'radial-gradient(circle, #FFFFFF 20%, #00FFFF 50%, #0088FF 90%)', boxShadow: '0 0 16px #00FFFF, 0 0 30px #18C8FF' }}>
             <span className="cyber-eye__pupil" />
           </span>
           <span className="cyber-eye__laser-flare" />
@@ -116,9 +114,9 @@ export const WatermarkAnimatedLogo: React.FC = () => {
           className="watermark-cyber-eye watermark-cyber-eye--right"
           id="watermark-eye-right"
         >
-          <span className="cyber-eye__ambient-glow" />
+          <span className="cyber-eye__ambient-glow" style={{ boxShadow: '0 0 35px #00e5ff, 0 0 70px #18c8ff', opacity: 0.95 }} />
           <span className="cyber-eye__socket" />
-          <span className="cyber-eye__iris">
+          <span className="cyber-eye__iris" style={{ background: 'radial-gradient(circle, #FFFFFF 20%, #00FFFF 50%, #0088FF 90%)', boxShadow: '0 0 16px #00FFFF, 0 0 30px #18C8FF' }}>
             <span className="cyber-eye__pupil" />
           </span>
           <span className="cyber-eye__laser-flare" />

@@ -199,53 +199,6 @@ main:nth-of-type(1),
   mix-blend-mode: screen;
 }
 
-/*===== GLOBAL CYBER LOGO WATERMARK (LOCKED IN PLACE) =====*/
-.deck-global-watermark {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(760px, 90vw);
-  height: min(760px, 90vw);
-  background-image: url("/src/assets/images/ravana_tech_logo_1792581937150.jpg");
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.25;
-  mix-blend-mode: screen;
-  filter: drop-shadow(0 0 80px rgba(0, 210, 255, 0.8)) brightness(1.25);
-  pointer-events: none;
-  z-index: 5;
-  animation: watermark-combo-pulse 5s ease-in-out infinite alternate, cyber-flare-blink 8s infinite;
-}
-
-@keyframes watermark-combo-pulse {
-  0% {
-    opacity: 0.18;
-    filter: drop-shadow(0 0 50px rgba(0, 191, 255, 0.6)) brightness(1.1);
-  }
-  50% {
-    opacity: 0.32;
-    filter: drop-shadow(0 0 100px rgba(0, 255, 170, 0.95)) brightness(1.4);
-  }
-  100% {
-    opacity: 0.22;
-    filter: drop-shadow(0 0 70px rgba(0, 191, 255, 0.7)) brightness(1.2);
-  }
-}
-
-@keyframes cyber-flare-blink {
-  0%, 78%, 92%, 100% {
-    filter: drop-shadow(0 0 60px rgba(0, 191, 255, 0.7)) brightness(1.2);
-  }
-  82% {
-    filter: drop-shadow(0 0 130px rgba(0, 255, 220, 1)) brightness(1.6);
-  }
-  87% {
-    filter: drop-shadow(0 0 110px rgba(255, 255, 255, 0.95)) brightness(1.5);
-  }
-}
-
 /* Base Deck Screen */
 .deck-screen {
   position: absolute;

@@ -328,17 +328,12 @@ app.post('/api/document-sim', (req, res) => {
   });
 });
 
-// Beastly In-Memory HTML Cache (Sub-Millisecond RAM responses)
-let cachedIndexHtml = null;
 function getIndexHtml() {
-  if (!cachedIndexHtml) {
-    cachedIndexHtml = fs.readFileSync(path.join(__dirname, 'index.html'));
-  }
-  return cachedIndexHtml;
+  return fs.readFileSync(path.join(__dirname, 'index.html'));
 }
 
 // Clean URLs for Deck Screens
-app.get(['/', '/home', '/about', '/systems', '/projects', '/contact', '/ai-lab', '/automation', '/lab', '/experience'], (req, res) => {
+app.get(['/', '/home', '/about', '/systems', '/services', '/projects', '/contact', '/ai-lab', '/automation', '/lab', '/experience'], (req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
   res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
   res.send(getIndexHtml());

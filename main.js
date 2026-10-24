@@ -53,7 +53,12 @@ function getScreenIndex(target) {
         return Math.max(0, Math.min(SCREENS.length - 1, target));
     }
     const clean = String(target || '').toLowerCase().replace(/^[/#]+|[/#]+$/g, '').trim();
-    if (!clean || clean === 'home') return 0;
+    if (!clean || clean === 'home' || clean === 'main') return 0;
+    if (clean === 'about' || clean === 'story') return 1;
+    if (clean === 'systems' || clean === 'services' || clean === 'service') return 2;
+    if (clean === 'projects' || clean === 'project' || clean === 'portfolio' || clean === 'gallery') return 3;
+    if (clean === 'contact' || clean === 'inquiry' || clean === 'hire') return 4;
+    if (clean === 'ai-lab' || clean === 'lab' || clean === 'automation' || clean === 'experience') return 5;
     const found = SCREENS.findIndex(s => s.id === clean || s.route === `/${clean}`);
     return found !== -1 ? found : 0;
 }
@@ -254,10 +259,12 @@ window.addEventListener('wheel', (e) => {
     // IF INSIDE AI-LAB: Never switch screens on mouse wheel! Scroll its own content smoothly.
     if (activeScreenEl.id === 'ai-lab') return;
 
-    const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
-    const hasScroll = scrollableHeight > 10;
-    const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
-    const atBottom = !hasScroll || activeScreenEl.scrollTop >= (scrollableHeight - 14);
+    // On home screen, ALWAYS allow immediate switching without waiting for scroll
+    const isHomeScreen = activeScreenEl.id === 'home';
+    const isOverflowScrollable = !isHomeScreen && (activeScreenEl.scrollHeight - activeScreenEl.clientHeight > 30) && (window.getComputedStyle(activeScreenEl).overflowY !== 'hidden');
+    
+    const atTop = !isOverflowScrollable || activeScreenEl.scrollTop <= 10;
+    const atBottom = !isOverflowScrollable || activeScreenEl.scrollTop >= (activeScreenEl.scrollHeight - activeScreenEl.clientHeight - 15);
 
     accumulatedWheelDelta += e.deltaY;
     clearTimeout(wheelResetTimer);
@@ -268,21 +275,21 @@ window.addEventListener('wheel', (e) => {
     if (isWheelTransitioning || isSwitching) return;
 
     // Downward scroll / Next Screen
-    if (accumulatedWheelDelta > 28 && atBottom) {
+    if (accumulatedWheelDelta > 24 && atBottom) {
         if (currentScreenIndex < 4) {
             isWheelTransitioning = true;
             accumulatedWheelDelta = 0;
             switchScreen(currentScreenIndex + 1, true);
-            setTimeout(() => { isWheelTransitioning = false; }, 420);
+            setTimeout(() => { isWheelTransitioning = false; }, 380);
         }
     } 
     // Upward scroll / Previous Screen
-    else if (accumulatedWheelDelta < -28 && atTop) {
+    else if (accumulatedWheelDelta < -24 && atTop) {
         if (currentScreenIndex > 0 && currentScreenIndex <= 4) {
             isWheelTransitioning = true;
             accumulatedWheelDelta = 0;
             switchScreen(currentScreenIndex - 1, true);
-            setTimeout(() => { isWheelTransitioning = false; }, 420);
+            setTimeout(() => { isWheelTransitioning = false; }, 380);
         }
     }
 }, { passive: true });
@@ -313,15 +320,16 @@ window.addEventListener('touchend', (e) => {
         const absX = Math.abs(diffX);
         const absY = Math.abs(diffY);
 
-        const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
-        const hasScroll = scrollableHeight > 10;
-        const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
-        const atBottom = !hasScroll || activeScreenEl.scrollTop >= (scrollableHeight - 14);
+        const isHomeScreen = activeScreenEl.id === 'home';
+        const isOverflowScrollable = !isHomeScreen && (activeScreenEl.scrollHeight - activeScreenEl.clientHeight > 30) && (window.getComputedStyle(activeScreenEl).overflowY !== 'hidden');
+        
+        const atTop = !isOverflowScrollable || activeScreenEl.scrollTop <= 10;
+        const atBottom = !isOverflowScrollable || activeScreenEl.scrollTop >= (activeScreenEl.scrollHeight - activeScreenEl.clientHeight - 15);
 
         if (isSwitching || isWheelTransitioning) return;
 
         // Horizontal swipe (left = next, right = prev)
-        if (absX > 45 && absX > absY * 1.2) {
+        if (absX > 35 && absX > absY * 1.1) {
             if (diffX < 0 && currentScreenIndex < 4) {
                 switchScreen(currentScreenIndex + 1, true);
             } else if (diffX > 0 && currentScreenIndex > 0 && currentScreenIndex <= 4) {
@@ -329,7 +337,7 @@ window.addEventListener('touchend', (e) => {
             }
         }
         // Vertical swipe (swipe up = scroll down / next, swipe down = scroll up / prev)
-        else if (absY > 45 && absY > absX * 1.2) {
+        else if (absY > 35 && absY > absX * 1.1) {
             if (diffY < 0 && atBottom && currentScreenIndex < 4) {
                 switchScreen(currentScreenIndex + 1, true);
             } else if (diffY > 0 && atTop && currentScreenIndex > 0 && currentScreenIndex <= 4) {

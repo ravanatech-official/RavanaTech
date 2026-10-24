@@ -64,7 +64,7 @@
                 width: 100%;
                 height: 100vh;
                 height: 100dvh;
-                overflow: hidden !important;
+                overflow: hidden;
                 margin: 0;
                 background: #00050A;
                 color: var(--rt-text, #e2f1ff);
@@ -75,23 +75,30 @@
                 bottom: var(--footer-deck-height, 3.5rem);
                 left: 0;
                 right: 0;
-                overflow: hidden !important;
+                overflow: hidden;
             }
             ::-webkit-scrollbar {
-                display: none !important;
-                width: 0 !important;
-                height: 0 !important;
+                width: 5px;
+                height: 5px;
             }
-            * {
-                scrollbar-width: none !important;
+            ::-webkit-scrollbar-track {
+                background: rgba(0, 5, 10, 0.6);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: rgba(0, 191, 255, 0.3);
+                border-radius: 4px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--rt-cyan-bright, #00bfff);
             }
             .deck-screen {
                 position: absolute;
                 inset: 0;
                 width: 100%;
                 height: 100%;
-                padding: 1rem 0;
-                overflow: hidden !important;
+                padding: 1rem 1rem 3.5rem;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
                 box-sizing: border-box;
                 display: none !important;
                 opacity: 0 !important;
@@ -103,13 +110,19 @@
             .deck-screen.deck-screen-active {
                 display: flex !important;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: safe center;
                 align-items: center;
                 opacity: 1 !important;
                 visibility: visible !important;
                 pointer-events: auto !important;
                 transform: scale(1) translateY(0) !important;
                 z-index: 10;
+            }
+            .deck-screen > .bd-grid {
+                margin-top: auto !important;
+                margin-bottom: auto !important;
+                width: 100%;
+                max-width: 1200px;
             }
             /* Command Deck Navigation Dots Bar */
             .services-deck-nav-bar {
@@ -154,7 +167,30 @@
                 display: inline-block;
                 letter-spacing: 0.1em;
             }
+            .services-full-title {
+                font-family: var(--font-hud, 'Orbitron', sans-serif);
+                font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                color: #ffffff;
+                text-transform: uppercase;
+                text-shadow: 0 0 15px rgba(0, 191, 255, 0.45);
+                margin: 0 0 0.85rem 0;
+                text-align: left;
+            }
         </style>
+
+        <!-- ===== FIREBASE IMPORT MAP ===== -->
+        <script type="importmap">
+        {
+          "imports": {
+            "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+            "firebase/analytics": "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js",
+            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
+          }
+        }
+        </script>
+        <script type="module" src="assets/js/firebase-init.js"></script>
     </head>
     <body class="services-standalone-body">
         <!--===== ACCESSIBILITY SKIP TO CONTENT =====-->
@@ -190,18 +226,7 @@
                 <!-- ================= SCREEN 01 (DECK SCREEN 1) ================= -->
                 <section class="deck-screen deck-screen-active" id="services-screen-1">
                     <div class="bd-grid" style="width: 100%;">
-                        <div style="text-align: center;">
-                            <span class="screen-badge">SCREEN 01 OF 03</span>
-                        </div>
-                        <!-- Hero Header Station -->
-                        <div class="archive-hero-header" style="margin-bottom: 1.25rem;">
-                            <div class="archive-title-row">
-                                <div>
-                                    <h1 class="archive-main-heading">FULL WEB DEVELOPMENT SERVICES</h1>
-                                </div>
-                            </div>
-                        </div>
-
+                        <h2 class="services-full-title">FULL WEB DEVELOPMENT SERVICES</h2>
                         <!-- Screen 1 Cards Grid (First 3 Services) -->
                         <div class="services-full-grid">
                             <!-- 01: Business Websites -->
@@ -288,9 +313,6 @@
                 <!-- ================= SCREEN 02 (DECK SCREEN 2) ================= -->
                 <section class="deck-screen" id="services-screen-2">
                     <div class="bd-grid" style="width: 100%;">
-                        <div style="text-align: center;">
-                            <span class="screen-badge">SCREEN 02 OF 03</span>
-                        </div>
                         <!-- Screen 2 Cards Grid (Next 3 Services) -->
                         <div class="services-full-grid">
                             <!-- 04: Booking & Web Apps -->
@@ -377,9 +399,6 @@
                 <!-- ================= SCREEN 03 (DECK SCREEN 3) ================= -->
                 <section class="deck-screen" id="services-screen-3">
                     <div class="bd-grid" style="width: 100%; max-width: 900px;">
-                        <div style="text-align: center;">
-                            <span class="screen-badge">SCREEN 03 OF 03</span>
-                        </div>
                         <!-- Bottom Call To Action Console -->
                         <div class="services-bottom-cta hud-rounded-card" style="margin-top: 1rem;">
                             <div class="services-cta-content">
@@ -508,6 +527,30 @@
                     }
                 }
             });
+
+            // Mobile Touch Swipe Navigation
+            let touchStartX = 0;
+            let touchStartY = 0;
+            window.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchend', (e) => {
+                if (isTransitioning || e.changedTouches.length === 0) return;
+                const diffX = touchStartX - e.changedTouches[0].clientX;
+                const diffY = touchStartY - e.changedTouches[0].clientY;
+                // Detect horizontal swipe or significant vertical swipe at scroll boundaries
+                if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 60 && currentServicesIndex < screens.length - 1) {
+                        switchServiceScreen(currentServicesIndex + 1);
+                    } else if (diffX < -60 && currentServicesIndex > 0) {
+                        switchServiceScreen(currentServicesIndex - 1);
+                    }
+                }
+            }, { passive: true });
         </script>
     </body>
 </html>

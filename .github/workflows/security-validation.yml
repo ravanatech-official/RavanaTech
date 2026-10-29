@@ -1,0 +1,40 @@
+name: Public Security Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  push:
+    branches:
+      - fix/security-baseline
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.1
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build allowlisted public site
+        run: npm run build
+
+      - name: Run Express security regression tests
+        run: npm run test:security
+
+      - name: Run Firebase Hosting emulator regression tests
+        run: npm run test:hosting

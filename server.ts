@@ -3,15 +3,14 @@ import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3000;
-const HOST = '0.0.0.0';
-const isProd = process.env.NODE_ENV === 'production';
+const PORT = process.env.PORT === undefined ? 3000 : Number(process.env.PORT);
+const HOST = process.env.HOST || '0.0.0.0';
+const PUBLIC_DIR = path.join(__dirname, 'public-build');
 
 // Ultra-fast Gzip compression
 app.use(compression({ level: 6, threshold: 256 }));
@@ -27,27 +26,34 @@ app.use((req, res, next) => {
   next();
 });
 
-// Specific static folders: Conceptual Projects & Assets
-const conceptualProjectsDir = path.join(__dirname, 'conceptual projects');
-app.use('/conceptual projects', express.static(conceptualProjectsDir));
-app.use('/conceptual-projects', express.static(conceptualProjectsDir));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-app.use('/src/assets', express.static(path.join(__dirname, 'src/assets')));
-
-// Serve root media files (work images, avatars) without intercepting .html, .ts, .tsx
+// Reject private/source paths before static serving and the HTML fallback.
 app.use((req, res, next) => {
-  if (req.path.match(/\.(jpg|jpeg|png|webp|svg|ico|webmanifest|txt|xml)$/i)) {
-    const filePath = path.join(__dirname, req.path);
-    if (fs.existsSync(filePath)) {
-      return res.sendFile(filePath);
+  let decodedPath = req.originalUrl.split('?')[0];
+  try {
+    for (let i = 0; i < 3; i += 1) {
+      const decoded = decodeURIComponent(decodedPath);
+      if (decoded === decodedPath) break;
+      decodedPath = decoded;
     }
-    const imgPath = path.join(__dirname, 'assets/img', path.basename(req.path));
-    if (fs.existsSync(imgPath)) {
-      return res.sendFile(imgPath);
-    }
+  } catch {
+    return res.status(404).type('text/plain').send('Not found');
   }
+  const normalized = path.posix.normalize(decodedPath.replace(/\\/g, '/'));
+  const segments = normalized.split('/').filter(Boolean).map((part) => part.toLowerCase());
+  const privateNames = new Set([
+    'server.js', 'server.ts', 'package.json', 'package-lock.json',
+    'leads-db.json', '.git', '.env', '.aistudio', 'node_modules',
+  ]);
+  const isPrivate = segments.some((part) =>
+    privateNames.has(part) || part.startsWith('.env.') || part.startsWith('firebase-applet-config')
+  ) || segments.includes('data');
+  if (isPrivate) return res.status(404).type('text/plain').send('Not found');
   next();
 });
+
+// Public demo paths resolve only inside the generated allowlisted build.
+const conceptualProjectsDir = path.join(PUBLIC_DIR, 'conceptual projects');
+app.use('/conceptual-projects', express.static(conceptualProjectsDir));
 
 // ==================== REST API ENDPOINTS ====================
 
@@ -98,8 +104,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // 3. Persistent Database Engine (JSON DB Layer)
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_FILE = path.join(DATA_DIR, 'leads-db.json');
+const DB_FILE = process.env.LEADS_DB_FILE
+  ? path.resolve(process.env.LEADS_DB_FILE)
+  : path.join(__dirname, 'data', 'leads-db.json');
+const DATA_DIR = path.dirname(DB_FILE);
 
 function initDb() {
   try {
@@ -225,41 +233,28 @@ app.post('/api/document-sim', (req, res) => {
   });
 });
 
-async function main() {
-  if (!isProd) {
-    const vite = await createViteServer({
-      server: { middlewareMode: true, host: '0.0.0.0' },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
+app.use(express.static(PUBLIC_DIR));
 
-    // Serve transformed index.html for SPA routes
-    app.use('*', async (req, res, next) => {
-      const url = req.originalUrl;
-      try {
-        const indexPath = path.join(__dirname, 'index.html');
-        let template = fs.readFileSync(indexPath, 'utf-8');
-        template = await vite.transformIndexHtml(url, template);
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
-      } catch (e: any) {
-        vite.ssrFixStacktrace(e);
-        next(e);
-      }
-    });
-  } else {
-    const distPath = path.join(__dirname, 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
+app.get(['/', '/home', '/about', '/systems', '/services', '/projects', '/contact', '/ai-lab', '/automation', '/lab', '/experience'], (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+});
 
-  app.listen(PORT, HOST, () => {
-    console.log(`[Ravana Tech Server] listening on http://${HOST}:${PORT}`);
+app.get(['/archive', '/gallery', '/gallery.html'], (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'projects.html'));
+});
+
+app.get(['/services.html', '/all-services'], (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'services.html'));
+});
+
+app.use((req, res) => res.status(404).type('text/plain').send('Not found'));
+
+export { app };
+
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  const server = app.listen(PORT, HOST, () => {
+    const address = server.address();
+    const port = address && typeof address === 'object' ? address.port : PORT;
+    console.log(`[Ravana Tech Server] listening on http://${HOST}:${port}`);
   });
 }
-
-main().catch((err) => {
-  console.error('[Server Error]', err);
-  process.exit(1);
-});

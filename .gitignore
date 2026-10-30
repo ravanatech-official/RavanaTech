@@ -1,0 +1,10 @@
+public-build/
+node_modules/
+test/.public-security-sandbox-*/
+.env
+.env.*
+!.env.example
+!.env.*.example
+/data/leads-db.json
+.firebase/
+*-debug.log

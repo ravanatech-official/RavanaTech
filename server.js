@@ -11,6 +11,8 @@ const app = express();
 // AI Studio Environment: app server must bind directly to port 3000
 const PORT = 3000;
 const HOST = '0.0.0.0';
+const PUBLIC_DIR = path.join(__dirname, 'public-build');
+const conceptualProjectsDir = path.join(PUBLIC_DIR, 'conceptual projects');
 
 // Global Industrial Standards: Ultra-Fast Gzip Compression
 app.use(compression({ level: 6, threshold: 256, memLevel: 8 }));
@@ -23,6 +25,31 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   res.setHeader('Timing-Allow-Origin', '*');
+  next();
+});
+
+// Reject private/source paths before any static or HTML fallback handler.
+app.use((req, res, next) => {
+  let decodedPath = req.originalUrl.split('?')[0];
+  try {
+    for (let i = 0; i < 3; i += 1) {
+      const decoded = decodeURIComponent(decodedPath);
+      if (decoded === decodedPath) break;
+      decodedPath = decoded;
+    }
+  } catch {
+    return res.status(404).type('text/plain').send('Not found');
+  }
+  const normalized = path.posix.normalize(decodedPath.replace(/\\/g, '/'));
+  const segments = normalized.split('/').filter(Boolean).map((part) => part.toLowerCase());
+  const privateNames = new Set([
+    'server.js', 'server.ts', 'package.json', 'package-lock.json',
+    'leads-db.json', '.git', '.env', '.aistudio', 'node_modules',
+  ]);
+  const isPrivate = segments.some((part) =>
+    privateNames.has(part) || part.startsWith('.env.') || part.startsWith('firebase-applet-config')
+  ) || segments.includes('data');
+  if (isPrivate) return res.status(404).type('text/plain').send('Not found');
   next();
 });
 
@@ -44,27 +71,9 @@ const staticCacheOptions = {
   }
 };
 
-// Serve static directories with high-speed caching
-app.use('/src', express.static(path.join(__dirname, 'src'), staticCacheOptions));
-app.use('/assets', express.static(path.join(__dirname, 'assets'), staticCacheOptions));
-
-// Static asset alias fallbacks
-app.use('/assets/css', express.static(path.join(__dirname, 'assets/css'), staticCacheOptions));
-app.use('/assets/css', express.static(__dirname, staticCacheOptions));
-app.use('/assets/js', express.static(path.join(__dirname, 'assets/js'), staticCacheOptions));
-app.use('/assets/js', express.static(__dirname, staticCacheOptions));
-app.use('/assets/img', express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
-app.use('/assets/img', express.static(__dirname, staticCacheOptions));
-
-// Serve files from assets/img and root static assets
-app.use(express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
-app.use(express.static(__dirname, staticCacheOptions));
-
-// Serve conceptual projects directory directly under multiple common route paths
-const conceptualProjectsDir = path.join(__dirname, 'conceptual projects');
-app.use('/conceptual projects', express.static(conceptualProjectsDir, staticCacheOptions));
+// Serve only the generated allowlisted public build.
+app.use(express.static(PUBLIC_DIR, staticCacheOptions));
 app.use('/conceptual-projects', express.static(conceptualProjectsDir, staticCacheOptions));
-app.use('/conceptual%20projects', express.static(conceptualProjectsDir, staticCacheOptions));
 
 // API route to list all conceptual projects
 app.get('/api/conceptual-projects', (req, res) => {
@@ -113,8 +122,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // ==================== PERSISTENT DATABASE ENGINE (JSON DB LAYER) ====================
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_FILE = path.join(DATA_DIR, 'leads-db.json');
+const DB_FILE = process.env.LEADS_DB_FILE
+  ? path.resolve(process.env.LEADS_DB_FILE)
+  : path.join(__dirname, 'data', 'leads-db.json');
+const DATA_DIR = path.dirname(DB_FILE);
 
 function initDb() {
   try {
@@ -205,38 +216,35 @@ app.post('/api/inquiry', (req, res) => {
   }
 });
 
-// Serve all static files from root directory with high-speed caching
-app.use(express.static(__dirname, staticCacheOptions));
-
 // Explicit Favicon Routes for 100% Cross-Browser Tab Compatibility
 app.get('/favicon.ico', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.type('image/x-icon');
-  res.sendFile(path.join(__dirname, 'favicon.ico'));
+  res.sendFile(path.join(PUBLIC_DIR, 'favicon.ico'));
 });
 
 app.get('/favicon.png', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.type('image/png');
-  res.sendFile(path.join(__dirname, 'favicon.png'));
+  res.sendFile(path.join(PUBLIC_DIR, 'favicon.png'));
 });
 
 app.get('/favicon.svg', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.type('image/svg+xml');
-  res.sendFile(path.join(__dirname, 'favicon.svg'));
+  res.sendFile(path.join(PUBLIC_DIR, 'favicon.svg'));
 });
 
 // Dedicated Projects Archive Screen
 app.get(['/archive', '/projects.html', '/gallery', '/gallery.html'], (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'projects.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'projects.html'));
 });
 
 // Dedicated Full Services Screen
 app.get(['/services.html', '/all-services'], (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'services.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'services.html'));
 });
 
 // AI Lab & Document Controller Simulation API Endpoint
@@ -329,7 +337,7 @@ app.post('/api/document-sim', (req, res) => {
 });
 
 function getIndexHtml() {
-  return fs.readFileSync(path.join(__dirname, 'index.html'));
+  return fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'));
 }
 
 // Clean URLs for Deck Screens
@@ -339,14 +347,14 @@ app.get(['/', '/home', '/about', '/systems', '/services', '/projects', '/contact
   res.send(getIndexHtml());
 });
 
-// Fallback to index.html for navigation
-app.get('*', (req, res) => {
-  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-  res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
-  res.send(getIndexHtml());
-});
+// Return an actual miss for unknown paths instead of masking it with HTML.
+app.use((req, res) => res.status(404).type('text/plain').send('Not found'));
 
-app.listen(PORT, HOST, () => {
-  console.log(`Server listening at http://${HOST}:${PORT}`);
-});
+export { app };
+
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  app.listen(Number(process.env.PORT) || PORT, process.env.HOST || HOST, () => {
+    console.log(`Server listening at http://${process.env.HOST || HOST}:${Number(process.env.PORT) || PORT}`);
+  });
+}
 

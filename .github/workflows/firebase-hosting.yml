@@ -14,6 +14,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.1
+
+      - name: Install locked project dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build allowlisted public site
+        run: npm run build
+
+      - name: Run public exposure regression tests
+        run: npm run test:security
+
+      - name: Run Firebase Hosting emulator regression tests
+        run: npm run test:hosting
+
       # Mode 1: When Firebase Service Account is configured (Recommended by Google)
       - name: Deploy via Firebase Service Account
         if: env.HAS_SERVICE_ACCOUNT == 'true'
@@ -30,8 +47,7 @@ jobs:
       - name: Deploy via Firebase CLI Token
         if: env.HAS_SERVICE_ACCOUNT != 'true' && env.HAS_FIREBASE_TOKEN == 'true'
         run: |
-          npm install -g firebase-tools
-          firebase deploy --only hosting,firestore:rules --project ravanatec --token "${{ secrets.FIREBASE_TOKEN || secrets.FIREBASE_CLI_TOKEN }}"
+          npm exec -- firebase deploy --only hosting --project ravanatec --token "${{ secrets.FIREBASE_TOKEN || secrets.FIREBASE_CLI_TOKEN }}"
         env:
           HAS_SERVICE_ACCOUNT: ${{ (secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC != '') || (secrets.FIREBASE_SERVICE_ACCOUNT != '') }}
           HAS_FIREBASE_TOKEN: ${{ (secrets.FIREBASE_TOKEN != '') || (secrets.FIREBASE_CLI_TOKEN != '') }}

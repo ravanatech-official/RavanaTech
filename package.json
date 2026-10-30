@@ -9,6 +9,8 @@
     "build": "node scripts/build-public.mjs",
     "test:security": "node --test test/public-exposure.test.mjs",
     "test:hosting": "node scripts/test-firebase-hosting.mjs",
+    "test:contact": "node --test test/contact-form.test.mjs test/inquiry-client.test.mjs",
+    "test:contact:browser": "node --test test/contact-form.browser.test.mjs",
     "lint": "echo 'No lint errors'"
   },
   "dependencies": {
@@ -26,6 +28,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "firebase-tools": "15.34.1",
+    "playwright-core": "1.62.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.5"

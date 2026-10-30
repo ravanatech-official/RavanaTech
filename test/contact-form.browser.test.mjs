@@ -102,8 +102,8 @@ for (const [label, viewport] of [
             await page.waitForFunction(() => window.__qaWriteCalls === 2);
             await page.evaluate(() => window.__qaResolve());
             await page.waitForSelector('#form-feedback.success');
-            assert.match(await page.locator('#form-feedback').innerText(), /SYNTHETIC_CONFIRMED_REFERENCE/);
-            assert.match(await page.locator('#form-feedback').innerText(), /<img src=x onerror=alert\(1\)>/);
+            assert.match(await page.locator('#form-feedback').textContent(), /SYNTHETIC_CONFIRMED_REFERENCE/);
+            assert.match(await page.locator('#form-feedback').textContent(), /<img src=x onerror=alert\(1\)>/);
             assert.equal(await page.locator('#form-feedback img').count(), 0);
             assert.equal(await page.locator('#sender-message').inputValue(), '');
             const handoff = await page.locator('#form-feedback a').getAttribute('href');

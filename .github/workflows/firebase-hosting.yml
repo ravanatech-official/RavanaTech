@@ -47,7 +47,7 @@ jobs:
       - name: Deploy via Firebase CLI Token
         if: env.HAS_SERVICE_ACCOUNT != 'true' && env.HAS_FIREBASE_TOKEN == 'true'
         run: |
-          npm exec -- firebase deploy --only hosting,firestore:rules --project ravanatec --token "${{ secrets.FIREBASE_TOKEN || secrets.FIREBASE_CLI_TOKEN }}"
+          npm exec -- firebase deploy --only hosting --project ravanatec --token "${{ secrets.FIREBASE_TOKEN || secrets.FIREBASE_CLI_TOKEN }}"
         env:
           HAS_SERVICE_ACCOUNT: ${{ (secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC != '') || (secrets.FIREBASE_SERVICE_ACCOUNT != '') }}
           HAS_FIREBASE_TOKEN: ${{ (secrets.FIREBASE_TOKEN != '') || (secrets.FIREBASE_CLI_TOKEN != '') }}

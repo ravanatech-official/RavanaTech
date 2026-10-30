@@ -58,6 +58,7 @@ test('Firebase Hosting serves main pages, known clean routes, assets, and demos'
     ['/services.html', /Web Solutions & Services/i, '/services'],
     ['/all-services', /Web Solutions & Services/i, null],
     ['/styles.css', /:root/], ['/main.js', /initDeckRoute/], ['/assets/js/gallery.js', /renderGallery/],
+    ['/assets/js/contact-form.js', /bindContactForm/],
     ['/assets/img/image_01_opt.webp', null],
     ['/assets/img/ravana_tech_logo_1792581937150.jpg', null],
     ['/manifest.webmanifest', /icons/], ['/ravana.webp', null], ['/work1.jpg', null],

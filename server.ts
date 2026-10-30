@@ -135,7 +135,7 @@ function readDb() {
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
     return JSON.parse(raw);
   } catch (err) {
-    return { inquiries: [] };
+    throw err;
   }
 }
 
@@ -153,7 +153,8 @@ function saveDbRecord(collection: string, record: any) {
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
     return true;
   } catch (err) {
-    console.error(`[DB WRITE ERROR: ${collection}]`, err);
+    const failure = err as { code?: string; name?: string };
+    console.error(`[DB WRITE ERROR: ${collection}]`, failure?.code || failure?.name || 'unknown');
     return false;
   }
 }
@@ -181,11 +182,13 @@ app.post('/api/inquiry', (req, res) => {
       receivedAt: new Date().toISOString(),
     };
 
-    saveDbRecord('inquiries', leadRecord);
+    if (!saveDbRecord('inquiries', leadRecord)) {
+      return res.status(500).json({ success: false, error: 'Inquiry could not be saved. Please try again.' });
+    }
 
     return res.status(200).json({
       success: true,
-      message: 'Inquiry received and permanently stored in Ravana Tech Database.',
+      message: 'Inquiry received and saved.',
       leadId: leadRecord.id,
       timestamp: leadRecord.receivedAt,
     });

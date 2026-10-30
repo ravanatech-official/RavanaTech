@@ -1656,6 +1656,20 @@ section#contact .section-title::after {
   color: #FF7070;
 }
 
+.form__status-msg.pending {
+  display: block;
+  border: 1px solid var(--rt-border-subtle);
+  color: var(--rt-cyan-bright);
+}
+
+.form__contact-link {
+  display: block;
+  width: fit-content;
+  margin-top: 0.75rem;
+  color: inherit;
+  text-decoration: underline;
+}
+
 /* Meet Modal Dialog */
 .meet-modal {
   display: none;

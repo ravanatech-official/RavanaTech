@@ -36,5 +36,11 @@ jobs:
       - name: Run Express security regression tests
         run: npm run test:security
 
+      - name: Run inquiry submission regression tests
+        run: npm run test:contact
+
+      - name: Run desktop and mobile contact browser tests
+        run: npm run test:contact:browser
+
       - name: Run Firebase Hosting emulator regression tests
         run: npm run test:hosting

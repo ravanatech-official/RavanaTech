@@ -25,6 +25,7 @@ const rootFiles = [
   'assets/js/gallery.js',
   'assets/js/main.js',
   'assets/js/firebase-init.js',
+  'assets/js/contact-form.js',
   'assets/img/image_01_opt.webp',
   'assets/img/image_01_1791448896391.jpg',
   'assets/img/ravana_banner_opt.webp',

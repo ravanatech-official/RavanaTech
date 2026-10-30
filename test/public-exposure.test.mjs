@@ -3,6 +3,7 @@ import { cp, copyFile, mkdtemp, mkdir, readFile, readdir, rm, writeFile } from '
 import { createRequire } from 'node:module';
 import { syncBuiltinESMExports } from 'node:module';
 import http from 'node:http';
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { after, before, test } from 'node:test';
@@ -69,7 +70,7 @@ async function startJavaScriptServer() {
     server.once('error', reject);
   });
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
-  servers.push({ name: 'server.js', baseUrl, close: () => new Promise((resolve) => server.close(resolve)) });
+  servers.push({ name: 'server.js', baseUrl, databaseFile: fixture.databaseFile, close: () => new Promise((resolve) => server.close(resolve)) });
 }
 
 async function startTypeScriptServer() {
@@ -101,6 +102,7 @@ async function startTypeScriptServer() {
   servers.push({
     name: 'server.ts',
     baseUrl,
+    databaseFile: fixture.databaseFile,
     close: () => new Promise((resolve) => server.close(resolve)),
   });
 }
@@ -115,8 +117,9 @@ after(async () => {
   for (const tempDir of tempDirs) await rm(tempDir, { recursive: true, force: true });
 });
 
-async function request(server, method, route) {
+async function request(server, method, route, payload) {
   const target = new URL(server.baseUrl);
+  const body = payload === undefined ? undefined : JSON.stringify(payload);
   return new Promise((resolve, reject) => {
     const req = http.request({
       hostname: target.hostname,
@@ -124,6 +127,10 @@ async function request(server, method, route) {
       method,
       path: route,
       agent: false,
+      headers: body === undefined ? {} : {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
     }, (res) => {
       const chunks = [];
       res.on('data', (chunk) => chunks.push(chunk));
@@ -134,7 +141,7 @@ async function request(server, method, route) {
       }));
     });
     req.once('error', reject);
-    req.end();
+    req.end(body);
   });
 }
 
@@ -209,10 +216,68 @@ test('public build contains only public site and demo files', async () => {
   assert.equal(files.filter((file) => file.startsWith('conceptual projects/')).length, 50);
   for (const required of [
     'index.html', 'projects.html', 'services.html', 'styles.css', 'main.js',
-    'manifest.webmanifest', 'ravana.webp', 'assets/js/gallery.js',
+    'manifest.webmanifest', 'ravana.webp', 'assets/js/gallery.js', 'assets/js/contact-form.js',
     'assets/img/image_01_opt.webp', 'work1.jpg',
     'assets/img/ravana_tech_logo_1792581937150.jpg',
   ]) assert.ok(files.includes(required), `missing public file: ${required}`);
+});
+
+test('both inquiry APIs acknowledge only persisted synthetic records and preserve unreadable stores', async (t) => {
+  const inquiry = {
+    name: 'Test Customer', email: 'test@example.invalid', service: 'Website',
+    message: 'SYNTHETIC_INQUIRY_REGRESSION_ONLY',
+  };
+  for (const server of servers) {
+    await t.test(server.name, async (serverTest) => {
+      await serverTest.test('successful receipt corresponds to a saved record', async () => {
+        const response = await request(server, 'POST', '/api/inquiry', inquiry);
+        assert.equal(response.status, 200);
+        const receipt = JSON.parse(response.text);
+        assert.equal(receipt.success, true);
+        assert.equal(typeof receipt.leadId, 'string');
+        const store = JSON.parse(await readFile(server.databaseFile, 'utf8'));
+        const saved = store.inquiries.find((record) => record.id === receipt.leadId);
+        assert.equal(saved.message, inquiry.message);
+        assert.equal(saved.email, inquiry.email);
+      });
+
+      await serverTest.test('a failed disk write returns 500 without a receipt', async () => {
+        const before = await readFile(server.databaseFile, 'utf8');
+        const originalWrite = fs.writeFileSync;
+        fs.writeFileSync = (file, ...args) => {
+          if (path.resolve(String(file)) === server.databaseFile) {
+            throw Object.assign(new Error('Synthetic disk full fixture'), { code: 'ENOSPC' });
+          }
+          return originalWrite(file, ...args);
+        };
+        let response;
+        try {
+          response = await request(server, 'POST', '/api/inquiry', inquiry);
+        } finally {
+          fs.writeFileSync = originalWrite;
+        }
+        assert.equal(response.status, 500);
+        const result = JSON.parse(response.text);
+        assert.equal(result.success, false);
+        assert.equal(result.leadId, undefined);
+        assert.equal(await readFile(server.databaseFile, 'utf8'), before);
+      });
+
+      await serverTest.test('an unreadable store is not replaced with an empty database', async () => {
+        const before = await readFile(server.databaseFile, 'utf8');
+        const corruptFixture = 'SYNTHETIC_INVALID_JSON_ONLY';
+        await writeFile(server.databaseFile, corruptFixture);
+        try {
+          const response = await request(server, 'POST', '/api/inquiry', inquiry);
+          assert.equal(response.status, 500);
+          assert.equal(JSON.parse(response.text).success, false);
+          assert.equal(await readFile(server.databaseFile, 'utf8'), corruptFixture);
+        } finally {
+          await writeFile(server.databaseFile, before);
+        }
+      });
+    });
+  }
 });
 
 test('GET and HEAD cannot disclose private paths, including static aliases', async (t) => {
@@ -272,6 +337,7 @@ test('main pages, required assets, and representative demos load', async (t) => 
     ['/styles.css', /:root/],
     ['/main.js', /initDeckRoute/],
     ['/assets/js/gallery.js', /renderGallery/],
+    ['/assets/js/contact-form.js', /bindContactForm/],
     ['/assets/img/image_01_opt.webp', null],
     ['/assets/img/ravana_tech_logo_1792581937150.jpg', null],
     ['/manifest.webmanifest', /icons/],

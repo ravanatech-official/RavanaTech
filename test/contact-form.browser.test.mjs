@@ -47,16 +47,22 @@ async function openForm(viewport, { firebaseUnavailable = false } = {}) {
             if (firebaseUnavailable) return route.abort();
             let body = '';
             if (url.pathname.endsWith('/firebase-app.js')) {
-                body = 'export function initializeApp() { return {}; }';
+                body = 'export function initializeApp(options) { return { options }; }';
             } else if (url.pathname.endsWith('/firebase-analytics.js')) {
                 body = 'export function getAnalytics() { return null; }';
             } else if (url.pathname.endsWith('/firebase-firestore.js')) {
                 body = `
-                    export function getFirestore() { return {}; }
-                    export function collection() { return {}; }
+                    export function getFirestore(app, databaseId = '(default)') {
+                        return { projectId: app.options.projectId, databaseId };
+                    }
+                    export function initializeFirestore(app, _settings, databaseId = '(default)') {
+                        return getFirestore(app, databaseId);
+                    }
+                    export function collection(database, collectionPath) { return { database, collectionPath }; }
                     export function serverTimestamp() { return 'SYNTHETIC_TIMESTAMP'; }
-                    export function addDoc(_collection, data) {
+                    export function addDoc(target, data) {
                         window.__qaWriteCalls += 1;
+                        window.__qaWriteTarget = target;
                         window.__qaSubmitted = data;
                         return new Promise((resolve, reject) => {
                             window.__qaResolve = () => resolve({ id: 'SYNTHETIC_CONFIRMED_REFERENCE' });
@@ -87,6 +93,13 @@ for (const [label, viewport] of [
         try {
             await page.locator('#contact-form button[type="submit"]').click();
             await page.waitForFunction(() => window.__qaWriteCalls === 1);
+            assert.deepEqual(await page.evaluate(() => window.__qaWriteTarget), {
+                database: {
+                    projectId: 'ravanatec',
+                    databaseId: 'ai-studio-ravanatitan-8de985fc-ffd0-4255-bc23-fd8f4d49d7d3',
+                },
+                collectionPath: 'inquiries',
+            });
             await page.locator('#contact-form').dispatchEvent('submit');
             assert.equal(await page.evaluate(() => window.__qaWriteCalls), 1);
             assert.equal(await page.locator('#form-feedback.pending').isVisible(), true);

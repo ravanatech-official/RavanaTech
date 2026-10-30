@@ -1409,7 +1409,7 @@
             // Import the functions you need from the SDKs you need
             import { initializeApp } from "firebase/app";
             import { getAnalytics } from "firebase/analytics";
-            import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+            import { initializeFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
             // Your web app's Firebase configuration
             const firebaseConfig = {
@@ -1432,7 +1432,8 @@
                 try {
                   window.firebaseAnalytics = getAnalytics(appInstance);
                 } catch (e) {}
-                firestoreInstance = getFirestore(appInstance);
+                // This project uses a named database, rather than (default).
+                firestoreInstance = initializeFirestore(appInstance, {}, "ai-studio-ravanatitan-8de985fc-ffd0-4255-bc23-fd8f4d49d7d3");
                 window.firebaseApp = appInstance;
                 window.firebaseDb = firestoreInstance;
                 console.log("[RAVANA TECH] Firebase & Firestore initialized on-demand // Project: ravanatec");

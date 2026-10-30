@@ -1,6 +1,54 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { bindContactForm } from '../assets/js/contact-form.js';
+
+// Execute each real initialization entry point against synthetic SDK boundaries.
+// No Firebase connection, Analytics request or production write is made.
+for (const entry of ['index.html', 'firebase-init.js', 'assets/js/firebase-init.js']) {
+    test(`${entry}: inquiries use the named database and await persistence`, async () => {
+        let source = await readFile(new URL(`../${entry}`, import.meta.url), 'utf8');
+        if (entry.endsWith('.html')) {
+            source = [...source.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)]
+                .map((match) => match[1]).find((script) => script.includes('window.saveInquiryToFirestore'));
+            assert.ok(source, 'the production Firebase initialization module must be present');
+        }
+        source = source.replace(/^\s*import .* from "firebase\/[^\"]+";\s*$/gm, '')
+            .replace(/^export (?=(?:const|let|async function))/gm, '');
+        const persistence = deferred();
+        const writes = [];
+        const context = {
+            window: {}, document: { getElementById: () => null },
+            console: { info() {}, log() {}, warn() {} },
+            initializeApp: (options) => ({ options }), getAnalytics: () => null,
+            getFirestore: (app, databaseId = '(default)') => ({ projectId: app.options.projectId, databaseId }),
+            initializeFirestore: (app, _settings, databaseId = '(default)') => ({ projectId: app.options.projectId, databaseId }),
+            collection: (database, collectionPath) => ({ database, collectionPath }),
+            serverTimestamp: () => 'SYNTHETIC_TIMESTAMP',
+            addDoc: (target, data) => { writes.push({ target, data }); return persistence.promise; },
+        };
+        runInNewContext(source, context, { filename: entry, timeout: 1000 });
+        const pending = context.window.saveInquiryToFirestore({
+            name: 'Synthetic Test', email: 'test@example.invalid', system: 'Test', message: 'SYNTHETIC_ONLY',
+        });
+        assert.equal(writes.length, 1);
+        assert.deepEqual(writes[0].target.database, {
+            projectId: 'ravanatec',
+            databaseId: 'ai-studio-ravanatitan-8de985fc-ffd0-4255-bc23-fd8f4d49d7d3',
+        });
+        assert.equal(writes[0].target.collectionPath, 'inquiries');
+        assert.equal(writes[0].data.message, 'SYNTHETIC_ONLY');
+        let settled = false;
+        pending.then(() => { settled = true; });
+        await Promise.resolve();
+        assert.equal(settled, false, 'a queued write must not be reported as saved');
+        persistence.resolve({ id: 'SYNTHETIC_CONFIRMED_REFERENCE' });
+        const result = await pending;
+        assert.equal(result.success, true);
+        assert.equal(result.id, 'SYNTHETIC_CONFIRMED_REFERENCE');
+    });
+}
 
 // Small DOM boundary doubles; browser rendering is checked separately.
 function element(value = '') {

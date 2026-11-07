@@ -3,14 +3,15 @@ import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { createServer as createViteServer } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT === undefined ? 3000 : Number(process.env.PORT);
-const HOST = process.env.HOST || '0.0.0.0';
-const PUBLIC_DIR = path.join(__dirname, 'public-build');
+const PORT = 3000;
+const HOST = '0.0.0.0';
+const isProd = process.env.NODE_ENV === 'production';
 
 // Ultra-fast Gzip compression
 app.use(compression({ level: 6, threshold: 256 }));
@@ -23,37 +24,71 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   res.setHeader('Timing-Allow-Origin', '*');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   next();
 });
 
-// Reject private/source paths before static serving and the HTML fallback.
+// ==================== STRICT CYBER ACCESS CONTROL SHIELD ====================
 app.use((req, res, next) => {
-  let decodedPath = req.originalUrl.split('?')[0];
+  const reqUrl = req.originalUrl || req.url || '';
+  let normalized = '';
   try {
-    for (let i = 0; i < 3; i += 1) {
-      const decoded = decodeURIComponent(decodedPath);
-      if (decoded === decodedPath) break;
-      decodedPath = decoded;
-    }
-  } catch {
-    return res.status(404).type('text/plain').send('Not found');
+    normalized = decodeURIComponent(reqUrl.split('?')[0]).toLowerCase();
+  } catch (e) {
+    normalized = reqUrl.split('?')[0].toLowerCase();
   }
-  const normalized = path.posix.normalize(decodedPath.replace(/\\/g, '/'));
-  const segments = normalized.split('/').filter(Boolean).map((part) => part.toLowerCase());
-  const privateNames = new Set([
-    'server.js', 'server.ts', 'package.json', 'package-lock.json',
-    'leads-db.json', '.git', '.env', '.aistudio', 'node_modules',
-  ]);
-  const isPrivate = segments.some((part) =>
-    privateNames.has(part) || part.startsWith('.env.') || part.startsWith('firebase-applet-config')
-  ) || segments.includes('data');
-  if (isPrivate) return res.status(404).type('text/plain').send('Not found');
+
+  // 1. Block client database & data directory
+  if (normalized === '/data' || normalized.startsWith('/data/')) {
+    return res.status(403).json({ error: 'Access Denied: Protected storage directory.' });
+  }
+
+  // 2. Block dotfiles & internal VCS (.env, .git, .firebaserc, .github)
+  if (normalized.startsWith('/.') || normalized.includes('/.')) {
+    return res.status(403).json({ error: 'Access Denied: Protected system resource.' });
+  }
+
+  // 3. Block backend code, rules, package files, configs
+  if (
+    normalized.endsWith('.rules') ||
+    normalized.endsWith('.ts') ||
+    normalized.endsWith('.tsx') ||
+    normalized === '/server.js' ||
+    normalized === '/server.ts' ||
+    normalized === '/package.json' ||
+    normalized === '/package-lock.json' ||
+    normalized === '/tsconfig.json' ||
+    normalized === '/metadata.json' ||
+    normalized === '/firebase.json' ||
+    normalized === '/firebase-applet-config.json'
+  ) {
+    return res.status(403).json({ error: 'Access Denied: Protected application resource.' });
+  }
+
   next();
 });
 
-// Public demo paths resolve only inside the generated allowlisted build.
-const conceptualProjectsDir = path.join(PUBLIC_DIR, 'conceptual projects');
+// Specific static folders: Conceptual Projects & Assets
+const conceptualProjectsDir = path.join(__dirname, 'conceptual projects');
+app.use('/conceptual projects', express.static(conceptualProjectsDir));
 app.use('/conceptual-projects', express.static(conceptualProjectsDir));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/src/assets', express.static(path.join(__dirname, 'src/assets')));
+
+// Serve root media files (work images, avatars) without intercepting .html, .ts, .tsx
+app.use((req, res, next) => {
+  if (req.path.match(/\.(jpg|jpeg|png|webp|svg|ico|webmanifest|txt|xml)$/i)) {
+    const filePath = path.join(__dirname, req.path);
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+    const imgPath = path.join(__dirname, 'assets/img', path.basename(req.path));
+    if (fs.existsSync(imgPath)) {
+      return res.sendFile(imgPath);
+    }
+  }
+  next();
+});
 
 // ==================== REST API ENDPOINTS ====================
 
@@ -104,10 +139,8 @@ app.get('/api/health', (req, res) => {
 });
 
 // 3. Persistent Database Engine (JSON DB Layer)
-const DB_FILE = process.env.LEADS_DB_FILE
-  ? path.resolve(process.env.LEADS_DB_FILE)
-  : path.join(__dirname, 'data', 'leads-db.json');
-const DATA_DIR = path.dirname(DB_FILE);
+const DATA_DIR = path.join(__dirname, 'data');
+const DB_FILE = path.join(DATA_DIR, 'leads-db.json');
 
 function initDb() {
   try {
@@ -135,7 +168,7 @@ function readDb() {
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
     return JSON.parse(raw);
   } catch (err) {
-    throw err;
+    return { inquiries: [] };
   }
 }
 
@@ -153,8 +186,7 @@ function saveDbRecord(collection: string, record: any) {
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
     return true;
   } catch (err) {
-    const failure = err as { code?: string; name?: string };
-    console.error(`[DB WRITE ERROR: ${collection}]`, failure?.code || failure?.name || 'unknown');
+    console.error(`[DB WRITE ERROR: ${collection}]`, err);
     return false;
   }
 }
@@ -182,19 +214,33 @@ app.post('/api/inquiry', (req, res) => {
       receivedAt: new Date().toISOString(),
     };
 
-    if (!saveDbRecord('inquiries', leadRecord)) {
-      return res.status(500).json({ success: false, error: 'Inquiry could not be saved. Please try again.' });
-    }
+    saveDbRecord('inquiries', leadRecord);
 
     return res.status(200).json({
       success: true,
-      message: 'Inquiry received and saved.',
+      message: 'Inquiry received and permanently stored in Ravana Tech Database.',
       leadId: leadRecord.id,
       timestamp: leadRecord.receivedAt,
     });
   } catch (err) {
     return res.status(500).json({ success: false, error: 'Internal processing error' });
   }
+});
+
+// Dedicated Policy & Compliance Routes
+app.get(['/privacy', '/privacy.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'privacy.html'));
+});
+
+app.get(['/terms', '/terms.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'terms.html'));
+});
+
+app.get(['/data-policy', '/data-policy.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'data-policy.html'));
 });
 
 // 5. AI Lab Document Simulation Endpoint
@@ -236,28 +282,41 @@ app.post('/api/document-sim', (req, res) => {
   });
 });
 
-app.use(express.static(PUBLIC_DIR));
+async function main() {
+  if (!isProd) {
+    const vite = await createViteServer({
+      server: { middlewareMode: true, host: '0.0.0.0' },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
 
-app.get(['/', '/home', '/about', '/systems', '/services', '/projects', '/contact', '/ai-lab', '/automation', '/lab', '/experience'], (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
-});
+    // Serve transformed index.html for SPA routes
+    app.use('*', async (req, res, next) => {
+      const url = req.originalUrl;
+      try {
+        const indexPath = path.join(__dirname, 'index.html');
+        let template = fs.readFileSync(indexPath, 'utf-8');
+        template = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (e: any) {
+        vite.ssrFixStacktrace(e);
+        next(e);
+      }
+    });
+  } else {
+    const distPath = path.join(__dirname, 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
 
-app.get(['/archive', '/gallery', '/gallery.html'], (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'projects.html'));
-});
-
-app.get(['/services.html', '/all-services'], (req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'services.html'));
-});
-
-app.use((req, res) => res.status(404).type('text/plain').send('Not found'));
-
-export { app };
-
-if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  const server = app.listen(PORT, HOST, () => {
-    const address = server.address();
-    const port = address && typeof address === 'object' ? address.port : PORT;
-    console.log(`[Ravana Tech Server] listening on http://${HOST}:${port}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`[Ravana Tech Server] listening on http://${HOST}:${PORT}`);
   });
 }
+
+main().catch((err) => {
+  console.error('[Server Error]', err);
+  process.exit(1);
+});

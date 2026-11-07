@@ -67,6 +67,21 @@ export const CommandDeckFooter: React.FC<CommandDeckFooterProps> = ({
           <i className="bx bx-chevron-right" />
         </button>
 
+        {/* Compliance & Policy Links */}
+        <div className="deck-policy-links" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontSize: '0.68rem', fontFamily: 'var(--font-mono)' }}>
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rt-text-dim)', textDecoration: 'none' }} title="Read Privacy Policy">
+            PRIVACY
+          </a>
+          <span style={{ color: 'var(--rt-border-subtle)' }}>•</span>
+          <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rt-text-dim)', textDecoration: 'none' }} title="Read Terms of Service">
+            TERMS
+          </a>
+          <span style={{ color: 'var(--rt-border-subtle)' }}>•</span>
+          <a href="/data-policy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rt-text-dim)', textDecoration: 'none' }} title="Read Data Policy">
+            DATA
+          </a>
+        </div>
+
         {/* System Telemetry & Quick Hotkeys Status */}
         <div className="deck-telemetry-badge">
           <span className="telemetry-dot active" />

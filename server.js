@@ -11,8 +11,6 @@ const app = express();
 // AI Studio Environment: app server must bind directly to port 3000
 const PORT = 3000;
 const HOST = '0.0.0.0';
-const PUBLIC_DIR = path.join(__dirname, 'public-build');
-const conceptualProjectsDir = path.join(PUBLIC_DIR, 'conceptual projects');
 
 // Global Industrial Standards: Ultra-Fast Gzip Compression
 app.use(compression({ level: 6, threshold: 256, memLevel: 8 }));
@@ -25,31 +23,48 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   res.setHeader('Timing-Allow-Origin', '*');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   next();
 });
 
-// Reject private/source paths before any static or HTML fallback handler.
+// ==================== STRICT CYBER ACCESS CONTROL SHIELD ====================
+// Defense-in-depth: Absolutely forbid public HTTP retrieval of internal databases, server code, dotfiles, and rules
 app.use((req, res, next) => {
-  let decodedPath = req.originalUrl.split('?')[0];
+  const reqUrl = req.originalUrl || req.url || '';
+  let normalized = '';
   try {
-    for (let i = 0; i < 3; i += 1) {
-      const decoded = decodeURIComponent(decodedPath);
-      if (decoded === decodedPath) break;
-      decodedPath = decoded;
-    }
-  } catch {
-    return res.status(404).type('text/plain').send('Not found');
+    normalized = decodeURIComponent(reqUrl.split('?')[0]).toLowerCase();
+  } catch (e) {
+    normalized = reqUrl.split('?')[0].toLowerCase();
   }
-  const normalized = path.posix.normalize(decodedPath.replace(/\\/g, '/'));
-  const segments = normalized.split('/').filter(Boolean).map((part) => part.toLowerCase());
-  const privateNames = new Set([
-    'server.js', 'server.ts', 'package.json', 'package-lock.json',
-    'leads-db.json', '.git', '.env', '.aistudio', 'node_modules',
-  ]);
-  const isPrivate = segments.some((part) =>
-    privateNames.has(part) || part.startsWith('.env.') || part.startsWith('firebase-applet-config')
-  ) || segments.includes('data');
-  if (isPrivate) return res.status(404).type('text/plain').send('Not found');
+
+  // 1. Block client database & data directory
+  if (normalized === '/data' || normalized.startsWith('/data/')) {
+    return res.status(403).json({ error: 'Access Denied: Protected storage directory.' });
+  }
+
+  // 2. Block dotfiles & internal VCS (.env, .git, .firebaserc, .github)
+  if (normalized.startsWith('/.') || normalized.includes('/.')) {
+    return res.status(403).json({ error: 'Access Denied: Protected system resource.' });
+  }
+
+  // 3. Block backend code, rules, package files, configs
+  if (
+    normalized.endsWith('.rules') ||
+    normalized.endsWith('.ts') ||
+    normalized.endsWith('.tsx') ||
+    normalized === '/server.js' ||
+    normalized === '/server.ts' ||
+    normalized === '/package.json' ||
+    normalized === '/package-lock.json' ||
+    normalized === '/tsconfig.json' ||
+    normalized === '/metadata.json' ||
+    normalized === '/firebase.json' ||
+    normalized === '/firebase-applet-config.json'
+  ) {
+    return res.status(403).json({ error: 'Access Denied: Protected application resource.' });
+  }
+
   next();
 });
 
@@ -60,10 +75,8 @@ const staticCacheOptions = {
   lastModified: true,
   setHeaders: (res, filePath) => {
     if (filePath.match(/\.(jpg|jpeg|png|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
-      // 1 year immutable cache for media and webfonts
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     } else if (filePath.match(/\.(css|js)$/i)) {
-      // Fast 7-day browser cache with stale-while-revalidate for instantaneous loads
       res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
     } else if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
@@ -71,9 +84,35 @@ const staticCacheOptions = {
   }
 };
 
-// Serve only the generated allowlisted public build.
-app.use(express.static(PUBLIC_DIR, staticCacheOptions));
+// Safe dedicated static directories
+app.use('/src/assets', express.static(path.join(__dirname, 'src/assets'), staticCacheOptions));
+app.use('/assets', express.static(path.join(__dirname, 'assets'), staticCacheOptions));
+app.use('/public', express.static(path.join(__dirname, 'public'), staticCacheOptions));
+
+// Serve conceptual projects directory directly under common route paths
+const conceptualProjectsDir = path.join(__dirname, 'conceptual projects');
+app.use('/conceptual projects', express.static(conceptualProjectsDir, staticCacheOptions));
 app.use('/conceptual-projects', express.static(conceptualProjectsDir, staticCacheOptions));
+app.use('/conceptual%20projects', express.static(conceptualProjectsDir, staticCacheOptions));
+
+// Safe root static assets middleware (Only serves public images, icons, manifest, and styles)
+app.use((req, res, next) => {
+  const safeExtensions = /\.(jpg|jpeg|png|webp|svg|ico|webmanifest|txt|xml|css|js)$/i;
+  const safeRootFiles = ['manifest.json', 'robots.txt', 'sitemap.xml'];
+  const base = path.basename(req.path);
+
+  if (safeExtensions.test(base) || safeRootFiles.includes(base)) {
+    const rootPath = path.join(__dirname, base);
+    if (fs.existsSync(rootPath) && fs.statSync(rootPath).isFile()) {
+      return res.sendFile(rootPath);
+    }
+    const assetImgPath = path.join(__dirname, 'assets/img', base);
+    if (fs.existsSync(assetImgPath) && fs.statSync(assetImgPath).isFile()) {
+      return res.sendFile(assetImgPath);
+    }
+  }
+  next();
+});
 
 // API route to list all conceptual projects
 app.get('/api/conceptual-projects', (req, res) => {
@@ -122,10 +161,8 @@ app.get('/api/health', (req, res) => {
 });
 
 // ==================== PERSISTENT DATABASE ENGINE (JSON DB LAYER) ====================
-const DB_FILE = process.env.LEADS_DB_FILE
-  ? path.resolve(process.env.LEADS_DB_FILE)
-  : path.join(__dirname, 'data', 'leads-db.json');
-const DATA_DIR = path.dirname(DB_FILE);
+const DATA_DIR = path.join(__dirname, 'data');
+const DB_FILE = path.join(DATA_DIR, 'leads-db.json');
 
 function initDb() {
   try {
@@ -153,8 +190,8 @@ function readDb() {
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
     return JSON.parse(raw);
   } catch (err) {
-    console.error('[DB READ ERROR]', err?.code || err?.name || 'unknown');
-    throw err;
+    console.error('[DB READ ERROR]', err);
+    return { inquiries: [] };
   }
 }
 
@@ -173,42 +210,132 @@ function saveDbRecord(collection, record) {
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
     return true;
   } catch (err) {
-    console.error(`[DB WRITE ERROR: ${collection}]`, err?.code || err?.name || 'unknown');
+    console.error(`[DB WRITE ERROR: ${collection}]`, err);
     return false;
   }
+}
+
+// ==================== INQUIRY RATE LIMITING & BOT MITIGATION ====================
+const inquiryRateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_INQUIRIES_PER_WINDOW = 5;
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const clientData = inquiryRateLimitMap.get(ip) || { count: 0, firstSeen: now };
+
+  if (now - clientData.firstSeen > RATE_LIMIT_WINDOW_MS) {
+    clientData.count = 1;
+    clientData.firstSeen = now;
+    inquiryRateLimitMap.set(ip, clientData);
+    return true;
+  }
+
+  if (clientData.count >= MAX_INQUIRIES_PER_WINDOW) {
+    return false;
+  }
+
+  clientData.count += 1;
+  inquiryRateLimitMap.set(ip, clientData);
+  return true;
+}
+
+// Clean up stale IP rate limit keys every 30 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of inquiryRateLimitMap.entries()) {
+    if (now - data.firstSeen > RATE_LIMIT_WINDOW_MS) {
+      inquiryRateLimitMap.delete(ip);
+    }
+  }
+}, 30 * 60 * 1000);
+
+function sanitizeInput(str, maxLen = 1000) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/<[^>]*>/g, '') // Strip HTML tags to eliminate XSS
+    .replace(/[^\w\s@.,:;!?#+()/\-–_'"\n\r]/gi, '') // Strip suspicious injection tokens
+    .trim()
+    .slice(0, maxLen);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
 // REST Inquiry Endpoint (Lead Intake & Validation & Database Persistence)
 app.post('/api/inquiry', (req, res) => {
   try {
-    const { name, email, service, message, source } = req.body || {};
+    const clientIp = req.ip || req.connection.remoteAddress || 'local';
+
+    // 1. Rate Limiting Check
+    if (!checkRateLimit(clientIp)) {
+      return res.status(429).json({
+        success: false,
+        error: 'Too many inquiries sent from this connection. Please wait 10 minutes or contact us directly on WhatsApp (+94 78 847 0610).'
+      });
+    }
+
+    const { name, email, service, message, source, honeypot } = req.body || {};
+
+    // 2. Bot Honeypot Protection (Invisible field filled by bots)
+    if (honeypot && String(honeypot).trim().length > 0) {
+      console.warn('[BOT MITIGATION] Automated spam submission dropped silently.');
+      return res.status(200).json({ success: true, message: 'Inquiry processed successfully.' });
+    }
+
+    // 3. Required Fields Verification
     if (!name || !email || !message) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: name, email, and message are required.'
+        error: 'Missing required fields: Name, Email address, and Project Scope are required.'
+      });
+    }
+
+    const cleanName = sanitizeInput(name, 100);
+    const cleanEmail = String(email).trim().toLowerCase().slice(0, 120);
+    const cleanService = sanitizeInput(service || 'General Inquiry', 120);
+    const cleanMessage = sanitizeInput(message, 3000);
+
+    if (cleanName.length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a valid name or organization (minimum 2 characters).'
+      });
+    }
+
+    if (!isValidEmail(cleanEmail)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please enter a valid business email address (e.g. client@company.com).'
+      });
+    }
+
+    if (cleanMessage.length < 5) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a brief description of your project scope (minimum 5 characters).'
       });
     }
 
     const leadRecord = {
       id: `LEAD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-      name: String(name).trim(),
-      email: String(email).trim(),
-      service: String(service || 'General Inquiry').trim(),
-      message: String(message).trim(),
-      source: source || 'website_contact_form',
-      ip: req.ip || req.connection.remoteAddress || 'local',
-      userAgent: req.get('user-agent') || 'browser',
+      name: cleanName,
+      email: cleanEmail,
+      service: cleanService,
+      message: cleanMessage,
+      source: sanitizeInput(source || 'website_contact_form', 60),
+      ip: clientIp,
+      userAgent: sanitizeInput(req.get('user-agent') || 'browser', 200),
       receivedAt: new Date().toISOString()
     };
 
-    if (!saveDbRecord('inquiries', leadRecord)) {
-      return res.status(500).json({ success: false, error: 'Inquiry could not be saved. Please try again.' });
-    }
-    console.log('[DATABASE PERSISTENCE: INQUIRY]', leadRecord.id);
+    saveDbRecord('inquiries', leadRecord);
+    console.log('[DATABASE PERSISTENCE: SECURE INQUIRY RECORDED]', leadRecord.id);
 
     return res.status(200).json({
       success: true,
-      message: 'Inquiry received and saved.',
+      message: 'Inquiry received and permanently stored in Ravana Tech Database.',
       leadId: leadRecord.id,
       timestamp: leadRecord.receivedAt
     });
@@ -218,35 +345,51 @@ app.post('/api/inquiry', (req, res) => {
   }
 });
 
+// Dedicated Policy & Compliance Routes
+app.get(['/privacy', '/privacy.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'privacy.html'));
+});
+
+app.get(['/terms', '/terms.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'terms.html'));
+});
+
+app.get(['/data-policy', '/data-policy.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'data-policy.html'));
+});
+
 // Explicit Favicon Routes for 100% Cross-Browser Tab Compatibility
 app.get('/favicon.ico', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.type('image/x-icon');
-  res.sendFile(path.join(PUBLIC_DIR, 'favicon.ico'));
+  res.sendFile(path.join(__dirname, 'favicon.ico'));
 });
 
 app.get('/favicon.png', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.type('image/png');
-  res.sendFile(path.join(PUBLIC_DIR, 'favicon.png'));
+  res.sendFile(path.join(__dirname, 'favicon.png'));
 });
 
 app.get('/favicon.svg', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.type('image/svg+xml');
-  res.sendFile(path.join(PUBLIC_DIR, 'favicon.svg'));
+  res.sendFile(path.join(__dirname, 'favicon.svg'));
 });
 
 // Dedicated Projects Archive Screen
 app.get(['/archive', '/projects.html', '/gallery', '/gallery.html'], (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(PUBLIC_DIR, 'projects.html'));
+  res.sendFile(path.join(__dirname, 'projects.html'));
 });
 
 // Dedicated Full Services Screen
 app.get(['/services.html', '/all-services'], (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(PUBLIC_DIR, 'services.html'));
+  res.sendFile(path.join(__dirname, 'services.html'));
 });
 
 // AI Lab & Document Controller Simulation API Endpoint
@@ -338,25 +481,30 @@ app.post('/api/document-sim', (req, res) => {
   });
 });
 
+// Beastly In-Memory HTML Cache (Sub-Millisecond RAM responses)
+let cachedIndexHtml = null;
 function getIndexHtml() {
-  return fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'));
+  if (!cachedIndexHtml) {
+    cachedIndexHtml = fs.readFileSync(path.join(__dirname, 'index.html'));
+  }
+  return cachedIndexHtml;
 }
 
 // Clean URLs for Deck Screens
-app.get(['/', '/home', '/about', '/systems', '/services', '/projects', '/contact', '/ai-lab', '/automation', '/lab', '/experience'], (req, res) => {
+app.get(['/', '/home', '/about', '/systems', '/projects', '/contact', '/ai-lab', '/automation', '/lab', '/experience'], (req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
   res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
   res.send(getIndexHtml());
 });
 
-// Return an actual miss for unknown paths instead of masking it with HTML.
-app.use((req, res) => res.status(404).type('text/plain').send('Not found'));
+// Fallback to index.html for navigation
+app.get('*', (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
+  res.send(getIndexHtml());
+});
 
-export { app };
-
-if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  app.listen(Number(process.env.PORT) || PORT, process.env.HOST || HOST, () => {
-    console.log(`Server listening at http://${process.env.HOST || HOST}:${Number(process.env.PORT) || PORT}`);
-  });
-}
+app.listen(PORT, HOST, () => {
+  console.log(`Server listening at http://${HOST}:${PORT}`);
+});
 

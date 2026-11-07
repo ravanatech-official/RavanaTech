@@ -53,12 +53,7 @@ function getScreenIndex(target) {
         return Math.max(0, Math.min(SCREENS.length - 1, target));
     }
     const clean = String(target || '').toLowerCase().replace(/^[/#]+|[/#]+$/g, '').trim();
-    if (!clean || clean === 'home' || clean === 'main') return 0;
-    if (clean === 'about' || clean === 'story') return 1;
-    if (clean === 'systems' || clean === 'services' || clean === 'service') return 2;
-    if (clean === 'projects' || clean === 'project' || clean === 'portfolio' || clean === 'gallery') return 3;
-    if (clean === 'contact' || clean === 'inquiry' || clean === 'hire') return 4;
-    if (clean === 'ai-lab' || clean === 'lab' || clean === 'automation' || clean === 'experience') return 5;
+    if (!clean || clean === 'home') return 0;
     const found = SCREENS.findIndex(s => s.id === clean || s.route === `/${clean}`);
     return found !== -1 ? found : 0;
 }
@@ -259,12 +254,10 @@ window.addEventListener('wheel', (e) => {
     // IF INSIDE AI-LAB: Never switch screens on mouse wheel! Scroll its own content smoothly.
     if (activeScreenEl.id === 'ai-lab') return;
 
-    // On home screen, ALWAYS allow immediate switching without waiting for scroll
-    const isHomeScreen = activeScreenEl.id === 'home';
-    const isOverflowScrollable = !isHomeScreen && (activeScreenEl.scrollHeight - activeScreenEl.clientHeight > 30) && (window.getComputedStyle(activeScreenEl).overflowY !== 'hidden');
-    
-    const atTop = !isOverflowScrollable || activeScreenEl.scrollTop <= 10;
-    const atBottom = !isOverflowScrollable || activeScreenEl.scrollTop >= (activeScreenEl.scrollHeight - activeScreenEl.clientHeight - 15);
+    const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
+    const hasScroll = scrollableHeight > 10;
+    const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
+    const atBottom = !hasScroll || activeScreenEl.scrollTop >= (scrollableHeight - 14);
 
     accumulatedWheelDelta += e.deltaY;
     clearTimeout(wheelResetTimer);
@@ -275,21 +268,21 @@ window.addEventListener('wheel', (e) => {
     if (isWheelTransitioning || isSwitching) return;
 
     // Downward scroll / Next Screen
-    if (accumulatedWheelDelta > 24 && atBottom) {
+    if (accumulatedWheelDelta > 28 && atBottom) {
         if (currentScreenIndex < 4) {
             isWheelTransitioning = true;
             accumulatedWheelDelta = 0;
             switchScreen(currentScreenIndex + 1, true);
-            setTimeout(() => { isWheelTransitioning = false; }, 380);
+            setTimeout(() => { isWheelTransitioning = false; }, 420);
         }
     } 
     // Upward scroll / Previous Screen
-    else if (accumulatedWheelDelta < -24 && atTop) {
+    else if (accumulatedWheelDelta < -28 && atTop) {
         if (currentScreenIndex > 0 && currentScreenIndex <= 4) {
             isWheelTransitioning = true;
             accumulatedWheelDelta = 0;
             switchScreen(currentScreenIndex - 1, true);
-            setTimeout(() => { isWheelTransitioning = false; }, 380);
+            setTimeout(() => { isWheelTransitioning = false; }, 420);
         }
     }
 }, { passive: true });
@@ -320,16 +313,15 @@ window.addEventListener('touchend', (e) => {
         const absX = Math.abs(diffX);
         const absY = Math.abs(diffY);
 
-        const isHomeScreen = activeScreenEl.id === 'home';
-        const isOverflowScrollable = !isHomeScreen && (activeScreenEl.scrollHeight - activeScreenEl.clientHeight > 30) && (window.getComputedStyle(activeScreenEl).overflowY !== 'hidden');
-        
-        const atTop = !isOverflowScrollable || activeScreenEl.scrollTop <= 10;
-        const atBottom = !isOverflowScrollable || activeScreenEl.scrollTop >= (activeScreenEl.scrollHeight - activeScreenEl.clientHeight - 15);
+        const scrollableHeight = activeScreenEl.scrollHeight - activeScreenEl.clientHeight;
+        const hasScroll = scrollableHeight > 10;
+        const atTop = !hasScroll || activeScreenEl.scrollTop <= 8;
+        const atBottom = !hasScroll || activeScreenEl.scrollTop >= (scrollableHeight - 14);
 
         if (isSwitching || isWheelTransitioning) return;
 
         // Horizontal swipe (left = next, right = prev)
-        if (absX > 35 && absX > absY * 1.1) {
+        if (absX > 45 && absX > absY * 1.2) {
             if (diffX < 0 && currentScreenIndex < 4) {
                 switchScreen(currentScreenIndex + 1, true);
             } else if (diffX > 0 && currentScreenIndex > 0 && currentScreenIndex <= 4) {
@@ -337,7 +329,7 @@ window.addEventListener('touchend', (e) => {
             }
         }
         // Vertical swipe (swipe up = scroll down / next, swipe down = scroll up / prev)
-        else if (absY > 35 && absY > absX * 1.1) {
+        else if (absY > 45 && absY > absX * 1.2) {
             if (diffY < 0 && atBottom && currentScreenIndex < 4) {
                 switchScreen(currentScreenIndex + 1, true);
             } else if (diffY > 0 && atTop && currentScreenIndex > 0 && currentScreenIndex <= 4) {
@@ -397,7 +389,101 @@ if (document.readyState === 'loading') {
     updateDynamicProjectCount();
 }
 
-/* Contact submission is handled once by assets/js/contact-form.js. */
+/*==================== CONTACT FORM DISPATCH ====================*/
+const contactForm = document.getElementById('contact-form');
+const formFeedback = document.getElementById('form-feedback');
+
+if (contactForm && formFeedback) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('sender-name').value.trim();
+        const email = document.getElementById('sender-email').value.trim();
+        const system = document.getElementById('sender-system').value;
+        const message = document.getElementById('sender-message').value.trim();
+        const honeypot = document.getElementById('contact_hp') ? document.getElementById('contact_hp').value : '';
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+
+        if (!name || !email || !message) {
+            formFeedback.className = 'form__status-msg error';
+            formFeedback.textContent = 'Please fill out all required fields (Name, Email, and Message).';
+            return;
+        }
+
+        // Animated sending state
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Submitting Your Inquiry...";
+
+        // 1. Submit to Backend REST API
+        try {
+            fetch('/api/inquiry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, service: system, message, source: 'website_contact_form', honeypot })
+            }).catch(e => console.warn('[API Inquiry] Deferred/Background error:', e));
+        } catch (apiErr) {
+            console.warn('[API Inquiry] Error:', apiErr);
+        }
+
+        // 2. Submit to Firestore if available
+        let firestoreDocId = null;
+        if (typeof window.saveInquiryToFirestore === 'function') {
+            try {
+                const res = await window.saveInquiryToFirestore({ name, email, system, message });
+                if (res && res.success && res.id) {
+                    firestoreDocId = res.id;
+                }
+            } catch (err) {
+                console.warn("[RAVANA TECH] Firestore write deferred:", err);
+            }
+        }
+
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> Inquiry Submitted";
+
+            formFeedback.className = 'form__status-msg success';
+            const recordNum = firestoreDocId ? `Reference ID: #${firestoreDocId.substring(0, 8).toUpperCase()}<br>` : '';
+            formFeedback.innerHTML = `<strong>Thank you, ${name}!</strong><br>${recordNum}Your project inquiry for <em>${system}</em> has been received. Our team will review your requirements and respond within 60 minutes.`;
+
+            // Prepare instant WhatsApp Handoff CTA
+            const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a project inquiry from your website.\n\nName: ${name}\nService: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);
+            const waUrl = `https://wa.me/94788470610?text=${waText}`;
+
+            const actionsWrap = document.createElement('div');
+            actionsWrap.style.display = 'flex';
+            actionsWrap.style.flexWrap = 'wrap';
+            actionsWrap.style.gap = '0.5rem';
+            actionsWrap.style.marginTop = '0.75rem';
+
+            const waLink = document.createElement('a');
+            waLink.href = waUrl;
+            waLink.target = '_blank';
+            waLink.rel = 'noopener noreferrer';
+            waLink.style.display = 'inline-flex';
+            waLink.style.alignItems = 'center';
+            waLink.style.gap = '0.4rem';
+            waLink.style.padding = '0.45rem 0.85rem';
+            waLink.style.background = '#25D366';
+            waLink.style.borderRadius = '4px';
+            waLink.style.color = '#000';
+            waLink.style.fontWeight = '600';
+            waLink.style.fontSize = '0.78rem';
+            waLink.style.fontFamily = 'var(--font-hud)';
+            waLink.style.textDecoration = 'none';
+            waLink.innerHTML = "<i class='bx bxl-whatsapp' style='font-size:1rem;'></i> CHAT WITH US ON WHATSAPP";
+            actionsWrap.appendChild(waLink);
+
+            formFeedback.appendChild(actionsWrap);
+            contactForm.reset();
+
+            setTimeout(() => {
+                submitBtn.innerHTML = originalBtnText;
+            }, 6000);
+        }, 900);
+    });
+}
 
 /*==================== CYBER MATRIX DIGITAL CODE RAIN ENGINE (GLOBAL ACROSS ALL SECTIONS) ====================*/
 (function initMatrixRain() {
@@ -1723,4 +1809,33 @@ Contact: ${p.email} | WhatsApp: ${p.phone}`;
     }
 
 })();
+
+/*==================== DATA PRIVACY & COOKIE COMPLIANCE CONSENT ====================*/
+(function initConsentBanner() {
+    const banner = document.getElementById('cyber-consent-banner');
+    const acceptBtn = document.getElementById('btn-accept-consent');
+    if (!banner || !acceptBtn) return;
+
+    try {
+        if (localStorage.getItem('rt_consent_acknowledged') === 'true') {
+            banner.style.display = 'none';
+            return;
+        }
+    } catch (e) {}
+
+    setTimeout(() => {
+        banner.style.display = 'block';
+    }, 1200);
+
+    acceptBtn.addEventListener('click', () => {
+        try {
+            localStorage.setItem('rt_consent_acknowledged', 'true');
+        } catch (e) {}
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateY(15px)';
+        banner.style.transition = 'all 0.3s ease';
+        setTimeout(() => { banner.style.display = 'none'; }, 300);
+    });
+})();
+
 

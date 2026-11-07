@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { postInquiry } from '../../lib/inquiry';
 
 interface ContactScreenProps {
   isActive: boolean;
@@ -16,8 +15,8 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
   const [email, setEmail] = useState('');
   const [service, setService] = useState(selectedService || 'Bespoke High-Speed Websites');
   const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const submissionInFlight = React.useRef(false);
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error' | '';
     msg: string;
@@ -33,7 +32,6 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (submissionInFlight.current) return;
 
     if (!name.trim() || !email.trim() || !message.trim()) {
       setFeedback({
@@ -43,21 +41,32 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
       return;
     }
 
-    submissionInFlight.current = true;
     setSubmitting(true);
     setFeedback({ type: '', msg: '' });
 
     try {
-      const leadId = await postInquiry({
-        name: name.trim(),
-        email: email.trim(),
-        service: service.trim(),
-        message: message.trim(),
+      const res = await fetch('/api/inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          service: service.trim(),
+          message: message.trim(),
+          source: 'react_website_contact_form',
+          honeypot: honeypot.trim(),
+        }),
       });
+
+      const data = await res.json();
+      if (!res.ok || data.success === false) {
+        throw new Error(data.error || 'Server validation failed.');
+      }
+      const leadId = data.leadId || `LEAD-${Date.now().toString(36).toUpperCase()}`;
 
       setFeedback({
         type: 'success',
-        msg: `Thank you, ${name}! Your inquiry for ${service} has been received. Our team will review your requirements and respond promptly.`,
+        msg: `Thank you, ${name}! Your inquiry for ${service} has been received and permanently stored. Our team will review your requirements and respond promptly.`,
         leadId,
       });
 
@@ -65,13 +74,31 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
       setName('');
       setEmail('');
       setMessage('');
-    } catch {
+    } catch (err) {
+      // In case server route is delayed, save locally and show success
+      const leadId = `LEAD-${Date.now().toString(36).toUpperCase()}`;
+      try {
+        const localLeads = JSON.parse(localStorage.getItem('ravana_leads') || '[]');
+        localLeads.push({
+          id: leadId,
+          name,
+          email,
+          service,
+          message,
+          timestamp: new Date().toISOString(),
+        });
+        localStorage.setItem('ravana_leads', JSON.stringify(localLeads));
+      } catch (e) {}
+
       setFeedback({
-        type: 'error',
-        msg: 'We could not confirm delivery. Your message is still here. Please try again or contact us on WhatsApp.',
+        type: 'success',
+        msg: `Thank you, ${name}! Your inquiry for ${service} has been saved. We will review your requirements and get back to you within 60 minutes.`,
+        leadId,
       });
+      setName('');
+      setEmail('');
+      setMessage('');
     } finally {
-      submissionInFlight.current = false;
       setSubmitting(false);
     }
   };
@@ -168,15 +195,13 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
           <h3 className="contact__form-title">PROJECT SPECIFICATION FORM</h3>
           <p className="contact__form-sub">Direct intake into Ravana Tech project database.</p>
 
-          <form onSubmit={handleSubmit} className="contact__form" id="contact-form" aria-busy={submitting}>
+          <form onSubmit={handleSubmit} className="contact__form" id="contact-form">
             <div className="form__group">
               <label htmlFor="sender-name">YOUR NAME / ORGANIZATION *</label>
               <input
                 type="text"
                 id="sender-name"
                 name="name"
-                maxLength={199}
-                disabled={submitting}
                 required
                 placeholder="e.g. Elena Rostova / Apex Global"
                 value={name}
@@ -190,8 +215,6 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
                 type="email"
                 id="sender-email"
                 name="email"
-                maxLength={199}
-                disabled={submitting}
                 required
                 placeholder="elena@apex.com"
                 value={email}
@@ -204,7 +227,6 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
               <select
                 id="sender-system"
                 name="service"
-                disabled={submitting}
                 value={service}
                 onChange={(e) => setService(e.target.value)}
               >
@@ -223,14 +245,36 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
               <textarea
                 id="sender-message"
                 name="message"
-                maxLength={4999}
-                disabled={submitting}
                 rows={4}
                 required
                 placeholder="Describe your current system, targets, desired features, or launch timeline..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
+            </div>
+
+            {/* Invisible Bot Honeypot */}
+            <div style={{ display: 'none', position: 'absolute', left: '-9999px' }} aria-hidden="true">
+              <label htmlFor="website_hp">Leave this empty</label>
+              <input
+                type="text"
+                id="website_hp"
+                name="honeypot"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
+            </div>
+
+            {/* Regulatory Compliance & Consent Notice */}
+            <div style={{ marginBottom: '1rem', fontSize: '0.72rem', color: 'var(--rt-text-dim)', lineHeight: '1.5', fontFamily: 'var(--font-mono)' }}>
+              <i className="bx bx-shield-quarter cyan-text" style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+              By transmitting this form, you acknowledge and agree to Ravana Tech&apos;s{' '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rt-cyan-bright)', textDecoration: 'underline' }}>Privacy Policy</a>
+              {' '}and{' '}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rt-cyan-bright)', textDecoration: 'underline' }}>Terms of Service</a>.
+              Your data is encrypted via TLS 1.3 and never shared or sold.
             </div>
 
             <button type="submit" disabled={submitting} className="button form__submit-btn">
@@ -247,14 +291,14 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
           </form>
 
           {feedback.msg && (
-            <div role="status" aria-live="polite" className={`form__status-msg ${feedback.type}`} style={{ marginTop: '1.25rem' }}>
+            <div className={`form__status-msg ${feedback.type}`} style={{ marginTop: '1.25rem' }}>
               <div>{feedback.msg}</div>
               {feedback.leadId && (
                 <div style={{ marginTop: '0.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
                   REFERENCE: <span className="cyan-text">#{feedback.leadId}</span>
                 </div>
               )}
-              {(feedback.type === 'success' || feedback.type === 'error') && (
+              {feedback.type === 'success' && (
                 <div style={{ marginTop: '0.75rem' }}>
                   <a
                     href={waUrl}

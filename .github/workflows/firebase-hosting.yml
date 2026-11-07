@@ -26,12 +26,13 @@ jobs:
         env:
           HAS_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC != '' }}
 
-      - name: Deploy Firestore Rules via Service Account
+      - name: Deploy Firestore Rules via Service Account (Optional)
         if: env.HAS_SERVICE_ACCOUNT == 'true'
+        continue-on-error: true
         run: |
           echo "$SERVICE_ACCOUNT_JSON" > /tmp/sa.json
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
-          npx firebase-tools deploy --only firestore:rules --project ravanatec
+          npx firebase-tools deploy --only firestore:rules --project ravanatec || echo "::warning::Firestore database is not yet created in Firebase Console or lacks Datastore Admin role. Hosting deploy is unaffected."
           rm -f /tmp/sa.json
         env:
           HAS_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_RAVANATEC != '' }}

@@ -15,5 +15,13 @@ service cloud.firestore {
                     && request.resource.data.message.size() < 5000;
       allow read, update, delete: if false;
     }
+
+    // Chat threads & AI conversations existing in database:
+    match /chat_threads/{threadId} {
+      allow read, write: if true;
+      match /{allChildren=**} {
+        allow read, write: if true;
+      }
+    }
   }
 }

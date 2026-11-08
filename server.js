@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
@@ -17,13 +18,58 @@ app.use(compression({ level: 6, threshold: 256, memLevel: 8 }));
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// Global Industrial Standards: Security Headers & Performance Middleware
+// Industry-Standard Helmet Security Middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "data:", "blob:"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://unpkg.com",
+          "https://cdn.jsdelivr.net",
+          "https://apis.google.com",
+          "https://www.googletagmanager.com"
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: [
+          "'self'",
+          "https://*.googleapis.com",
+          "https://*.firebaseio.com",
+          "https://*.cloudfunctions.net",
+          "https://*.run.app",
+          "https://identitytoolkit.googleapis.com"
+        ],
+        frameAncestors: ["'self'", "https://aistudio.google.com", "https://*.google.com", "https://*.run.app"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"]
+      }
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false,
+    xFrameOptions: false,
+    hsts: {
+      maxAge: 63072000,
+      includeSubDomains: true,
+      preload: true
+    },
+    xContentTypeOptions: true,
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    xXssProtection: true
+  })
+);
+
+// Supplementary enterprise permissions policy & timing headers
 app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), display-capture=(), interest-cohort=()'
+  );
   res.setHeader('Timing-Allow-Origin', '*');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   next();
 });
 
@@ -263,13 +309,35 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
-// REST Inquiry Endpoint (Lead Intake & Validation & Database Persistence)
+// REST Inquiry Endpoint (Lead Intake & Validation & Database Persistence - Enterprise Shield)
 app.post('/api/inquiry', (req, res) => {
   try {
     const clientIp = req.ip || req.connection.remoteAddress || 'local';
 
-    // 1. Rate Limiting Check
+    // 1. Origin / CSRF Shield: Guard against automated cross-site third-party form injection
+    const originHeader = req.get('origin') || req.get('referer');
+    if (originHeader) {
+      try {
+        const originUrl = new URL(originHeader);
+        const host = originUrl.hostname.toLowerCase();
+        const isAllowedOrigin =
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host === 'ravanatec.web.app' ||
+          host === 'ravanatec.firebaseapp.com' ||
+          host.endsWith('.run.app');
+        if (!isAllowedOrigin) {
+          console.warn(`[SECURITY CSRF DROPPED] Untrusted origin attempt: ${host}`);
+          return res.status(403).json({ success: false, error: 'Forbidden: Request origin not authorized.' });
+        }
+      } catch (err) {
+        // Proceed if origin URL parse fails
+      }
+    }
+
+    // 2. Rate Limiting Check with Retry-After header
     if (!checkRateLimit(clientIp)) {
+      res.setHeader('Retry-After', '600');
       return res.status(429).json({
         success: false,
         error: 'Too many inquiries sent from this connection. Please wait 10 minutes or contact us directly on WhatsApp (+94 78 847 0610).'
@@ -278,7 +346,17 @@ app.post('/api/inquiry', (req, res) => {
 
     const { name, email, service, message, source, honeypot } = req.body || {};
 
-    // 2. Bot Honeypot Protection (Invisible field filled by bots)
+    // 3. Parameter Pollution & Object Injection Defense: Enforce primitive strings
+    if (
+      (name && typeof name !== 'string') ||
+      (email && typeof email !== 'string') ||
+      (message && typeof message !== 'string') ||
+      (service && typeof service !== 'string')
+    ) {
+      return res.status(400).json({ success: false, error: 'Malformed payload: attributes must be primitive strings.' });
+    }
+
+    // 4. Bot Honeypot Protection (Invisible field filled by spam crawlers)
     if (honeypot && String(honeypot).trim().length > 0) {
       console.warn('[BOT MITIGATION] Automated spam submission dropped silently.');
       return res.status(200).json({ success: true, message: 'Inquiry processed successfully.' });

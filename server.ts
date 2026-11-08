@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
@@ -18,13 +19,58 @@ app.use(compression({ level: 6, threshold: 256 }));
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// Security & Caching Headers
+// Industry-Standard Helmet Security Middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "data:", "blob:"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://unpkg.com",
+          "https://cdn.jsdelivr.net",
+          "https://apis.google.com",
+          "https://www.googletagmanager.com"
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: [
+          "'self'",
+          "https://*.googleapis.com",
+          "https://*.firebaseio.com",
+          "https://*.cloudfunctions.net",
+          "https://*.run.app",
+          "https://identitytoolkit.googleapis.com"
+        ],
+        frameAncestors: ["'self'", "https://aistudio.google.com", "https://*.google.com", "https://*.run.app"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"]
+      }
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false,
+    xFrameOptions: false,
+    hsts: {
+      maxAge: 63072000,
+      includeSubDomains: true,
+      preload: true
+    },
+    xContentTypeOptions: true,
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    xXssProtection: true
+  })
+);
+
+// Supplementary enterprise permissions policy & timing headers
 app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), display-capture=(), interest-cohort=()'
+  );
   res.setHeader('Timing-Allow-Origin', '*');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   next();
 });
 

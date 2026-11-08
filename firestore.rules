@@ -1,18 +1,45 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // =========================================================================
+    // RAVANA TECH — SILICON VALLEY ENTERPRISE COMPLIANCE SECURITY RULES
+    // Defense-in-depth: Strict schema whitelisting, boundary enforcement,
+    // regex pattern matching, zero unauthorized read/update/delete exfiltration.
+    // =========================================================================
+
+    function isValidEmail(email) {
+      return email is string 
+             && email.size() >= 5 
+             && email.size() <= 150 
+             && email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+    }
+
+    function isValidString(str, minLen, maxLen) {
+      return str is string && str.size() >= minLen && str.size() <= maxLen;
+    }
+
     // Inquiries / Leads Collection:
-    // Allow public creation with required valid schema, but disallow public reading, modification, or deletion
     match /inquiries/{inquiryId} {
-      allow create: if request.resource.data.name is string
-                    && request.resource.data.name.size() > 0
-                    && request.resource.data.name.size() < 200
-                    && request.resource.data.email is string
-                    && request.resource.data.email.size() > 0
-                    && request.resource.data.email.size() < 200
-                    && request.resource.data.message is string
-                    && request.resource.data.message.size() > 0
-                    && request.resource.data.message.size() < 5000;
+      // 1. Strict Schema Enforcement: Only exact whitelisted keys permitted (Zero Payload Injection)
+      allow create: if request.resource.data.keys().hasOnly([
+                      'name', 'email', 'system', 'service', 'message', 
+                      'createdAt', 'clientTimestamp', 'source', 'status'
+                    ])
+                    // Required Core Identity & Scope
+                    && isValidString(request.resource.data.name, 2, 120)
+                    && isValidEmail(request.resource.data.email)
+                    && isValidString(request.resource.data.message, 5, 5000)
+                    // Optional Context Fields with boundaries
+                    && (!('system' in request.resource.data) || isValidString(request.resource.data.system, 1, 150))
+                    && (!('service' in request.resource.data) || isValidString(request.resource.data.service, 1, 150))
+                    && (!('source' in request.resource.data) || isValidString(request.resource.data.source, 1, 100))
+                    && (!('status' in request.resource.data) || request.resource.data.status == 'new')
+                    && (!('clientTimestamp' in request.resource.data) || isValidString(request.resource.data.clientTimestamp, 1, 50))
+                    // Immutable Timestamp Integrity: Must match server request time
+                    && (!('createdAt' in request.resource.data) || request.resource.data.createdAt == request.time);
+
+      // Defense-In-Depth: Absolutely forbid reading, updating, or deleting client leads publicly
       allow read, update, delete: if false;
     }
 

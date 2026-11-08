@@ -3,6 +3,17 @@
   "version": "1.0.0",
   "inquiries": [
     {
+      "id": "LEAD-1794081469321-6J6OH",
+      "name": "Global Client Silicon Valley",
+      "email": "partner@techcorp.io",
+      "service": "General Inquiry",
+      "message": "Enterprise AI Transformation Project",
+      "source": "website_contact_form",
+      "ip": "127.0.0.1",
+      "userAgent": "browser",
+      "receivedAt": "2026-11-07T19:57:49.322Z"
+    },
+    {
       "id": "LEAD-1794046014248-D6PIX",
       "name": "alert(1)Bob",
       "email": "bob@company.com",

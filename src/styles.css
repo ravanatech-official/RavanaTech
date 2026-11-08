@@ -6208,3 +6208,119 @@ li:has(.nav__link-lab) {
   }
 }
 
+/* ==============================================================
+   DYNAMIC GITHUB CI/CD DEPLOYMENT STATUS BADGE
+   ============================================================== */
+.github-ci-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.95rem;
+  background: rgba(1, 18, 30, 0.85);
+  border: 1px solid rgba(0, 191, 255, 0.35);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--rt-text);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.12), inset 0 0 10px rgba(0, 191, 255, 0.05);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.github-ci-badge:hover {
+  border-color: var(--rt-cyan-bright);
+  box-shadow: 0 0 22px rgba(24, 200, 255, 0.35), inset 0 0 12px rgba(0, 191, 255, 0.15);
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.github-ci-badge .ci-icon {
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.github-ci-badge .ci-divider {
+  width: 1px;
+  height: 12px;
+  background: rgba(0, 191, 255, 0.3);
+}
+
+.github-ci-badge .ci-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: pulse-ci-green 2s infinite ease-in-out;
+}
+
+.github-ci-badge.ci-in_progress .ci-status-dot {
+  background: #F59E0B;
+  box-shadow: 0 0 8px #F59E0B;
+  animation: pulse-ci-yellow 1.2s infinite ease-in-out;
+}
+
+.github-ci-badge.ci-failure .ci-status-dot {
+  background: #EF4444;
+  box-shadow: 0 0 8px #EF4444;
+  animation: pulse-ci-red 1.2s infinite ease-in-out;
+}
+
+.github-ci-badge .ci-status-text {
+  font-weight: 700;
+  color: #10B981;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.github-ci-badge.ci-in_progress .ci-status-text {
+  color: #F59E0B;
+}
+
+.github-ci-badge.ci-failure .ci-status-text {
+  color: #EF4444;
+}
+
+.github-ci-badge .ci-run-tag {
+  color: var(--rt-text-dim);
+  font-size: 0.7rem;
+}
+
+@keyframes pulse-ci-green {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px #10B981;
+  }
+  50% {
+    transform: scale(1.35);
+    box-shadow: 0 0 14px #34D399;
+  }
+}
+
+@keyframes pulse-ci-yellow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px #F59E0B;
+  }
+  50% {
+    transform: scale(1.35);
+    box-shadow: 0 0 14px #FBBF24;
+  }
+}
+
+@keyframes pulse-ci-red {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px #EF4444;
+  }
+  50% {
+    transform: scale(1.35);
+    box-shadow: 0 0 14px #F87171;
+  }
+}
+
+

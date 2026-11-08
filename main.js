@@ -401,7 +401,6 @@ if (contactForm && formFeedback) {
         const email = document.getElementById('sender-email').value.trim();
         const system = document.getElementById('sender-system').value;
         const message = document.getElementById('sender-message').value.trim();
-        const honeypot = document.getElementById('contact_hp') ? document.getElementById('contact_hp').value : '';
         const submitBtn = contactForm.querySelector('button[type="submit"]');
 
         if (!name || !email || !message) {
@@ -420,7 +419,7 @@ if (contactForm && formFeedback) {
             fetch('/api/inquiry', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, service: system, message, source: 'website_contact_form', honeypot })
+                body: JSON.stringify({ name, email, service: system, message, source: 'website_contact_form' })
             }).catch(e => console.warn('[API Inquiry] Deferred/Background error:', e));
         } catch (apiErr) {
             console.warn('[API Inquiry] Error:', apiErr);
@@ -444,8 +443,10 @@ if (contactForm && formFeedback) {
             submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> Inquiry Submitted";
 
             formFeedback.className = 'form__status-msg success';
-            const recordNum = firestoreDocId ? `Reference ID: #${firestoreDocId.substring(0, 8).toUpperCase()}<br>` : '';
-            formFeedback.innerHTML = `<strong>Thank you, ${name}!</strong><br>${recordNum}Your project inquiry for <em>${system}</em> has been received. Our team will review your requirements and respond within 60 minutes.`;
+            const cleanFeedbackName = String(name || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+            const cleanFeedbackSystem = String(system || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+            const recordNum = firestoreDocId ? `Reference ID: #${String(firestoreDocId).substring(0, 8).toUpperCase()}<br>` : '';
+            formFeedback.innerHTML = `<strong>Thank you, ${cleanFeedbackName}!</strong><br>${recordNum}Your project inquiry for <em>${cleanFeedbackSystem}</em> has been received. Our team will review your requirements and respond within 60 minutes.`;
 
             // Prepare instant WhatsApp Handoff CTA
             const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a project inquiry from your website.\n\nName: ${name}\nService: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);
@@ -1372,7 +1373,7 @@ ${p.education.map(e => `- ${e}`).join('\n')}`;
 
         const docHtml = isCustomRaw ? `
             <div class="cv-paper">
-                <h4 class="cv-paper-name">${p.name}</h4>
+                <h1>${p.name}</h1>
                 <div class="cv-title-tag">${p.title}</div>
                 <div class="cv-contact-row">
                     <span><i class='bx bx-envelope'></i> ${p.email}</span>
@@ -1386,7 +1387,7 @@ ${p.education.map(e => `- ${e}`).join('\n')}`;
             </div>
         ` : `
             <div class="cv-paper">
-                <h4 class="cv-paper-name">${p.name}</h4>
+                <h1>${p.name}</h1>
                 <div class="cv-title-tag">${p.title}</div>
                 <div class="cv-contact-row">
                     <span><i class='bx bx-envelope'></i> ${p.email}</span>
@@ -1458,7 +1459,7 @@ ${p.education.map(e => `- ${e}`).join('\n')}`;
 
         const dataHtml = `
             <div class="cv-paper">
-                <h4 class="cv-paper-name">${p.name}</h4>
+                <h1>${p.name}</h1>
                 <div class="cv-title-tag">DATA ENTRY SPECIALIST &amp; AI WORKFLOW ARCHITECT</div>
                 <div class="cv-contact-row">
                     <span><i class='bx bx-envelope'></i> ${p.email}</span>
@@ -1795,7 +1796,7 @@ Contact: ${p.email} | WhatsApp: ${p.phone}`;
         });
     }
 
-    if (btnResetCv) {
+            if (btnResetCv) {
         btnResetCv.addEventListener('click', () => {
             try {
                 localStorage.removeItem('ravana_user_real_cv');
@@ -1810,32 +1811,48 @@ Contact: ${p.email} | WhatsApp: ${p.phone}`;
 
 })();
 
-/*==================== DATA PRIVACY & COOKIE COMPLIANCE CONSENT ====================*/
-(function initConsentBanner() {
-    const banner = document.getElementById('cyber-consent-banner');
-    const acceptBtn = document.getElementById('btn-accept-consent');
-    if (!banner || !acceptBtn) return;
+/*==================== DYNAMIC GITHUB CI/CD STATUS POLLER ====================*/
+(function initHomeGitHubCiStatus() {
+    const badge = document.getElementById('home-github-ci-badge');
+    const statusText = document.getElementById('home-ci-badge-status');
+    const runTag = document.getElementById('home-ci-badge-run');
+    if (!badge || !statusText) return;
 
-    try {
-        if (localStorage.getItem('rt_consent_acknowledged') === 'true') {
-            banner.style.display = 'none';
-            return;
-        }
-    } catch (e) {}
-
-    setTimeout(() => {
-        banner.style.display = 'block';
-    }, 1200);
-
-    acceptBtn.addEventListener('click', () => {
+    async function fetchCiStatus() {
         try {
-            localStorage.setItem('rt_consent_acknowledged', 'true');
-        } catch (e) {}
-        banner.style.opacity = '0';
-        banner.style.transform = 'translateY(15px)';
-        banner.style.transition = 'all 0.3s ease';
-        setTimeout(() => { banner.style.display = 'none'; }, 300);
-    });
+            const res = await fetch('/api/github/status');
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data) return;
+
+            if (data.htmlUrl) {
+                badge.href = data.htmlUrl;
+            }
+
+            badge.classList.remove('ci-in_progress', 'ci-failure');
+
+            if (data.status === 'in_progress' || data.status === 'queued') {
+                badge.classList.add('ci-in_progress');
+                statusText.textContent = 'BUILDING';
+                if (runTag) runTag.textContent = data.runNumber ? `#${data.runNumber}` : 'RUNNING';
+                badge.title = `GitHub Actions build in progress: ${data.commitMessage || data.name}`;
+            } else if (data.conclusion === 'failure') {
+                badge.classList.add('ci-failure');
+                statusText.textContent = 'FAILED';
+                if (runTag) runTag.textContent = data.runNumber ? `#${data.runNumber}` : 'ERR';
+                badge.title = `GitHub Actions build failed: ${data.commitMessage || data.name}`;
+            } else {
+                statusText.textContent = 'PASSING';
+                if (runTag) runTag.textContent = data.runNumber ? `#${data.runNumber}` : 'LIVE';
+                badge.title = `GitHub Actions build healthy: ${data.commitMessage || data.name}`;
+            }
+        } catch (e) {
+            // Quiet fallback
+        }
+    }
+
+    fetchCiStatus();
+    setInterval(fetchCiStatus, 60000);
 })();
 
 

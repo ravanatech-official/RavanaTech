@@ -169,8 +169,24 @@
                                 <h1 class="archive-main-heading">50 BESPOKE CONCEPTUAL BLUEPRINTS</h1>
                             </div>
 
-                            <!-- Live Stat Pills -->
+                            <!-- Live Stat Pills & Dynamic CI/CD Status Badge -->
                             <div class="archive-stat-deck">
+                                <a 
+                                    href="https://github.com/ravanatech-official/RavanaTech/actions" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    class="github-ci-badge" 
+                                    id="projects-github-ci-badge" 
+                                    title="Click to view live GitHub Actions workflow runs and deployment logs"
+                                >
+                                    <i class='bx bxl-github ci-icon'></i>
+                                    <span>CI/CD</span>
+                                    <span class="ci-divider"></span>
+                                    <span class="ci-status-dot" id="ci-badge-dot"></span>
+                                    <span class="ci-status-text" id="ci-badge-status">PASSING</span>
+                                    <span class="ci-run-tag" id="ci-badge-run">LIVE</span>
+                                </a>
+
                                 <div class="archive-stat-card">
                                     <span class="stat-number" id="archive-stat-total">50</span>
                                     <span class="stat-label">TOTAL CONCEPTS</span>
@@ -201,18 +217,16 @@
                             <!-- Search & View Mode Toolbar -->
                             <div class="gallery-toolbar-row">
                                 <div class="gallery-search-wrap">
-                                    <label for="gallery-search-input" class="sr-only">Search 50 concepts by name, industry, or keyword</label>
-                                    <i class='bx bx-search gallery-search-icon' aria-hidden="true"></i>
+                                    <i class='bx bx-search gallery-search-icon'></i>
                                     <input 
                                         type="text" 
                                         id="gallery-search-input" 
                                         class="gallery-search-input" 
                                         placeholder="SEARCH 50 CONCEPTS BY NAME, INDUSTRY, OR KEYWORD..." 
                                         autocomplete="off"
-                                        aria-label="Search 50 concepts by name, industry, or keyword"
                                     >
-                                    <button type="button" id="gallery-search-clear" class="gallery-search-clear" title="Clear search" aria-label="Clear search input">
-                                        <i class='bx bx-x' aria-hidden="true"></i>
+                                    <button type="button" id="gallery-search-clear" class="gallery-search-clear" title="Clear search">
+                                        <i class='bx bx-x'></i>
                                     </button>
                                 </div>
 
@@ -401,6 +415,52 @@
                     navMenu.classList.toggle('show');
                 });
             }
+
+            // Real-Time GitHub CI/CD Health Poller
+            (function initGitHubCiStatus() {
+                const badge = document.getElementById('projects-github-ci-badge');
+                const statusDot = document.getElementById('ci-badge-dot');
+                const statusText = document.getElementById('ci-badge-status');
+                const runTag = document.getElementById('ci-badge-run');
+                if (!badge || !statusText) return;
+
+                async function updateStatus() {
+                    try {
+                        const res = await fetch('/api/github/status');
+                        if (!res.ok) return;
+                        const data = await res.json();
+                        if (!data) return;
+
+                        if (data.htmlUrl) {
+                            badge.href = data.htmlUrl;
+                        }
+
+                        badge.classList.remove('ci-in_progress', 'ci-failure');
+
+                        if (data.status === 'in_progress' || data.status === 'queued') {
+                            badge.classList.add('ci-in_progress');
+                            statusText.textContent = 'BUILDING';
+                            runTag.textContent = data.runNumber ? `#${data.runNumber}` : 'RUNNING';
+                            badge.title = `GitHub Actions build in progress: ${data.commitMessage || data.name}`;
+                        } else if (data.conclusion === 'failure') {
+                            badge.classList.add('ci-failure');
+                            statusText.textContent = 'FAILED';
+                            runTag.textContent = data.runNumber ? `#${data.runNumber}` : 'ERR';
+                            badge.title = `GitHub Actions build failed: ${data.commitMessage || data.name}`;
+                        } else {
+                            statusText.textContent = 'PASSING';
+                            runTag.textContent = data.runNumber ? `#${data.runNumber}` : 'LIVE';
+                            badge.title = `GitHub Actions build healthy: ${data.commitMessage || data.name}`;
+                        }
+                    } catch (e) {
+                        // Silent fallback
+                    }
+                }
+
+                updateStatus();
+                // Check periodically every 60 seconds
+                setInterval(updateStatus, 60000);
+            })();
         </script>
     </body>
 </html>

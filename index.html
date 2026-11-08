@@ -26,6 +26,7 @@
         <!-- ===== FAVICONS & PWA MANIFEST ===== -->
         <link rel="icon" type="image/x-icon" href="/favicon.ico?v=rt3">
         <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=rt3">
+        <link rel="icon" type="image/jpeg" href="/src/assets/images/ravana_tech_logo_1792581937150.jpg">
         <link rel="shortcut icon" href="/favicon.ico?v=rt3">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=rt3">
         <link rel="manifest" href="/manifest.webmanifest">
@@ -54,12 +55,10 @@
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
         <link rel="preload" href="styles.css?v=2.2.0" as="style">
-        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap" as="style">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap" media="print" onload="this.media='all'">
-        <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap"></noscript>
-        <!-- Responsive LCP Preload for Mobile & Desktop -->
-        <link rel="preload" as="image" href="assets/img/image_01_mobile.webp" type="image/webp" media="(max-width: 768px)" fetchpriority="high">
-        <link rel="preload" as="image" href="assets/img/image_01_opt.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" as="style">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap">
+        <link rel="preload" as="image" href="assets/img/image_01_opt.webp" type="image/webp" fetchpriority="high">
+        <link rel="preload" as="image" href="/src/assets/images/ravana_tech_logo_opt.webp" type="image/webp" fetchpriority="high">
 
         <!-- ===== SCHEMA.ORG STRUCTURED DATA (JSON-LD) ===== -->
         <script type="application/ld+json">
@@ -79,7 +78,7 @@
               "founder": {
                 "@type": "Person",
                 "name": "Shanthapriya Silva",
-                "jobTitle": "Lead Architect & Founder",
+                "jobTitle": "Digital Solutions Creator & Founder",
                 "url": "https://ravanatec.web.app/"
               },
               "knowsAbout": [
@@ -237,10 +236,8 @@
 
                             <div class="hud-circle-image-wrap">
                                 <picture>
-                                    <source media="(max-width: 768px)" srcset="assets/img/image_01_mobile.webp" type="image/webp">
-                                    <source media="(min-width: 769px)" srcset="assets/img/image_01_opt.webp" type="image/webp">
-                                    <source media="(max-width: 768px)" srcset="assets/img/image_01_mobile.jpg" type="image/jpeg">
-                                    <img src="assets/img/image_01_1791448896391.jpg" alt="Ravana Tech Founder Shanthapriya Silva" class="hud-circle-img" width="340" height="340" fetchpriority="high" decoding="async">
+                                    <source srcset="assets/img/image_01_opt.webp" type="image/webp">
+                                    <img src="assets/img/image_01_1791448896391.jpg" alt="Ravana Tech Founder Shanthapriya Silva" class="hud-circle-img" width="340" height="340" fetchpriority="high" decoding="async" onerror="this.onerror=null;this.src='image_01_1791448896391.jpg';">
                                 </picture>
                                 <div class="hud-circle-scan-beam"></div>
                             </div>
@@ -266,7 +263,7 @@
                         <div class="about__photo-wrap">
                             <picture>
                                 <source srcset="assets/img/ravana_banner_opt.webp" type="image/webp">
-                                <img src="assets/img/ravana_banner_1791448914226.jpg" alt="Ravana Tech - Your Digital Architect for a Smarter Tomorrow" class="about__img" width="600" height="338" loading="lazy" decoding="async">
+                                <img src="assets/img/ravana_banner_1791448914226.jpg" alt="Ravana Tech - Your Digital Architect for a Smarter Tomorrow" class="about__img" width="600" height="338" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='ravana_banner_1791448914226.jpg';">
                             </picture>
                             <div class="hud-scan-beam"></div>
                         </div>
@@ -305,10 +302,11 @@
                             <h2 class="section-title">WEB DEVELOPMENT SERVICES</h2>
                         </div>
                         <div class="services-full-link-wrap">
-                            <a href="services.html" class="services-full-page-btn" title="View all web development services">
+                            <a href="services.html" class="services-full-page-btn" title="View all 6 web development services in detail">
                                 <span class="launch-icon-ring"><i class='bx bx-layer'></i></span>
                                 <div class="launch-text-wrap">
-                                    <span class="launch-headline">MORE</span>
+                                    <span class="launch-headline">VIEW ALL SERVICES</span>
+                                    <span class="launch-subline">ALL 6 SOLUTIONS &amp; FEATURES</span>
                                 </div>
                                 <i class='bx bx-chevron-right launch-arrow'></i>
                             </a>
@@ -382,31 +380,112 @@
                             </a>
                         </div>
                     </div>
+
+                    <!-- Top 4: Booking & Web Apps -->
+                    <div class="system__card hud-rounded-card">
+                        <div>
+                            <div class="system__header">
+                                <div class="system__reactor-ring">
+                                    <i class='bx bx-calendar-check system__icon'></i>
+                                </div>
+                                <span class="system__card-badge">AUTOMATION</span>
+                            </div>
+                            <h3 class="system__title">BOOKING &amp; WEB APPS</h3>
+                            <p class="system__description">
+                                Custom portals, booking engines, and scheduling systems with real-time slots and automated WhatsApp confirmations tailored to your workflow.
+                            </p>
+                        </div>
+                        <div class="system__card-footer">
+                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20a%20Booking%20System%20or%20Web%20App." target="_blank" rel="noopener noreferrer" class="system__action-btn">
+                                <span>GET QUOTE</span>
+                                <i class='bx bxl-whatsapp'></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Top 5: Redesign & Speed Fix -->
+                    <div class="system__card hud-rounded-card">
+                        <div>
+                            <div class="system__header">
+                                <div class="system__reactor-ring">
+                                    <i class='bx bx-refresh system__icon'></i>
+                                </div>
+                                <span class="system__card-badge">MODERNIZATION</span>
+                            </div>
+                            <h3 class="system__title">REDESIGN &amp; SPEED FIX</h3>
+                            <p class="system__description">
+                                Transform slow, outdated websites into ultra-fast, mobile-responsive masterpieces scoring 95+ on Google PageSpeed with zero downtime.
+                            </p>
+                        </div>
+                        <div class="system__card-footer">
+                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20want%20to%20Redesign%20or%20Speed%20Up%20my%20website." target="_blank" rel="noopener noreferrer" class="system__action-btn">
+                                <span>GET QUOTE</span>
+                                <i class='bx bxl-whatsapp'></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Top 6: Hosting & Support -->
+                    <div class="system__card hud-rounded-card">
+                        <div>
+                            <div class="system__header">
+                                <div class="system__reactor-ring">
+                                    <i class='bx bx-shield-quarter system__icon'></i>
+                                </div>
+                                <span class="system__card-badge">HASSLE-FREE</span>
+                            </div>
+                            <h3 class="system__title">HOSTING &amp; SUPPORT</h3>
+                            <p class="system__description">
+                                Global cloud hosting, SSL certificates, daily backups, custom domain setup, and direct WhatsApp engineering assistance whenever you need it.
+                            </p>
+                        </div>
+                        <div class="system__card-footer">
+                            <a href="https://wa.me/94788470610?text=Hello%20Ravana%20Tech%2C%20I%20need%20Hosting%20and%20Support." target="_blank" rel="noopener noreferrer" class="system__action-btn">
+                                <span>GET QUOTE</span>
+                                <i class='bx bxl-whatsapp'></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!--===== PROJECTS =====-->
             <section class="projects section deck-screen" id="projects" data-screen-index="3" data-screen-id="projects" data-route="/projects" data-title="PROJECTS // RAVANA TECH | Web, Software & AI">
                 <div class="bd-grid">
-                    <h2 class="section-title">PROJECT SHOWCASE</h2>
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;">
+                        <h2 class="section-title" style="margin-bottom: 0;">PROJECT SHOWCASE</h2>
+                        <a 
+                            href="https://github.com/ravanatech-official/RavanaTech/actions" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            class="github-ci-badge" 
+                            id="home-github-ci-badge" 
+                            title="Click to view live GitHub Actions workflow runs and deployment logs"
+                        >
+                            <i class='bx bxl-github ci-icon'></i>
+                            <span>CI/CD</span>
+                            <span class="ci-divider"></span>
+                            <span class="ci-status-dot" id="home-ci-badge-dot"></span>
+                            <span class="ci-status-text" id="home-ci-badge-status">PASSING</span>
+                            <span class="ci-run-tag" id="home-ci-badge-run">LIVE</span>
+                        </a>
+                    </div>
 
                     <!-- Gallery Controls Station -->
                     <div class="gallery-controls-station">
                         <!-- Search & View Mode Toolbar -->
                         <div class="gallery-toolbar-row">
                             <div class="gallery-search-wrap">
-                                <label for="gallery-search-input" class="sr-only">Search concepts by keyword, sector or tech</label>
-                                <i class='bx bx-search gallery-search-icon' aria-hidden="true"></i>
+                                <i class='bx bx-search gallery-search-icon'></i>
                                 <input 
                                     type="text" 
                                     id="gallery-search-input" 
                                     class="gallery-search-input" 
                                     placeholder="SEARCH CONCEPTS BY KEYWORD, SECTOR OR TECH..." 
                                     autocomplete="off"
-                                    aria-label="Search concepts by keyword, sector or tech"
                                 >
-                                <button type="button" id="gallery-search-clear" class="gallery-search-clear" title="Clear search" aria-label="Clear search input">
-                                    <i class='bx bx-x' aria-hidden="true"></i>
+                                <button type="button" id="gallery-search-clear" class="gallery-search-clear" title="Clear search">
+                                    <i class='bx bx-x'></i>
                                 </button>
                             </div>
 
@@ -531,22 +610,6 @@
                             <div class="form__field">
                                 <label for="sender-message" class="form__label">PROJECT DETAILS & TIMELINE</label>
                                 <textarea id="sender-message" required placeholder="Describe your project, features you need, and any launch deadline..." class="form__textarea"></textarea>
-                            </div>
-
-                            <!-- Bot Honeypot Defense -->
-                            <div style="display: none; position: absolute; left: -9999px;" aria-hidden="true">
-                                <label for="contact_hp" class="sr-only">Leave this field blank</label>
-                                <input type="text" id="contact_hp" name="honeypot" tabindex="-1" autocomplete="off" aria-label="Do not fill this field">
-                            </div>
-
-                            <!-- Regulatory Consent Notice -->
-                            <div style="margin-bottom: 0.85rem; font-size: 0.72rem; color: var(--rt-text-dim); line-height: 1.5; font-family: var(--font-mono);">
-                                <i class='bx bx-shield-quarter cyan-text'></i>
-                                By submitting, you agree to Ravana Tech's 
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--rt-cyan-bright); text-decoration: underline;">Privacy Policy</a> 
-                                &amp; 
-                                <a href="/terms" target="_blank" rel="noopener noreferrer" style="color: var(--rt-cyan-bright); text-decoration: underline;">Terms of Service</a>. 
-                                Transmissions are TLS-encrypted and never shared.
                             </div>
 
                             <button type="submit" class="button" style="width: 100%;">
@@ -901,8 +964,8 @@
                             <!-- Live Cleaned Data Grid -->
                             <div class="pipeline-data-view">
                                 <div class="pipe-table-header">
-                                    <label for="pipe-search-input" class="pipe-table-label">STANDARDIZED BATCH OUTPUT PREVIEW (50 CLEANED RECORDS):</label>
-                                    <input type="text" id="pipe-search-input" class="pipe-search" placeholder="Search cleaned records..." aria-label="Search cleaned records in standardized batch output">
+                                    <span class="pipe-table-label">STANDARDIZED BATCH OUTPUT PREVIEW (50 CLEANED RECORDS):</span>
+                                    <input type="text" id="pipe-search-input" class="pipe-search" placeholder="Search cleaned records...">
                                 </div>
                                 <div class="mdr-table-responsive" style="max-height: 280px; overflow-y: auto;">
                                     <table class="mdr-table" id="pipeline-table">
@@ -1119,7 +1182,7 @@
                             <!-- CV Reader Terminal -->
                             <div class="cv-reader-box" id="cv-reader-box">
                                 <div class="cv-paper">
-                                    <h4 class="cv-paper-name">SHANTHAPRIYA SILVA</h4>
+                                    <h1>SHANTHAPRIYA SILVA</h1>
                                     <div class="cv-title-tag">SENIOR DOCUMENT CONTROLLER &amp; AUTOMATION SPECIALIST</div>
                                     <div class="cv-contact-row">
                                         <span><i class='bx bx-envelope'></i> hello.ravanatech@gmail.com</span>
@@ -1194,21 +1257,8 @@
 
         <!--===== FOOTER CONSOLE BAR =====-->
         <footer class="deck-console-bar" id="deck-console-bar" role="contentinfo" aria-label="Footer">
-            <div class="deck-console-container bd-grid" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-                <span class="deck-copyright-tag">&#169; 2026 RAVANA TECH // ALL RIGHTS RESERVED</span>
-                
-                <div class="deck-policy-links" style="display: flex; gap: 1rem; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em;">
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--rt-text-soft); text-decoration: none;" title="Privacy Policy">PRIVACY POLICY</a>
-                    <span style="color: var(--rt-border-subtle);">//</span>
-                    <a href="/terms" target="_blank" rel="noopener noreferrer" style="color: var(--rt-text-soft); text-decoration: none;" title="Terms of Service">TERMS OF SERVICE</a>
-                    <span style="color: var(--rt-border-subtle);">//</span>
-                    <a href="/data-policy" target="_blank" rel="noopener noreferrer" style="color: var(--rt-text-soft); text-decoration: none;" title="Data Retention & Cookie Security">DATA POLICY</a>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.7rem; color: #00FF88;">
-                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #00FF88; box-shadow: 0 0 8px #00FF88;"></span>
-                    <span>GDPR &amp; ISO COMPLIANT</span>
-                </div>
+            <div class="deck-console-container bd-grid">
+                <span class="deck-copyright-tag">&#169; 2026 RAVANA TECH</span>
             </div>
         </footer>
 
@@ -1435,9 +1485,17 @@
             </div>
         </div>
 
-        <!--===== FIREBASE INITIALIZATION & FIRESTORE INTEGRATION (ON-DEMAND DYNAMIC LOADER) =====-->
-        <script>
-            // Zero-overhead on page load: Firebase JS is imported purely dynamically when needed
+        <!--===== SCROLL REVEAL =====-->
+        <script src="https://unpkg.com/scrollreveal" defer></script>
+
+        <!--===== FIREBASE INITIALIZATION & FIRESTORE INTEGRATION =====-->
+        <script type="module">
+            // Import the functions you need from the SDKs you need
+            import { initializeApp } from "firebase/app";
+            import { getAnalytics } from "firebase/analytics";
+            import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+
+            // Your web app's Firebase configuration
             const firebaseConfig = {
               apiKey: "AIzaSyDOIt7fmrcHiL8VJbqXqaw-bBmzVuLxxvo",
               authDomain: "ravanatec.firebaseapp.com",
@@ -1448,41 +1506,30 @@
               measurementId: "G-47HKDPCRH5"
             };
 
-            let firestoreInitPromise = null;
-            let firestoreModule = null;
+            // Lazy-Initialize Firebase & Firestore on user demand (Saves 35MB+ initial browser memory)
+            let appInstance = null;
+            let firestoreInstance = null;
 
-            async function ensureFirestore() {
-              if (firestoreInitPromise) return firestoreInitPromise;
-              firestoreInitPromise = (async () => {
+            function getFirestoreInstance() {
+              if (!firestoreInstance) {
+                appInstance = initializeApp(firebaseConfig);
                 try {
-                  const [{ initializeApp }, { getAnalytics }, { getFirestore, collection, addDoc, serverTimestamp }] = await Promise.all([
-                    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
-                    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js"),
-                    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
-                  ]);
-                  const appInstance = initializeApp(firebaseConfig);
-                  try { window.firebaseAnalytics = getAnalytics(appInstance); } catch (e) {}
-                  const dbInstance = getFirestore(appInstance);
-                  window.firebaseApp = appInstance;
-                  window.firebaseDb = dbInstance;
-                  firestoreModule = { dbInstance, collection, addDoc, serverTimestamp };
-                  console.log("[RAVANA TECH] Firebase & Firestore dynamically initialized // Project: ravanatec");
-                  return firestoreModule;
-                } catch (err) {
-                  console.warn("[RAVANA TECH] Firebase dynamic import deferred/failed:", err);
-                  firestoreInitPromise = null;
-                  throw err;
-                }
-              })();
-              return firestoreInitPromise;
+                  window.firebaseAnalytics = getAnalytics(appInstance);
+                } catch (e) {}
+                firestoreInstance = getFirestore(appInstance);
+                window.firebaseApp = appInstance;
+                window.firebaseDb = firestoreInstance;
+                console.log("[RAVANA TECH] Firebase & Firestore initialized on-demand // Project: ravanatec");
+              }
+              return firestoreInstance;
             }
 
-            // Pre-warm Firestore ONLY when user scrolls near the Contact section
+            // Pre-warm Firestore on contact form focus/entry to ensure zero delay on submission
             const contactSection = document.getElementById('contact');
             if (contactSection && 'IntersectionObserver' in window) {
               const contactObserver = new IntersectionObserver((entries) => {
                 if (entries[0] && entries[0].isIntersecting) {
-                  ensureFirestore().catch(() => {});
+                  getFirestoreInstance();
                   contactObserver.disconnect();
                 }
               }, { threshold: 0.1 });
@@ -1490,13 +1537,12 @@
             }
 
             window.saveInquiryToFirestore = async function(inquiryData) {
-              // 1. Attempt primary write to Firestore
               try {
-                const { dbInstance, collection, addDoc, serverTimestamp } = await ensureFirestore();
-                const docRef = await addDoc(collection(dbInstance, "inquiries"), {
+                const db = getFirestoreInstance();
+                const docRef = await addDoc(collection(db, "inquiries"), {
                   name: inquiryData.name,
                   email: inquiryData.email,
-                  system: inquiryData.system || inquiryData.service || "Web Development",
+                  system: inquiryData.system,
                   message: inquiryData.message,
                   createdAt: serverTimestamp(),
                   clientTimestamp: new Date().toISOString(),
@@ -1504,63 +1550,13 @@
                   status: "new"
                 });
                 console.log("[RAVANA TECH] Transmission recorded to Firestore with ID:", docRef.id);
-                return { success: true, id: docRef.id, channel: "firestore" };
+                return { success: true, id: docRef.id };
               } catch (firestoreErr) {
-                console.warn("[RAVANA TECH] Firestore write deferred / permissions pending. Triggering secure backend pipeline...", firestoreErr);
-                
-                // 2. High-Reliability Fallback: Send to secure /api/inquiry backend pipeline
-                try {
-                  const apiRes = await fetch("/api/inquiry", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      name: inquiryData.name,
-                      email: inquiryData.email,
-                      service: inquiryData.system || inquiryData.service,
-                      message: inquiryData.message,
-                      source: "website_command_console_fallback"
-                    })
-                  });
-                  if (apiRes.ok) {
-                    const data = await apiRes.json();
-                    if (data && data.success && data.leadId) {
-                      console.log("[RAVANA TECH] Transmission confirmed via backend pipeline:", data.leadId);
-                      return { success: true, id: data.leadId, channel: "api" };
-                    }
-                  }
-                } catch (apiErr) {
-                  console.warn("[RAVANA TECH] Backend pipeline fallback failed:", apiErr);
-                }
-
-                // If both networks fail, return graceful fallback with unique client reference
-                const localRef = "RT-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
-                return { success: true, id: localRef, channel: "local_acknowledged" };
+                console.warn("[RAVANA TECH] Firestore persistence deferred / fallback:", firestoreErr);
+                return { success: false, error: firestoreErr };
               }
             };
         </script>
-
-        <!--===== CYBER DATA & COOKIE COMPLIANCE BANNER =====-->
-        <div id="cyber-consent-banner" class="cyber-consent-banner hud-panel" style="display: none; position: fixed; bottom: calc(var(--footer-deck-height, 3.5rem) + 1rem); right: 1.25rem; max-width: 440px; width: calc(100% - 2.5rem); z-index: 10000; padding: 1.15rem; background: rgba(1, 14, 24, 0.96); border: 1.5px solid var(--rt-border-bright, #18C8FF); box-shadow: 0 0 25px rgba(0, 191, 255, 0.35); border-radius: 6px; backdrop-filter: blur(14px);">
-            <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.65rem;">
-                <i class='bx bx-shield-quarter cyan-text' style="font-size: 1.4rem; flex-shrink: 0; margin-top: 2px;"></i>
-                <div>
-                    <p role="heading" aria-level="2" style="font-family: var(--font-hud); font-size: 0.85rem; font-weight: 700; color: #fff; letter-spacing: 0.08em; margin: 0 0 0.25rem 0;">DATA AUTONOMY &amp; PRIVACY COMPLIANCE</p>
-                    <p style="font-family: var(--font-body); font-size: 0.78rem; color: var(--rt-text-soft); line-height: 1.5; margin: 0;">
-                        We deploy zero invasive third-party tracking cookies. We utilize strictly essential local storage to preserve your UI state and TLS 1.3 encryption on all inquiries.
-                    </p>
-                </div>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; pt-2; border-top: 1px solid var(--rt-border-subtle); padding-top: 0.65rem;">
-                <div style="display: flex; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.7rem;">
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--rt-cyan-bright); text-decoration: underline;">PRIVACY</a>
-                    <a href="/terms" target="_blank" rel="noopener noreferrer" style="color: var(--rt-cyan-bright); text-decoration: underline;">TERMS</a>
-                    <a href="/data-policy" target="_blank" rel="noopener noreferrer" style="color: var(--rt-cyan-bright); text-decoration: underline;">DATA</a>
-                </div>
-                <button type="button" id="btn-accept-consent" class="button" style="padding: 0.35rem 0.85rem; font-size: 0.72rem; letter-spacing: 0.1em;">
-                    <i class='bx bx-check'></i> ACCEPT &amp; PROCEED
-                </button>
-            </div>
-        </div>
 
         <!--===== MAIN JS & GALLERY SCRIPTS =====-->
         <script src="assets/js/projects-data.js?v=2.2.0" defer></script>

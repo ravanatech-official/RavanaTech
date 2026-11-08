@@ -349,8 +349,10 @@ if (contactForm && formFeedback) {
             submitBtn.innerHTML = "<i class='bx bx-check-circle'></i> Inquiry Submitted";
 
             formFeedback.className = 'form__status-msg success';
-            const recordNum = firestoreDocId ? `Reference ID: #${firestoreDocId.substring(0, 8).toUpperCase()}<br>` : '';
-            formFeedback.innerHTML = `<strong>Thank you, ${name}!</strong><br>${recordNum}Your project inquiry for <em>${system}</em> has been received. Our team will review your requirements and respond within 60 minutes.`;
+            const cleanFeedbackName = String(name || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+            const cleanFeedbackSystem = String(system || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+            const recordNum = firestoreDocId ? `Reference ID: #${String(firestoreDocId).substring(0, 8).toUpperCase()}<br>` : '';
+            formFeedback.innerHTML = `<strong>Thank you, ${cleanFeedbackName}!</strong><br>${recordNum}Your project inquiry for <em>${cleanFeedbackSystem}</em> has been received. Our team will review your requirements and respond within 60 minutes.`;
 
             // Prepare instant WhatsApp Handoff CTA
             const waText = encodeURIComponent(`Hello Ravana Tech! I just sent a project inquiry from your website.\n\nName: ${name}\nService: ${system}\nEmail: ${email}\n\nProject Scope:\n${message}`);

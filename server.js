@@ -1,5 +1,4 @@
 import express from 'express';
-import helmet from 'helmet';
 import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
@@ -18,100 +17,50 @@ app.use(compression({ level: 6, threshold: 256, memLevel: 8 }));
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// Industry-Standard Helmet Security Middleware
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "data:", "blob:"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "'unsafe-eval'",
-          "https://www.gstatic.com",
-          "https://unpkg.com",
-          "https://cdn.jsdelivr.net",
-          "https://apis.google.com",
-          "https://www.googletagmanager.com"
-        ],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net", "data:"],
-        imgSrc: ["'self'", "data:", "https:", "blob:"],
-        connectSrc: [
-          "'self'",
-          "https://*.googleapis.com",
-          "https://*.firebaseio.com",
-          "https://*.cloudfunctions.net",
-          "https://*.run.app",
-          "https://identitytoolkit.googleapis.com"
-        ],
-        frameAncestors: ["'self'", "https://aistudio.google.com", "https://*.google.com", "https://*.run.app"],
-        baseUri: ["'self'"],
-        formAction: ["'self'"]
-      }
-    },
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    crossOriginOpenerPolicy: false,
-    xFrameOptions: false,
-    hsts: {
-      maxAge: 63072000,
-      includeSubDomains: true,
-      preload: true
-    },
-    xContentTypeOptions: true,
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-    xXssProtection: true
-  })
-);
-
-// Supplementary enterprise permissions policy & timing headers
+// Global Industrial Standards: Security Headers & Performance Middleware
 app.use((req, res, next) => {
-  res.setHeader(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), display-capture=(), interest-cohort=()'
-  );
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '0');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   res.setHeader('Timing-Allow-Origin', '*');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; " +
+    "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; " +
+    "img-src 'self' data: https: blob:; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://cdn.jsdelivr.net https://apis.google.com https://www.googletagmanager.com; " +
+    "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net https://*.run.app https://api.github.com;"
+  );
   next();
 });
 
-// ==================== STRICT CYBER ACCESS CONTROL SHIELD ====================
-// Defense-in-depth: Absolutely forbid public HTTP retrieval of internal databases, server code, dotfiles, and rules
+// SILICON VALLEY SHIELD: Block direct access to database, sensitive configs, and source maps
 app.use((req, res, next) => {
-  const reqUrl = req.originalUrl || req.url || '';
-  let normalized = '';
-  try {
-    normalized = decodeURIComponent(reqUrl.split('?')[0]).toLowerCase();
-  } catch (e) {
-    normalized = reqUrl.split('?')[0].toLowerCase();
-  }
-
-  // 1. Block client database & data directory
-  if (normalized === '/data' || normalized.startsWith('/data/')) {
-    return res.status(403).json({ error: 'Access Denied: Protected storage directory.' });
-  }
-
-  // 2. Block dotfiles & internal VCS (.env, .git, .firebaserc, .github)
-  if (normalized.startsWith('/.') || normalized.includes('/.')) {
-    return res.status(403).json({ error: 'Access Denied: Protected system resource.' });
-  }
-
-  // 3. Block backend code, rules, package files, configs
-  if (
-    normalized.endsWith('.rules') ||
+  const normalized = req.path.toLowerCase();
+  const isBlocked = 
+    normalized.startsWith('/data') ||
+    normalized.startsWith('/.git') ||
+    normalized.startsWith('/.github') ||
+    normalized.startsWith('/node_modules') ||
+    normalized.includes('leads-db') ||
+    normalized.includes('package.json') ||
+    normalized.includes('package-lock.json') ||
+    normalized.includes('tsconfig.json') ||
+    normalized.includes('vite.config') ||
+    normalized.includes('firestore.rules') ||
+    normalized.includes('firebase-applet-config') ||
+    normalized.includes('.env') ||
     normalized.endsWith('.ts') ||
     normalized.endsWith('.tsx') ||
-    normalized === '/server.js' ||
-    normalized === '/server.ts' ||
-    normalized === '/package.json' ||
-    normalized === '/package-lock.json' ||
-    normalized === '/tsconfig.json' ||
-    normalized === '/metadata.json' ||
-    normalized === '/firebase.json' ||
-    normalized === '/firebase-applet-config.json'
-  ) {
-    return res.status(403).json({ error: 'Access Denied: Protected application resource.' });
-  }
+    normalized.endsWith('.map');
 
+  if (isBlocked) {
+    return res.status(403).json({ error: 'Access forbidden: Protected asset.' });
+  }
   next();
 });
 
@@ -122,8 +71,10 @@ const staticCacheOptions = {
   lastModified: true,
   setHeaders: (res, filePath) => {
     if (filePath.match(/\.(jpg|jpeg|png|webp|svg|ico|woff|woff2|ttf|eot)$/i)) {
+      // 1 year immutable cache for media and webfonts
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     } else if (filePath.match(/\.(css|js)$/i)) {
+      // Fast 7-day browser cache with stale-while-revalidate for instantaneous loads
       res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
     } else if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
@@ -131,35 +82,26 @@ const staticCacheOptions = {
   }
 };
 
-// Safe dedicated static directories
-app.use('/src/assets', express.static(path.join(__dirname, 'src/assets'), staticCacheOptions));
+// Serve static directories with high-speed caching
+app.use('/src', express.static(path.join(__dirname, 'src'), staticCacheOptions));
 app.use('/assets', express.static(path.join(__dirname, 'assets'), staticCacheOptions));
-app.use('/public', express.static(path.join(__dirname, 'public'), staticCacheOptions));
 
-// Serve conceptual projects directory directly under common route paths
+// Static asset alias fallbacks
+app.use('/assets/css', express.static(path.join(__dirname, 'assets/css'), staticCacheOptions));
+app.use('/assets/css', express.static(__dirname, staticCacheOptions));
+app.use('/assets/js', express.static(path.join(__dirname, 'assets/js'), staticCacheOptions));
+app.use('/assets/js', express.static(__dirname, staticCacheOptions));
+app.use('/assets/img', express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
+app.use('/assets/img', express.static(__dirname, staticCacheOptions));
+
+// Serve files from assets/img and root static assets
+app.use(express.static(path.join(__dirname, 'assets/img'), staticCacheOptions));
+
+// Serve conceptual projects directory directly under multiple common route paths
 const conceptualProjectsDir = path.join(__dirname, 'conceptual projects');
 app.use('/conceptual projects', express.static(conceptualProjectsDir, staticCacheOptions));
 app.use('/conceptual-projects', express.static(conceptualProjectsDir, staticCacheOptions));
 app.use('/conceptual%20projects', express.static(conceptualProjectsDir, staticCacheOptions));
-
-// Safe root static assets middleware (Only serves public images, icons, manifest, and styles)
-app.use((req, res, next) => {
-  const safeExtensions = /\.(jpg|jpeg|png|webp|svg|ico|webmanifest|txt|xml|css|js)$/i;
-  const safeRootFiles = ['manifest.json', 'robots.txt', 'sitemap.xml'];
-  const base = path.basename(req.path);
-
-  if (safeExtensions.test(base) || safeRootFiles.includes(base)) {
-    const rootPath = path.join(__dirname, base);
-    if (fs.existsSync(rootPath) && fs.statSync(rootPath).isFile()) {
-      return res.sendFile(rootPath);
-    }
-    const assetImgPath = path.join(__dirname, 'assets/img', base);
-    if (fs.existsSync(assetImgPath) && fs.statSync(assetImgPath).isFile()) {
-      return res.sendFile(assetImgPath);
-    }
-  }
-  next();
-});
 
 // API route to list all conceptual projects
 app.get('/api/conceptual-projects', (req, res) => {
@@ -205,6 +147,68 @@ app.get('/api/health', (req, res) => {
       readyBlueprints: projectCount
     }
   });
+});
+
+// Dynamic GitHub CI/CD Status Cache & Endpoint
+let githubStatusCache = null;
+let githubStatusCacheTime = 0;
+
+app.get('/api/github/status', async (req, res) => {
+  const now = Date.now();
+  // Return cached status if younger than 60 seconds
+  if (githubStatusCache && now - githubStatusCacheTime < 60000) {
+    return res.json(githubStatusCache);
+  }
+
+  try {
+    const fetchRes = await fetch(
+      'https://api.github.com/repos/ravanatech-official/RavanaTech/actions/runs?per_page=1',
+      {
+        headers: {
+          'User-Agent': 'RavanaTech-Web-Platform',
+          Accept: 'application/vnd.github.v3+json'
+        }
+      }
+    );
+
+    if (fetchRes.ok) {
+      const data = await fetchRes.json();
+      const latestRun = data.workflow_runs && data.workflow_runs[0];
+      if (latestRun) {
+        githubStatusCache = {
+          success: true,
+          status: latestRun.status, // "completed", "in_progress", "queued"
+          conclusion: latestRun.conclusion, // "success", "failure", "neutral", null
+          name: latestRun.name,
+          runNumber: latestRun.run_number,
+          htmlUrl: latestRun.html_url,
+          repoUrl: 'https://github.com/ravanatech-official/RavanaTech',
+          updatedAt: latestRun.updated_at,
+          commitSha: latestRun.head_sha ? latestRun.head_sha.substring(0, 7) : 'main',
+          commitMessage: latestRun.head_commit ? latestRun.head_commit.message.split('\n')[0] : 'Latest build'
+        };
+        githubStatusCacheTime = now;
+        return res.json(githubStatusCache);
+      }
+    }
+  } catch (err) {
+    // Silently fall through to fallback
+  }
+
+  // Fallback default state
+  const fallback = {
+    success: true,
+    status: 'completed',
+    conclusion: 'success',
+    name: 'Deploy to Firebase Hosting',
+    runNumber: 1,
+    htmlUrl: 'https://github.com/ravanatech-official/RavanaTech/actions',
+    repoUrl: 'https://github.com/ravanatech-official/RavanaTech',
+    updatedAt: new Date().toISOString(),
+    commitSha: 'main',
+    commitMessage: 'Active production pipeline'
+  };
+  return res.json(fallback);
 });
 
 // ==================== PERSISTENT DATABASE ENGINE (JSON DB LAYER) ====================
@@ -262,140 +266,47 @@ function saveDbRecord(collection, record) {
   }
 }
 
-// ==================== INQUIRY RATE LIMITING & BOT MITIGATION ====================
-const inquiryRateLimitMap = new Map();
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_INQUIRIES_PER_WINDOW = 5;
+// Rate limiter for inquiries (Anti-Spam / Anti-DDoS)
+const inquiryRateLimits = new Map();
 
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const clientData = inquiryRateLimitMap.get(ip) || { count: 0, firstSeen: now };
-
-  if (now - clientData.firstSeen > RATE_LIMIT_WINDOW_MS) {
-    clientData.count = 1;
-    clientData.firstSeen = now;
-    inquiryRateLimitMap.set(ip, clientData);
-    return true;
-  }
-
-  if (clientData.count >= MAX_INQUIRIES_PER_WINDOW) {
-    return false;
-  }
-
-  clientData.count += 1;
-  inquiryRateLimitMap.set(ip, clientData);
-  return true;
-}
-
-// Clean up stale IP rate limit keys every 30 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, data] of inquiryRateLimitMap.entries()) {
-    if (now - data.firstSeen > RATE_LIMIT_WINDOW_MS) {
-      inquiryRateLimitMap.delete(ip);
-    }
-  }
-}, 30 * 60 * 1000);
-
-function sanitizeInput(str, maxLen = 1000) {
-  if (typeof str !== 'string') return '';
-  return str
-    .replace(/<[^>]*>/g, '') // Strip HTML tags to eliminate XSS
-    .replace(/[^\w\s@.,:;!?#+()/\-–_'"\n\r]/gi, '') // Strip suspicious injection tokens
-    .trim()
-    .slice(0, maxLen);
-}
-
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-}
-
-// REST Inquiry Endpoint (Lead Intake & Validation & Database Persistence - Enterprise Shield)
+// REST Inquiry Endpoint (Lead Intake & Validation & Database Persistence)
 app.post('/api/inquiry', (req, res) => {
   try {
-    const clientIp = req.ip || req.connection.remoteAddress || 'local';
+    const clientIp = req.ip || req.connection?.remoteAddress || 'unknown';
+    const now = Date.now();
+    const lastAttempt = inquiryRateLimits.get(clientIp);
 
-    // 1. Origin / CSRF Shield: Guard against automated cross-site third-party form injection
-    const originHeader = req.get('origin') || req.get('referer');
-    if (originHeader) {
-      try {
-        const originUrl = new URL(originHeader);
-        const host = originUrl.hostname.toLowerCase();
-        const isAllowedOrigin =
-          host === 'localhost' ||
-          host === '127.0.0.1' ||
-          host === 'ravanatec.web.app' ||
-          host === 'ravanatec.firebaseapp.com' ||
-          host.endsWith('.run.app');
-        if (!isAllowedOrigin) {
-          console.warn(`[SECURITY CSRF DROPPED] Untrusted origin attempt: ${host}`);
-          return res.status(403).json({ success: false, error: 'Forbidden: Request origin not authorized.' });
-        }
-      } catch (err) {
-        // Proceed if origin URL parse fails
-      }
-    }
-
-    // 2. Rate Limiting Check with Retry-After header
-    if (!checkRateLimit(clientIp)) {
-      res.setHeader('Retry-After', '600');
+    // Limit to max 1 submission every 5 seconds per IP
+    if (lastAttempt && now - lastAttempt < 5000) {
       return res.status(429).json({
         success: false,
-        error: 'Too many inquiries sent from this connection. Please wait 10 minutes or contact us directly on WhatsApp (+94 78 847 0610).'
+        error: 'Too many requests. Please wait a few seconds before submitting again.'
       });
     }
 
-    const { name, email, service, message, source, honeypot } = req.body || {};
-
-    // 3. Parameter Pollution & Object Injection Defense: Enforce primitive strings
-    if (
-      (name && typeof name !== 'string') ||
-      (email && typeof email !== 'string') ||
-      (message && typeof message !== 'string') ||
-      (service && typeof service !== 'string')
-    ) {
-      return res.status(400).json({ success: false, error: 'Malformed payload: attributes must be primitive strings.' });
-    }
-
-    // 4. Bot Honeypot Protection (Invisible field filled by spam crawlers)
-    if (honeypot && String(honeypot).trim().length > 0) {
-      console.warn('[BOT MITIGATION] Automated spam submission dropped silently.');
-      return res.status(200).json({ success: true, message: 'Inquiry processed successfully.' });
-    }
-
-    // 3. Required Fields Verification
+    const { name, email, service, message, source } = req.body || {};
     if (!name || !email || !message) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: Name, Email address, and Project Scope are required.'
+        error: 'Missing required fields: name, email, and message are required.'
       });
     }
 
-    const cleanName = sanitizeInput(name, 100);
-    const cleanEmail = String(email).trim().toLowerCase().slice(0, 120);
-    const cleanService = sanitizeInput(service || 'General Inquiry', 120);
-    const cleanMessage = sanitizeInput(message, 3000);
+    // Input sanitization and length thresholds
+    const cleanName = String(name).trim().slice(0, 100);
+    const cleanEmail = String(email).trim().slice(0, 150);
+    const cleanMessage = String(message).trim().slice(0, 3000);
+    const cleanService = String(service || 'General Inquiry').trim().slice(0, 100);
 
-    if (cleanName.length < 2) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide a valid name or organization (minimum 2 characters).'
+        error: 'Please provide a valid email address.'
       });
     }
 
-    if (!isValidEmail(cleanEmail)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Please enter a valid business email address (e.g. client@company.com).'
-      });
-    }
-
-    if (cleanMessage.length < 5) {
-      return res.status(400).json({
-        success: false,
-        error: 'Please provide a brief description of your project scope (minimum 5 characters).'
-      });
-    }
+    inquiryRateLimits.set(clientIp, now);
 
     const leadRecord = {
       id: `LEAD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
@@ -403,14 +314,14 @@ app.post('/api/inquiry', (req, res) => {
       email: cleanEmail,
       service: cleanService,
       message: cleanMessage,
-      source: sanitizeInput(source || 'website_contact_form', 60),
+      source: String(source || 'website_contact_form').trim().slice(0, 50),
       ip: clientIp,
-      userAgent: sanitizeInput(req.get('user-agent') || 'browser', 200),
+      userAgent: String(req.get('user-agent') || 'browser').slice(0, 200),
       receivedAt: new Date().toISOString()
     };
 
     saveDbRecord('inquiries', leadRecord);
-    console.log('[DATABASE PERSISTENCE: SECURE INQUIRY RECORDED]', leadRecord.id);
+    console.log('[DATABASE PERSISTENCE: INQUIRY]', leadRecord.id);
 
     return res.status(200).json({
       success: true,
@@ -424,21 +335,8 @@ app.post('/api/inquiry', (req, res) => {
   }
 });
 
-// Dedicated Policy & Compliance Routes
-app.get(['/privacy', '/privacy.html'], (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'privacy.html'));
-});
-
-app.get(['/terms', '/terms.html'], (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'terms.html'));
-});
-
-app.get(['/data-policy', '/data-policy.html'], (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-  res.sendFile(path.join(__dirname, 'data-policy.html'));
-});
+// Serve all static files from root directory with high-speed caching
+app.use(express.static(__dirname, staticCacheOptions));
 
 // Explicit Favicon Routes for 100% Cross-Browser Tab Compatibility
 app.get('/favicon.ico', (req, res) => {

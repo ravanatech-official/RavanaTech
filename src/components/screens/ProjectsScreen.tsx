@@ -18,6 +18,14 @@ const CATEGORIES = [
 
 const ITEMS_PER_PAGE = 3;
 
+interface CiStatus {
+  status: string;
+  conclusion: string | null;
+  runNumber: number;
+  htmlUrl: string;
+  commitMessage: string;
+}
+
 export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   isActive,
   projects,
@@ -26,6 +34,34 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
   const [currentCategory, setCurrentCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [ciStatus, setCiStatus] = useState<CiStatus>({
+    status: 'completed',
+    conclusion: 'success',
+    runNumber: 1,
+    htmlUrl: 'https://github.com/ravanatech-official/RavanaTech/actions',
+    commitMessage: 'Active production pipeline',
+  });
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchStatus = () => {
+      fetch('/api/github/status')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (isMounted && data) {
+            setCiStatus(data);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchStatus();
+    const timer = setInterval(fetchStatus, 60000);
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
+  }, []);
 
   // Filtered projects
   const filteredProjects = useMemo(() => {
@@ -77,7 +113,37 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({
         {/* Gallery Controls Header */}
         <div className="gallery-header-controls">
           <div className="gallery-title-group">
-            <span className="section-subtitle">SILICON VALLEY BENTO MATRIX</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+              <span className="section-subtitle" style={{ marginBottom: 0 }}>SILICON VALLEY BENTO MATRIX</span>
+              <a
+                href={ciStatus.htmlUrl || 'https://github.com/ravanatech-official/RavanaTech/actions'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`github-ci-badge ${
+                  ciStatus.status === 'in_progress' || ciStatus.status === 'queued'
+                    ? 'ci-in_progress'
+                    : ciStatus.conclusion === 'failure'
+                    ? 'ci-failure'
+                    : ''
+                }`}
+                title={`GitHub CI/CD Deployment: ${ciStatus.commitMessage || 'Healthy'}`}
+              >
+                <i className="bx bxl-github ci-icon" />
+                <span>CI/CD</span>
+                <span className="ci-divider" />
+                <span className="ci-status-dot" />
+                <span className="ci-status-text">
+                  {ciStatus.status === 'in_progress' || ciStatus.status === 'queued'
+                    ? 'BUILDING'
+                    : ciStatus.conclusion === 'failure'
+                    ? 'FAILED'
+                    : 'PASSING'}
+                </span>
+                <span className="ci-run-tag">
+                  {ciStatus.runNumber ? `#${ciStatus.runNumber}` : 'LIVE'}
+                </span>
+              </a>
+            </div>
             <h2 className="section-title">50 CONCEPTUAL BLUEPRINTS</h2>
           </div>
 

@@ -1,4 +1,5 @@
-/*===== GOOGLE FONTS PRECONNECTED IN HTML HEAD =====*/
+/*===== GOOGLE FONTS =====*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap');
 
 /*===== VARIABLES CSS =====*/
 :root {
@@ -16,7 +17,7 @@
 
   --rt-text: #D9F5FF;
   --rt-text-soft: #8DBFD8;
-  --rt-text-dim: #78A9C8;
+  --rt-text-dim: #4B7894;
 
   --rt-border: rgba(0, 191, 255, 0.35);
   --rt-border-bright: rgba(24, 200, 255, 0.8);
@@ -173,11 +174,14 @@ main:nth-of-type(1),
   background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
   background-attachment: fixed;
   color: var(--rt-text);
+  height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  height: calc(100dvh - var(--header-height) - var(--footer-deck-height));
   min-height: calc(100vh - var(--header-height) - var(--footer-deck-height));
   min-height: calc(100dvh - var(--header-height) - var(--footer-deck-height));
+  max-height: calc(100vh - var(--header-height) - var(--footer-deck-height));
+  max-height: calc(100dvh - var(--header-height) - var(--footer-deck-height));
   position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   width: 100%;
   box-sizing: border-box;
 }
@@ -244,14 +248,17 @@ main:nth-of-type(1),
 
 /* Base Deck Screen */
 .deck-screen {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  min-height: 100%;
-  padding: 2.5rem 1.25rem 4rem;
+  height: 100%;
+  max-height: 100%;
+  padding: 1.5rem 0 2rem;
+  overflow: hidden !important;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 }
 
@@ -931,15 +938,14 @@ main:nth-of-type(1),
   box-shadow: 0 0 16px var(--rt-cyan-bright);
   pointer-events: none;
   border-radius: 50%;
-  will-change: transform, opacity;
   animation: scan-vertical 3.5s ease-in-out infinite;
 }
 
 @keyframes scan-vertical {
-  0% { transform: translateY(0); opacity: 0; }
+  0% { top: 0%; opacity: 0; }
   10% { opacity: 1; }
   90% { opacity: 1; }
-  100% { transform: translateY(clamp(190px, 30vh, 335px)); opacity: 0; }
+  100% { top: 100%; opacity: 0; }
 }
 
 .hud-circle-badge {
@@ -1134,37 +1140,40 @@ main:nth-of-type(1),
 }
 
 /*===== SYSTEMS (SERVICES) =====*/
-.systems__container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  width: 100%;
+section#systems.deck-screen {
+  overflow-y: auto !important;
+  justify-content: flex-start !important;
+  padding-top: clamp(0.75rem, 2vh, 1.5rem);
+  padding-bottom: clamp(2rem, 4vh, 3.5rem);
 }
 
-.systems__grid {
+.systems__container {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.15rem;
+  padding-bottom: 2rem;
 }
 
 @media screen and (min-width: 640px) {
-  .systems__grid {
+  .systems__container {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.15rem;
   }
 }
 
 @media screen and (min-width: 980px) {
-  .systems__grid {
+  .systems__container {
     grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
   }
 }
 
 .system__card {
-  padding: 1.85rem;
+  padding: 1.45rem 1.6rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 250px;
+  min-height: 220px;
   position: relative;
   border-radius: 24px;
   clip-path: none;
@@ -2499,22 +2508,7 @@ section#contact .section-title::after {
 /*===== COMPACT HALF-SIZE BENTO CARDS (Selected: main > section#projects #conceptual-gallery-grid) =====*/
 main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div#conceptual-gallery-grid:nth-of-type(1),
 #projects #conceptual-gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 1.15rem;
-  align-items: stretch;
-}
-
-@media screen and (min-width: 640px) {
-  #projects #conceptual-gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media screen and (min-width: 1024px) {
-  #projects #conceptual-gallery-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 #projects #conceptual-gallery-grid .gallery-card {
@@ -3835,10 +3829,10 @@ main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div
 .services-full-page-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.42rem 1rem 0.42rem 0.5rem;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.14), rgba(0, 70, 150, 0.28));
-  border: 1.5px solid rgba(0, 240, 255, 0.45);
+  gap: 0.85rem;
+  padding: 0.6rem 1.15rem;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(0, 70, 150, 0.25));
+  border: 1.5px solid rgba(0, 240, 255, 0.4);
   border-radius: 9999px;
   color: #fff;
   text-decoration: none;
@@ -3850,43 +3844,45 @@ main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div
 }
 
 .services-full-page-btn:hover {
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.28), rgba(0, 70, 150, 0.55));
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(0, 70, 150, 0.45));
   border-color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), inset 0 0 18px rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.45), inset 0 0 20px rgba(0, 240, 255, 0.2);
   color: #fff;
 }
 
 .services-full-page-btn .launch-icon-ring {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(0, 240, 255, 0.18);
+  background: rgba(0, 240, 255, 0.15);
   border: 1px solid var(--rt-cyan-bright);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--rt-cyan-bright);
-  font-size: 1rem;
+  font-size: 1.05rem;
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
 }
 
 .services-full-page-btn .launch-text-wrap {
   display: flex;
-  align-items: center;
-  line-height: 1;
+  flex-direction: column;
+  line-height: 1.2;
 }
 
 .services-full-page-btn .launch-headline {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   color: #fff;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
 }
 
 .services-full-page-btn .launch-subline {
-  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--rt-cyan-bright);
 }
 
 .services-full-page-btn .launch-arrow {
@@ -5908,9 +5904,7 @@ li:has(.nav__link-lab) {
   margin: 0 auto;
 }
 
-.cv-paper h1,
-.cv-paper h4,
-.cv-paper .cv-paper-name {
+.cv-paper h1 {
   font-family: var(--font-hud);
   font-size: 1.5rem;
   color: #FFF;
@@ -6058,4 +6052,120 @@ li:has(.nav__link-lab) {
     color: #222 !important;
   }
 }
+
+/* ==============================================================
+   DYNAMIC GITHUB CI/CD DEPLOYMENT STATUS BADGE
+   ============================================================== */
+.github-ci-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.95rem;
+  background: rgba(1, 18, 30, 0.85);
+  border: 1px solid rgba(0, 191, 255, 0.35);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--rt-text);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.12), inset 0 0 10px rgba(0, 191, 255, 0.05);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.github-ci-badge:hover {
+  border-color: var(--rt-cyan-bright);
+  box-shadow: 0 0 22px rgba(24, 200, 255, 0.35), inset 0 0 12px rgba(0, 191, 255, 0.15);
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.github-ci-badge .ci-icon {
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.github-ci-badge .ci-divider {
+  width: 1px;
+  height: 12px;
+  background: rgba(0, 191, 255, 0.3);
+}
+
+.github-ci-badge .ci-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: pulse-ci-green 2s infinite ease-in-out;
+}
+
+.github-ci-badge.ci-in_progress .ci-status-dot {
+  background: #F59E0B;
+  box-shadow: 0 0 8px #F59E0B;
+  animation: pulse-ci-yellow 1.2s infinite ease-in-out;
+}
+
+.github-ci-badge.ci-failure .ci-status-dot {
+  background: #EF4444;
+  box-shadow: 0 0 8px #EF4444;
+  animation: pulse-ci-red 1.2s infinite ease-in-out;
+}
+
+.github-ci-badge .ci-status-text {
+  font-weight: 700;
+  color: #10B981;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.github-ci-badge.ci-in_progress .ci-status-text {
+  color: #F59E0B;
+}
+
+.github-ci-badge.ci-failure .ci-status-text {
+  color: #EF4444;
+}
+
+.github-ci-badge .ci-run-tag {
+  color: var(--rt-text-dim);
+  font-size: 0.7rem;
+}
+
+@keyframes pulse-ci-green {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px #10B981;
+  }
+  50% {
+    transform: scale(1.35);
+    box-shadow: 0 0 14px #34D399;
+  }
+}
+
+@keyframes pulse-ci-yellow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px #F59E0B;
+  }
+  50% {
+    transform: scale(1.35);
+    box-shadow: 0 0 14px #FBBF24;
+  }
+}
+
+@keyframes pulse-ci-red {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px #EF4444;
+  }
+  50% {
+    transform: scale(1.35);
+    box-shadow: 0 0 14px #F87171;
+  }
+}
+
 

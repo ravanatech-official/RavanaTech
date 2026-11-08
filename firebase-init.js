@@ -31,57 +31,15 @@ try {
   console.info("[Firestore] Firestore initialized or deferred:", err);
 }
 
-// Client-Side Defense: Debounce & Anti-Flooding Shield
-let lastSubmissionTimestamp = 0;
-const SUBMISSION_COOLDOWN_MS = 4000; // 4 seconds between submissions
-
-function sanitizeClientInput(str, maxLen = 1000) {
-  if (typeof str !== 'string') return '';
-  return str
-    .replace(/<[^>]*>/g, '') // Strip HTML & tags
-    .trim()
-    .slice(0, maxLen);
-}
-
-// Global persistence helper (Silicon Valley Enterprise Hardened)
+// Global persistence helper
 export async function saveInquiry(inquiryData) {
   if (!db) return { success: false, reason: "firestore_not_initialized" };
-  
-  // 1. Bot Honeypot Trap
-  if (inquiryData && inquiryData.honeypot && String(inquiryData.honeypot).trim().length > 0) {
-    console.warn("[SECURITY] Automated bot form submission intercepted.");
-    return { success: true, id: `TRAP-${Date.now()}` };
-  }
-
-  // 2. Client-side Flood & Replay Mitigation
-  const now = Date.now();
-  if (now - lastSubmissionTimestamp < SUBMISSION_COOLDOWN_MS) {
-    return { success: false, reason: "Please wait a moment before sending another inquiry." };
-  }
-  lastSubmissionTimestamp = now;
-
-  // 3. Strict Input Sanitization & Type Enforcement
-  const cleanName = sanitizeClientInput(inquiryData.name, 120);
-  const cleanEmail = String(inquiryData.email || '').trim().toLowerCase().slice(0, 150);
-  const cleanSystem = sanitizeClientInput(inquiryData.system || inquiryData.service || 'Bespoke Engineering', 150);
-  const cleanMessage = sanitizeClientInput(inquiryData.message, 5000);
-
-  if (cleanName.length < 2) {
-    return { success: false, reason: "Please provide a valid name (at least 2 characters)." };
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
-    return { success: false, reason: "Please provide a valid corporate or personal email address." };
-  }
-  if (cleanMessage.length < 5) {
-    return { success: false, reason: "Please provide a brief message about your project requirements." };
-  }
-
   try {
     const docRef = await addDoc(collection(db, "inquiries"), {
-      name: cleanName,
-      email: cleanEmail,
-      system: cleanSystem,
-      message: cleanMessage,
+      name: inquiryData.name,
+      email: inquiryData.email,
+      system: inquiryData.system,
+      message: inquiryData.message,
       createdAt: serverTimestamp(),
       clientTimestamp: new Date().toISOString(),
       source: "website_command_console",
@@ -89,8 +47,8 @@ export async function saveInquiry(inquiryData) {
     });
     return { success: true, id: docRef.id };
   } catch (err) {
-    console.warn("[Firestore Enterprise Gate] Ingestion protected or deferred:", err);
-    return { success: false, error: "Network transmission protected. Please try again or reach out on WhatsApp." };
+    console.warn("[Firestore] saveInquiry error:", err);
+    return { success: false, error: err };
   }
 }
 

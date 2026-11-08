@@ -62,38 +62,36 @@
         <style>
             html, body {
                 width: 100%;
-                min-height: 100vh;
-                min-height: 100dvh;
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
+                height: 100vh;
+                height: 100dvh;
+                overflow: hidden !important;
                 margin: 0;
                 background: #00050A;
                 color: var(--rt-text, #e2f1ff);
             }
             .services-deck-viewport {
-                position: relative;
-                width: 100%;
-                min-height: calc(100vh - var(--header-height, 4rem) - var(--footer-deck-height, 3.5rem));
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
+                position: absolute;
+                top: var(--header-height, 4rem);
+                bottom: var(--footer-deck-height, 3.5rem);
+                left: 0;
+                right: 0;
+                overflow: hidden !important;
             }
             ::-webkit-scrollbar {
-                width: 6px;
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
             }
-            ::-webkit-scrollbar-track {
-                background: #00050A;
-            }
-            ::-webkit-scrollbar-thumb {
-                background: #004B78;
-                border-radius: 3px;
+            * {
+                scrollbar-width: none !important;
             }
             .deck-screen {
-                position: relative;
+                position: absolute;
+                inset: 0;
                 width: 100%;
-                min-height: 100%;
-                padding: 2rem 1rem 4rem;
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
+                height: 100%;
+                padding: 1rem 0;
+                overflow: hidden !important;
                 box-sizing: border-box;
                 display: none !important;
                 opacity: 0 !important;
@@ -105,7 +103,7 @@
             .deck-screen.deck-screen-active {
                 display: flex !important;
                 flex-direction: column;
-                justify-content: flex-start;
+                justify-content: center;
                 align-items: center;
                 opacity: 1 !important;
                 visibility: visible !important;
@@ -414,21 +412,13 @@
 
         <!--===== FOOTER =====-->
         <footer class="deck-console-bar" id="deck-console-bar" role="contentinfo" aria-label="Services Footer">
-            <div class="deck-console-container bd-grid" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-                <div class="deck-console-left" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="deck-console-container bd-grid">
+                <div class="deck-console-left">
                     <a href="index.html#systems" class="deck-nav-btn" title="Back to Services deck">
                         <i class='bx bx-chevron-left' aria-hidden="true"></i>
                         <span>BACK TO MAIN SITE</span>
                     </a>
                     <span class="deck-copyright-tag">&#169; 2026 RAVANA TECH</span>
-                </div>
-
-                <div class="deck-policy-links" style="display: flex; gap: 0.75rem; align-items: center; font-family: var(--font-mono); font-size: 0.72rem;">
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--rt-text-soft); text-decoration: none;">PRIVACY</a>
-                    <span style="color: var(--rt-border-subtle);">•</span>
-                    <a href="/terms" target="_blank" rel="noopener noreferrer" style="color: var(--rt-text-soft); text-decoration: none;">TERMS</a>
-                    <span style="color: var(--rt-border-subtle);">•</span>
-                    <a href="/data-policy" target="_blank" rel="noopener noreferrer" style="color: var(--rt-text-soft); text-decoration: none;">DATA POLICY</a>
                 </div>
 
                 <div class="deck-console-right">

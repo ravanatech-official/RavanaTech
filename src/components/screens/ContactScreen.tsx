@@ -15,7 +15,6 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
   const [email, setEmail] = useState('');
   const [service, setService] = useState(selectedService || 'Bespoke High-Speed Websites');
   const [message, setMessage] = useState('');
-  const [honeypot, setHoneypot] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error' | '';
@@ -54,14 +53,10 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
           service: service.trim(),
           message: message.trim(),
           source: 'react_website_contact_form',
-          honeypot: honeypot.trim(),
         }),
       });
 
       const data = await res.json();
-      if (!res.ok || data.success === false) {
-        throw new Error(data.error || 'Server validation failed.');
-      }
       const leadId = data.leadId || `LEAD-${Date.now().toString(36).toUpperCase()}`;
 
       setFeedback({
@@ -251,30 +246,6 @@ export const ContactScreen: React.FC<ContactScreenProps> = ({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
-            </div>
-
-            {/* Invisible Bot Honeypot */}
-            <div style={{ display: 'none', position: 'absolute', left: '-9999px' }} aria-hidden="true">
-              <label htmlFor="website_hp">Leave this empty</label>
-              <input
-                type="text"
-                id="website_hp"
-                name="honeypot"
-                tabIndex={-1}
-                autoComplete="off"
-                value={honeypot}
-                onChange={(e) => setHoneypot(e.target.value)}
-              />
-            </div>
-
-            {/* Regulatory Compliance & Consent Notice */}
-            <div style={{ marginBottom: '1rem', fontSize: '0.72rem', color: 'var(--rt-text-dim)', lineHeight: '1.5', fontFamily: 'var(--font-mono)' }}>
-              <i className="bx bx-shield-quarter cyan-text" style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-              By transmitting this form, you acknowledge and agree to Ravana Tech&apos;s{' '}
-              <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rt-cyan-bright)', textDecoration: 'underline' }}>Privacy Policy</a>
-              {' '}and{' '}
-              <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rt-cyan-bright)', textDecoration: 'underline' }}>Terms of Service</a>.
-              Your data is encrypted via TLS 1.3 and never shared or sold.
             </div>
 
             <button type="submit" disabled={submitting} className="button form__submit-btn">

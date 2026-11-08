@@ -1,7 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Allow: /api/conceptual-projects$
-Allow: /api/conceptual-projects.json$
 
 Sitemap: https://ravanatec.web.app/sitemap.xml

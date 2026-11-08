@@ -1154,6 +1154,19 @@ main:nth-of-type(1),
 }
 
 /*===== ABOUT SECTION =====*/
+section#about.deck-screen {
+  justify-content: center !important;
+  padding-top: clamp(1rem, 2.5vh, 2rem);
+  padding-bottom: clamp(1.5rem, 3vh, 3rem);
+}
+
+@media screen and (max-height: 680px) {
+  section#about.deck-screen {
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
+  }
+}
+
 .about__container {
   display: grid;
   grid-template-columns: 1fr;
@@ -2392,21 +2405,34 @@ section#contact .section-title::after {
 }
 
 /* Gallery Grid View */
-.gallery-grid-view {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
+#projects #conceptual-gallery-grid,
+#archive-viewport #conceptual-gallery-grid,
+.gallery-grid-view,
+.conceptual-gallery-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1.25rem !important;
+  width: 100% !important;
+  align-items: stretch !important;
 }
 
 @media screen and (min-width: 640px) {
-  .gallery-grid-view {
-    grid-template-columns: repeat(2, 1fr);
+  #projects #conceptual-gallery-grid,
+  #archive-viewport #conceptual-gallery-grid,
+  .gallery-grid-view,
+  .conceptual-gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.25rem !important;
   }
 }
 
-@media screen and (min-width: 1040px) {
-  .gallery-grid-view {
-    grid-template-columns: repeat(3, 1fr);
+@media screen and (min-width: 960px) {
+  #projects #conceptual-gallery-grid,
+  #archive-viewport #conceptual-gallery-grid,
+  .gallery-grid-view,
+  .conceptual-gallery-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem !important;
   }
 }
 
@@ -2660,10 +2686,10 @@ section#contact .section-title::after {
   box-shadow: 0 0 16px rgba(255, 255, 255, 0.3);
 }
 
-/*===== COMPACT HALF-SIZE BENTO CARDS (Selected: main > section#projects #conceptual-gallery-grid) =====*/
-main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div#conceptual-gallery-grid:nth-of-type(1),
-#projects #conceptual-gallery-grid {
-  gap: 1.15rem;
+/*===== COMPACT HALF-SIZE BENTO CARDS =====*/
+#projects #conceptual-gallery-grid,
+#archive-viewport #conceptual-gallery-grid {
+  gap: 1.25rem;
 }
 
 #projects #conceptual-gallery-grid .gallery-card {

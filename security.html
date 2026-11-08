@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trust & Security Center // RAVANA TECH | Enterprise Cyber Defense</title>
+    <meta name="description" content="Ravana Tech Enterprise Trust & Security Architecture: Zero-Trust Cloud, End-to-End Encryption, CSP Level 3, HSTS Preload, and Responsible Vulnerability Disclosure.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ravanatec.web.app/security">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;800&family=Share+Tech+Mono&display=swap">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        body.policy-body {
+            background-color: var(--rt-bg, #00050A);
+            color: var(--rt-text, #D9F5FF);
+            font-family: var(--font-body, 'Inter', sans-serif);
+            padding: 2rem 1.25rem 5rem;
+            min-height: 100vh;
+            overflow-y: auto !important;
+        }
+        .policy-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .policy-header {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--rt-border, rgba(0, 191, 255, 0.35));
+            padding-bottom: 1.5rem;
+        }
+        .policy-nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--rt-cyan-bright, #18C8FF);
+            font-family: var(--font-hud, 'Orbitron', sans-serif);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .policy-nav-back:hover {
+            color: #FFFFFF;
+            transform: translateX(-4px);
+        }
+        .policy-tag {
+            display: inline-block;
+            font-family: var(--font-mono, 'Share Tech Mono', monospace);
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            color: #00FFA3;
+            background: rgba(0, 255, 163, 0.1);
+            border: 1px solid rgba(0, 255, 163, 0.3);
+            padding: 0.25rem 0.65rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        .policy-title {
+            font-family: var(--font-hud, 'Orbitron', sans-serif);
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            margin: 0 0 0.5rem 0;
+            text-shadow: 0 0 25px rgba(24, 200, 255, 0.35);
+        }
+        .policy-meta {
+            font-family: var(--font-mono, 'Share Tech Mono', monospace);
+            font-size: 0.8rem;
+            color: rgba(217, 245, 255, 0.6);
+            letter-spacing: 0.05em;
+        }
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+            margin: 2rem 0;
+        }
+        .security-card {
+            background: rgba(0, 20, 40, 0.5);
+            border: 1px solid rgba(24, 200, 255, 0.25);
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .security-card:hover {
+            border-color: var(--rt-cyan-bright, #18C8FF);
+            transform: translateY(-2px);
+        }
+        .security-card i {
+            font-size: 1.8rem;
+            color: var(--rt-cyan-bright, #18C8FF);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        .security-card h3 {
+            font-family: var(--font-hud, 'Orbitron', sans-serif);
+            font-size: 0.95rem;
+            color: #FFFFFF;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: 0.05em;
+        }
+        .security-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: rgba(217, 245, 255, 0.8);
+            margin: 0;
+        }
+        .policy-section {
+            margin-bottom: 2.5rem;
+        }
+        .policy-section h2 {
+            font-family: var(--font-hud, 'Orbitron', sans-serif);
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--rt-cyan-bright, #18C8FF);
+            text-transform: uppercase;
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .policy-section p, .policy-section li {
+            line-height: 1.7;
+            font-size: 0.95rem;
+            color: rgba(217, 245, 255, 0.85);
+        }
+        .policy-section ul {
+            padding-left: 1.25rem;
+            margin: 0.75rem 0;
+        }
+        .policy-section li {
+            margin-bottom: 0.5rem;
+        }
+        .policy-highlight-box {
+            background: rgba(24, 200, 255, 0.05);
+            border-left: 3px solid var(--rt-cyan-bright, #18C8FF);
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+        .disclosure-box {
+            background: rgba(0, 255, 163, 0.05);
+            border: 1px solid rgba(0, 255, 163, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .disclosure-box h3 {
+            font-family: var(--font-hud, 'Orbitron', sans-serif);
+            font-size: 1rem;
+            color: #00FFA3;
+            margin: 0 0 0.5rem 0;
+        }
+        .policy-footer {
+            margin-top: 3.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 191, 255, 0.2);
+            text-align: center;
+            font-family: var(--font-mono, 'Share Tech Mono', monospace);
+            font-size: 0.8rem;
+            color: rgba(217, 245, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="policy-body">
+    <div class="policy-container">
+        <a href="/" class="policy-nav-back"><i class='bx bx-left-arrow-alt'></i> Return to Command Console</a>
+        
+        <header class="policy-header">
+            <span class="policy-tag"><i class='bx bx-shield-quarter'></i> Silicon Valley Enterprise Hardening</span>
+            <h1 class="policy-title">Trust &amp; Security Architecture</h1>
+            <div class="policy-meta">SYSTEM CLASSIFICATION: PUBLIC ARCHITECTURE DISCLOSURE // RFC 9116 COMPLIANT</div>
+        </header>
+
+        <main>
+            <div class="security-grid">
+                <div class="security-card">
+                    <i class='bx bx-lock-alt'></i>
+                    <h3>End-to-End Encryption</h3>
+                    <p>Enforced TLS 1.3 with 2-year HSTS Preload in transit; AES-256 military-grade encryption at rest across Google Cloud &amp; Firestore.</p>
+                </div>
+                <div class="security-card">
+                    <i class='bx bx-shield-x'></i>
+                    <h3>Zero-Trust Data Gate</h3>
+                    <p>Strict schema whitelisting with zero public read permissions. Database poisoning, object injection, and unauthorized scraping are mathematically blocked.</p>
+                </div>
+                <div class="security-card">
+                    <i class='bx bx-code-block'></i>
+                    <h3>Helmet &amp; CSP Level 3</h3>
+                    <p>Industry-standard Helmet security middleware, strict Content-Security-Policy, anti-clickjacking frame isolation, and zero-trust MIME validation.</p>
+                </div>
+                <div class="security-card">
+                    <i class='bx bx-bot'></i>
+                    <h3>Automated Threat Armor</h3>
+                    <p>Origin/CSRF validation, sliding-window IP rate limiting, and invisible honeypot traps to neutralize automated bots and DDoS attempts.</p>
+                </div>
+            </div>
+
+            <section class="policy-section">
+                <h2><i class='bx bx-check-shield'></i> 1. Security Posture &amp; Infrastructure Governance</h2>
+                <p>
+                    Ravana Tech architectures are engineered to satisfy the highest cybersecurity benchmarks mandated by Fortune 500 enterprises, government procurement bodies, and ISO standards:
+                </p>
+                <ul>
+                    <li><strong>ISO/IEC 27001 &amp; SOC 2 Type II Infrastructure:</strong> Hosted on Google Cloud Platform and Firebase edge networks, ensuring continuous physical, logical, and environmental security controls.</li>
+                    <li><strong>ISO 9001:2015 Quality &amp; Document Governance:</strong> Our digital document control transmittal engines guarantee 100% revision accuracy and auditable cryptographic logs.</li>
+                    <li><strong>GDPR &amp; PDPA Compliance:</strong> Full compliance with the European General Data Protection Regulation and the Sri Lanka Personal Data Protection Act No. 9 of 2022.</li>
+                </ul>
+            </section>
+
+            <section class="policy-section">
+                <h2><i class='bx bx-server'></i> 2. Network &amp; Transport Layer Security</h2>
+                <p>
+                    All traffic between clients, web nodes, and API microservices is strictly encrypted and protected against network tampering:
+                </p>
+                <div class="policy-highlight-box">
+                    <strong>HSTS Preload Policy:</strong> <code>Strict-Transport-Security: max-age=63072000; includeSubDomains; preload</code><br>
+                    Browsers are mandated to establish HTTPS connections exclusively, neutralizing SSL-stripping and Man-in-the-Middle (MitM) attacks.
+                </div>
+                <ul>
+                    <li><strong>Content-Security-Policy (CSP Level 3):</strong> Restricts executable script execution strictly to verified first-party and cryptographic CDNs. Cross-Site Scripting (XSS) is neutralized.</li>
+                    <li><strong>Clickjacking Prevention:</strong> Enforced <code>frame-ancestors</code> policy blocks unauthorized iframe embedding by third-party domains.</li>
+                    <li><strong>MIME-Sniffing Neutralization:</strong> <code>X-Content-Type-Options: nosniff</code> prevents browsers from misinterpreting files as executable code.</li>
+                    <li><strong>Stack Concealment:</strong> The <code>X-Powered-By</code> header is completely stripped via Helmet middleware to prevent server reconnaissance.</li>
+                </ul>
+            </section>
+
+            <section class="policy-section">
+                <h2><i class='bx bx-data'></i> 3. Database Security &amp; Zero-Trust Data Isolation</h2>
+                <p>
+                    Client inquiries and project scopes ingested through our command console are stored in Google Cloud Firestore with comprehensive Zero-Trust governance:
+                </p>
+                <ul>
+                    <li><strong>Schema Whitelisting:</strong> Database documents reject any unexpected fields or properties (<code>keys().hasOnly([...])</code>), eliminating prototype pollution and payload bloating.</li>
+                    <li><strong>Zero Public Exfiltration:</strong> Public read, update, and delete access is unconditionally denied (<code>allow read, update, delete: if false;</code>). Only authenticated administrators through secure Google Cloud IAM can view client records.</li>
+                    <li><strong>Input Sanitization:</strong> All payloads are stripped of HTML/script tags, normalized for Unicode homoglyphs, and bound to strict character length thresholds.</li>
+                </ul>
+            </section>
+
+            <section class="policy-section" id="responsible-disclosure">
+                <h2><i class='bx bx-bug'></i> 4. Responsible Vulnerability Disclosure Program</h2>
+                <p>
+                    Ravana Tech welcomes collaborative security researchers and ethical hackers who assist in maintaining our bulletproof defenses. We adhere to RFC 9116 and industry-standard safe harbor guidelines.
+                </p>
+
+                <div class="disclosure-box">
+                    <h3><i class='bx bx-shield-quarter'></i> Safe Harbor &amp; Disclosure Guidelines</h3>
+                    <p style="margin-bottom: 0.75rem;">If you discover a potential security vulnerability in any Ravana Tech service, we request that you:</p>
+                    <ul style="margin: 0; padding-left: 1.25rem;">
+                        <li>Notify us immediately via email at: <a href="mailto:hello.ravanatech@gmail.com" style="color: #00FFA3; font-weight: bold;">hello.ravanatech@gmail.com</a></li>
+                        <li>Provide detailed steps to reproduce the issue without attempting to access or modify client data.</li>
+                        <li>Grant us a reasonable remediation window before any public disclosure.</li>
+                    </ul>
+                </div>
+
+                <p>
+                    <strong>Triage SLA:</strong> We guarantee an initial response and preliminary assessment within <strong>24 business hours</strong> of receiving your disclosure report.
+                </p>
+            </section>
+
+            <section class="policy-section">
+                <h2><i class='bx bx-envelope'></i> 5. Security &amp; Privacy Contact</h2>
+                <p>
+                    For enterprise security audits, Vendor Risk Assessment Questionnaires (VRAQ), or cryptographic verification, contact our Principal Engineer directly:
+                </p>
+                <div class="policy-highlight-box">
+                    <strong>Chief Security Officer // Ravana Tech</strong><br>
+                    Email: <a href="mailto:hello.ravanatech@gmail.com" style="color:var(--rt-cyan-bright,#18C8FF);">hello.ravanatech@gmail.com</a><br>
+                    Direct Technical Line: +94 78 847 0610<br>
+                    RFC 9116 Canonical Endpoint: <a href="/.well-known/security.txt" style="color:var(--rt-cyan-bright,#18C8FF);">ravanatec.web.app/.well-known/security.txt</a>
+                </div>
+            </section>
+        </main>
+
+        <footer class="policy-footer">
+            &copy; 2026 RAVANA TECH // SHANTHAPRIYA SILVA. ALL RIGHTS RESERVED.<br>
+            SILICON VALLEY GRADE ENTERPRISE APPLICATION SHIELD
+        </footer>
+    </div>
+</body>
+</html>

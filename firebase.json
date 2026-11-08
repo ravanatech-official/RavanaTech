@@ -82,6 +82,10 @@
         "destination": "/services.html"
       },
       {
+        "source": "/security",
+        "destination": "/security.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

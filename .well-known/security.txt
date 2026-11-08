@@ -1,0 +1,7 @@
+Contact: mailto:hello.ravanatech@gmail.com
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en, si
+Canonical: https://ravanatec.web.app/.well-known/security.txt
+Policy: https://ravanatec.web.app/security.html
+Hiring: https://ravanatec.web.app/
+Acknowledgments: https://ravanatec.web.app/security.html#responsible-disclosure

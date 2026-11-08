@@ -321,6 +321,41 @@ app.post('/api/document-sim', (req, res) => {
   });
 });
 
+// RFC 9116 Standard Security Vulnerability Disclosure Endpoints
+app.get(['/.well-known/security.txt', '/security.txt'], (req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  const secPath = fs.existsSync(path.join(__dirname, '.well-known', 'security.txt'))
+    ? path.join(__dirname, '.well-known', 'security.txt')
+    : path.join(__dirname, 'security.txt');
+  res.sendFile(secPath);
+});
+
+// Dedicated Enterprise Trust & Compliance Document Routes
+app.get(['/security', '/security.html'], (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'security.html'));
+});
+
+app.get(['/privacy', '/privacy.html'], (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'privacy.html'));
+});
+
+app.get(['/terms', '/terms.html'], (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'terms.html'));
+});
+
+app.get(['/data-policy', '/data-policy.html'], (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.sendFile(path.join(__dirname, 'data-policy.html'));
+});
+
 async function main() {
   if (!isProd) {
     const vite = await createViteServer({

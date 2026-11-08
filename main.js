@@ -1372,7 +1372,7 @@ ${p.education.map(e => `- ${e}`).join('\n')}`;
 
         const docHtml = isCustomRaw ? `
             <div class="cv-paper">
-                <h1>${p.name}</h1>
+                <h4 class="cv-paper-name">${p.name}</h4>
                 <div class="cv-title-tag">${p.title}</div>
                 <div class="cv-contact-row">
                     <span><i class='bx bx-envelope'></i> ${p.email}</span>
@@ -1386,7 +1386,7 @@ ${p.education.map(e => `- ${e}`).join('\n')}`;
             </div>
         ` : `
             <div class="cv-paper">
-                <h1>${p.name}</h1>
+                <h4 class="cv-paper-name">${p.name}</h4>
                 <div class="cv-title-tag">${p.title}</div>
                 <div class="cv-contact-row">
                     <span><i class='bx bx-envelope'></i> ${p.email}</span>
@@ -1458,7 +1458,7 @@ ${p.education.map(e => `- ${e}`).join('\n')}`;
 
         const dataHtml = `
             <div class="cv-paper">
-                <h1>${p.name}</h1>
+                <h4 class="cv-paper-name">${p.name}</h4>
                 <div class="cv-title-tag">DATA ENTRY SPECIALIST &amp; AI WORKFLOW ARCHITECT</div>
                 <div class="cv-contact-row">
                     <span><i class='bx bx-envelope'></i> ${p.email}</span>

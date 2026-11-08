@@ -201,16 +201,18 @@
                             <!-- Search & View Mode Toolbar -->
                             <div class="gallery-toolbar-row">
                                 <div class="gallery-search-wrap">
-                                    <i class='bx bx-search gallery-search-icon'></i>
+                                    <label for="gallery-search-input" class="sr-only">Search 50 concepts by name, industry, or keyword</label>
+                                    <i class='bx bx-search gallery-search-icon' aria-hidden="true"></i>
                                     <input 
                                         type="text" 
                                         id="gallery-search-input" 
                                         class="gallery-search-input" 
                                         placeholder="SEARCH 50 CONCEPTS BY NAME, INDUSTRY, OR KEYWORD..." 
                                         autocomplete="off"
+                                        aria-label="Search 50 concepts by name, industry, or keyword"
                                     >
-                                    <button type="button" id="gallery-search-clear" class="gallery-search-clear" title="Clear search">
-                                        <i class='bx bx-x'></i>
+                                    <button type="button" id="gallery-search-clear" class="gallery-search-clear" title="Clear search" aria-label="Clear search input">
+                                        <i class='bx bx-x' aria-hidden="true"></i>
                                     </button>
                                 </div>
 

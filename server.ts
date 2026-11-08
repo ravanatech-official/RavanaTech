@@ -29,13 +29,14 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           "'unsafe-eval'",
+          "https://www.gstatic.com",
           "https://unpkg.com",
           "https://cdn.jsdelivr.net",
           "https://apis.google.com",
           "https://www.googletagmanager.com"
         ],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net", "data:"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
         connectSrc: [
           "'self'",

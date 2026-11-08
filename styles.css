@@ -3835,10 +3835,10 @@ main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div
 .services-full-page-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.6rem 1.15rem;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(0, 70, 150, 0.25));
-  border: 1.5px solid rgba(0, 240, 255, 0.4);
+  gap: 0.65rem;
+  padding: 0.42rem 1rem 0.42rem 0.5rem;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.14), rgba(0, 70, 150, 0.28));
+  border: 1.5px solid rgba(0, 240, 255, 0.45);
   border-radius: 9999px;
   color: #fff;
   text-decoration: none;
@@ -3850,45 +3850,43 @@ main:nth-of-type(1) > section#projects:nth-of-type(4) > div:nth-of-type(2) > div
 }
 
 .services-full-page-btn:hover {
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(0, 70, 150, 0.45));
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.28), rgba(0, 70, 150, 0.55));
   border-color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 0 35px rgba(0, 240, 255, 0.45), inset 0 0 20px rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), inset 0 0 18px rgba(0, 240, 255, 0.25);
   color: #fff;
 }
 
 .services-full-page-btn .launch-icon-ring {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: rgba(0, 240, 255, 0.15);
+  background: rgba(0, 240, 255, 0.18);
   border: 1px solid var(--rt-cyan-bright);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--rt-cyan-bright);
-  font-size: 1.05rem;
+  font-size: 1rem;
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
 }
 
 .services-full-page-btn .launch-text-wrap {
   display: flex;
-  flex-direction: column;
-  line-height: 1.2;
+  align-items: center;
+  line-height: 1;
 }
 
 .services-full-page-btn .launch-headline {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.18em;
   color: #fff;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
 }
 
 .services-full-page-btn .launch-subline {
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
-  color: var(--rt-cyan-bright);
+  display: none;
 }
 
 .services-full-page-btn .launch-arrow {

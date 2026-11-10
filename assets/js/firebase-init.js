@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { initializeFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -26,7 +26,8 @@ try {
 
 export let db = null;
 try {
-  db = getFirestore(app);
+  // This project uses a named database, rather than (default).
+  db = initializeFirestore(app, {}, "ai-studio-ravanatitan-8de985fc-ffd0-4255-bc23-fd8f4d49d7d3");
 } catch (err) {
   console.info("[Firestore] Firestore initialized or deferred:", err);
 }
